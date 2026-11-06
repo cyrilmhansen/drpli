@@ -42,8 +42,13 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-**Next: see `## Next action
-### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
+**Next: see `## Next action (E2E-52/P3-9 hop 6 REMAINDER — ARM LANDED+11/11 EXACT; finish O-1, registration, gate, close; read `LEARNINGS.md` § "hop 6" FIRST — DEC VAR-FIRST law + splice corrections; STOP at P3-9 closure)
+
+**DONE THIS HOP (session 01a1af4f; ALL rc DIRECT; ZERO oracle; goldens NEVER touched):** splice executed after fixing THREE script bugs (bcm blank-line offset; E2/E3 descending-order violation embedding the fold arm inside the saved clause; extra `end` + expr_kind-vs-expr guard vars); build rc=0; histogram codegen **68**/total **124** == baseline exactly; **E52VA..VK ALL 11 whole-file cmp rc=0 BYTE-EXACT** (table `build/e52p9-arm/parity.txt`); implementation committed `d918dde` (`ocaml/lib/codegen.ml` only); DEC fold pair adjudicated **VAR-FIRST** (literal-first FALSIFIED — pool-BELOW layout proven by 1249 goldens; see LEARNINGS § hop 6 verbatim falsifier); sweep `E46N E46K E51 E52 P086 R10` clean — every named negative fires its VERBATIM refusal; LOAN2 POSITIONAL rc=2 NO .REL first blocker VERBATIM `codegen: statement kind not in supported subset [TBD] (line 92)` = predicted `signal error` — NEVER fix; binary `c621ea8c6d05ac…`.
+
+**EXECUTE (in order):** (1) O-1: reldump `golden/first/LOAN2/LOAN2.REL` regions 113/120 into `build/e52p9-arm/loan2-decode.txt` (EqVV-LATER + Gt0-And-right; DEC pair VAR-FIRST consistent), record under C367 as implemented-from-original-golden-decode. (2) EXPR1/EXPR2 POSITIONAL VERBATIM first diagnostics (regression controls; do NOT chase GET/FLOAT gaps). (3) markers harness (copy `build/e52p8-reg/markers.py`, CRLF+bare ^Z) rc=0. (4) registration from **1249**: SPECIMENS +11 explicit paths in `tools/e2e_gate.py`, sanctioned `--update-inventory` path → **1260** (inspect every added line), census prescribed write/check path, refusals 186 unchanged, **C367 measured-bytes-only committed BEFORE `spec/COVERAGE.tsv` changes** (must include: value-level fold vs short-circuit; bit7 truth; PUSH PSW/POP B/ORA B; single final JP; node-local rules 1-3 + BY-NAME refusals; FIXBIN leaf materializers; **DEC VAR-FIRST law with the VG/VI reloc witnesses AND the literal-first falsification**; pool demand+relocs (O-2 held, no prescan edit); O-3 reloc addr+1; VK nested AND/OR + value-position BARE STA; unmeasured perimeter; byte-parity ≠ runtime), then `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`), coverage_check+prose rc=0, expected 141 rows (derive from file). (5) FULL compile-tier gate `python3 tools/e2e_gate.py` rc=0 → `build/gate-e52p9-reg.log`. (6) RESULTS §P3-9 (parity table VA–VK incl. per-probe first-mismatch history honestly: VG/VI failed first attempt, fixed by measured VAR-FIRST refit) + PLAN §5 row + §P3-9 CLOSED + durables/managed blocks via `/handoff`. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.**
+
+**STATE:** ledger ENDS **C366** (C367 owed); gate baseline 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; HEAD `d918dde` (arm committed atop `c3b6b93`); binary `c621ea8c6d05ac…` == committed source; goldens untouched; `handoff.config.json` NEVER staged (operator-modified, leave); no push; chain 01a1adf0 7/12 consumed (cap 12).
 
 ## Next action (E2E-52/P3-9 hop 5 — ARM `ocaml/lib/codegen.ml` ONLY, then verify/register/close and STOP; read `LEARNINGS.md` § "hop 5 PART 6" FIRST (the FINAL plan + obligations), then § "hop 5 PART 4" (corrections), § "hop 5 PART 3" (algorithm), § "hop 5 PART 2" (emission lists); execute; STOP at P3-9 closure)
 
@@ -2760,17 +2765,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 397
-checkpoint-id: g397-254dd65e3713
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 399
+checkpoint-id: g399-b477c7080014
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T02:06:43.260Z
+checkpointed: 2026-11-06T05:50:21.696Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5f86fa2d13d40c81a4ce30cc28cda4abcbb0d663555d9d04c9726763a3875625
+source-progress: 87c77245e47a2a03796e104046bf1724c8671360b12240462f404372fb474cde
 source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
-source-learnings: d3aa7bcc62170234176a9b097a54542a92081cfd9907dad6b73731314f78b0ce
+source-learnings: c6c529c43d24f6e2018a9efbd42c1a70c2c7a3aafcd0514bd742578cc2e3a6d4
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (2)–(5): arm codegen.ml ONLY; build rc=0 + histogram vs 68 + cmp VA–VK whole-file vs `golden/e52p9/` + sweep FAILS 0 + markers (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted `signal error` 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; goldens NEVER re-derived; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 6/12, cap 12.
 
@@ -3371,9 +3376,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ae80-cd83-7091-837d-1deb7ed3f682
-readiness-at: 2026-11-06T02:06:43.279Z
-readiness-checkpoint: g397-254dd65e3713
 <!-- guard:end checkpoint -->
 
 ## Blockers
