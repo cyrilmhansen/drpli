@@ -2887,17 +2887,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 444
-checkpoint-id: g444-68c8c768b81a
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-06T17:12:54.691Z
+checkpoint-generation: 446
+checkpoint-id: g446-bf45ac99f81e
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-06T17:32:29.164Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1eccc196ec5edca28fa8828d8c6827c293aacc926185c81bd9a2b58172060ae7
+source-progress: c77efe8300855059e266ee505ed904b31add377ec9c6771e61c487aebafc045e
 source-handoff: 3ef60683ef02ce5bf864975ce02e0f9df4a4c4ef7cb2e3749fdd5b2887ee7d0a
-source-learnings: f151ab81839d400fc9d161ff1c38e75e2cd2485da0e64009c71cedb8b5993521
+source-learnings: 3a7faf7737fea0ceaf80eac90979ea4016f1cc47536a7454dec42aa696304497
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (l),(m) EXACTLY** — FULL gate rc=0 DIRECT → `build/gate-e52p12-reg.log` (expect 1288/0, 188/188, 9/9, 143 rows, census 15/0/26/0, prose 5); RESULTS §P3-12 (every §4 miss VERBATIM: YB/YE QDDSR-predicted/QDDSL-measured, YG down-not-up, YI byte-68 my-gap closed by sc=0; NG20 retirement; LOAN2 111→117 NEVER fix; byte-tier-only) + PLAN §5 row + §P3-12 **CLOSED**; then BEGIN P3-13 on the ACTUAL Line-117 blocker (`call display(PL * INF, …)` DEC-expression actuals vs FIXED DECIMAL formals) evidence-first ZERO-oracle: audit DECPOLY/R2037/R2038/R725 + N33 family, PLAN §P3-13 + probes E52ZA.. pre-registered and committed BEFORE any oracle call/`ocaml/` byte; marathon budget through P3-19. All inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm` operands to follow-ups, byte-tier only).
 
@@ -3528,9 +3528,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b1c5-5172-71fa-8218-8216328f2f1c
-readiness-at: 2026-11-06T17:12:54.712Z
-readiness-checkpoint: g444-68c8c768b81a
 <!-- guard:end checkpoint -->
 
 ## Blockers

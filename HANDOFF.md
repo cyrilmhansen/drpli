@@ -1632,25 +1632,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 444
-checkpoint-id: g444-68c8c768b81a
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-2826, session 01a1b1c5-5172-71fa-8218-8216328f2f1c)
-checkpointed: 2026-11-06T17:12:54.691Z
+checkpoint-generation: 446
+checkpoint-id: g446-bf45ac99f81e
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6221, session 01a1b1d9-5cc4-71fa-8218-821a909ceefd)
+checkpointed: 2026-11-06T17:32:29.164Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1eccc196ec5edca28fa8828d8c6827c293aacc926185c81bd9a2b58172060ae7
+source-progress: c77efe8300855059e266ee505ed904b31add377ec9c6771e61c487aebafc045e
 source-handoff: 3ef60683ef02ce5bf864975ce02e0f9df4a4c4ef7cb2e3749fdd5b2887ee7d0a
-source-learnings: f151ab81839d400fc9d161ff1c38e75e2cd2485da0e64009c71cedb8b5993521
+source-learnings: 3a7faf7737fea0ceaf80eac90979ea4016f1cc47536a7454dec42aa696304497
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b1c5-5172-71fa-8218-8216328f2f1c
-readiness-at: 2026-11-06T17:12:54.712Z
-readiness-checkpoint: g444-68c8c768b81a
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -2287,5 +2284,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-12 hop 4: (g)(i)(j)(k) LANDED by session 01a1b1c5 (chain renewal 3/12). Commits: registration 5bf5c88 (SPECIMENS +9 E52YA..YI + N35 retired honestly to POSITIVE NG20 via probes/NG20.PLI sha acf8e951, golden golden/negpanel1/NG20/NG20.REL KEPT NEVER re-derived, cmp rc=0; --update-inventory 1278->1288/188 exact; census OWN path rc=0 counts 15/0/26/0 UNCHANGED, LOAN2 msg MOVED VERBATIM to Line-117 blocker, NOTHING fixed); C370 172a642 measured-bytes-only BEFORE COVERAGE (ledger ENDS C370, 193 headers; law: cross-scale direct DEC store emits MVI A,|Δs|/?QDDSL up or ?QDDSR down BETWEEN ?DLDOP and LXI H,dst; DSTOP A=TARGET precision; H-2/H-3/H-4/H-6 falsifiers VERBATIM; BY-NAME perimeter suffix/pointer-formal/decimal(bin-expr)/DEC-formal-actuals; byte-tier NOT-say); STOR.DEC_SCALE_ASSIGN row bf135a9 + SAME-change COVERAGE-IDS line (coverage_check rc=0 143 rows 0/0 SUPPORTED 93, prose rc=0, stats companion d283623; LESSON: manual_ref must match pNN[:§X.Y][=phrase] or start NONE:); divergences 9/9 standalone via NEW build/p3-12/divcheck.py (LESSON: gate --only-divergent is the WRITE/re-measure arm, blocked by stale-census preflight — not the check arm). Durables 29228dc. SUCCESSOR: execute PROGRESS.md ## Next action steps (l),(m) EXACTLY: FULL gate rc=0 DIRECT -> build/gate-e52p12-reg.log expect 1288/0, 188/188, 9/9, 143 rows, census 15/0/26/0, prose 5; RESULTS §P3-12 (parity table; every §4 miss VERBATIM: YB/YE predicted QDDSR measured QDDSL, YG down-not-up, YI byte-68 my-gap closed by sc=0 rule; NG20 retirement; LOAN2 111->117 NEVER fix; byte-tier-only) + PLAN §5 row + §P3-12 CLOSED; then BEGIN P3-13 on the ACTUAL Line-117 blocker (DEC-expression actuals vs FIXED DECIMAL formals: call display(PL * INF, …)) — audit DECPOLY/R2037/R2038/R725 + N33 family with ZERO oracle FIRST, write PLAN §P3-13 + probes E52ZA.. pre-registered and committed BEFORE any oracle call/ocaml byte; marathon budget through P3-19. Constraints: goldens VERBATIM never re-derived; pli80c POSITIONAL FRESH paths; config handoff.config.json NEVER staged; git diff --cached --stat before every commit; no push; rc DIRECT never pipeline-tail; never glue rm operands to follow-ups; byte-tier only; chain 01a1b1b4 renewal 4/12 cap 12; armed binary 6a4c6c1154a0acd8403b973acc8a66a297785cdd1e6f23cc119af2255dc0d1d0 == tree.
+P3-12 CLOSED at c6f587a (gate rc=0 build/gate-e52p12-reg.log: 1288/0, 188/188, 9/9, 143 rows 0/0 SUPPORTED 93, census 15/0/26/0, prose 5 — all pre-registered numbers hit; RESULTS §P3-12 + PLAN §5 row + CLOSED committed; honest background-lost-rc note kept). Durables 98ddca9 + guard block effbb66. SUCCESSOR: execute PROGRESS.md ## Next action steps (1)-(6) EXACTLY = P3-13 Phase A with ZERO oracle FIRST: (1) decode authentic golden/first/LOAN2/LOAN2.REL display-call site (lines 117-118: FIVE dec(10,2)*dec(4,3) product actuals vs FIVE fixed dec(10,2) formals @142-151) + formal-read region into FRESH build/p3-13/ via ondump2/reldumps chain; (2) reldump golden/negpanel1/NG18/NG18.REL (panel-verified DR-accepted literal-1-vs-DEC-formal witness; N33 retirement route per NG20 precedent — golden KEPT NEVER re-derived); (3) re-verify C093 DECPOLY *A(005A)=5.67 bullet vs DECPOLY.REL raw records — source has NO 5.67 literal, traceable correction only, NEVER silent; (4) read C094 fully; (5) write PLAN §P3-13 (template §P3-12) + probes E52ZA.. (CRLF+bare-^Z+<=71 cols+ONE dcl per line) with §4 byte predictions NEVER fit, commit by EXPLICIT paths BEFORE any oracle call or ocaml/ byte; (6) campaign e52p13, goldens VERBATIM first, arm keeping BY-NAME refusals + [TBD] histogram 68, validation suite (histogram 68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl N33, DEC regressions 64/0, divcheck.py 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE, gate, RESULTS §P3-13 + CLOSED; marathon budget through P3-19. Guard anatomy already mapped: codegen.ml ~4748-4810 Eident-only DEC-formal route; [C358] copy-in temp route EXISTS (lower_hl+SHLD+reloc Data); Enumber pool route BIN/float-only. Constraints VERBATIM: goldens never re-derived; pli80c POSITIONAL FRESH paths; git diff --cached --stat before every commit; handoff.config.json NEVER staged; no push; rc DIRECT never pipeline-tail; never glue rm operands; byte-tier only; chain 01a1b1b4 renewal 5/12 cap 12; armed binary 6a4c6c1154a0acd8403b973acc8a66a297785cdd1e6f23cc119af2255dc0d1d0 == tree.
 <!-- guard:end checkpoint -->
