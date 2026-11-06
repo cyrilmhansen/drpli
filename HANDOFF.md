@@ -1598,7 +1598,7 @@ checkpoint-generation: 384
 checkpoint-id: g384-da2d3e77a531
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 4, remaining ~4047, session 01a1ae1e-971c-7091-837d-1dd6b08f8448)
 checkpointed: 2026-11-06T00:11:37.579Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -1608,6 +1608,9 @@ source-learnings: f4488f7ed0f3c3b1c8396f436ef341b1fd3ad10840bae6948037e96bde1865
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1ae1e-971c-7091-837d-1dd6b08f8448
+readiness-at: 2026-11-06T00:12:07.078Z
+readiness-checkpoint: g384-da2d3e77a531
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
