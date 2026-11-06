@@ -2859,17 +2859,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 430
-checkpoint-id: g430-a4e65d553f18
+checkpoint-generation: 433
+checkpoint-id: g433-72851af70e26
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T14:40:19.083Z
+checkpointed: 2026-11-06T14:59:53.068Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2bf5c18e6b616e6e165a67879f12fbeae42b94268421da7dab94b522ba37eee6
-source-handoff: b640bbfd75ead4b7b59097257e7e148cf5210ea5a9449e0f9f9c0881b7ebbe8d
-source-learnings: 4620189feb6020fdde4d7c6abecd5319d16e909a0c157513e2f198a23da293d2
+source-progress: f0274b5aea28ca18b43038c75f84d891ffee60daea98aac9ee5ae5baeed9f664
+source-handoff: dcef6d55c46e7d3435c5f01c2a1d8f4407c65a8801c0b98f287f9b96a21afc93
+source-learnings: 7df45f512770c248bd63c6bbe80bfe85f47f99629aceb8855dcadb5518f6031b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop 3 REMAINDER EXACTLY: spot-check 2-3 cited bytes vs `build/e52p10/E52W*-reldump.txt` + `e52p10-signals-disasm.txt`, append drafted **C368 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch**, commit; `COND.SIGNAL` SUPPORTED/**EXACT:9** row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; **15 cols from FIRST NON-COMMENT row**; `delimiter='\t'`); `coverage_check` rc=0 expect **142 rows 0/0 SUPPORTED 92** + prose rc=0; FULL gate rc=0 DIRECT redirect `build/gate-e52p10-reg.log` (expect **1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5**); RESULTS §P3-10 (WE 0..255-falsifier + WL verdict + WF/WG no-generalise + LOAN2 92->99 advances VERBATIM, byte-tier-only) + PLAN §5 row + §P3-10 **CLOSED** + durables. **STOP at P3-10 — NEVER the line-99 blocker, no P3-11, no runtime claims.** Ledger ENDS **C367** (C368 owed); inventory 1269/187; coverage 141/91 -> 142/92 owed; binary `a4c0e235ed4bb81fe284…` == tree; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; no push; chain cap 12 (2/12 used, renewal scheduled by guard).
 
@@ -3484,9 +3484,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b13c-a965-71e9-bce7-918d290296b0
-readiness-at: 2026-11-06T14:40:44.883Z
-readiness-checkpoint: g430-a4e65d553f18
 <!-- guard:end checkpoint -->
 
 ## Blockers
