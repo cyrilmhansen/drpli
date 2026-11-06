@@ -720,3 +720,171 @@ NOT move); `file_prose_check.py` rc=0. Evidence `build/e52p8-reg/coverage-repair
 **PROPOSED (never authorization, never done here):** delete or neuter `tools/coverage_gen.py` (or gate it
 behind an explicit `--i-know-this-is-the-1970-snapshot` flag plus a row-count-shrink abort), and add a
 gate assertion that `COVERAGE.tsv` row count never decreases without a labelled correction commit.
+
+## P3-9 — OR (`|`) conditions: the value-level truth-byte fold, the NODE-LOCAL class-driven order, the VAR-FIRST DEC fold pair and the standalone `< 0` leaf (campaign e52p9) — CLOSED (2026-11-06, hop 7)
+
+Pre-registered `4495604` (PLAN §P3-9 H1–H10 + probes E52VA..VK, committed BEFORE any `ocaml/`
+byte; the class decoded FIRST from the pre-existing ANNUITY:46 and LOAN2:91/113/120 original
+goldens with ZERO oracle calls in hops 1–2); oracle campaign **11 ok / 11, ZERO dr-refuses**;
+goldens committed VERBATIM `9bb3f99`; arm `d918dde` (`ocaml/lib/codegen.ml` ONLY); claim **C367**
+`eaa5ef3` written from MEASURED BYTES ONLY and committed BEFORE any `spec/COVERAGE.tsv` touch;
+row `COND.OR` + explicit `spec/COVERAGE-IDS.txt` line `7da60b5` (NEVER `coverage_gen.py`). All rc
+captured DIRECTLY (never through a trailing pipeline); goldens NEVER re-derived; `pli80c` invoked
+POSITIONALLY into FRESH paths; the operator's `handoff.config.json` NEVER staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52VA E52VB E52VC E52VD E52VE E52VF E52VG
+E52VH E52VI E52VJ E52VK --tag e52p9 --switches '$L$D'` rc=0 → **11 ok / 11**; every `.PRN` read;
+**ZERO dr-refuses**, so NO refusal row joined the NEGATIVES panel and the negative count stayed
+186. Goldens `golden/e52p9/` committed VERBATIM. **Probe-tail DEVIATION, recorded honestly and
+kept in PLAN §4:** the brief's `put edit(x)(a);` tail has NO DR-accepted golden anywhere (an `A`
+edit on an arithmetic item is UNMEASURED), and a refusal on it would have killed all eleven
+goldens; the probes carry NO put — the continuation is `x = 2;` (E52UA-proven). Byte predictions
+covered the CONDITION regions, which are the science; whole-file cmp at arm time verified the rest.
+
+## 2. Measured table (whole-file cmp rc=0 on the committed-tree rebuild `11c6283e75b60fe3…`, re-verified FIRST-HAND into fresh `build/e52p9-hop7/out/`, `build/e52p9-arm/parity.txt`)
+
+| probe | condition | object | CODE/DATA | measured fact |
+|---|---|---|---|---|
+| E52VA | `if dl < 0 then x = 1;` | 128 B | `001C` / `0004` | standalone TEST leaf = `3A <r data dl+1> / B7 ORA A / F2 <slot>` — the relocation lands **EXACTLY ONE PAST the declared cell**; the `B7` normalization appears ONLY in the standalone test, never inside a fold |
+| E52VB | `dl < 0 \| dl > 2` | 128 B | `0026` / `0004` | the LOAN2:91 region verbatim: 17-byte fold @0006 `2A r0 / 2B 2B 2B / 7C / 2F / F5 / 3A r1 / C1 / B0 / F2 <slot>` — ladder (RIGHT in source) produced FIRST, the `< 0` LDA computed **LAST after the push**, ONE terminal branch, no second conditional jump anywhere |
+| E52VC | `dl > 2 \| dl < 0` (source-swapped) | 128 B | `0026` / `0004` | **BYTE-IDENTICAL to E52VB** — emission order is a property of the operand CLASSES, not of the spelling order |
+| E52VD | `a < 0 \| b > 2` (separate vars) | 128 B | `0026` / `0006` | same 17-byte fold with INDEPENDENT relocs: ladder reads `r(data b)`, the `< 0` operand reads `r(data a + 1)` — one past the declared cell again |
+| E52VE | `dl = 0 \| dl > 2` | 256 B | `002C` / `0004` | head is the LADDER `2A` (NOT the zero-test `21`): `2A r0 / 2B×3 / 7C 2F / 21 r0 / F5 / 7E 23 B6 D6 01 9F / C1 B0 / F2` — rule-2 same-variable swap; the `21` head hoists ABOVE the `F5`, the zero-test tail materializes after the push |
+| E52VF | `dl = 0 \| dl > 2 \| m > 1 \| dl < 0` | 256 B | `003C` / `0006` | FOUR operands = THREE pairwise `C1/B0` folds and **ONE** `F2` (slot→0x33): node1 same-var swap (ladder first), node2 `m > 1` `2A r2 / 2B 2B / F5 / 7C 2F / C1 B0` did NOT move ahead of node1's zero-test — the class rules are **NODE-LOCAL**, not a global priority; node3 `F5 / 3A r1 / C1 B0 / F2` |
+| E52VG | `pv = 0 \| pmt = 0` (dec(9,2)/dec(7,2)) | 256 B | `0047` / `0014` | DEC fold pair **VAR-FIRST**: node1 relocs `21 → data 0x9` (pv) THEN `21 → data 0x0` (pooled zero); node2 `21 r(0xE)` (pmt) hoisted above the `F5` THEN `21 r(0x5)` (zero7). DATA `0014` read from the `LINK-DEF-DATA-SIZE` RECORD |
+| E52VH | `dl < 0 \| dl > 2` with `ELSE` | 256 B | `002F` / `0004` | fold bytes of VB verbatim through `C1 B0`; `F2` slot patches to the ELSE body (code 0x20) and the `C3` over-else skip at 001D patches to the statement AFTER the else (0x26) — **two INDEPENDENT patch targets**, mirrors [C312] |
+| E52VI | `p = 0 \| dl > 1` then `q = 0 \| p = 0` (dec(10,2)/dec(9,2)) | 384 B | `0076` / `001A` | stmt1 keeps SOURCE order (rule 3); both DEC pairs VAR-FIRST (`0xB`(p) before `0x0`(zero10); `0x11`(q) before `0x6`(zero9)); stmt2's SECOND operand reuses the SAME dec(10,2) zero cell (`0xB`/`0x0` again) — [C155] content-deduplicated pooling, ONE cell per (precision,scale), no duplicate |
+| E52VJ | `dl > 0 \| dl < 0` | 128 B | `0025` / `0004` | `> 0` = the memory-compare materialiser `21 r0 / AF BE 23 9E` verbatim as in AND ([C128]/[C105]), `21` hoisted above the `F5`, `3A` LAST — head `21` vs RB's `3A` discriminates, and it is `21` |
+| E52VK | three boundaries (precedence, group, value position) | 256 B | `0080` / `0009` | stmt1 `dl < 0 \| m = fm & dl > 2` opens with the FULL `m = fm` EqVV materialiser before any push (`2A r2 / E5 / 2A r4 / D1 / CD ?IS22N / 7C B5 / D6 01 / 9F`); stmt2 `(or) & m = fm` emits the OR fold FIRST, then the pre-existing `C1 A0` AND sandwich [C105], then ONE `F2`; stmt3 `b = (dl < 0 \| dl > 2);` (BIT(1) VALUE position) ends in a **BARE `32 r(bitcell)`** with the fold's `C1 B0` immediately before it and NO `D6 01 / 9F` normalization in the store path |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §P3-9 §3/§4; every MISS kept verbatim)
+
+- **H1 (the fold) CONFIRMED.** Value-level, single-branched: per-operand truth bytes (bit 7 IS
+  truth), `F5 PUSH PSW` between operands, `C1 POP B / B0 ORA B`, ONE terminal `F2 JP` per OR node;
+  chains keep ONE branch (VF's four operands). No falsifier fired: no branch-per-operand, no
+  condition-cell short-circuit, no second `F2`.
+- **H2 (fold ORDER) adjudicated — BOTH pre-registered candidates FALSIFIED; the surviving law is
+  CLASS-DRIVEN AND NODE-LOCAL (rules 1–3 of [C367]).** **RB (right-first fold) FALSIFIED by
+  E52VC**: right-first predicts a `3A`-headed node for `dl > 2 | dl < 0`; the golden heads with
+  `2A` and is byte-identical to E52VB. **SN/LB (strict source order, SN's `<0`-last proviso
+  included) FALSIFIED by E52VE and by E52VF node1**: both begin with the LADDER head `2A`, never
+  with the zero-test head `21`. Rule 1 (`< 0` computed LAST in its node) is confirmed by VB/VC/VD/
+  VJ/VF-node3/LOAN2:91; rule 2 (same-variable FIXBIN `= 0` immediately followed by a `> k` ladder
+  → ladder pushed first) by VE and VF node1; rule 3 (everything else source order) by VI stmt1,
+  VG and LOAN2:113. VF additionally proves the rules are **NODE-LOCAL**: `m > 1` did not jump
+  ahead of node1's zero-test.
+- **H3 (standalone `< 0`, VA) CONFIRMED — PRIMARY prediction HIT**: `3A <r data dl_hi> / B7 / F2
+  <slot>`; the bias-0-ladder competitor, any refusal (dr-refuses), `E4 JM` polarity, a `D6 01/9F`
+  materialiser and a `DB nn` mystery all stayed unfired. The reloc lands EXACTLY one past the
+  declared cell (obligation O-3, H4's proviso).
+- **H4 (separate cells, VD) CONFIRMED**: predicted fold shape verbatim, independent relocs,
+  `< 0` operand reads `r(data a + 1)`, DATA `0006` as predicted.
+- **H5 (FIXBIN `= 0` as an OR operand, VE) SPLIT**: the [C310] zero-test materialiser bytes and the
+  ladder hoist above the `F5` HIT verbatim; the SN *order* clause (head `21`) was FALSIFIED —
+  measured head is the ladder `2A` (rule 2).
+- **H6 (4-operand chain, VF) CONFIRMED on the fold law** (3×(`F5 … C1 B0`), ONE `F2`) with the §3
+  order correction; the per-operand SN emission sequence MISSED.
+- **H7 (DEC push order) — PAR FALSIFIED, LITERAL-FIRST FALSIFIED, VAR-FIRST IS THE MEASURED LAW.**
+  PAR (width parity) died at hop 3 on VI (odd 9 in stmt2 measured VAR-first) and again on VG. The
+  hop-4/hop-5 LITERAL-FIRST reading died at the arm: VG relocs `0x9`(pv)→`0x0`(zero), VI
+  `0xB`(p)→`0x0`, `0x11`(q)→`0x6`, and LOAN2:113 measures `21 r(P@02CA)` before `21 r(zero@01E6)`
+  — all VAR-FIRST. The reading had ASSUMED the decimal pool sits ABOVE the automatics; this tree's
+  layout (pool BELOW, proven across the 1249 registered goldens) makes the two readings produce
+  DIFFERENT relocation numbers, and the goldens say var-first. The hop-3/4 "ADD survives" sentence
+  rested on the same misread and is SUPERSEDED: `ANNUITY`:46 pushes its zero literal first because
+  in THAT object the literal cell does sit above the variables; DR's internal layout choice is not
+  observable from zero-content cells, so [C367] states the pair order PER OBJECT AS MEASURED and
+  does not re-litigate the [C155]-family allocator question. **[C155] dedup CONFIRMED**: the
+  dec(10,2) zero cell appears ONCE in VI and is reused by both statements; the falsifier (two
+  identical cells) did not fire.
+- **H8 (OR with ELSE, VH) CONFIRMED in law**: two INDEPENDENT patch targets (`F2`→else,
+  `C3`→after-else), no merged slot; the predicted absolute addresses (001F/0024) shifted to
+  0x20/0x26 with the §4 size miss below — geometry law HIT, byte totals MISSED.
+- **H9 (`dl > 0` inside an OR, VJ) CONFIRMED**: `21 r0 / AF BE 23 9E`, `21` hoisted above the `F5`,
+  `3A` last; RB's `3A`-first competitor did not fire.
+- **H10 (grouping/value position, VK)**: all THREE shapes DR-ACCEPTED (campaign 11/11), recorded
+  VERBATIM without byte prediction as pre-registered; ALL THREE were then armed byte-exact —
+  precedence sandwich, OR-fold-first inside AND, and the value-position fold ending in a BARE `32`.
+
+## 4. Falsifiers adjudicated VERBATIM (pre-registration vs measurement)
+
+1. **PLAN §4 VG byte order predicted LITERAL-FIRST** (`21 <r zero9>` before `21 <r pv>`) —
+   measured **VAR-FIRST** (relocs `0x9` then `0x0`); VI likewise.
+2. **RB (right-operand-first fold)** — falsified by the byte-IDENTICAL `E52VB == E52VC` pair.
+3. **SN/LB (strict source order)** — falsified by the VE and VF-node1 LADDER heads `2A`.
+4. **PAR (width-parity push order)** — falsified by VI at hop 3; the VAR-FIRST measurement keeps it
+   dead.
+5. **EVERY PLAN §4 whole-CODE-SIZE prediction was SHORT** — the predictions omitted the `x = 2;`
+   continuation statement and its slot geometry: VA `0014`→`001C`, VB/VC/VD `001F`→`0026`, VE
+   `0024`→`002C`, VF `0034`→`003C`, VG `0038`→`0047`, VH `002C`→`002F`, VJ `001E`→`0025` (VI and
+   VK carried no total prediction; their H7/H10 SHAPE predictions HIT). The fold-REGION byte
+   predictions with an agreed shape HIT (VB = LOAN2:91 verbatim; VH two independent targets; VJ
+   head `21`; VF 3 folds + ONE `F2`).
+6. **The hop-4/hop-5 LITERAL-FIRST DEC law** — falsified in the arm session: the first attempt
+   armed literal-first and the **VG and VI whole-file cmps FAILED against the goldens**; the
+   re-derivation from the golden reldumps established VAR-FIRST (pool BELOW the automatics on this
+   tree), the refit restored **11/11 cmp rc=0** and `build/e52p9-arm/parity.txt` records
+   "DEC VAR-FIRST refit (literal-first FALSIFIED)" in its header. The residual ADD-vs-literal-first
+   "ambiguity" of the arm plan is DISSOLVED — it was a layout MISREAD, not an evidence gap. The
+   AND route (`dec_eq_bool_parts`) was ALWAYS var-first; the fold now matches it, and no And byte
+   was changed.
+7. **hop-4's "VI DATA 001B"** — falsified: the `LINK-DEF-DATA-SIZE` RECORD says `001A`; the
+   compiler console's `data=` line is a COSMETIC display that differs from the record and is never
+   cited as authority (it is what produced the 001B misreading).
+
+## 5. Arm, verification, registration
+
+Arm `d918dde` (`ocaml/lib/codegen.ml` ONLY, applied through the anchor-asserting idempotent
+`build/e52p9-arm/arm-splice.py` after THREE script corrections — `bit_cond_mat` blank-line offset;
+E2/E3 descending-position splice order; an extra `end` plus `expr_kind`-vs-`expr` guard binding —
+and a `_sc` unused-subpattern fix restoring the histogram): `or_cls`/`or_classify`/`or_head`/
+`or_tail`/`collect_or` + `lower_or` in the let-rec group before `lower_bool`; the Or fold arm
+BESIDE the And fold; leaf arms before the catch-all; the TEST Or arm beside And; the standalone
+`< 0` TEST arm (`3A r(v+1) / B7 / F2`, plain Vint auto only, the pre-existing `[TBD]` refusal
+surviving for every other operand); the `bit_cond_mat` Or arm with `~allow_dec:false`; DEC fold
+pairs VAR-FIRST through `dec_pool`; **no And byte touched**. Warning histogram from a FULL rebuild
+in a fresh `--build-dir`: codegen `68` / total `124` == baseline. The hop-6 recorded hash
+`c621ea8c6d05ac…` proved NOT reproducible from the committed tree (build-dir artifact); the honest
+authority is the golden CMP — the committed source rebuilds deterministically to
+`11c6283e75b60fe3…` and 11/11 whole-file cmps rc=0 were re-verified from the committed tree into
+FRESH paths twice (hop-6 `build/e52p9-reg/parity-recheck.txt`, hop-7 `build/e52p9-hop7/`). Sweep
+FAILS: 0; every named negative fires its VERBATIM refusal; markers harness (CRLF + bare `^Z`)
+10/10 MARKER_FAILS 0 rc=0. **LOAN2 POSITIONAL rc=2, NO .REL**, first blocker VERBATIM
+`codegen: statement kind not in supported subset [TBD] (line 92)` = the `signal error` statement —
+**PREDICTED = MEASURED**, recorded, NEVER fixed (its DR lowering `21 00 00 / AF / CD ?SIGOP` is an
+original-golden byproduct, UNARMED, out of scope; a LATER subround). EXPR1 (`GET form … (line 21)`)
+and EXPR2 (`FLOAT expression shape builtin … (line 35)`) UNCHANGED; the census (`b080894`, OWN
+prescribed path) records the LOAN2 message MOVED with counts UNCHANGED 15/0/26/0. Registration:
+SPECIMENS +11 + `--update-inventory` → 1249→**1260 EXACTLY** (+11 rows, every added line inspected),
+refusals 186 unchanged (`bdbc28a`); **C367 `eaa5ef3` from MEASURED BYTES ONLY committed BEFORE ANY
+COVERAGE touch**; `COND.OR` row SUPPORTED / EXACT:11 + EXPLICIT `spec/COVERAGE-IDS.txt` line
+(`7da60b5`, NEVER `coverage_gen.py`; column count taken from the FIRST NON-COMMENT row (15) per the
+hop-7 law, diff verified ≈ one TSV line + one IDS line BY CONTENT); `coverage_check.py` rc=0 **141
+rows, 0/0, SUPPORTED 91** with stats refreshed by their OWN write path; FULL gate rc=0 DIRECT
+`build/gate-e52p9-reg.log` — **1260/0 byte-exact, 186/186 negatives, 9/9 divergence, coverage 141
+rows 0/0, census 15/0/26/0, prose 5**.
+
+## 6. What P3-9 does NOT say (byte tier only)
+
+- **Byte tier only**: no `golden/e52p9` object was linked or run under cpmsim; nothing here asserts
+  what DR *decides* at runtime for any condition — only that these bytes are what the compiler
+  emits and this compiler now emits them identically. No `spec/RUNTIME.txt` row comes from this
+  subround. Byte parity is not a semantics claim.
+- **O-1 panel status**: the LOAN2:91/113/120 and ANNUITY:46 fold citations are an
+  ORIGINAL-GOLDEN DECODE (`build/e52p9-arm/loan2-decode.txt`, re-derived with the fixed
+  `tools/reldump.py`/`dis80.py` bitstream walk), **PANEL-UNVERIFIED for LOAN2** — it does not
+  compile past the fold, so no cmp can adjudicate those citations. The BINDING panel authority is
+  the eleven `E52VA..VK` whole-file cmp rc=0.
+- **The BY-NAME perimeter is MY gap, never a DR rule**: a `< 0` leaf FIRST in a chain of three or
+  more operands, a rule-2 swap across DIFFERENT variables, a fold ladder with k ≥ 3, a DEC operand
+  in the BIT(1) value position, and every other operand class (based/external/array members, `<>`,
+  string or call operands, nested `|:` forms) take the existing `condition form not in E2E-3b
+  subset [TBD]` refusal; whether DR accepts each refused shape is UNMEASURED.
+- The AND route and its [C105] `C1 A0` sandwich are UNCHANGED; the O-2 pool-parity finding stands
+  (no `prescan_cond` edit was needed — the existing general descent already demands the fold's zero
+  cells); `signal error`/`?SIGOP` stays UNARMED and out of scope (PROPOSED P3-10, never
+  authorization).
+- Corpus users (LOAN2, ANNUITY) are users of the CONSTRUCT, not parity claims; GOLDENS ARE
+  EVIDENCE, NEVER RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
