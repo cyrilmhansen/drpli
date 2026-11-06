@@ -1618,25 +1618,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 420
-checkpoint-id: g420-41bae2fc55d9
-checkpoint-kind: auto
+checkpoint-generation: 421
+checkpoint-id: g421-7c3f9d473f74
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4290, session 01a1b09a-5d72-727f-87af-802215868877)
-checkpointed: 2026-11-06T11:47:28.323Z
+status: checkpoint (guard level 2, remaining ~7453, session 01a1b0af-69f5-727f-87af-8026d94ea471)
+checkpointed: 2026-11-06T12:07:41.415Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 27c39b0d3b7141ef99a284c350d9c7dcf22916c47191439ec881766b3fe671de
-source-handoff: bc8d6303903070cec6959c138cd166cca6bff7591b79855f1cb45b4402bf2dcc
-source-learnings: 957ce0b34a74c3214e505dbf86a816ced3cee63870f10d3dd6cd453bac17f133
+source-progress: aaee8691c95b73c5f291297c797aff3eb229d7b921d566500da6d7bcde0597ca
+source-handoff: 9113c9bf748992ffb40f8dd8839d11779744a1ed8eb5ce075cf354aeedc54596
+source-learnings: 8b75678cfac3190b6be66430220a2ecebc2ff7aef86c516255f03c8777af4e82
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b09a-5d72-727f-87af-802215868877
-readiness-at: 2026-11-06T11:47:28.357Z
-readiness-checkpoint: g420-41bae2fc55d9
+readiness-by: session:01a1b0af-69f5-727f-87af-8026d94ea471
+readiness-at: 2026-11-06T12:07:41.444Z
+readiness-checkpoint: g421-7c3f9d473f74
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (finalize: E2E-52/P3-10 CLOSED at hop 3 (session 01a1b0af, chain 01a1b069 renewal 3/12). All six hop-3 steps landed: AST proto 91060ea 12/12; registration 21d4db6 (1269/187, WL dr-refuse VERBATIM); census 0198fe5 (15/0/26/0, LOAN2 msg MOVED VERBATIM 92->99, NEVER fix); C368 7153716 measured-bytes-only BEFORE COVERAGE; COND.SIGNAL row + IDS line 65b005e -> coverage_check 142 rows 0/0 SUPPORTED 92; FULL gate rc=0 build/gate-e52p10-reg.log (1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5 — every pre-registered number HIT); RESULTS §P3-10 + PLAN §5 row + PLAN §P3-10 CLOSED fbca4fe; durables 291a3be. STOP REACHED: NOTHING authorized — no line-99 PUT FILE(OUTPUT) work, no P3-11, no oracle, no runtime claims; further work needs a NEW operator brief. Ledger ENDS C368; binary a4c0e235ed4bb81fe284==tree; goldens NEVER re-derived; config NEVER staged; no push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2257,5 +2257,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-10 hop 3 PART LANDED (session 01a1b09a, chain 01a1b069 renewal 2/12; durables cd8bd98 AFTER 91060ea AST proto 12/12 + 21d4db6 registration 1269 specimens/+9 and 187 refusals/+1 WL dr-refuse VERBATIM SYNTAX line-12 + 0198fe5 census 15/0/26/0 LOAN2 MOVED VERBATIM to line-99 NEVER fix; binary a4c0e235ed4bb81fe284==tree build rc=0; ZERO oracle this hop; goldens NEVER touched; config NEVER staged; no push; ALL rc DIRECT — LF-vs-CRLF line-shift lesson re-confirmed). SUCCESSOR: execute PROGRESS.md ## Next action hop 3 REMAINDER EXACTLY: (3) spot-check bytes vs build/e52p10/ dumps then append the FULLY DRAFTED C368 (LEARNINGS § 'P3-10 hop 3 PART') to spec/CLAIMS.md, measured-bytes-only BEFORE ANY COVERAGE touch, commit; (4) COND.SIGNAL row SUPPORTED/EXACT:9 + explicit COVERAGE-IDS line (NEVER coverage_gen.py; 15 cols from FIRST NON-COMMENT row; delimiter='\t'), coverage_check rc=0 expect 142 rows 0/0 SUPPORTED 92, prose rc=0; (5) FULL gate rc=0 DIRECT redirect build/gate-e52p10-reg.log (expect 1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5); (6) RESULTS §P3-10 + PLAN §5 row + §P3-10 CLOSED + durables. STOP at P3-10 — NEVER the line-99 PUT FILE(OUTPUT) blocker, no P3-11, no runtime claims, no push, goldens NEVER re-derived, ledger ENDS C367 until C368 lands.
+E2E-52/P3-10 CLOSED at hop 3 (session 01a1b0af, chain 01a1b069 renewal 3/12). All six hop-3 steps landed: AST proto 91060ea 12/12; registration 21d4db6 (1269/187, WL dr-refuse VERBATIM); census 0198fe5 (15/0/26/0, LOAN2 msg MOVED VERBATIM 92->99, NEVER fix); C368 7153716 measured-bytes-only BEFORE COVERAGE; COND.SIGNAL row + IDS line 65b005e -> coverage_check 142 rows 0/0 SUPPORTED 92; FULL gate rc=0 build/gate-e52p10-reg.log (1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5 — every pre-registered number HIT); RESULTS §P3-10 + PLAN §5 row + PLAN §P3-10 CLOSED fbca4fe; durables 291a3be. STOP REACHED: NOTHING authorized — no line-99 PUT FILE(OUTPUT) work, no P3-11, no oracle, no runtime claims; further work needs a NEW operator brief. Ledger ENDS C368; binary a4c0e235ed4bb81fe284==tree; goldens NEVER re-derived; config NEVER staged; no push.
 <!-- guard:end checkpoint -->
