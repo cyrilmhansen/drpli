@@ -2903,16 +2903,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 466
-checkpoint-id: g466-a00ff407bf58
-checkpoint-kind: manual
+checkpoint-generation: 467
+checkpoint-id: g467-16a72670f029
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-06T19:58:42.754Z
+guard-level: 4
+checkpointed: 2026-11-06T19:59:17.077Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 62e4345e26e060ea150c33dc5ea9ac52eb641621f2410980c98d6c9467e5c869
-source-handoff: 4d89bee78e74852125acffa53567a22fa7626640d20238baac921e4ffe75da53
+source-handoff: 41794c8b1e673c5f02671007d4e8ad99c1e826f3aaa11cd2cf547048d0dee0d9
 source-learnings: 49bd6f141a5073b34a4d5ca7ff13074b0a6656c735503dd522b8fe724ce2f1c0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
@@ -3549,8 +3549,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1b25c-b8f6-71fa-8218-8237cc24c574
-readiness-at: 2026-11-06T19:58:42.786Z
-readiness-checkpoint: g466-a00ff407bf58
+readiness-at: 2026-11-06T19:59:39.008Z
+readiness-checkpoint: g467-16a72670f029
 <!-- guard:end checkpoint -->
 
 ## Blockers
