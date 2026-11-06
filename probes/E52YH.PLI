@@ -1,0 +1,11 @@
+E52YH: procedure options(main);
+   /* E2E-52/P3-12 probe H: CONTROL - computed quotient
+      into a lower-scale target (the armed L5 path). */
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(9,2);
+   dcl c fixed dec(9,2);
+   c = a / b;
+   put skip list(c);
+   
+end E52YH;
+

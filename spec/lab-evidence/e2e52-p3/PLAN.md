@@ -100,6 +100,7 @@ P4. Registration: SPECIMENS +1 (E46N10), REJECTS −1, `--update-inventory` 1196
 | P3-9 | `codegen: condition form not in E2E-3b subset [TBD]: (\| (< dl 0) (> dl 2))` = LOAN2:91 `if dl < 0 \| dl > 2 then` (plus the standalone `< 0` leaf `my-gap`) | decoded FIRST from the ANNUITY:46 + LOAN2:91/113/120 ORIGINAL goldens (hops 1–2, ZERO oracle); pre-reg `4495604` (PLAN §P3-9 H1–H10 + probes E52VA..VK BEFORE any `ocaml/` byte; probe-tail DEVIATION recorded — no DR golden exists for `put edit(x)(a)`); campaign e52p9 **11 ok/11, ZERO dr-refuses**; goldens VERBATIM `9bb3f99`; claim **C367** `eaa5ef3` | arm `d918dde` (codegen.ml ONLY): value-level Or fold — per-operand truth bytes (bit7 IS truth), `F5 PUSH PSW`, `C1 POP B / B0 ORA B`, ONE terminal `F2` per node (n operands = n−1 folds, still ONE branch); class-driven **NODE-LOCAL** order rules 1–3 (`< 0` computed LAST as the atomic bare `3A r(cell+1)`; same-var FIXBIN `= 0` then `> k` ladder → ladder pushed FIRST; else source order); standalone `< 0` TEST leaf `3A r(cell+1)/B7/F2` reloc ONE PAST the declared cell; DEC fold pair **VAR-FIRST** (hop-4/5 LITERAL-FIRST FALSIFIED by the VG/VI cmp + reloc re-derivation; PAR dead); `= 0`/`> 0`/ladder/EqVV materializers reused verbatim; BIT(1) value position = fold then BARE `32`; **no And byte touched**; every other operand class refuses BY NAME [TBD] | **11/11 whole-file cmp rc=0** (VA 128 B/`001C` · VB VC VD 128/`0026` · VE 256/`002C` · VF 256/`003C` · VG 256/`0047` · VH 256/`002F` · VI 384/`0076` · VJ 128/`0025` · VK 256/`0080`; DATA from DEF-DATA RECORDS VG `0014`, VI `001A` — hop-4 `001B` FALSIFIED, console `data=` COSMETIC; VK `0009`; VB==VC byte-identical), FIRST-HAND re-verified from the committed tree into fresh paths twice (hop 6, hop 7 `build/e52p9-hop7/out/`) on binary `11c6283e75b60fe3…`; histogram codegen 68/total 124 == baseline; sweep FAILS 0; markers 10/10 MARKER_FAILS 0; falsifiers KEPT VERBATIM (RB by VB==VC; SN/LB by VE/VF-node1 `2A` heads; PAR; PLAN §4 VG literal-first; EVERY §4 CODE-size SHORT miss — they omitted the `x = 2;` continuation); inventory 1249→**1260** (+11 exactly, refusals 186); census OWN path `b080894` (15/0/26/0, LOAN2 message MOVED VERBATIM); C367 `eaa5ef3` measured-bytes-only BEFORE COVERAGE `7da60b5` (COND.OR SUPPORTED/EXACT:11 + EXPLICIT COVERAGE-IDS line, NEVER coverage_gen.py) — coverage_check rc=0 **141 rows 0/0 SUPPORTED 91**; FULL gate rc=0 DIRECT **1260/0, 186/186, 9/9, 141 rows 0/0, census 15/0/26/0, prose 5** `build/gate-e52p9-reg.log` | **ADVANCED VERBATIM** past LOAN2:91 to `codegen: statement kind not in supported subset [TBD] (line 92)` — the `signal error` statement, PREDICTED = MEASURED, UNARMED, NEVER fixed; its DR lowering `21 00 00 / AF / CD ?SIGOP` recorded as an original-golden byproduct OUT OF SCOPE (PROPOSED P3-10, never authorization); EXPR1 stays at GET form 21, EXPR2 at FLOAT builtin 35; BYTE-TIER-ONLY — no runtime claim, O-1 LOAN2 citations panel-unverified |
 | P3-10 | `codegen: statement kind not in supported subset [TBD] (line 92)` = LOAN2:92 `signal error;` (THEN-body of the line-91 OR fold) | Phase-A audit with ZERO oracle pinned SIX SIGNAL sites in FOUR original objects (`build/e52p10/` raw records; PLAN §2 table: LOAN2 0359 `21 00 00`, EXPR1 0175+018D / EXPR2 023D+0255 `21 01 00` four identical, COPYLPT 02AA `21`+RELOC common/`3E 08`, ON-route control 0254); pre-reg `c6c4460` (PLAN §P3-10 H-A..H-X + probes E52WA..WL committed BEFORE any oracle call and any `ocaml/` byte); campaign `e52p10` rc=0 **11 ok/12**, **E52WL `dr-refuses`** PASS-2 line-12 `SYNTAX ?` NO .REL kept VERBATIM; goldens VERBATIM `d46b6c2`; claim **C368** `7153716` | frontend repair AFTER evidence `d84665c`: `Ssignal` gains `cargs : expr list` (parser stops discarding `_sargs`; bind 574/1518 + `pli80deps` traverse; `FROM` KEPT, NEVER lowered), `signal_error_prefix` its OWN encoder ([C202] doctrine; FILE form reuses `on_reg_prefix` because the bytes agree); arm admits MEASURED shapes ONLY — ERROR bare/ONE integer literal (full 16-bit, WE proved NO range check) as ABS `21 lo hi / AF / CD ?SIGOP` 7 B, `endpage(f)` `3E 08` / `endfile(f)` `3E 05` 11 B via SEL-COMMON+`RELOC common 0x0`; PURE statement, no `C3` slot/handler/pad/SP cell; `st.lowered+1`, `st.last_imm <- None`; FROM/multi-arg/other conditions/variable+expression args refuse BY NAME [TBD] | **9/9 accepted probes (WA-WE,WH-WK) whole-file cmp rc=0** on binary `a4c0e235ed4bb81fe284…` (POSITIONAL `pli80c` into FRESH paths; re-verified FIRST-HAND at registration AND again before C368); histogram codegen 68/total 124 == baseline; sweep FAILS 0; markers 10/10 MARKER_FAILS 0; regressions 17/17; **WE FALSIFIES the 0..255 range-check competitor** (`error(256)` = `21 00 01` verbatim); **WF** (`1+1`, stack `?DLDOP`×2/`?DADOP`/`?QDI15`, CODE `0029`/DATA `0003`) and **WG** (`error(n)` via `LHLD`, CODE `001C`) DR-ACCEPTED SINGLE witnesses — armed NEITHER per the pre-registered do-not-generalise clause, open `my-gap` [TBD], panel-unverified; **H-A/B0/B2/C255/E1/E2/F/G ALL CONFIRMED**, no PLAN §3 falsifier fired; `ssignal_ast.ml` proto test `91060ea` 12/12 PASS incl. refused shapes; SPECIMENS +9 → **1269 (+9 exactly)**, WL enters REJECTS → **187 (+1)** (`21d4db6`, every added line inspected, config never staged); census OWN path `0198fe5` 15/0/26/0 UNCHANGED; **C368 measured-bytes-only BEFORE ANY COVERAGE touch** (`7153716`); `COND.SIGNAL` SUPPORTED/**EXACT:9** + EXPLICIT `COVERAGE-IDS` line `65b005e` (NEVER `coverage_gen.py`; 15 cols from FIRST NON-COMMENT row; `delimiter='\t'`) → coverage_check rc=0 **142 rows 0/0 SUPPORTED 92**; FULL gate rc=0 DIRECT `build/gate-e52p10-reg.log` **1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5** | **ADVANCED VERBATIM** past line 92 to `codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99)` — ACTUAL text recorded, NOT predicted (PLAN §6 forbade a prediction), UNARMED, NEVER fixed; EXPR1 GET-21 / EXPR2 FLOAT-35 unchanged; LOAN2 NEVER claimed exact; BYTE-TIER-ONLY — no runtime `?SIGOP`/signal-delivery claim, PLILIB UNEXAMINED; **STOP: P3-11 NOT authorized** |
 | P3-11 | `codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99)` = LOAN2:99 `put file(output) page;` behind the LOAN2:54/56 PRINT opens | Phase-A + hop-1 raw-record audit (ZERO oracle): the SAME statement measured VERBATIM in `golden/first/LOAN2` 03AA-03BB (18 B, DOUBLE patch 03A8+03B1->03BC) and COPYLPT 0215-0226, P019B LIST 0063-007C, E46N1/E46N2 skip shapes; pre-reg PLAN §P3-11 H-A..H-K + probes E52XA..XK committed BEFORE any oracle call/`ocaml/` byte; campaign e52p11 **11 ok/11, ZERO dr-refuses**; goldens VERBATIM `060289e`; claim **C369** `a00fc13` measured-bytes-only BEFORE any COVERAGE touch | arm `3e0a3c1` = candidate A: ONE condition line in `lower_open` records a PRINT-spelling OPEN beside OUTPUT into the compiler-side eligibility list; open/PAGE/LIST/SKIP emitters UNCHANGED, ZERO statement bytes; PU1 marker substring survives VERBATIM; BY-NAME refusals kept (PAGE+items, counted PAGE, LINE, console PAGE, KEYED, INPUT named PUT, no-open named PUT, variable LIST items) | **9/9 whole-file cmp rc=0** (XA `0036`/`0002`, XB `003E`/`0006` w1 `0E52`, XC `003E` w1 `2E52`, XD `003C`/`0011` `?SLVTS`, XE `003D`/`0004`, XF `0063`/`0017`, XG `003E`/`0003`, XH `0038`/`0002`, XI `0043`/`0003`) on binary `25c57e27696421e929b8…`; **H-E DOUBLE back-patch CONFIRMED (single-patch FALSIFIED)**; **pagesize-required competitor FALSIFIED by XB**; **input-mirroring attach FALSIFIED by XK** (open `0x0690`, attach STILL `0x0652`, [C280] reconfirmed); MY §4 XA-slot `0030` prediction FALSIFIED — measured `002D` = 001B+18, kept VERBATIM; **XJ (no open) and XK (stream input) DR-ACCEPTED, refused BY NAME here = honest my-gap, goldens KEPT UNCLAIMED** (markers re-measured line 8/line 9 under gate CRLF+bare-^Z); histogram 68/124==baseline, sweep FAILS 0, markers 5/5, regressions 38/38; inventory 1269->**1278/189** (+9/+2 exactly) `69dd508`; census OWN path 15/0/26/0 UNCHANGED; coverage `b9645fa` EXTENDS PUT_PAGE EXACT:1->**7**, PUT_SKIP 18->**20**, PUT_LIST 10->**11** (NO new rows, COVERAGE-IDS diff EMPTY, coverage_gen.py NEVER run, LIST's now-false 'No object yet pairs...' clause kept inside a labelled CORRECTION) -> coverage_check rc=0 **142 rows 0/0 SUPPORTED 92**, prose rc=0; FULL gate rc=0 DIRECT `build/gate-e52p11-reg.log` **1278/0, 189/189, 9/9, 142 rows, census 15/0/26/0, prose 5** | **line-99 blocker CLOSED**; ACTUAL next blocker recorded VERBATIM and NEVER fixed: `codegen: DECIMAL assignment between differing scales is unproven [TBD] (only computed results are pinned as needing a QDDSL/QDDSR fix; a direct DEC operand store always had equal scales in the samples)` — NO `(line N)` clause; EXPR1 GET-21/EXPR2 FLOAT-35 unchanged; LOAN2 NEVER claimed exact; BYTE-TIER-ONLY; **STOP: P3-12 NOT authorized** |
+| P3-12 | `codegen: DECIMAL assignment between differing scales is unproven [TBD] (…)` — NO line clause, LOAN2:111 `INF = ci;` (MEASURED by temporary instrumentation, reverted) | Phase A this session, ZERO oracle: LOAN2.REL 04B7-04CB DOWN-shift witness + registered-negative NG20 UP-shift witness (retires N35 → positive by N26_DECDIV precedent) + LOAN1 equal-scale control re-measured cmp rc=0; NG21 FALSIFIED as evidence; pre-reg below | OWED (arm only after evidence: the measured `MVI A,d / ?QDDSL|?QDDSR` between source push and destination load in the `dpush` simple-operand arm) | OWED (panel E52YA..YI, 9 probes, campaign e52p12 OWED) | marathon brief authorizes continuation to the next actual blocker; LOAN2 never claimed exact |
 
 ## Subround P3-2 — PUT/GET FILE EDIT (LOAN2:115 blocker)
 
@@ -1236,3 +1237,116 @@ conditional — LOAN2 53-56 opens BOTH branches), NOT a proof of runtime file st
 emits the PUT regardless of execution order, and byte-parity is not a runtime claim
 (byte-tier-only, PROTOCOL). C369 must say "an OPEN this compiler lowered recorded the
 group", never "DR requires the file to be open at runtime".
+
+## Subround P3-12 — DIRECT FIXED-DECIMAL assignment across scales: the shift between the source push and the destination load (LOAN2:111 blocker) — PRE-REGISTERED 2026-11-07 (operator marathon brief; new chain; baseline HEAD `83e82b7`, ledger ENDS C369, inventory 1278/189, coverage 142/92) — **OPEN**
+
+### 1. Measured blocker (VERBATIM, re-measured this session at HEAD `83e82b7`, binary sha256 `25c57e27696421e929b8…`, rc=2 DIRECT, NO .REL)
+
+`codegen: DECIMAL assignment between differing scales is unproven [TBD] (only computed
+results are pinned as needing a QDDSL/QDDSR fix; a direct DEC operand store always had equal
+scales in the samples)` — the diagnostic carries NO `(line N)` clause. The responsible
+statement was MEASURED, not assumed: a TEMPORARY `Printf.sprintf … epos.Source.line` added
+to the `dpush` simple-operand refusal (then reverted; fingerprint re-held, tree clean)
+reported `(line 111)` = `INF = ci;` (`INF` fixed dec(4,3) @33, `ci` fixed dec(15,14) @34).
+Scratch reproducers show BOTH directions refuse today (`a(9,2) = b(4,3)` and `b = a`), while
+`ci = 1.00` (literal store role) compiles.
+
+### 2. EXISTING DR evidence (Phase A this session, ZERO oracle; goldens untouched)
+
+| Witness | Shape | DR bytes | Reading |
+|---|---|---|---|
+| authentic `golden/first/LOAN2/LOAN2.REL` 04B7–04CB (21 B) | `INF = ci` dec(15,14) → dec(4,3) | `21 09 03` LXI H,ci(0309) / `3E 0F` MVI A,15 / CD `?DLDOP`@04BC / **`3E 0B` MVI A,11 / CD `?QDDSR`@04C1** / `21 06 03` LXI H,INF(0306) / `3E 04` MVI A,4 / CD `?DSTOP`@04C9 | DOWN shift sits BETWEEN the source push and the destination load; amount = s_src − s_tgt = 11; A at `?DSTOP` = TARGET precision (4). Decoded first-hand via `build/e52p8/ondump2.py` buffers + `tools/dis80.py` opcode table + CHAIN-EXT names (anchor = opcode+1); `tools/dis80.py` alone prints gaps for RELOC-embedded operands (known limitation). |
+| registered negative `golden/negpanel1/NG20/NG20.REL` + `.PRN` (`NO ERROR(S)` both passes) | `c = a` dec(9,2) → dec(9,4) | 0016–0028 `LXI H,A / MVI A,09 / ?DLDOP / **MVI A,02 / ?QDDSL** / LXI H,C / MVI A,09 / ?DSTOP` | UP shift, SAME position, amount = s_tgt − s_src = 2, A at DSTOP = target precision 9. DR **accepts** the class ⇒ the gate's `N35_DEC_STORE_SCALE_DRIFT` is a `my-gap` row and retires to POSITIVE by the N26_DECDIV precedent ([C086]). |
+| `artefacts/LOAN1.PLI`:35 `PMT = P` dec(11,2) → dec(6,2), equal scale | control | whole-file `cmp` rc=0 re-measured this session vs `golden/e2e7/LOAN1/LOAN1.REL` (1536 B) | equal-scale cross-PRECISION direct store is already proven exact — NO new probe spent on it. |
+| authentic LOAN2.REL 04CC–04EB | `ci = ci / fi` dec(15,14)/dec(7,5) | DLDOP(15) / DLDOP(7) / `?DDVOP` / `MVI A,05 / ?QDDSL` / LXI H,ci / `MVI A,0F` / `?DSTOP` | dividend pre-shift omitted because 15 − p = 0 and the +5 is the CONSUMER fix — matches the ALREADY-ARMED [C086] L3/L5 path ⇒ line 112 is OUTSIDE this slice's perimeter. |
+| `golden/negpanel1/NG21` (dr-refuses `SYNTAX ?`, NO .REL) | prints `?QDDSR` in its pass-2 trace | — | **FALSIFIED as evidence**: a listing produced by an erroring pass-2 compile is not a witness; NEVER cite it. |
+
+Cell widths re-confirmed against the [C084] law `bytes = (p+2)/2`: ci(15)=9 at 0309, INF(4)=5
+at 0306. Frontend fact learned while authoring probes: `dcl a fixed dec(9,2), b …;` multi-name
+lists leave names UNDECLARED here — probe skeletons use one declaration per line (R-probe style).
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-1 (candidate law)**: a direct DEC operand store with `s_src ≠ s_tgt` emits
+  `MVI A,d / CALL ?QDDSL` (up, d = s_tgt − s_src) or `MVI A,d / CALL ?QDDSR` (down, d = s_src −
+  s_tgt) AFTER the source `?DLDOP` and BEFORE `LXI H,<dst>`; `MVI A,<p>` before `?DSTOP` stays
+  the TARGET precision; the shift amount NEVER involves a precision. Falsified by any probe where
+  the helper is absent, misplaced after the destination load, or whose `MVI` operand ≠ |Δscale|.
+- **H-2 (competitor, precision in the amount)**: d = |Δscale| + f(Δp) — falsified the moment any
+  probe with Δp ≠ 0 (YB 9→6, YC 6→15, YD 15→4) shows d = |Δscale| exactly.
+- **H-3 (competitor, a cap)**: DR refuses/emits something else for large d (only d=2 and d=11 are
+  witnessed) — tested by YD (11), YF (14), YG (13).
+- **H-4 (competitor, DSTOP rescales with no shift)**: falsified for the UP direction by NG20's
+  existing object; the DOWN direction with NO shift would falsify it generally — YB/YE.
+- **H-5** (YC): mirrored LOAN2 direction (up by 11) rides `?QDDSL`, proving the law is
+  direction-symmetric rather than a one-off.
+- **H-6** (YI): `decimal(i,p)` from a FIXED BIN source into a SCALED target — verdict UNKNOWN;
+  candidates: QI15D-then-shift, shift-free, or refusal. The current model derives the descriptor
+  from the TARGET context ([C084] "the precision argument is ignored"), which predicts NO shift;
+  whatever DR does, it is recorded, and the shape is armed ONLY if it is byte-exact through the
+  same single emission point.
+- **H-7** (YH control): the computed-quotient consumer fix path is UNCHANGED by this slice — it
+  must stay byte-exact (its own bytes are already pinned by [C086]).
+- **H-8**: no decimal-stack imbalance: every accepted store is exactly one push (`?DLDOP`) and one
+  pop (`?DSTOP`), the helper neither pushes nor pops.
+
+### 4. Probes E52YA..E52YI (9; `probes/E52Y*.PLI`, CRLF + bare `^Z`, ≤71 cols, one dcl per line,
+`put skip list(<dec var>)` tail — the R711 shape that is already byte-exact)
+
+| Probe | Store | Expected DR sequence at the store | My side TODAY |
+|---|---|---|---|
+| YA | a(9,2) = b(6,2) | `DLDOP(6,A=06) / LXI H,a / MVI A,09 / DSTOP` — NO helper | compiles (rc=0) |
+| YB | a(9,2) = b(9,0) | `DLDOP / MVI A,02 / ?QDDSR / LXI H,a / MVI A,09 / DSTOP` | rc=2 at the guard |
+| YC | b(15,13) = a(6,2) | `DLDOP / MVI A,0B / ?QDDSL / LXI H,b / MVI A,0F / DSTOP` | rc=2 |
+| YD | inf(4,3) = ci(15,14) = LOAN2:111 verbatim shape | `DLDOP(A=0F) / MVI A,0B / ?QDDSR / LXI H,inf / MVI A,04 / DSTOP` | rc=2 |
+| YE | a(9,2) = c(9,0) (equal precision, Δp=0) | as YB | rc=2 |
+| YF | b(15,0) = a(15,14), d=14 max | `DLDOP / MVI A,0E / ?QDDSR / LXI H,b / MVI A,0F / DSTOP` | rc=2 |
+| YG | a(15,1) = b(15,14), d=13 up | `DLDOP / MVI A,0D / ?QDDSL / LXI H,a / MVI A,0F / DSTOP` | rc=2 |
+| YH | c = a / b, computed control | existing [C086] bytes, no change | compiles |
+| YI | d(9,2) = decimal(i,7), i fixed bin | UNKNOWN verdict (H-6) | compiles (rc=0) |
+
+Sizes are NOT pre-predicted beyond the statement byte counts (the DATA/AUTO layout is pinned by
+whole-file `cmp`, not by arithmetic); the primary discriminators are WHICH scale changes, WHERE
+the helper occurs, and WHETHER DR emits a shift at all.
+
+### 5. Campaign + arm contract (hops 2+)
+
+ONE grouped run `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52YA E52YB E52YC E52YD
+E52YE E52YF E52YG E52YH E52YI --tag e52p12 --switches '$L$D'`, rc DIRECT; read EVERY `.PRN`;
+decode accepted `.REL`s into `build/p3-12/`; goldens committed VERBATIM before ANY `ocaml/` byte;
+honest verdicts (DR-accepted / dr-refuses / my-gap), NEVER invent a golden. ARM (after evidence):
+the narrow proven law inside the `dpush` simple-operand arm of `ocaml/lib/codegen.ml` ONLY —
+replace the blanket `ts <> vd.sc` refusal with the measured shift; do NOT weaken the guard
+globally; shapes the panel does not pin (suffix DEC stores, DEC formal/pointer stores across
+scales, `decimal()` into scaled targets unless YI pins them) keep explicit [TBD] refusals BY NAME.
+Validation: build rc=0 DIRECT; [TBD] histogram codegen 68 / total 124 == baseline; whole-file `cmp`
+of every accepted probe (POSITIONAL `pli80c` into FRESH paths); sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers harness (CRLF + bare
+`^Z`) incl. every DEC negative marker and the N35 retirement decision; DEC regressions (R5xx/R6xx/
+R7xx/R8xx, LOAN1 whole-file), negative panel, divergences 9/9; then FULL compile-tier gate rc=0
+DIRECT → `build/gate-e52p12-reg.log`. Registration: SPECIMENS + accepted-and-byte-exact only
+(baseline 1278), `--update-inventory`, `git diff --cached --stat` (config NEVER staged), census OWN
+path; claim **C370** written from MEASURED BYTES ONLY, committed BEFORE any `spec/COVERAGE.tsv`
+touch; a NEW row is justified here (no existing contract covers decimal assignment geometry) and
+MUST ship its `spec/COVERAGE-IDS.txt` line in the SAME change (NEVER `coverage_gen.py`; 15 columns
+from the FIRST NON-COMMENT row; textual tab-delimited edit); coverage_check + prose rc=0; gate
+AGAIN; RESULTS §P3-12 + §5 row + **CLOSED**; then proceed to the next ACTUAL LOAN2 blocker under
+the marathon authorization (slices P3-13..P3-19 remain available; stop early if LOAN2 is exact).
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the measured direct-store rule lands byte-exact, LOAN2 moves past line 111. The next refusal is
+NOT predicted — line 112's divide is armed but line 113's `P = 0 | dl > 1 | m = fm` fold, the
+line-115/116 `PUT … EDIT`, and the `call display(<dec expr>,…)` DEC-formal route are all candidate
+clusters (reconnaissance only, NOT established blockers). Record the ACTUAL verbatim diagnostic; if
+LOAN2 unexpectedly emits a complete `.REL`, go STRAIGHT to whole-file parity against
+`golden/first/LOAN2/LOAN2.REL` (sha `712cfcb2…`, never re-derived) and report the first genuine
+difference; never patch a byte without an independently demonstrated law.
+
+### 7. Framing binding on C370 wording
+
+Precision and scale are SEPARATE properties: the cell width is the storage law [C084]
+(`bytes = (p+2)/2`), the runtime stack entry carries (p, s), and the helper adjusts ONLY the scale
+of the TOP entry. C370 must state the shift as a property of the SOURCE push / TARGET store pair as
+measured, must not claim numerical/rounding behaviour of `?QDDSR` truncation beyond [C086] L9, and is
+BYTE-TIER-ONLY: no runtime, no PLILIB, no CP/M execution claim.

@@ -42,13 +42,15 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-11 **CLOSED** at `9c1d9c6` — **STOP REACHED; NOTHING FURTHER IS AUTHORIZED**)
+## Next action (E2E-52/P3-12 IN FLIGHT — Phase A CLOSED; PRE-REGISTRATION (PLAN §P3-12 + probes) OWED, THEN campaign e52p12, arm, validate, register, close, CONTINUE the marathon)
 
-**LANDED this hop (session 01a1b160, chain 01a1b0c9 renewal 5/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT):** **(6c)** `b9645fa` — EXTENDED ONLY the three existing `spec/COVERAGE.tsv` rows (`FILE.PUT_PAGE` probes += E52XA..XF, EXACT:1->7; `FILE.PUT_SKIP` += E52XH,E52XI, 18->20; `FILE.PUT_LIST` += E52XG, 10->11), each contract carrying the e52p11 sentence and provenance += [C369]; the LIST row's now-false "No object yet pairs a file PUT with one of the newly lowered PRINT opens" clause is kept AS WRITTEN inside a labelled `[E2E-52/P3-11 CORRECTION]`; NO new rows, `spec/COVERAGE-IDS.txt` diff EMPTY, `coverage_gen.py` NEVER run, 15 cols from the FIRST NON-COMMENT row, TEXTUAL edit (`csv.writer` re-quotes 7 unrelated lines); `coverage_check` rc=0 **142 rows 0/0 SUPPORTED 92**, canonical stats UNCHANGED, prose rc=0. **(6d)** FULL gate rc=0 DIRECT `build/gate-e52p11-reg.log` — **1278/0, 189/189, 9/9, 142 rows 0/0, census 15/0/26/0, prose 5** — every pre-registered number HIT. **(6e)** `9c1d9c6` — RESULTS §P3-11 (measured table, every falsifier VERBATIM incl. my §4 XA-slot-0030 slip measured 002D; XJ/XK honest my-gap with goldens KEPT; LOAN2 line-99 CLOSED and the ACTUAL DEC-scales blocker recorded NEVER fixed; byte-tier-only) + PLAN §5 P3-11 row + §P3-11 **CLOSED**; prose rc=0.
+**OPERATOR AUTHORIZATION (new brief, 2026-11-07, session 01a1b18b, NEW chain — this session is NOT a renewal successor):** the P3-11 terminal STOP is SUPERSEDED for work necessary to complete LOAN2; up to EIGHT scientific slices P3-12..P3-19, ~64 new oracle probes, per-slice cycle preregister → measure → implement → validate → register → close → proceed to the next actual blocker without a new prompt; completion = unmodified `artefacts/LOAN2.PLI` compiles AND whole-file `.REL` byte-identity with `golden/first/LOAN2/LOAN2.REL`; compile-tier only (no CP/M run, no PLILIB, no runtime claims); no push; `handoff.config.json` NEVER staged. The obsolete "STOP / nothing authorized / no P3-12" managed prose of P3-11 is Historical; PROTOCOL.md remains binding.
 
-**EXECUTE (successor — the ONLY steps):** commit the guard-refreshed managed blocks in HANDOFF.md/PROGRESS.md VERBATIM (explicit paths, NEVER hand-edit, NEVER stage `handoff.config.json`, ALWAYS `git diff --cached --stat` first), then **STOP**. **E2E-52/P3-11 IS CLOSED AND NOTHING IS AUTHORIZED**: do NOT touch the DEC-scales blocker (`codegen: DECIMAL assignment between differing scales is unproven [TBD] (only computed results are pinned as needing a QDDSL/QDDSR fix; a direct DEC operand store always had equal scales in the samples)`, NO `(line N)` clause — never a diagnosis, never authorization), no P3-12, no `REVERT ERROR`, no PLILIB/MIR, no oracle, no runtime claims. A NEW operator brief is required for any further subround.
+**DONE this hop (ZERO oracle so far; ZERO permanent `ocaml/` byte; goldens NEVER touched):** HEAD `83e82b7` verified; build rc=0, binary sha256 `25c57e27696421e929b8…` == armed baseline; LOAN2 UNMODIFIED rc=2 / NO .REL / blocker VERBATIM; **first responsible statement MEASURED as LOAN2:111 `INF = ci;`** via temporary line-instrumentation of the `dpush` refusal, then REVERTED (tree clean, fingerprint re-held); both shift directions reproduce rc=2 in scratch probes; **Phase A evidence CLOSED** — the new law already has TWO DR witnesses: authentic LOAN2.REL 04B7-04CB (`DLDOP / MVI A,0B / ?QDDSR / LXI H,dst / MVI A,04 / ?DSTOP`, d = 14-3 = 11, TARGET precision at DSTOP) and registered-negative NG20 (= gate `N35_DEC_STORE_SCALE_DRIFT`, `dec(9,2)`→`dec(9,4)` = `?QDDSL 02` in the SAME position, full `.PRN`+`.REL`, DR `NO ERROR(S)` both passes) → N35 retires to POSITIVE by the N26_DECDIV precedent; equal-scale cross-precision control already whole-file exact (LOAN1 `PMT = P` re-measured `cmp` rc=0 this session); LOAN2:112 divide bytes agree with the ARMED [C086] path → outside P3-12's perimeter; NG21 FALSIFIED as a witness (error listing, no .REL). Nine CP/M-compatible probes materialized `probes/E52Y{A..I}.PLI` (CRLF + bare `^Z` + ≤71 cols + one dcl per line; sanity: YA/YH/YI rc=0, YB..YG rc=2 at the guard). Full findings + the successor contract: `LEARNINGS.md` § "E2E-52/P3-12 Phase A CLOSED".
 
-**STATE:** HEAD = `9c1d9c6` + this durables commit; ledger ENDS **C369** (192 headers); inventory **1278/189**; coverage **142 rows, SUPPORTED 92**, 0 errors 0 warnings; FULL gate rc=0 at `b9645fa` (`build/gate-e52p11-reg.log`); armed binary `25c57e27696421e929b8…` == tree; goldens NEVER re-derived; census 15/0/26/0 with LOAN2 blocker VERBATIM (rc=2, NO .REL, NEVER fix); `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; tree clean except guard blocks + operator `handoff.config.json` (NEVER stage) + ignored `build/e52p1*/`, `ocaml/_build*`, `ocaml/*.log`; chain 01a1b0c9 renewal 5/12 cap 12; no push; rc DIRECT; byte-tier only.
+**EXECUTE (in this exact order):** (1) write PLAN §P3-12 (template §P3-11 — §1 blocker VERBATIM + the instrumentation method; §2 witness table; §3 H-A..H-I with falsifiers incl. the precision-in-shift and d-cap competitors; §4 per-probe pre-registered byte sequences, NEVER fit; §5 campaign + smallest-arm contract + validation list; §6 LOAN2 direction; §7 DSTOP-A framing) + the §5 progress-table row; commit `spec/lab-evidence/e2e52-p3/PLAN.md` + the nine `probes/E52Y*.PLI` by EXPLICIT paths BEFORE any oracle call or `ocaml/` byte; ALWAYS `git diff --cached --stat`; config NEVER staged. (2) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52YA E52YB E52YC E52YD E52YE E52YF E52YG E52YH E52YI --tag e52p12 --switches '$L$D'` rc DIRECT; read every `.PRN`; decode every accepted `.REL` (ondump2 buffers + `tools/dis80.py` table + CHAIN-EXT names at anchor = opcode+1); commit goldens VERBATIM before touching `ocaml/`. (3) arm ONLY the measured shapes in the `dpush` simple-operand arm; unproven shapes keep explicit [TBD] refusals; NEVER special-case LOAN2 names/addresses. (4) build rc=0 + histogram codegen 68 / total 124 == baseline + whole-file `cmp` of every accepted probe into FRESH paths + sweep FAILS 0 + markers harness (CRLF+bare `^Z`, incl. every DEC/N35-adjacent marker) + DEC regressions + negatives + divergences 9/9 → FULL compile-tier gate rc=0 DIRECT `build/gate-e52p12-reg.log`. (5) LOAN2 UNMODIFIED POSITIONAL → record the ACTUAL next blocker VERBATIM (or, if it compiles, go STRAIGHT to the §7 whole-file parity phase of the brief). (6) register (SPECIMENS +accepted only, baseline 1278, NG20 retirement decision recorded honestly, census OWN path), claim **C370** measured-bytes-only BEFORE any COVERAGE touch, NEW `STOR.DEC_SCALE_ASSIGN`-class row ONLY if justified + its `spec/COVERAGE-IDS.txt` line in the SAME change (NEVER `coverage_gen.py`), coverage_check/prose rc=0, gate AGAIN, RESULTS §P3-12 + §P3-12 **CLOSED**, commit guard blocks VERBATIM, then BEGIN THE NEXT REAL BLOCKER (P3-13) under the same authorization. Renew autonomously at safe committed boundaries only.
+
+**STATE:** HEAD = `83e82b7` + this durables commit; ledger ENDS **C369**; inventory **1278/189**; coverage **142/92** 0/0; last full gate rc=0 `build/gate-e52p11-reg.log`; armed binary `25c57e27696421e929b8…` == tree; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; tree clean except operator `handoff.config.json` (NEVER stage) + ignored `build/`, `ocaml/_build*`, `ocaml/*.log`; no push; rc DIRECT; byte-tier only.
 
 SUPERSEDED-BY-ABOVE: 
 
@@ -2861,17 +2863,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 435
-checkpoint-id: g435-048913a20cd7
-checkpoint-kind: manual
+checkpoint-generation: 436
+checkpoint-id: g436-8bdaa580b5b9
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-06T15:20:02.428Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-06T16:11:35.333Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: ca6b99597c1e132a55f00be5931a4181037481d090bd1ad68da7a273c2e3e7f7
+source-progress: a0364cfb6d61d1047b90bd9b8beaac97da466c881fb607cd7e236446a3d70b36
 source-handoff: dcef6d55c46e7d3435c5f01c2a1d8f4407c65a8801c0b98f287f9b96a21afc93
-source-learnings: 05c7dfd38576d47206ad8096247eb983ec6418826fac5d8bfb786e7d21b690a3
+source-learnings: a77757f9d4d6f0d9dd0dc88dc23f4860c86e1cb3d01cb2f23367e1d2fcd998cb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop 3 REMAINDER EXACTLY: spot-check 2-3 cited bytes vs `build/e52p10/E52W*-reldump.txt` + `e52p10-signals-disasm.txt`, append drafted **C368 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch**, commit; `COND.SIGNAL` SUPPORTED/**EXACT:9** row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; **15 cols from FIRST NON-COMMENT row**; `delimiter='\t'`); `coverage_check` rc=0 expect **142 rows 0/0 SUPPORTED 92** + prose rc=0; FULL gate rc=0 DIRECT redirect `build/gate-e52p10-reg.log` (expect **1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5**); RESULTS §P3-10 (WE 0..255-falsifier + WL verdict + WF/WG no-generalise + LOAN2 92->99 advances VERBATIM, byte-tier-only) + PLAN §5 row + §P3-10 **CLOSED** + durables. **STOP at P3-10 — NEVER the line-99 blocker, no P3-11, no runtime claims.** Ledger ENDS **C367** (C368 owed); inventory 1269/187; coverage 141/91 -> 142/92 owed; binary `a4c0e235ed4bb81fe284…` == tree; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; no push; chain cap 12 (2/12 used, renewal scheduled by guard).
 
@@ -3486,9 +3488,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b160-06f7-71e9-bce7-91944aa494dc
-readiness-at: 2026-11-06T15:20:02.447Z
-readiness-checkpoint: g435-048913a20cd7
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -1,0 +1,10 @@
+E52YD: procedure options(main);
+   /* E2E-52/P3-12 probe D: LOAN2:111 verbatim
+      shape: ci dec(15,14) stored into inf dec(4,3). */
+   dcl ci fixed dec(15,14);
+   dcl inf fixed dec(4,3);
+   inf = ci;
+   put skip list(inf);
+   
+end E52YD;
+

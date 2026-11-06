@@ -1,0 +1,9 @@
+E52YI: procedure options(main);
+   /* E2E-52/P3-12 probe I: i fixed bin, d fixed dec(9,2); */
+   dcl i fixed bin;
+   dcl d fixed dec(9,2);
+   d = decimal(i,7);
+   put skip list(d);
+   
+end E52YI;
+

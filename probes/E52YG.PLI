@@ -1,0 +1,9 @@
+E52YG: procedure options(main);
+   /* E2E-52/P3-12 probe G: a fixed dec(15,1), b fixed dec(15,14); */
+   dcl a fixed dec(15,1);
+   dcl b fixed dec(15,14);
+   a = b;
+   put skip list(a);
+   
+end E52YG;
+

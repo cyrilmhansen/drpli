@@ -1,0 +1,9 @@
+E52YF: procedure options(main);
+   /* E2E-52/P3-12 probe F: a fixed dec(15,14), b fixed dec(15,0); */
+   dcl a fixed dec(15,14);
+   dcl b fixed dec(15,0);
+   b = a;
+   put skip list(b);
+   
+end E52YF;
+
