@@ -1,0 +1,20 @@
+E52ZA: procedure options(main);
+   /* E2E-52/P3-13 probe ZA (PLAN P3-13 H-1): single DEC
+      PRODUCT actual a*b dec(10,2)*dec(4,3) vs ONE
+      fixed dec(10,2) formal. Prediction: 32 B product
+      block, DOWN shift MVI A,03/?QDDSR between ?DMUOP
+      and the temp store, ?DSTOP A=0A, 6 B temp, STATIC
+      descriptor vector, LHLD formal read in q. */
+   dcl a fixed dec(10,2);
+   dcl b fixed dec(4,3);
+   dcl p fixed dec(10,2);
+
+   p = q(a * b);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(10,2));
+      dcl x fixed dec(10,2);
+      return (x);
+      end q;
+end E52ZA;
+

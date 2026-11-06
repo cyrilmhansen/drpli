@@ -1350,3 +1350,151 @@ Precision and scale are SEPARATE properties: the cell width is the storage law [
 of the TOP entry. C370 must state the shift as a property of the SOURCE push / TARGET store pair as
 measured, must not claim numerical/rounding behaviour of `?QDDSR` truncation beyond [C086] L9, and is
 BYTE-TIER-ONLY: no runtime, no PLILIB, no CP/M execution claim.
+
+## Subround P3-13 — NON-VARIABLE ACTUALS against FIXED DECIMAL formals: product materialisation into formal-width temps, the C370 shift window at the FORMAL scale, and the pre-scaled literal pool cell (LOAN2:117 blocker) — PRE-REGISTERED 2026-11-07 (operator marathon brief; chain 01a1b1b4 renewal 7/12; baseline HEAD `996038b`, ledger ENDS C370, inventory 1288/188, coverage 143/93)
+
+### 1. Measured blocker (VERBATIM, re-measured this session against the six new probes)
+
+`codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes
+an automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or
+expression decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line N)` — the guard
+spells `Line N` INSIDE the parens (its own dialect). The LOAN2 statement is lines 117-118:
+`call display(PL * INF, INT * INF,\nPMT * INF, PP * INF, IP * INF);` — five
+`fixed dec(10,2) * fixed dec(4,3)` PRODUCT actuals against five `fixed dec(10,2)` formals
+(`display: procedure(a,b,c,d,e); declare (a,b,c,d,e) fixed decimal(10,2);` @142-151).
+ZERO-oracle sanity compiles of the six probes on the armed binary `6a4c6c1154a0acd8403b…`
+(FRESH positional paths, `build/p3-13/sanity/`) confirm all six refuse TODAY rc=2 with this
+guard and NO `.REL` (ZA/ZE Line 12, ZB/ZC Line 10, ZD Line 9, ZF Line 18). The cited
+witnesses `[DECPOLY, R2037/R2038/R725]` all pass VARIABLES (Phase A step-3 adjudication:
+C093's DECPOLY `*A(005A)=5.67` literal bullet is FALSE AS CITED — correction owed at C371,
+dated); the panel-verified literal witness is `golden/negpanel1/NG18/NG18.REL`.
+
+### 2. EXISTING DR evidence (Phase A + hop 5/6, ZERO oracle; goldens untouched)
+
+| Witness | Shape | DR bytes (first-hand re-read this chain) | Reading |
+|---|---|---|---|
+| authentic `golden/first/LOAN2/LOAN2.REL` 055D–05FA | FIVE product actuals `PL*INF` etc., `dec(10,2)*dec(4,3)` into `dec(10,2)` formals | per arg 32 B: `21 r(var) / 3E 0A / CD ?DLDOP / 21 0306 / 3E 04 / CD ?DLDOP / CD ?DMUOP / 3E 03 / CD ?QDDSR / 21 r(temp) / 3E 0A / CD ?DSTOP` at 055D/057D/059D/05BD/05DD | product scale = 2+3 = 5; DOWN shift d = s_prod − s_formal = 03 sits BETWEEN `?DMUOP` and the temp store (same window as [C370]); `?DSTOP A=0A` = FORMAL precision; temps 6 B (ceil((10+2)/2)=6 [C084]) at 0324/032A/0330/0336/033C, stride 6. |
+| same, descriptor vector + call 031A–0323, 05FD–0602 | arity-5 call | DATA bytes EXACTLY `24 03 2A 03 30 03 36 03 3C 03` — five 2-byte LE address constants, each an INLINE DATA RELOC (031A→0324, 031C→032A, 031E→0330, 0320→0336, 0322→033C), STATIC, never runtime-written; call = `21 r(031A)` + `CALL` slot 0601 CHAIN-ADDR → code@0674 | the argument vector is a data-resident list of temp addresses; the call loads its address, not per-arg pushes. |
+| same, callee entry 0674–067E + formal reads | arity-5 internal proc | `LXI D,*A(0342) / MVI C,0A / (MOV A,M / INX H / STAX D / INX D / DCR C / JNZ)*` 10 B block copy into callee locals 0342..034B; reads `LHLD(0342+2i) / MVI A,0A / ?DLDOP` | arity ≥2 prologue = 2N-byte block copy ([C094] route, UNCHANGED by this slice); each local is a 2-byte descriptor cell. |
+| `golden/negpanel1/NG18/NG18.REL` (panel-verified DR-ACCEPTED; NEG_META of still-refused `N33_DEC_FORMAL` says "DR COMPILES IT") | INT literal `1` vs `fixed dec(9,2)` formal, arity 1, `returns` | caller arg code ZERO runtime bytes; DATA 0000–0004 = `00 01 00 00 00` — a **5 B FORMAL-WIDTH pre-scaled cell** (1→100 at scale 2, [C084] R505 packing law); DATA 000A–000B descriptor cell with INLINE DATA RELOC 000A→0000, `addr:[10]`; call `21 000A` + `CALL` CHAIN-ADDR → code@0035; callee peeled prologue `5E 23 56 EB 22 0C00`; body `2A 0C00 / 3E 09 / CD ?DLDOP / C3 ?DCRET`; return store `21 r(0005) / 3E 09 / CD ?DSTOP` | LITERAL actuals need NO runtime code: a static pool cell + descriptor. **CORRECTION (hop 6, first-hand): the cell is 5 bytes, NOT the 2 bytes of C093's wording** — C371 must correct BOTH C093 errors (false DECPOLY citation AND the 2-byte width; C093's 2-byte cells were the R2033 INT-literal BIN-formal `pool_alloc [|lo;hi|]` route). |
+| `build/p3-12/E52YD-reldump.txt` (registered [C370] probe) | `put skip list(dec var)` tail | `LXI D,0252 / LXI B,<slot->?STOPX> / ?SYSPR / MVI A,01 / ?SKPOP / LXI H,*A(v) / MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s / ?QDCOP / ?PNVOP / ?QIOOP` + main's `CALL ?STOPX`; YD CODE `0041`, 256 B file | continuation-tail shape for the probes; `?QDCOP` width = p+3, scale byte = s. |
+| `build/p3-12` literal-store witnesses ([C084] law) | `a(10,2) = 1.5`, `dec(4,3) = 2.5`, `dec(9,2) = 2.5` | cells `50 01 00 00 00 00` / `00 25 00` / `50 02 00 00 00` | pre-scaled packed-BCD literal encodings: LE two digits/byte hi<<4\|lo, sign in last-byte top nibble, value scaled to the TARGET/Formal scale, cell width = (p+2)/2. |
+
+Frontend/guard anatomy (read first-hand, `codegen.ml` 4610–5000): `formal_is_dec` admits ONLY
+equal-(p,s) `Eident` (own cell, [C093]) or equal-scale WIDENING `ap<pf` via the [C358] copyin
+temp (`Some(t,ap,pf)`); the copyin emission `LXI H,*A(target)/MVI A,ap/?DLDOP; LXI H,*A(t)/
+MVI A,pf/?DSTOP` is EXACTLY the LOAN2 temp-materialiser shape (different A-values only) — the
+arm can ride existing machinery. The static descriptor emission (~4913) already pushes
+`Reloc(Data,tgt)` after `SET-LC(data,slot+2i)` — matches the LOAN2 031A vector. `Enumber`
+pool route is armed for BIN (2-byte `pool_alloc`) and FLOAT only; DEC literals fall through
+to the guard refusal today.
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-1 (product-actual law)**: a DEC expression (product) actual materialises via the FULL
+  expression sequence (`?DLDOP` operands, `?DMUOP`) with the scale-align shift
+  `MVI A,|s_prod−s_formal| / ?QDDSL`(up)/`?QDDSR`(down) INSIDE the [C370] window (between the
+  last arithmetic op and the destination store), then `LXI H,*A(temp) / MVI A,pf / ?DSTOP`;
+  the descriptor-vector cell for that arg points at the temp (STATIC inline DATA RELOC).
+  Falsified if the shift is absent, misplaced after the `LXI H`, or its amount involves a
+  precision.
+- **H-2 (temp width = FORMAL precision, [C084])**: bytes = ceil((pf+2)/2), stride = width —
+  ZA/ZF pf=10 → 6 B; ZB pf=7 → 4 B; ZE pf=9 → 5 B. Falsified by ANY other stride (e.g.
+  expression-context width, or a fixed 6).
+- **H-3 (DSTOP A = FORMAL precision)**: `?DSTOP A = pf` always at the materialisation store
+  (0A/07/09 per probe). Falsified if A carries the expression/product precision instead.
+- **H-4 (shift direction from scales ONLY)**: ZA s5→s2 down `?QDDSR d=03`; ZB s0→s2 up
+  `?QDDSL d=02`. Falsified by a direction flip on either (Δp differs between them: −3 vs +5).
+- **H-5 (literal-actual law, NG18-generalised)**: a DEC or INT literal actual emits NO caller
+  runtime code; DR allocates a STATIC pool cell of FORMAL width pre-scaled to the FORMAL
+  scale, plus a descriptor cell with an inline DATA RELOC → value cell. ZC `1.5`@dec(9,2) →
+  `50 01 00 00 00`; ZD `1`@dec(9,2) → `00 01 00 00 00` (NG18 verbatim shape). Falsified if a
+  literal takes a runtime materialisation, the cell is NOT pre-scaled/formal-width, or DR
+  refuses (honest `dr-refuses`, NO invented golden).
+- **H-6 (variable actuals unchanged)**: a `dec` variable matching the formal passes its OWN
+  cell descriptor (existing [C093] route); mixed var/expr/literal actuals share ONE
+  INTERLEAVED descriptor vector in arg order (LOAN2's vector is arg-ordered; a pure
+  variables-plus-expressions split-vector competitor is falsified by ZE if it lands).
+- **H-7 (callee prologue)**: arity 1 = peeled 5 B (`MOV E,M/INX H/MOV D,M/XCHG/SHLD loc`);
+  arity N≥2 = block copy `MVI C,2N` (ZE `06`, ZF `0A`) into consecutive 2 B locals; formal
+  reads `LHLD(loc+2i) / MVI A,pf / ?DLDOP` ([C094], UNCHANGED).
+- **H-8 (ZF = LOAN2 replication)**: five 32 B product blocks + 6 B temps stride 6 + static
+  5-cell vector + `LXI H,*A(vec)/CALL`; a runtime-written vector (SET-LC/SHLD) falsifies the
+  static-vector law.
+
+### 4. Probes E52ZA..E52ZF (`probes/E52Z{A..F}.PLI`, CRLF + bare `^Z`, ≤71 cols, one dcl per
+line, `E52Zx:` first-line label, continuation `put skip list` after the call) — per-probe
+pre-registered byte predictions at the actual site (NEVER fit):
+
+| Probe | Actuals | Predicted DR arg-materialisation bytes | My side TODAY |
+|---|---|---|---|
+| ZA `p = q(a*b)` | a dec(10,2), b dec(4,3); formal dec(10,2) | `LXI H,*A(a) / MVI A,0A / ?DLDOP / LXI H,*A(b) / MVI A,04 / ?DLDOP / ?DMUOP / MVI A,03 / ?QDDSR / LXI H,*A(t) / MVI A,0A / ?DSTOP` (32 B); t = 6 B; vector 1 cell → t (DATA reloc); q reads `LHLD / MVI A,0A / ?DLDOP` | rc=2 at the guard (Line 12) |
+| ZB `p = q(a*b)` | a dec(9,0), b dec(8,0); formal dec(7,2) | same shape with `MVI A,09`, `MVI A,08`, `?DMUOP`, **`MVI A,02 / ?QDDSL`** (up), `MVI A,07` at DSTOP; t = **4 B** (stride discriminates H-2) | rc=2 (Line 10) |
+| ZC `p = q(1.5)` | literal vs formal dec(9,2) | ZERO caller code for the arg; STATIC 5 B pool cell `50 01 00 00 00`; descriptor cell DATA-reloc → value cell; call `LXI H,*A(desc) / CALL` | rc=2 (Line 10) |
+| ZD `r = g(1)` | INT literal, NG18 shape + skip tail | pool cell `00 01 00 00 00` (5 B), descriptor reloc → cell, ZERO arg code; return store `LXI H,*A(r) / MVI A,09 / ?DSTOP`; skip tail as the YD shape (QDCOP A `0C`, B `02`) | rc=2 (Line 9) |
+| ZE `p = q(a, a*b, 2.5)` | mixed arity 3, formal dec(9,2) | arg1 descriptor → a's OWN cell; arg2 32 B product block with `MVI A,03 / ?QDDSR` + `MVI A,09 / ?DSTOP` into a **5 B** temp; arg3 literal pool cell `50 02 00 00 00` + descriptor, zero code; ONE interleaved 3-cell vector; callee block copy `MVI C,06` | rc=2 (Line 12) |
+| ZF `call display(v1*inf,…,v5*inf)` | five products dec(10,2)*dec(4,3), five formals dec(10,2), VOID | five 32 B blocks EXACTLY the LOAN2 bytes; five 6 B temps stride 6; static 5-cell vector of inline DATA relocs; `LXI H,*A(vec) / CALL` (CHAIN-ADDR to entry); callee `MVI C,0A` block copy + five `LHLD/MVI A,0A/?DLDOP`; tail `put skip list(a)` width A `0D`/B `02` | rc=2 (Line 18) |
+
+Sizes beyond the statement bytes are NOT pre-predicted (DATA/AUTO layout is adjudicated by
+whole-file `cmp`, not arithmetic). Primary discriminators: shift direction+amount (H-1/H-4),
+temp stride (H-2), DSTOP A (H-3), literal cell bytes/staticness (H-5), vector interleaving
+(H-6), prologue shapes (H-7).
+
+### 5. Campaign + arm contract (hops 2+)
+
+ONE grouped run `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52ZA E52ZB E52ZC E52ZD
+E52ZE E52ZF --tag e52p13 --switches '$L$D'`, rc DIRECT; read EVERY `.PRN`; decode accepted
+`.REL`s into `build/p3-13/`; goldens + batch `summary.txt` + transcripts committed VERBATIM
+BEFORE any `ocaml/` byte; honest verdicts (DR-accepted / dr-refuses / my-gap), NEVER invent a
+golden. ARM (after evidence): ONLY inside the `formal_is_dec` guard of `ocaml/lib/codegen.ml` —
+- expression actuals (product shapes the panel pins) → lower via the existing product/dpush
+  machinery, scale-align to the FORMAL scale with the [C370]-window shift, materialise into a
+  FORMAL-width temp (`?DSTOP A=pf`), descriptor-vector cell → temp (STATIC inline DATA RELOC);
+- DEC/INT literal actuals (panel-pinned encodings) → pre-scaled FORMAL-width pool cell +
+  descriptor cell → value cell, ZERO caller runtime code;
+- EVERYTHING outside the panel stays BY-NAME [TBD] (suffix/pointer actuals, unaccepted
+  expression shapes, `FIXED BIN`-formal routes untouched); the N33 marker substring
+  `FIXED DECIMAL formal is unproven` and the PU1 substring SURVIVE verbatim in the kept
+  refusals; the [TBD] histogram stays codegen 68 / total 124.
+- N33_DEC_FORMAL → NG18 retirement decision fires ONLY iff the ARMED binary reproduces
+  `golden/negpanel1/NG18/NG18.REL` (256 B) whole-file `cmp` rc=0 from `probes/NG18.PLI`
+  (CRLF+bare-`^Z` materialisation of the inline gate source); golden KEPT, NEVER re-derived;
+  refusals 188→187 (NG20 precedent).
+Validation: build rc=0 DIRECT; histogram 68/124 == baseline; whole-file `cmp` of every accepted
+probe (POSITIONAL `pli80c` into FRESH paths); sweep `python3 build/e52p3/sweep.py E46N E46K E51
+E52 P086 R10` FAILS 0 (159); markers harness (CRLF+bare `^Z`) incl. the N33 decision; DEC
+regressions (R5xx–R8xx, LOAN1) 64/0; divergences 9/9 via `build/p3-12/divcheck.py` precedent;
+FULL compile-tier gate rc=0 DIRECT → `build/gate-e52p13-reg.log`. Registration from **1288/188**
+(accepted-and-byte-exact only, `--update-inventory`, `git diff --cached --stat`, config NEVER
+staged, census OWN path); claim **C371** written from MEASURED BYTES ONLY and committed BEFORE
+any `spec/COVERAGE.tsv` touch, INCLUDING the dated correction of BOTH C093 errors; row EXTENSION
+of an existing DEC-formal contract preferred over a new row (if a NEW row ships, its
+`spec/COVERAGE-IDS.txt` line lands in the SAME change; NEVER `coverage_gen.py`; 15 columns from
+the FIRST NON-COMMENT row; `manual_ref` must match `pNN[:§X.Y][=phrase]` or start `NONE:`);
+coverage_check + prose rc=0; gate AGAIN; RESULTS §P3-13 + §5 progress row + **CLOSED**; then the
+next ACTUAL LOAN2 blocker under the marathon authorization (budget through P3-19).
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the measured actual-materialisation rules land byte-exact, LOAN2 moves past Line 117/118.
+The next refusal is NOT predicted — `display`'s body is a PUT EDIT (line ~146, candidate
+cluster, reconnaissance only), and the line-115/116 EDIT already has its own armed route.
+Record the ACTUAL verbatim diagnostic; if LOAN2 unexpectedly emits a complete `.REL`, go
+STRAIGHT to whole-file parity against `golden/first/LOAN2/LOAN2.REL` (sha `712cfcb2…`, never
+re-derived) and report the first genuine difference; never patch a byte without an
+independently demonstrated law. LOAN2 stays UNMODIFIED (sha `7be23ba3…`).
+
+### 7. Framing binding on C371 wording
+
+C371 is BYTE-TIER ONLY — every statement derives from MEASURED BYTES (authentic goldens + this
+campaign), never from runtime behaviour, PLILIB or numerical semantics claims. The literal
+materialisation is described as a STATIC DATA allocation law (cell width = formal width,
+pre-scaled packed image per [C084]), not as a conversion performed at run time. The
+descriptor-vector is described as a compile-time data structure (inline DATA RELOCs), NOT as
+anything written at runtime unless a probe measures that. C371 MUST carry the DATED correction
+of BOTH C093 errors — (i) the DECPOLY `*A(005A)=5.67` citation is FALSE AS CITED (no 005A
+exists; every DECPOLY actual is a variable; `5.67` is only the R2038 SOURCE DEC-store), and
+(ii) the DEC-literal pool cell is FORMAL-WIDTH (5 B for dec(9,2)), pre-scaled `00 01 00 00 00`
+per NG18 raw DATA records re-read this chain — NOT 2 bytes (C093's 2-byte cells were the
+R2033 INT-literal BIN-formal route). The correction cites the re-verification evidence paths
+and is traceable, NEVER silent.

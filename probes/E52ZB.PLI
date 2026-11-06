@@ -1,0 +1,18 @@
+E52ZB: procedure options(main);
+   /* E2E-52/P3-13 probe ZB (PLAN P3-13 H-2/H-4): product
+      scale 0 vs FORMAL scale 2, formal precision 7:
+      UP shift d=02 ?QDDSL expected; temp width law
+      discriminator: formal dec(7,2) = 4 bytes. */
+   dcl a fixed dec(9,0);
+   dcl b fixed dec(8,0);
+   dcl p fixed dec(7,2);
+
+   p = q(a * b);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(7,2));
+      dcl x fixed dec(7,2);
+      return (x);
+      end q;
+end E52ZB;
+

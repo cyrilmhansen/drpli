@@ -1,0 +1,17 @@
+E52ZD: procedure options(main);
+   /* E2E-52/P3-13 probe ZD (PLAN P3-13 H-5): INT literal
+      actual 1 vs fixed dec(9,2) formal - the NG18 shape
+      with the measured put-skip tail. Prediction: pool
+      cell 00 01 00 00 00 (5 B formal width, pre-scaled),
+      descriptor reloc -> cell, ZERO caller arg code. */
+   dcl r fixed dec(9,2);
+
+   r = g(1);
+   put skip list(r);
+
+   g: procedure(x) returns(fixed dec(9,2));
+      dcl x fixed dec(9,2);
+      return (x);
+      end g;
+end E52ZD;
+

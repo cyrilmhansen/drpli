@@ -1,0 +1,22 @@
+E52ZE: procedure options(main);
+   /* E2E-52/P3-13 probe ZE (PLAN P3-13 H-6/H-7): arity 3
+      MIXED actuals - variable a (own cell by reference),
+      product a*b (32 B block, down d=03, 5 B temp),
+      literal 2.5 (cell 50 02 00 00 00). INTERLEAVED
+      descriptor vector [C093]; callee arity-3 block-copy
+      prologue MVI C,06. */
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(4,3);
+   dcl p fixed dec(9,2);
+
+   p = q(a, a * b, 2.5);
+   put skip list(p);
+
+   q: procedure(x,y,z) returns(fixed dec(9,2));
+      dcl x fixed dec(9,2);
+      dcl y fixed dec(9,2);
+      dcl z fixed dec(9,2);
+      return (x);
+      end q;
+end E52ZE;
+

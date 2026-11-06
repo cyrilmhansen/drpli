@@ -1,0 +1,18 @@
+E52ZC: procedure options(main);
+   /* E2E-52/P3-13 probe ZC (PLAN P3-13 H-5): DEC LITERAL
+      actual 1.5 vs fixed dec(9,2) formal. Prediction:
+      5 B formal-width pool cell 50 01 00 00 00 pre-scaled,
+      descriptor cell -> value cell STATIC, ZERO caller
+      runtime code for the actual. If DR refuses: honest
+      dr-refuses, NO invented golden. */
+   dcl p fixed dec(9,2);
+
+   p = q(1.5);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(9,2));
+      dcl x fixed dec(9,2);
+      return (x);
+      end q;
+end E52ZC;
+

@@ -1,0 +1,31 @@
+E52ZF: procedure options(main);
+   /* E2E-52/P3-13 probe ZF (PLAN P3-13 H-8): LOAN2:117-118
+      replication - VOID call, FIVE product actuals
+      dec(10,2)*dec(4,3) vs FIVE fixed dec(10,2) formals.
+      Five 32 B blocks into 6 B temps stride 6, STATIC
+      5-cell descriptor vector, LXI H,*A(vec)+CALL,
+      callee arity-5 block copy MVI C,0A then five
+      LHLD/MVI A,0A/?DLDOP reads. NO PUT EDIT in the
+      body - display's EDIT tail is a later slice. */
+   dcl v1 fixed dec(10,2);
+   dcl v2 fixed dec(10,2);
+   dcl v3 fixed dec(10,2);
+   dcl v4 fixed dec(10,2);
+   dcl v5 fixed dec(10,2);
+   dcl inf fixed dec(4,3);
+   dcl a fixed dec(10,2);
+
+   call display(v1 * inf, v2 * inf, v3 * inf,
+      v4 * inf, v5 * inf);
+   put skip list(a);
+
+   display: procedure(a,b,c,d,e);
+      dcl a fixed dec(10,2);
+      dcl b fixed dec(10,2);
+      dcl c fixed dec(10,2);
+      dcl d fixed dec(10,2);
+      dcl e fixed dec(10,2);
+      put skip list(a);
+      end display;
+end E52ZF;
+
