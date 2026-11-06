@@ -1622,25 +1622,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 427
-checkpoint-id: g427-c4340bbef4c1
-checkpoint-kind: auto
+checkpoint-generation: 428
+checkpoint-id: g428-db49d1070d11
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4892, session 01a1b110-d904-71e9-bce7-918577e43fcf)
-checkpointed: 2026-11-06T13:58:07.578Z
+status: checkpoint (guard level 1, remaining ~10642, session 01a1b127-7084-71e9-bce7-9189bfad446f)
+checkpointed: 2026-11-06T14:20:59.375Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 959fe89333ab7b0272401e366a0e07422d81f902664e9d619478a86cef5382d5
-source-handoff: ea8ca16e29677e2f402b34a3c6dd6337e4c985a2d9cbb3b43b2155a6bd416968
-source-learnings: 8b8000d369a988260294620390c125f177f0b579964e48078d1d969be7f9964c
+source-progress: 2e5d50fc13c514f3ad8361a4255a993b24b421bdf62e7bc82f49ff587f5c7661
+source-handoff: f796cf9ebd8089d607afb1117a42098fe18e7e17ff31df670d369484c243d89b
+source-learnings: 4e7c11927305f84f9971d6af2097c5ee622a1ed8d83441ebcd3410e8484e38d5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b110-d904-71e9-bce7-918577e43fcf
-readiness-at: 2026-11-06T13:58:34.355Z
-readiness-checkpoint: g427-c4340bbef4c1
+readiness-by: session:01a1b127-7084-71e9-bce7-9189bfad446f
+readiness-at: 2026-11-06T14:20:59.410Z
+readiness-checkpoint: g428-db49d1070d11
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2261,5 +2261,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-11 hop 1 PARTIAL at 57e7f62: first-hand byte re-verification + checks LANDED; successor executes LEARNINGS § "E2E-52/P3-11 hop 1 IN FLIGHT" STILL OWED verbatim: (1) PLAN §P3-11 + probes E52XA..XK committed by explicit paths BEFORE first oracle call, (2) e52p11 campaign + goldens VERBATIM, (3) candidate A/C arm (one-line lower_open PRINT recording; PU1 substring survives), (4) verify suite, (5) LOAN2 POSITIONAL VERBATIM never fix, (6) register from 1269 + C369 BEFORE COVERAGE + gate + close; STOP at P3-11; ledger C368; inventory 1269/187; coverage 142/92; binary a4c0e235ed4bb81fe284==tree; config NEVER staged; no push.
+P3-11 hop 2 LANDED at HEAD 767e35d (pre-registration eda2235 committed BEFORE any oracle call/ocaml byte). Successor: execute PLAN §P3-11 §5 verbatim — ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52XA E52XB E52XC E52XD E52XE E52XF E52XG E52XH E52XI E52XJ E52XK --tag e52p11 --switches '$L$D'` rc DIRECT; read EVERY .PRN; reldump accepted into build/e52p11/; goldens VERBATIM before any emitter change; XJ/XK honest (WL dr-refuse / E46L8-SE my-gap precedents), NEVER invent goldens; then candidate A iff XA..XI accepted+byte-exact via the ONE route-independent emitter (ONE-line lower_open PRINT recording into st.file_out, codegen ~11557) else candidate C PAGE-only; PU1 substring `PUT FILE(F) has no byte-exact DR witness` MUST survive; verify suite (histogram 68/124, whole-file cmp FRESH POSITIONAL, sweep FAILS 0, markers CRLF+bare ^Z incl PU1/E41X5/E46K10/N3_PAGE/E46N21, regressions, negatives 187, divergences 9/9); LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM — ACTUAL blocker past 99, NEVER fix; registration from 1269, C369 measured-bytes-only BEFORE ANY COVERAGE touch, prefer EXTENDING FILE.PUT_PAGE/LIST/SKIP rows (NEVER coverage_gen.py; 15 cols from FIRST NON-COMMENT row; delimiter='\t'; new rows ship IDS line same change); gate rc=0 -> build/gate-e52p11-reg.log; RESULTS §P3-11 + PLAN §5 row + CLOSED + durables; STOP at P3-11. Full contract: PLAN §P3-11 + LEARNINGS § "P3-11 hop 2" + § Phase A (C369 bullet contract). Ledger C368; inventory 1269/187; coverage 142/92; binary a4c0e235ed4bb81fe284==tree; goldens NEVER re-derived; handoff.config.json NEVER staged; no push; rc DIRECT; byte-tier only.
 <!-- guard:end checkpoint -->
