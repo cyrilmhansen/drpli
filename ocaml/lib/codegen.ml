@@ -7273,6 +7273,146 @@ let dec_eq_bool_parts st (a : Ast.expr) (b : Ast.expr) =
       Some (pre, post)
   | _ -> None
 
+(* ---- [E2E-52/P3-9] the OR-of-relations FOLD: operand classes, classifier and
+   head/tail encoders, ALL transcribed from the E52VA..VK golden folds
+   (build/e52p9-arm/goldens-dump.txt; LEARNINGS hop 5 PART 6 plan items 1-3,
+   PART 4 corrections applied: plain gate = own name extraction; NO hl_bias /
+   cmp_load_deref dependency inside the fold (they postdate lower_bool) --
+   plain operands only, inline bytes; ladder PINNED to k in {1,2}).
+   Mechanism [hop 5 PART 3, ACCEPTED]: F5 PUSH PSW saves the LEFT truth byte
+   sitting in A, so only the RIGHT operand's HL-only head (21/2A + DCX ladder;
+   E5 PUSH H touches neither A nor flags) rides ABOVE the push; the tail then
+   produces the right truth in A and C1 POP B / B0 ORA B combines the bit7s.
+   LDA (0x3A) WRITES A, so the <0 class is ATOMIC -- bare 3A after the F5
+   (bit7 IS the truth byte; no B7 normalization inside a fold).
+   Every class below is a VA-VK witness or an original-golden decode (O-1);
+   anything else returns None and keeps refusing BY NAME. *)
+type or_cls =
+  | OLt0 of Ast.name                 (* plain FIXED BINARY auto v < 0: atomic tail LDA &(v)+1 [VB,VC,VD,VJ,VK] *)
+  | OEq0 of Ast.name                 (* plain auto v = 0: head val_addr, tail bin_zero_tail [VE, VF] *)
+  | OGtC of Ast.name * int           (* plain auto v > k, k PINNED {1,2}: head LHLD + DCX*(k+1), tail MOV A,H / CMA [VB,VC,VD,VF,VK] *)
+  | OGt0 of Ast.name                 (* plain auto v > 0: head address load, tail XRA A / CMP M / INX H / SBB M [VJ full; And-right per the LOAN2:120 decode, O-1] *)
+  | OEqVV of Ast.name * Ast.name     (* plain l = r: head LHLD &l, tail PUSH H / LHLD &r / POP D / ?IS22N / MOV A,H / ORA L / SUI 01 / SBB A [VK stmt1/2; LOAN2:113, O-1] *)
+  | ODecEq0 of Ast.name * int * int  (* plain DEC auto v = 0, literal-RIGHT textual "0" ONLY: head LXI H,*zero-cell LITERAL-FIRST [VG, VI -- NEVER routed through dec_eq_bool_parts, whose AND route hoists the VAR], tail MVI A,p / ?DLDOP / LXI H,&v / MVI A,p / ?DLDOP / ?DCMOP / SUI 01 / SBB A *)
+  | OAnd of Ast.expr                 (* an & group: lowered WHOLE by lower_bool (ends C1 POP B / A0 ANA B, truth in A) [VK stmt1] *)
+  | OGroup of Ast.expr               (* a nested OR group: lowered WHOLE by the recursive fold *)
+
+let or_plain_name st (n : Ast.name) =
+  let ln = String.lowercase_ascii n.Ast.orig in
+  vk_of st ln = Vint && not (List.mem ln st.deref)
+
+let or_plain st (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident n when or_plain_name st n -> Some n
+  | _ -> None
+
+let or_int t = int_of_string_opt (String.concat "" (String.split_on_char '_' t))
+
+(* the six-class operand classifier (PART 6 item 2); the DEC class only when
+   allow_dec -- the BIT(1) value position refuses a DEC fold operand BY NAME
+   (unmeasured there). *)
+let or_classify st ~(allow_dec : bool) (c : Ast.expr) : or_cls option =
+  let u = unwrap_e c in
+  match u.Ast.e with
+  | Ast.Ebinary (Ast.And, _, _) -> Some (OAnd u)
+  | Ast.Ebinary (Ast.Or, _, _) -> Some (OGroup u)
+  | Ast.Ebinary (Ast.EqR rop, a, { Ast.e = Ast.Enumber t; _ }) -> begin
+      match or_plain st a with
+      | Some v -> begin
+          match rop, t with
+          | Ast.Lt, "0" -> Some (OLt0 v)
+          | Ast.Eq, "0" -> Some (OEq0 v)
+          | Ast.Gt, "0" -> Some (OGt0 v)
+          | Ast.Gt, k -> begin
+              (* PART 4 CORRECTION 3: the fold ladder has DCX-repeat witnesses at
+                 k=1 (VF node2) and k=2 (VB/VC/VD/VE/VF node1/VK) ONLY; k>=3
+                 would take the LXI B/DAD B form, never witnessed in a fold. *)
+              match or_int k with
+              | Some kk when kk >= 1 && kk <= 2 && bin15_fits kk ->
+                  Some (OGtC (v, kk))
+              | _ -> None
+            end
+          | _ -> None
+        end
+      | None -> begin
+          match rop, t with
+          | Ast.Eq, "0" when allow_dec -> begin
+              match (unwrap_e a).Ast.e with
+              | Ast.Eident n -> begin
+                  match vk_dec_opt st n with
+                  | Some (p, sc)
+                    when not (List.mem (String.lowercase_ascii n.Ast.orig) st.deref) ->
+                      Some (ODecEq0 (n, p, sc))
+                  | _ -> None   (* DEC formal / non-DEC ident / other text: BY NAME *)
+                end
+              | _ -> None
+            end
+          | _ -> None
+        end
+      end
+  | Ast.Ebinary (Ast.EqR Ast.Eq, a, b) -> begin
+      match or_plain st a, or_plain st b with
+      | Some l, Some r -> Some (OEqVV (l, r))
+      | _ -> None
+    end
+  | _ -> None
+
+(* head = the hoistable, HL-only prefix that rides ABOVE F5 PUSH PSW;
+   atomic classes (Lt0, And/Or groups) have NO head. *)
+let or_head st (cls : or_cls) =
+  match cls with
+  | OLt0 _ | OAnd _ | OGroup _ -> ()
+  | OEq0 v | OGt0 v -> val_addr st v.Ast.orig ()
+  | OGtC (v, k) ->
+      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+      for _ = 1 to k + 1 do d st op_dcx_h done
+  | OEqVV (l, _) -> d st op_lhld; reloc st Data (addr_of st l.Ast.orig)
+  | ODecEq0 (v, _p, _sc) ->
+      (* VAR-FIRST [MEASURED VG/VI]: LXI &v hoists above F5 (HL-only).  The
+         hop-4/5 LITERAL-FIRST reading is FALSIFIED here: it assumed the pool
+         sits ABOVE the autos, but this tree's PROVEN layout (1249 goldens;
+         addr_of = off + st.base, st.base = sy_total + pool_total) puts pool
+         BELOW.  Golden VI node1 = LXI 11(p) then LXI 0(zero10) = var-first;
+         VG = LXI 9(pv) then LXI 0(zero9); VI stmt2 = LXI 17(q) then
+         LXI 6(zero9), node2 head LXI 11(p) then LXI 0(zero10). *)
+      d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig)
+
+(* tail = the truth producer that runs AFTER the push and leaves bit7 of A as
+   the boolean byte.  O-3: the <0 reloc is EXACTLY the cell address PLUS ONE
+   (the high byte of the 2-byte fixed-bin auto). *)
+let or_tail st (cls : or_cls) =
+  match cls with
+  | OAnd _ | OGroup _ -> ()
+  | OLt0 v -> d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig + 1)
+  | OEq0 _ -> bin_zero_tail st
+  | OGtC _ -> d st op_mov_a_h; d st 0x2f (* CMA: complement keeps bit7 sign semantics *)
+  | OGt0 _ ->
+      d st 0xaf (* XRA A *); d st 0xbe (* CMP M *);
+      d st op_inx_h; d st 0x9e (* SBB M *)
+  | OEqVV (_l, r) ->
+      d st op_push_h;
+      d st op_lhld; reloc st Data (addr_of st r.Ast.orig);
+      d st op_pop_d;
+      call_ext st "?IS22N";
+      d st op_mov_a_h; d st 0xb5 (* ORA L *);
+      d st op_sui; d st 0x01; d st op_sbb_a
+  | ODecEq0 (_v, p, sc) ->
+      (* first push = the VAR (HL still carries it from the head); second push
+         = the pooled zero cell -- LITERAL-LAST, the same pair order the AND
+         route's dec_eq_bool_parts pre/post produce [VG,VI,DECPOLY,R2026]. *)
+      d st op_mvi_a; d st p; call_ext st "?DLDOP";
+      let zero = dec_pool st ~prec:p ~scale:sc ~text:"0" in
+      d st op_lxi_h; reloc st Data zero;
+      d st op_mvi_a; d st p; call_ext st "?DLDOP";
+      call_ext st "?DCMOP";
+      d st op_sui; d st 0x01; d st op_sbb_a
+
+(* flatten the LEFT-assoc spine ONLY (parser law [hop 5 PART 2]: a|b|c parses
+   as Or(Or(a,b),c)); a right-nested Or is a paren group = ONE operand. *)
+let rec collect_or acc (c : Ast.expr) =
+  match (unwrap_e c).Ast.e with
+  | Ast.Ebinary (Ast.Or, l, r) -> collect_or (r :: acc) l
+  | _ -> c :: acc
 let rec lower_bool st (c : Ast.expr) =
   let c = unwrap_e c in
   match c.Ast.e with
@@ -7331,10 +7471,33 @@ let rec lower_bool st (c : Ast.expr) =
                       pre (); d st op_push_psw; post ()
                   | None ->
                       d st op_push_psw; lower_bool st r)
+             | Ast.Ebinary (_, _, _)
+               when (match or_classify st ~allow_dec:true r with
+                     | Some (OAnd _ | OGroup _) -> false
+                     | Some _ -> true
+                     | None -> false) ->
+                 (* [E2E-52/P3-9] NEW conjunction-right classes, inserted AFTER the
+                    DEC clause and BEFORE the catch-all so no existing clause moves:
+                    EqVV head LHLD &l above the push with the tail starting at
+                    PUSH H (E52VK stmt2); ladder > k head+DCX above, MOV A,H / CMA
+                    after (E52VK stmt1); Gt0 per the LOAN2:120 decode (O-1); Lt0
+                    ATOMIC -- no head, PUSH then the bare LDA (bare-3A sibling of
+                    the banked Vbit1 PUSH/LDA right arm).  All of these REFUSED
+                    through the catch-all before, so no registered golden moves. *)
+                 (match or_classify st ~allow_dec:true r with
+                  | Some cls -> or_head st cls; d st op_push_psw; or_tail st cls
+                  | None -> assert false)
              | _ -> d st op_push_psw; lower_bool st r)
       in
       ignore saved;
       d st op_pop_b; d st op_ana_b; st.last_imm <- None
+  | Ast.Ebinary (Ast.Or, _, _) ->
+      (* [E2E-52/P3-9] the disjunction fold, BESIDE the conjunction arm.  The DEC
+         leaf guard below cannot capture an Or node (its sides are binaries);
+         this arm converts today's catch-all REFUSAL for Or into the measured
+         fold.  ONE terminal F2 comes from the TEST arm / the caller's STA adds
+         nothing -- never from here, so And bytes are untouched. *)
+      lower_or st ~allow_dec:true c
   | Ast.Ebinary (Ast.EqR rop, a, b)
     when (match rop with Ast.Eq | Ast.Gt -> true | _ -> false)
          && (is_float_expr st a || is_float_expr st b) ->
@@ -7355,12 +7518,79 @@ let rec lower_bool st (c : Ast.expr) =
            d st op_sui; d st 0x01; d st op_sbb_a)  | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber "0"; _ }) ->
       d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig); bin_zero_tail st
+  | Ast.Ebinary (Ast.EqR _, _, _)
+    when or_classify st ~allow_dec:true c <> None ->
+      (* [E2E-52/P3-9] boolean-materialising leaf FULL arms (head+tail
+         consecutive) for the fold's operand classes in first/left position
+         [E52VE..VK].  Every class refused here through the catch-all before,
+         and the arms sit AFTER the existing DEC-Eq and bin Eq-ident-0 arms so
+         no existing byte decision changes. *)
+      (match or_classify st ~allow_dec:true c with
+       | Some cls -> or_head st cls; or_tail st cls
+       | None -> assert false)
   | _ ->
       failwith
         ("codegen: conjunction operand not in the proven subset [TBD] (only " ^
          "a FIXED DECIMAL `= 0` and a 2-byte FIXED BINARY `= 0` are pinned " ^
          "as boolean-materializing operands [DECPOLY, R2025]; other " ^
          "relations have no DR sample)")
+
+and lower_or st ~allow_dec (c : Ast.expr) =
+  (* [E2E-52/P3-9] the OR fold (LEARNINGS hop 5 PART 6 item 3): flatten the
+     LEFT-assoc spine, apply the NODE-LOCAL rules to the FIRST pair only, emit
+     OPS[0] full then, for every later operand, head / F5 / tail / C1 / B0.
+     Rules (witnesses: rule 1 VB/VC/VD/VJ; rule 2 VE, VF node1; rule 3 VI, VG,
+     VK): rule 1 p1 = <0 swaps ONLY in a 2-operand chain (n>=3 NO witness,
+     refuse BY NAME); rule 2 FIXBIN x = 0 then x > k on the SAME ident swaps
+     (different idents refuse BY NAME; DEC never swaps); everything else keeps
+     source order.  NO F2 here -- the TEST arm adds it. *)
+  let operands =
+    List.map
+      (fun x ->
+        match or_classify st ~allow_dec x with
+        | Some cls -> cls
+        | None ->
+            failwith
+              (Format.asprintf
+                 "codegen: OR fold operand not in the E2E-52/P3-9 measured subset [TBD]: %a"
+                 Parser.pp_e x))
+      (collect_or [] c)
+  in
+  let ops =
+    match operands with
+    | (OLt0 _ as p1) :: p2 :: [] -> [ p2; p1 ]
+    | OLt0 _ :: _ :: _ ->
+        failwith
+          "codegen: < 0 as the FIRST operand of a 3+ operand OR fold is unproven [TBD] (only the two-operand swap has a witness [VB, VC, VD, VJ])"
+    | (OEq0 x as p1) :: (OGtC (y, _) as p2) :: rest
+      when String.lowercase_ascii x.Ast.orig
+           = String.lowercase_ascii y.Ast.orig ->
+        p2 :: p1 :: rest
+    | OEq0 _ :: OGtC _ :: _ ->
+        failwith
+          "codegen: = 0 then > k on DIFFERENT variables in an OR fold is unproven [TBD] (the rule-2 swap is pinned for the SAME variable only [VE, VF node1])"
+    | _ -> operands
+  in
+  let full cls =
+    match cls with
+    | OAnd node -> lower_bool st node
+    | OGroup node -> lower_or st ~allow_dec node
+    | _ -> or_head st cls; or_tail st cls
+  in
+  let later cls =
+    match cls with
+    | OAnd node -> d st op_push_psw; lower_bool st node
+    | OGroup node -> d st op_push_psw; lower_or st ~allow_dec node
+    | _ -> or_head st cls; d st op_push_psw; or_tail st cls
+  in
+  full (List.hd ops);
+  List.iter
+    (fun cls ->
+      later cls;
+      d st op_pop_b;
+      d st 0xb0 (* ORA B: combine A's bit7 with the pushed truth byte *))
+    (List.tl ops);
+  st.last_imm <- None
 
 (* [E2E-11 step 1a] DR's 8080 CONSTANT-BIAS LADDER, measured over three
    separate contexts rather than guessed from one.  To add a signed value B to
@@ -8294,6 +8524,12 @@ let bit_cond_mat st (rhs : Ast.expr) =
                     flag_neg ())
             | _ -> None)
        | _ -> None)
+  (* [E2E-52/P3-9] b = (cond1 | cond2) in the BIT(1) VALUE position, E52VK stmt3:
+     the OR fold, then the caller's BARE STA <bitcell> (no D6/9F normalization --
+     the fold's last combination already leaves bit7 truth in A).  Vint classes
+     ONLY: allow_dec:false refuses a DEC fold operand there BY NAME (unmeasured). *)
+  | Ast.Ebinary (Ast.Or, _, _) ->
+      Some (fun () -> lower_or st ~allow_dec:false rhs)
   | _ -> None
 
 (* [E2E-49/P4 arm c -- RESULTS s1 P-J1..P-J4, s2.4] ADMISSIBLE SET for `^ ( )' over a FIXED
@@ -8527,6 +8763,12 @@ let rec lower_test_skip0 st (c : Ast.expr) =
       lower_bool st c;
       d st op_jp;
       let slot = st.lc in d st 0; d st 0; slot
+  (* [E2E-52/P3-9] a disjunction lowers as ONE boolean fold + ONE skip jump --
+     immediately BESIDE the conjunction arm [E52VA..VK]. *)
+  | Ast.Ebinary (Ast.Or, _, _) ->
+      lower_bool st c;
+      d st op_jp;
+      let slot = st.lc in d st 0; d st 0; slot
 
   (* ---- [E2E-7A slice 1] FIXED DECIMAL comparison --------------------
      ?DCMOP takes NO relation argument: it pops two decimals and leaves a
@@ -8624,6 +8866,19 @@ let rec lower_test_skip0 st (c : Ast.expr) =
       hl_bias st (-kk);
       d st op_mov_a_h; d st 0xb5;      (* ORA L *)
       d st op_jnz;
+      let slot = st.lc in d st 0; d st 0; slot
+  (* [E2E-52/P3-9] v < 0 in TEST position, E52VA 0006: LDA &(v)+1 ; ORA A ;
+     F2 <skip> -- the HIGH byte of the 2-byte auto cell carries the sign in
+     bit7 and ORA A sets S from it.  PLAIN FIXED BINARY AUTOMATIC against the
+     TEXTUAL literal 0 ONLY; every other < k spelling (formal, based, DEC,
+     nonzero or differently spelled) falls through to the ladder arm BELOW,
+     whose kk < 1 refusal "codegen: < 0 / negative const form unproven [TBD]"
+     MUST survive verbatim. *)
+  | Ast.Ebinary (Ast.EqR Ast.Lt, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber "0"; _ })
+    when or_plain_name st v ->
+      d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig + 1);
+      d st op_ora_a; d st op_jp;
       let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Lt, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber k; _ }) ->
