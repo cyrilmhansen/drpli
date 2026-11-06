@@ -804,6 +804,15 @@ E52XH	specimen	probes/E52XH.PLI	golden/e52p11/E52XH/E52XH.REL
 E52XI	specimen	probes/E52XI.PLI	golden/e52p11/E52XI/E52XI.REL
 E52XJ	refusal	E52XJ: procedure options(main);\n   /* E2E-52/P3-11 probe XJ (PLAN H-J): file PAGE with\n      NO open at all -- E46L8's no-open LIST geometry\n      (SEL-COMMON at first use) asked of ?PAGOP.\n      Verdict UNKNOWN; PU1's refusal must survive. */\n   dcl pf file;\n   dcl x fixed bin;\n   put file(pf) page;\n   x = 2;\nend E52XJ;\n	DR COMPILES IT (golden/e52p11/E52XJ/E52XJ.REL, 256 B whole-file: `NO ERROR(S)' in BOTH passes; campaign e52p11 11 ok/11 measured at 060289e; [C369] H-J) -- `put file(pf) page;' with NO open anywhere: LINK-SEL-COMMON PF at FIRST USE (record @834 of the raw bit stream) then the SAME 18-B PAGE block -- attach `11 52 06' 0x0652, ?SIOOP@0010, ?PAGOP@0013, ?QIOOP@0016, LXI B slot 000D -> 0018 = start of x = 2; CODE 0021, DATA 0002. That is E46L8's no-open LIST geometry asked of ?PAGOP.  Mine refuses BY NAME: the eligibility guard claims a whole statement only where this compiler lowered the OPEN (PU1/E41X5/E46K10 keep their refusals), so this is a `my-gap' row on a verdict DR has now told us, and the XJ golden is claimed by NO rule here until the no-open attach lands with an object of ours behind it.  Marker RE-MEASURED rc=2 on binary 25c57e27696421e929b8... this hop under the gate's CRLF+bare-^Z materialization (line 8), never assumed.
 E52XK	refusal	E52XK: procedure options(main);\n   /* E2E-52/P3-11 probe XK (PLAN H-K): is PAGE a mode\n      question?  stream INPUT open then a file PAGE.\n      Attach predict 0652 (statement direction [C280]);\n      competitors: refusal or a mirroring attach. */\n   dcl pf file;\n   dcl x fixed bin;\n   open file(pf) stream input;\n   put file(pf) page;\n   x = 2;\nend E52XK;\n	DR COMPILES IT (golden/e52p11/E52XK/E52XK.REL, 256 B whole-file: `NO ERROR(S)' in BOTH passes; campaign e52p11 11 ok/11 measured at 060289e; [C369] H-K) -- `open file(pf) stream input;' lowers the E52TA-shaped 17-B open with w1 `21 90 06' (0x0690, ?OIOOP@0019) and the following PAGE rides the VERBATIM 18-B block with the attach word STILL `11 52 06' 0x0652 (?SIOOP@0025, ?PAGOP@0028, ?QIOOP@002B, LXI B slot 0022 -> 002D; CODE 0036, DATA 0002) -- identical geometry to XA behind the PRINT open.  The attach word is the PUT statement's DIRECTION, not the open's mode ([C280] again); the pre-registered competitors `refusal' and `mirroring attach' are FALSIFIED.  Mine lowers the stream-input OPEN but records no file_out group for it (only OUTPUT/PRINT spellings record, 3e0a3c1), so the named PUT on it refuses BY NAME -- INPUT-direction named PUTs stayed outside the arm per PLAN §5; `my-gap' row, golden KEPT, claimed by NOTHING here.  Marker RE-MEASURED rc=2 on binary 25c57e27696421e929b8... this hop (line 9), never assumed.
+E52YA	specimen	probes/E52YA.PLI	golden/e52p12/E52YA/E52YA.REL
+E52YB	specimen	probes/E52YB.PLI	golden/e52p12/E52YB/E52YB.REL
+E52YC	specimen	probes/E52YC.PLI	golden/e52p12/E52YC/E52YC.REL
+E52YD	specimen	probes/E52YD.PLI	golden/e52p12/E52YD/E52YD.REL
+E52YE	specimen	probes/E52YE.PLI	golden/e52p12/E52YE/E52YE.REL
+E52YF	specimen	probes/E52YF.PLI	golden/e52p12/E52YF/E52YF.REL
+E52YG	specimen	probes/E52YG.PLI	golden/e52p12/E52YG/E52YG.REL
+E52YH	specimen	probes/E52YH.PLI	golden/e52p12/E52YH/E52YH.REL
+E52YI	specimen	probes/E52YI.PLI	golden/e52p12/E52YI/E52YI.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
@@ -989,7 +998,6 @@ N31_DIV_LITERAL_NUMERATOR	refusal	t:\n  procedure options(main);\n  dcl a fixed 
 N32_DIV_CHAINED	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl b fixed dec(9,2);\n  dcl c fixed dec(9,2);\n  a = 6; b = 2;\n  c = a / b / 2;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG17/NG17.REL)
 N33_DEC_FORMAL	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  r = g(1);\n  put list(r);\n  stop;\n  g: procedure(x) returns(fixed dec(9,2));\n     dcl x fixed dec(9,2);\n     return (x);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG18/NG18.REL)
 N34_DEC_NEGSCALE_DIV	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,0);\n  dcl b fixed dec(9,8);\n  dcl c fixed dec(9,0);\n  a = 6; b = 2;\n  c = a / b;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG19/NG19.REL)
-N35_DEC_STORE_SCALE_DRIFT	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,4);\n  a = 6;\n  c = a;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG20/NG20.REL)
 N36_ROUND_ONEARG	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n  dcl y fixed dec(9,2);\n  a = 2.125;\n  y = round(a);\n  stop;\nend t;\n	DR REFUSES: SYNTAX (golden/negpanel1/NG21/NG21.PRN)
 N37_ROUND_LITERAL	refusal	t:\n  procedure options(main);\n  dcl y fixed dec(9,2);\n  y = round(2.125, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG22/NG22.REL)
 N38_ROUND_INTARG	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl y fixed dec(9,2);\n  i = 7;\n  y = round(i, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG23/NG23.REL)
@@ -1039,6 +1047,7 @@ N83_EXPR_OF_NO_RETURNS	refusal	E24I:\n  procedure options(main);\n  declare (a, 
 N9_GTZERO	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  if a > 0 then put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)
 NETWORK	specimen	artefacts/NETWORK.PLI	golden/first8080u/NETWORK/NETWORK.REL
 NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
+NG20	specimen	probes/NG20.PLI	golden/negpanel1/NG20/NG20.REL
 O1	specimen	artefacts/O1.PLI	golden/e2e333d/O1/O1.REL
 O2	specimen	artefacts/O2.PLI	golden/e2e333d/O2/O2.REL
 O3	specimen	artefacts/O3.PLI	golden/e2e333d/O3/O3.REL

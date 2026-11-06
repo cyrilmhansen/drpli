@@ -2462,6 +2462,65 @@ SPECIMENS.update({
     "E52XI": ("probes/E52XI.PLI", "golden/e52p11/E52XI/E52XI.REL"),
 })
 
+# [E2E-52/P3-12] DECIMAL DIRECT STORE ACROSS SCALES (the LOAN2:111 blocker, now lowered).
+# The law is [C370], measured from the e52p12 campaign goldens VERBATIM (oracle `NO ERROR(S)'
+# both passes): a cross-scale direct store `x = y' between two plain automatic FIXED DECIMALS
+# emits the shift `MVI A,|Δs| / CALL ?QDDSL' (scale UP, s_src < s_tgt) or `MVI A,|Δs| /
+# CALL ?QDDSR' (scale DOWN) BETWEEN the source `?DLDOP' and the destination `LXI H,*x';
+# ?DSTOP's `MVI A` carries the TARGET precision; equal scales emit NO shift (YA); the
+# computed-quotient route keeps its armed [C086] bytes UNTOUCHED (YH).  All TEN registered
+# probes are whole-file BYTE-EXACT on binary 6a4c6c1154a0acd8403b... (9/9 cmp rc=0 POSITIONAL
+# into FRESH build/p3-12/fix-out/ + NG20 cmp rc=0 into build/p3-12/reg-out/).
+#   E52YA 256 B; CODE 003C, DATA 0009.  EQUAL-SCALE control `a = b' dec(9,2) <- dec(6,2):
+#             `LXI H,*b(data@0005) / MVI A,06 / ?DLDOP@000C' straight to `LXI H,*a(data@0000)
+#             / MVI A,09 / ?DSTOP@0014' -- NO shift call and NO QDD* chain anywhere (the H-1
+#             negative control; cross-precision alone shifts nothing, LOAN1 PMT = P re-held).
+#   E52YB 256 B; CODE 0041, DATA 000A.  UP d=2 `a = b' dec(9,2) <- dec(9,0): `?DLDOP@000C'
+#             then `MVI A,02 / ?QDDSL@0011' BETWEEN the source push and `LXI H,*a(data@0000)
+#             / MVI A,09 / ?DSTOP@0019' -- DSTOP A = TARGET precision (H-1 HIT, H-2 falsifier).
+#   E52YC 256 B; CODE 0041, DATA 000C.  UP d=11 `b = a' dec(15,13) <- dec(6,2): `MVI A,0B /
+#             ?QDDSL@0011'; |Δs| = 11 WITH Δp = 9 present -- the precision-in-amount
+#             competitor H-2 is FALSIFIED by this witness (H-1 law: scale difference ONLY).
+#   E52YD 256 B; CODE 0041, DATA 000B.  LOAN2:111 VERBATIM shape `inf = ci' dec(4,3) <-
+#             dec(15,14): `MVI A,0F / ?DLDOP@000C / MVI A,0B / ?QDDSR@0011' down 11, then
+#             `LXI H,*inf(data@0008) / MVI A,04 / ?DSTOP@0019' -- reproduces authentic
+#             LOAN2.REL 04B7-04CB (d = 14-3 = 11, TARGET precision 4 at DSTOP).
+#   E52YE 256 B; CODE 0041, DATA 000A.  UP d=2 second witness `a = c' dec(9,2) <- dec(9,0):
+#             store block byte-identical to YB (`MVI A,02 / ?QDDSL@0011').
+#   E52YF 256 B; CODE 0041, DATA 0010.  DOWN d=14 `b = a' dec(15,0) <- dec(15,14): `MVI A,0E
+#             / ?QDDSR@0011' ACCEPTED by DR -- the large-d cap competitor H-3 is FALSIFIED.
+#   E52YG 256 B; CODE 0041, DATA 0010.  DOWN d=13 `a = b' dec(15,1) <- dec(15,14): `MVI A,0D
+#             / ?QDDSR@0011'.
+#   E52YH 384 B; CODE 0051, DATA 000F.  COMPUTED control `c = a / b' all dec(9,2) -- the
+#             armed [C086] L3/L5 route UNTOUCHED: `?DLDOP@000C / MVI A,06 / ?QDDSL@0011 /
+#             ?DLDOP@0019 / ?DDVOP@001C / MVI A,04 / ?QDDSR@0021 / MVI A,09 / ?DSTOP@0029'
+#             (H-5 CONFIRMED; division stays OUTSIDE the P3-12 perimeter).
+#   E52YI 256 B; CODE 003F, DATA 0007.  `d = decimal(i,7)' into dec(9,2): `LHLD *i(data@0000)
+#             / ?QI15D@000A / MVI A,02 / ?QDDSL@000F / LXI H,*d(data@0002) / MVI A,09 /
+#             ?DSTOP@0017' -- the decimal() doorway stores through the SAME shift law from
+#             scale 0; the shift-free decimal() competitor H-6 is FALSIFIED (pre-arm my-gap,
+#             closed by the arm's c_direct sc=0 rule).
+#   NG20  256 B; CODE 004C, DATA 000F.  RETIRED FROM THE NEG PANEL: gate row N35_DEC_STORE_
+#             SCALE_DRIFT (my-gap) was `c = a' dec(9,4) <- dec(9,2) and DR COMPILES IT -- its
+#             own NEG_META verdict said so and the armed direct-store law reproduces the kept
+#             golden BYTE-EXACT (cmp rc=0; `?DLDOP@001C / MVI A,02 / ?QDDSL@0021 / ?DSTOP@0029'
+#             after the equal-nothing literal store `a = 6').  N26_DECDIV precedent: a retired
+#             negative whose shape is now PROVEN becomes a POSITIVE specimen.  Source
+#             materialized VERBATIM from the retired inline REJECTS text (CRLF + bare ^Z);
+#             golden path UNCHANGED, NEVER re-derived.  Refusals 189 -> 188 honestly.
+SPECIMENS.update({
+    "E52YA": ("probes/E52YA.PLI", "golden/e52p12/E52YA/E52YA.REL"),
+    "E52YB": ("probes/E52YB.PLI", "golden/e52p12/E52YB/E52YB.REL"),
+    "E52YC": ("probes/E52YC.PLI", "golden/e52p12/E52YC/E52YC.REL"),
+    "E52YD": ("probes/E52YD.PLI", "golden/e52p12/E52YD/E52YD.REL"),
+    "E52YE": ("probes/E52YE.PLI", "golden/e52p12/E52YE/E52YE.REL"),
+    "E52YF": ("probes/E52YF.PLI", "golden/e52p12/E52YF/E52YF.REL"),
+    "E52YG": ("probes/E52YG.PLI", "golden/e52p12/E52YG/E52YG.REL"),
+    "E52YH": ("probes/E52YH.PLI", "golden/e52p12/E52YH/E52YH.REL"),
+    "E52YI": ("probes/E52YI.PLI", "golden/e52p12/E52YI/E52YI.REL"),
+    "NG20":  ("probes/NG20.PLI",  "golden/negpanel1/NG20/NG20.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -2688,11 +2747,12 @@ REJECTS = {
          "  dcl c fixed dec(9,0);\n  a = 6; b = 2;\n"
          "  c = a / b;\n  put list(c);\nend t;\n",
          "negative scale"),
-    "N35_DEC_STORE_SCALE_DRIFT":
-        ("t:\n  procedure options(main);\n"
-         "  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,4);\n"
-         "  a = 6;\n  c = a;\n  put list(c);\nend t;\n",
-         "differing scales is"),
+    # [E2E-52/P3-12] N35_DEC_STORE_SCALE_DRIFT RETIRED: DR COMPILES its exact shape (the kept
+    # golden golden/negpanel1/NG20/NG20.REL, NEG_META verdict said "DR COMPILES IT") and the
+    # armed direct-store law [C370] reproduces it whole-file byte-exact (cmp rc=0, verified
+    # twice -- harness path and FRESH build/p3-12/reg-out/).  Registered as the POSITIVE
+    # specimen NG20 above (N26_DECDIV precedent).  No replacement negative is invented for the
+    # STILL-refused suffix/pointer DEC-store routes: their DR behaviour is UNMEASURED.
     # ---- E2E-6 DECIMAL perimeter: these MUST refuse, never guess ----
     # [E2E-7A slice 1] the six relations themselves are now implemented
     # (R507/R601-R609 byte-exact), so the comparison perimeter shrinks to
@@ -2715,7 +2775,8 @@ REJECTS = {
     # [E2E-7A slice 2] RETIRED: N26_DECDIV (`c = a / 2`) is now PROVEN --
     # R512's own shape compiles byte-exact, so it is registered as a
     # positive specimen instead of a refusal target.  The perimeter it used
-    # to guard is now covered by N31/N32/N34/N35 above.
+    # to guard is now covered by N31/N32/N34 above (N35 retired to the
+    # POSITIVE specimen NG20 [E2E-52/P3-12], [C370]).
     "N27_DECBIGP": ("t:\n  procedure options(main);\n"
                     "  dcl d fixed dec(20,0);\n  d = 1;\nend t;\n",
                     "exceeds DR's FIXED precision limit"),
@@ -3751,8 +3812,8 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG18/NG18.REL)"),
     "N34_DEC_NEGSCALE_DIV": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG19/NG19.REL)"),
-    "N35_DEC_STORE_SCALE_DRIFT": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG20/NG20.REL)"),
+    # [E2E-52/P3-12] N35_DEC_STORE_SCALE_DRIFT's NEG_META row retired WITH its REJECTS entry:
+    # the shape is now the POSITIVE specimen NG20 (verdict kept above and in [C370]).
     "N36_ROUND_ONEARG": ("dr-refuses",
      "DR REFUSES: SYNTAX (golden/negpanel1/NG21/NG21.PRN)"),
     "N37_ROUND_LITERAL": ("my-gap",
