@@ -1618,22 +1618,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 423
-checkpoint-id: g423-c7fea0b9b893
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4451, session 01a1b0af-69f5-727f-87af-8026d94ea471)
-checkpointed: 2026-11-06T12:08:15.931Z
+checkpoint-generation: 424
+checkpoint-id: g424-ffbd6a7fac5e
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 2, remaining ~9635, session 01a1b0c9-3223-71e9-bce7-91811541d304)
+checkpointed: 2026-11-06T13:33:23.043Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: aaee8691c95b73c5f291297c797aff3eb229d7b921d566500da6d7bcde0597ca
+source-progress: 3ec9543fc89b3073a5e1cbfe5cfd2a88140d606ca36804f7a855cdaa2a25ed7b
 source-handoff: 9113c9bf748992ffb40f8dd8839d11779744a1ed8eb5ce075cf354aeedc54596
-source-learnings: 8b75678cfac3190b6be66430220a2ecebc2ff7aef86c516255f03c8777af4e82
+source-learnings: 410b70dbbc18b1fdb247519db766364c4dd45702e3b7f2379072c437b35b0f59
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b0c9-3223-71e9-bce7-91811541d304
+readiness-at: 2026-11-06T13:33:23.062Z
+readiness-checkpoint: g424-ffbd6a7fac5e
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2254,5 +2257,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-10 CLOSED at hop 3 (session 01a1b0af, chain 01a1b069 renewal 3/12). All six hop-3 steps landed: AST proto 91060ea 12/12; registration 21d4db6 (1269/187, WL dr-refuse VERBATIM); census 0198fe5 (15/0/26/0, LOAN2 msg MOVED VERBATIM 92->99, NEVER fix); C368 7153716 measured-bytes-only BEFORE COVERAGE; COND.SIGNAL row + IDS line 65b005e -> coverage_check 142 rows 0/0 SUPPORTED 92; FULL gate rc=0 build/gate-e52p10-reg.log (1269/0, 187/187, 9/9, 142 rows, census 15/0/26/0, prose 5 — every pre-registered number HIT); RESULTS §P3-10 + PLAN §5 row + PLAN §P3-10 CLOSED fbca4fe; durables 291a3be. STOP REACHED: NOTHING authorized — no line-99 PUT FILE(OUTPUT) work, no P3-11, no oracle, no runtime claims; further work needs a NEW operator brief. Ledger ENDS C368; binary a4c0e235ed4bb81fe284==tree; goldens NEVER re-derived; config NEVER staged; no push.
+E2E-52/P3-11 (operator-authorized): Phase A COMPLETE and durably recorded in LEARNINGS.md § "E2E-52/P3-11 — Phase A evidence audit" + PROGRESS.md ## Next action (commit b0c5dbd). Successor: execute Next action step (1) — write PLAN §P3-11 + probes E52XA..E52XK, commit explicit paths BEFORE the first oracle call, then run the e52p11 campaign (step 2), implement the smallest measured rule (step 3: candidate A likely — lower_open records PRINT opens into st.file_out; keep PU1 marker substring 'PUT FILE(F) has no byte-exact DR witness' firing), verify/registers C369/gate/close (steps 4-6). Baseline: HEAD b0c5dbd, ledger C368, inventory 1269/187, coverage 142/92, binary a4c0e235ed4bb81fe284==tree. NEVER stage handoff.config.json; goldens verbatim before ocaml bytes; no P3-12; STOP at P3-11 closure.
 <!-- guard:end checkpoint -->
