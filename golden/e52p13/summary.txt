@@ -1,0 +1,6 @@
+E52ZA	ok	PRN=True REL=True
+E52ZB	ok	PRN=True REL=True
+E52ZC	ok	PRN=True REL=True
+E52ZD	ok	PRN=True REL=True
+E52ZE	ok	PRN=True REL=True
+E52ZF	ok	PRN=True REL=True

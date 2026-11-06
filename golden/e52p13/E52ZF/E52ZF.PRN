@@ -1,0 +1,54 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52ZF
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52ZF
+
+   1 a 0000 E52ZF: procedure options(main);
+   2 a 0006    /* E2E-52/P3-13 probe ZF (PLAN P3-13 H-8): LOAN2:117-118
+   3 a 0006       replication - VOID call, FIVE product actuals
+   4 a 0006       dec(10,2)*dec(4,3) vs FIVE fixed dec(10,2) formals.
+   5 a 0006       Five 32 B blocks into 6 B temps stride 6, STATIC
+   6 a 0006       5-cell descriptor vector, LXI H,*A(vec)+CALL,
+   7 a 0006       callee arity-5 block copy MVI C,0A then five
+   8 a 0006       LHLD/MVI A,0A/?DLDOP reads. NO PUT EDIT in the
+   9 a 0006       body - display's EDIT tail is a later slice. */
+  10 c 0006    dcl v1 fixed dec(10,2);
+  11 c 0006    dcl v2 fixed dec(10,2);
+  12 c 0006    dcl v3 fixed dec(10,2);
+  13 c 0006    dcl v4 fixed dec(10,2);
+  14 c 0006    dcl v5 fixed dec(10,2);
+  15 c 0006    dcl inf fixed dec(4,3);
+  16 c 0006    dcl a fixed dec(10,2);
+  17 c 0006 
+  18 c 0006    call display(v1 * inf, v2 * inf, v3 * inf,
+  19 c 00AC       v4 * inf, v5 * inf);
+  20 c 00AC    put skip list(a);
+  21 c 00CF 
+  22 c 00CF    display: procedure(a,b,c,d,e);
+  23 e 00CF       dcl a fixed dec(10,2);
+  24 e 00DF       dcl b fixed dec(10,2);
+  25 e 00DF       dcl c fixed dec(10,2);
+  26 e 00DF       dcl d fixed dec(10,2);
+  27 e 00DF       dcl e fixed dec(10,2);
+  28 e 00DF       put skip list(a);
+  29 c 0103       end display;
+  30 a 0103 end E52ZF;
+
+CODE SIZE = 0106
+DATA AREA = 0059
+FREE SYMS = 37AF
+END  COMPILATION
+
