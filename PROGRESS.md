@@ -42,9 +42,11 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-13 hop 8 PART LANDED — ARM EDITS COMMITTED `13e53be` UNVALIDATED; histogram repair FIRST, then validation/register/close; read `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" FIRST — it is the current successor contract)
+## Next action (E2E-52/P3-13 hop 9 VALIDATION LANDED — 6/6 cmp + NG18 retirement proven; REGISTER → C371 → COVERAGE → GATE → CLOSE owed; read `LEARNINGS.md` § "P3-13 hop 9" FIRST — it is the current successor contract)
 
-**EXECUTE NOW (successor): read `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" FIRST and follow its steps (0)–(7) EXACTLY. STATE: ARM EDITS ALREADY APPLIED (UNCOMMITTED at hop-8 close — commit them first, explicit paths ocaml/lib/bind.ml ocaml/lib/codegen.ml) — bind gained `cs_dec` sizing authority (DEC expression temps sized bytes_of callee RTdec row, array-named/recursive/external excluded); codegen admits ONLY the measured literal (`dec_pool` pre-scaled formal-width cell, ZERO code) and Mul-of-two-plain-DEC-autos product (armed `dec_push` route + `!dec_actual_mat` hook terminating DSTOP A=pf into the formal-width temp); Line-N BY-NAME refusal VERBATIM otherwise; `dec_pool` MOVED before lower_hl. Default build rc=0 binary `26ed7ccf54e6bf77…`, but NEW Warnings 9 (missing-record-field — find other call_site constructions) + 39 (unused-rec) MUST be repaired to histogram codegen 68/total 124 == baseline FIRST (full fresh `--build-dir` build; `eval "$(opam env)"` every shell). Then cmp ZA..ZF FRESH POSITIONAL, sweep 159/0, markers + honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC 64/0, divcheck 9/9, LOAN2 never-predict, register from 1288/188, C371 measured-bytes-only + DATED both-errors C093 correction, coverage extension, gate rc=0 → build/gate-e52p13-reg.log, RESULTS §P3-13 + PLAN §5 row + CLOSED; marathon through P3-19.**
+**EXECUTE NOW (successor): follow `LEARNINGS.md` § "P3-13 hop 9" STILL OWED (1)–(7) EXACTLY.** STATE verified: armed binary sha256 **`6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2`** (deterministic, histogram codegen 68/total 124 == baseline via FULL fresh `--build-dir`); E52ZA..ZF **6/6 whole-file cmp rc=0** (`build/p3-13/arm-out2/`); sweep **168 byte-exact/FAILS 0** (contract's 159 was STALE — INVENTORY rows moved; re-check post-registration); DEC regressions 64/0; divcheck 9/9; **`probes/NG18.PLI`** (sha `20006b0c…`) cmp rc=0 vs KEPT golden → N33→NG18 retirement PROVEN (delete REJECTS ~2734 + NEG_META ~3812 rows, add SPECIMENS NG18, refusals 188→187). Repairs landed `9b81ed0`: const_cells DEC demand `dec_pool_bytes pf` + deref-DEC PUT LHLD route (both measured, goldens-only adjudication). LOAN2 UNMODIFIED rc=2 NO `.REL`, ACTUAL blocker VERBATIM `codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` / `CALL id(args)` / bare `id;` have a DR lowering sampled; line 121)` — PAST 117, NEVER fix; P3-14 target = line 121 `call summary();` (investigate WHY first-hand before pre-registering). Then register from **1288/188** (+6 ZA..ZF + NG18 → expect 1295/187), census OWN path (LOAN2 msg MOVES VERBATIM, counts 15/0/26/0), **C371 measured-bytes-only BEFORE ANY COVERAGE touch + DATED correction of BOTH C093 errors** (false DECPOLY `*A(005A)=5.67`; 2-byte width → 5 B formal-width `00 01 00 00 00`), coverage row/extension (SAME-change IDS line; NEVER coverage_gen.py; 15 cols FIRST NON-COMMENT row; manual_ref `pNN[:§X.Y][=phrase]`|`NONE:`; coverage_check adjudicates 143→144), FULL gate rc=0 DIRECT → `build/gate-e52p13-reg.log`, RESULTS §P3-13 + PLAN §5 row + §P3-13 **CLOSED**; marathon through P3-19.
+
+SUPERSEDED-BY-ABOVE: **EXECUTE NOW (successor): read `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" FIRST and follow its steps (0)–(7) EXACTLY. STATE: ARM EDITS ALREADY APPLIED (UNCOMMITTED at hop-8 close — commit them first, explicit paths ocaml/lib/bind.ml ocaml/lib/codegen.ml) — bind gained `cs_dec` sizing authority (DEC expression temps sized bytes_of callee RTdec row, array-named/recursive/external excluded); codegen admits ONLY the measured literal (`dec_pool` pre-scaled formal-width cell, ZERO code) and Mul-of-two-plain-DEC-autos product (armed `dec_push` route + `!dec_actual_mat` hook terminating DSTOP A=pf into the formal-width temp); Line-N BY-NAME refusal VERBATIM otherwise; `dec_pool` MOVED before lower_hl. Default build rc=0 binary `26ed7ccf54e6bf77…`, but NEW Warnings 9 (missing-record-field — find other call_site constructions) + 39 (unused-rec) MUST be repaired to histogram codegen 68/total 124 == baseline FIRST (full fresh `--build-dir` build; `eval "$(opam env)"` every shell). Then cmp ZA..ZF FRESH POSITIONAL, sweep 159/0, markers + honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC 64/0, divcheck 9/9, LOAN2 never-predict, register from 1288/188, C371 measured-bytes-only + DATED both-errors C093 correction, coverage extension, gate rc=0 → build/gate-e52p13-reg.log, RESULTS §P3-13 + PLAN §5 row + CLOSED; marathon through P3-19.**
 
 SUPERSEDED-BY-ABOVE: **DONE hop 8 (session 01a1b225, renewal 8/12; ZERO oracle; ZERO `ocaml/` byte; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier):** g456 blocks VERBATIM `afff5e0`; build rc=0 binary `6a4c6c1154a0acd8403b…`==tree. First-hand code anatomy resolved the two open design questions: (1) `dec_pool`/`dec_push` are NOT in scope inside `lower_hl` (chain ends 5723; dpush↔lower_hl mutual) → MOVE `dec_pool` verbatim after `vk_dec_at` @3860 + ONE `dec_actual_mat` ref slot installed immediately after `dec_push`; (2) bind sizing authority — add `cs_dec : bool list` to call_site (internal non-recursive non-attr callee AND scalar RTdec formal), move `callee`/`callee_arrs` above `temps`, size DEC expression temps `bytes_of (RTdec(pf,sf))`, codegen zip3→zip4 and gates BOTH new guard arms (`Ast.Enumber _`, `Ast.Ebinary (Ast.Mul, plain-dec-auto, plain-dec-auto)`) on `decact`; array-named formal shares the RTdec ROW so the exclusion is MANDATORY. Full edit list (bind i–v, codegen a–g), histogram method, validation suite, N33→NG18 retirement rule, registration/C371/coverage/gate/close steps: `LEARNINGS.md` § "P3-13 hop 8" — EXECUTE (1)–(7) there EXACTLY.
 
@@ -2897,17 +2899,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 459
-checkpoint-id: g459-ec4e6cd96562
-checkpoint-kind: manual
+checkpoint-generation: 461
+checkpoint-id: g461-b4b5484f001d
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-06T18:59:44.105Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-06T19:13:56.986Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 715590c4704c310a6b65a357b3c7755a2e531b1773c21a1207b177b5879f3830
-source-handoff: 9699a18ea6f973ce640091d64cde8693d3c64d771b5cd3514aeef01ce2d399fa
-source-learnings: 103ac6c00062813bb23881e4a1b447f7a8ffca21e04da1201f096de6fcbe34a6
+source-progress: 5d815447ba866cc70e66c4a18b69b841fff28bde28fa62d73d1f7bd5a97ae0c7
+source-handoff: ad5447828ca89c95cbd37808a4bc1b4e774241b474eebfd7c84e8d736e6eef69
+source-learnings: 2282c83ed46636758421cc8345f2cfe4debe0f9470eecb7e96222af5d8896138
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
 
@@ -3542,9 +3544,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b225-1716-71fa-8218-822ad1d0cada
-readiness-at: 2026-11-06T18:59:44.130Z
-readiness-checkpoint: g459-ec4e6cd96562
 <!-- guard:end checkpoint -->
 
 ## Blockers

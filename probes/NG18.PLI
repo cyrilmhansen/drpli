@@ -1,0 +1,12 @@
+t:
+  procedure options(main);
+  dcl r fixed dec(9,2);
+  r = g(1);
+  put list(r);
+  stop;
+  g: procedure(x) returns(fixed dec(9,2));
+     dcl x fixed dec(9,2);
+     return (x);
+  end g;
+end t;
+
