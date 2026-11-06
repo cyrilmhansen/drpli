@@ -3858,6 +3858,37 @@ let vk_dec_at st (n : Ast.name) =
   | Some vi -> (match vi.vk with Vdec (p, s) -> Some (p, s) | _ -> None)
   | None -> None
 
+(* [E2E-52/P3-13] MOVED VERBATIM from below the decimal value model: the CALL
+   arm of lower_hl needs the DEC pool allocator, and dpush (which uses it too)
+   depends on lower_hl -- OCaml resolves a let before its use site, so this
+   hoist is exactly the vk_dec_at precedent above. *)
+(* little-endian packed BCD of the ALREADY-SCALED magnitude v *)
+let dec_pool st ~prec ~scale ~text =
+  let (mag, _own, ls) = dec_lit_value text in
+  if mag < 0 || ls > scale then
+    failwith
+      (Printf.sprintf
+         "codegen: DEC literal %s into scale %d [TBD] (only same-or-less \
+          fractional digits are pinned; negative DEC literals are unpinned)"
+         text scale);
+  let rec mul10 v n = if n = 0 then v else mul10 (v * 10) (n - 1) in
+  let bytes = bcd_pack_scaled (mul10 mag (scale - ls)) prec in
+  let key = Array.to_list bytes in
+  match List.assoc_opt key st.dec_cells with
+  | Some addr -> addr                       (* [R614] reuse the live cell *)
+  | None ->
+      let addr = pool_alloc st bytes in
+      st.dec_cells <- (key, addr) :: st.dec_cells;
+      addr
+
+(* [E2E-52/P3-13/C371] ONE forward slot: the DEC-expression-actual arm of the
+   CALL lowering lives inside lower_hl's chain, but the law it must follow is
+   dv_of/dpush/dec_push in the chain BELOW (which itself calls lower_hl). Two
+   chains stay separate; this slot reuses the ARMED consumer route -- installed
+   immediately after dec_push, never a second copy of the shift/store law. *)
+let dec_actual_mat : (st -> int -> int -> Ast.expr -> int -> unit) ref =
+  ref (fun _ _ _ _ _ -> assert false)
+
 
 (* [E2E-34/P5] THE one encoder for "leave the VALUE of a based FIXED BINARY member
    in HL": load the qualifier's pointer cell, step to the member, then read the two
@@ -4569,7 +4600,13 @@ let rec lower_hl st (e : Ast.expr) =
                    (List.combine l1 l2) l3
                in
                let pairs =
-                 zip3 cs.Bind.cs_args cs.Bind.cs_temps cs.Bind.cs_copies
+                 let zip4 l1 l2 l3 l4 =
+                   List.map2
+                     (fun (x, y) (z, w) -> (x, y, z, w))
+                     (List.combine l1 l2) (List.combine l3 l4)
+                 in
+                 zip4 cs.Bind.cs_args cs.Bind.cs_temps cs.Bind.cs_copies
+                   cs.Bind.cs_dec
                in
                (* set per argument when the actual is a pointer formal of the
                   CALLING scope, i.e. the descriptor word needs DR's dynamic
@@ -4581,6 +4618,16 @@ let rec lower_hl st (e : Ast.expr) =
                   cell BIND allocated in cs_copies [C358] -- codegen never
                   allocates it, only reads the recorded address. *)
                let copyin = ref (None : (int * int * int) option) in
+               (* [E2E-52/P3-13/C371] a DEC-expression product actual operand: a
+                  plain caller-declared DEC auto (NOT a deref'd formal). This is
+                  exactly the shape the E52Z panel measured. *)
+               let dec_product_operand st (e : Ast.expr) =
+                 match (unwrap_e e).Ast.e with
+                 | Ast.Eident v ->
+                     vk_is_dec st v
+                     && not (List.mem (String.lowercase_ascii v.Ast.orig) st.deref)
+                 | _ -> false
+               in
                (* the callee's formal type at each position, so an argument
                   can be MODE-CHECKED [E2E-9]: DR's only pinned decimal
                   argument route is by-reference from an AUTOMATIC decimal
@@ -4644,7 +4691,7 @@ let rec lower_hl st (e : Ast.expr) =
                       | None -> false)
                in
                List.iteri
-                 (fun i (arg, tmp, copy) ->
+                 (fun i (arg, tmp, copy, decact) ->
                    copyin := None; (* per argument, exactly like fwd *)
                    (* [E2E-11 step 4, E29C] width-mismatched argument: an actual
                       whose cell is NARROWER than the formal's declared FIXED type
@@ -4794,6 +4841,24 @@ let rec lower_hl st (e : Ast.expr) =
                                      ^ "(line "
                                      ^ string_of_int arg.Ast.epos.Source.line ^ ")")
                             | _ -> assert false)
+                       | Ast.Enumber _ when decact ->
+                           (* [E2E-52/P3-13, C371] MEASURED literal actual: E52ZC
+                              `1.5' vs dec(9,2) -> cell `50 01 00 00 00', E52ZD/NG18
+                              `1' -> `00 01 00 00 00': ZERO caller runtime code, the
+                              descriptor is a STATIC reloc to a pre-scaled pool cell
+                              of FORMAL width ([C084] packing, dec_pool below). *)
+                           ()
+                       | Ast.Ebinary (Ast.Mul, l, r) when
+                           decact && dec_product_operand st l
+                           && dec_product_operand st r ->
+                           (* [E2E-52/P3-13, C371] MEASURED product actual: E52ZA/ZB
+                              and the authentic LOAN2 055D-05FA five-block site -- the
+                              32 B product block with the [C370]-window shift between
+                              the last arith op and the store, ?DSTOP A = FORMAL
+                              precision, into a bind-allocated FORMAL-WIDTH temp
+                              (cs_dec/cs_temps). Add/sub/div, suffix, deref, EXTERNAL
+                              and recursive callees stay refused BY NAME below. *)
+                           ()
                        | _ ->
                          failwith
                            ("codegen: non-variable argument against a FIXED "
@@ -4806,6 +4871,16 @@ let rec lower_hl st (e : Ast.expr) =
                      end
                    in
                    (match tmp with
+                    | Some t when decact ->
+                        (* [E2E-52/P3-13] DEC expression actual: the guard admitted
+                           ONLY the measured product shape; lower it through the ARMED
+                           dec_push consumer route (c_tgt = formal (p,s): the shift
+                           lands inside the C370 window) terminating DSTOP into the
+                           formal-width temp bind allocated. Never local law. *)
+                        (match formal_rt_at i with
+                         | Some (Bind.RTdec (pf, sf)) ->
+                             !dec_actual_mat st pf sf arg t
+                         | _ -> assert false)
                     | Some t ->
                         lower_hl st arg;
                         d st op_shld; reloc st Data (t + st.base)
@@ -4817,7 +4892,16 @@ let rec lower_hl st (e : Ast.expr) =
                      | None -> begin
                          match arg.Ast.e with
                          | Ast.Enumber k ->
-                             if formal_is_float i then
+                             if formal_is_dec i then
+                               (* [E2E-52/P3-13, C371] measured literal actual: the
+                                  target is the pre-scaled FORMAL-WIDTH dec_pool cell,
+                                  ZERO code (E52ZC/ZD, NG18). formal_is_dec here
+                                  implies decact: the guard refused everything else. *)
+                               (match formal_rt_at i with
+                                | Some (Bind.RTdec (pf, sf)) ->
+                                    dec_pool st ~prec:pf ~scale:sf ~text:k
+                                | _ -> assert false)
+                             else if formal_is_float i then
                                (* a FLOAT literal argument is passed by address
                                   of its POOL cell [R3062: LXI H,*A(0010) with
                                   the descriptor pointing at the 4-byte cell],
@@ -6040,25 +6124,6 @@ let is_small_int st (n : Ast.name) =
    comparisons and DEC arrays/structs are outside this evidence and are
    refused loudly. *)
 
-(* little-endian packed BCD of the ALREADY-SCALED magnitude v *)
-let dec_pool st ~prec ~scale ~text =
-  let (mag, _own, ls) = dec_lit_value text in
-  if mag < 0 || ls > scale then
-    failwith
-      (Printf.sprintf
-         "codegen: DEC literal %s into scale %d [TBD] (only same-or-less \
-          fractional digits are pinned; negative DEC literals are unpinned)"
-         text scale);
-  let rec mul10 v n = if n = 0 then v else mul10 (v * 10) (n - 1) in
-  let bytes = bcd_pack_scaled (mul10 mag (scale - ls)) prec in
-  let key = Array.to_list bytes in
-  match List.assoc_opt key st.dec_cells with
-  | Some addr -> addr                       (* [R614] reuse the live cell *)
-  | None ->
-      let addr = pool_alloc st bytes in
-      st.dec_cells <- (key, addr) :: st.dec_cells;
-      addr
-
 let vk_dec vk = match vk with Vdec (p, s) -> Some (p, s) | _ -> None
 
 let vk_dec_opt st (n : Ast.name) =
@@ -6630,6 +6695,17 @@ let dec_push ?(direct = false) st (tgt : (int * int) option) (e : Ast.expr) : in
 (* a comparison operand is DEC-typed if it is a DEC variable or a DEC
    function call [R601-R606 var/var, LOAN1 P<PMT]; decimal(x,p) in a
    relation is NOT pinned, so it stays refused *)
+(* [E2E-52/P3-13] install the forward slot: the SAME dec_push consumer law the
+   armed DEC stores ride, with the destination cell being the formal-width
+   temp; ?DSTOP A = FORMAL precision (E52ZA 0A / E52ZB 07, authentic LOAN2). *)
+let () =
+  dec_actual_mat :=
+    fun st pf sf arg t ->
+      st.last_imm <- None;
+      ignore (dec_push st (Some (pf, sf)) arg);
+      d st op_lxi_h; reloc st Data (t + st.base);
+      d st op_mvi_a; d st pf; call_ext st "?DSTOP"
+
 let is_dec_operand st (e : Ast.expr) =
   match (unwrap_e e).Ast.e with
   | Ast.Eident n -> vk_dec_opt st n <> None

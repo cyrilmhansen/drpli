@@ -1600,6 +1600,14 @@ type call_site =
   { cs_proc : string; cs_slot : int; cs_args : Ast.expr list
   ; cs_temps : int option list  (* Some addr iff that arg is an expression *)
   ; cs_copies : int option list
+  ; cs_dec : bool list
+    (* [E2E-52/P3-13] true iff this position is a MEASURED DEC-actual formal:
+       an internal, non-recursive, non-RECURSIVE-attributed callee whose formal
+       at i is a SCALAR (not array-named) FIXED DECIMAL row. THIS is the one
+       authority that sizes an expression-argument temp at the FORMAL width
+       (cs_temps) AND licenses codegen to admit a DEC literal/product actual
+       against it -- exactly the `copy <> None' gate pattern of [C358]: bind
+       allocates and records, codegen consumes and NEVER re-derives sizing. *)
     (* [E2E-52/P2] Some addr iff that arg is a caller-declared FIXED DECIMAL
        variable passed to a WIDER FIXED DECIMAL formal at the SAME scale: DR
        copies it into a caller-side temp sized at the FORMAL's precision and
@@ -2274,9 +2282,49 @@ let bind_program (blk : Ast.block) : prog_layout =
                        | _ -> false)
                   | _ -> false
                 in
+                let callee =
+                  match List.find_opt (fun (n, _, _, _, _) -> n = p) !reg with
+                  | Some (_, pb, recf, attrf, fm) when not recf && not attrf ->
+                      Some (pb, fm)
+                  | _ -> None
+                in
+                let callee_arrs =
+                  match callee with
+                  | Some (pb, _) -> (try bind_arrays pb with _ -> [])
+                  | None -> []
+                in
+                (* [E2E-52/P3-13] the measured DEC-actual perimeter (see cs_dec):
+                   internal non-recursive callee, SCALAR DEC formal. An array-
+                   named formal SHARES the RTdec row with its element type (the
+                   same row `copies' excludes via callee_arrs), so it is excluded
+                   here too -- a formal-width store into a 2-byte BIN temp would
+                   otherwise silently overrun the cell. *)
+                let dec_ok =
+                  List.mapi
+                    (fun i _arg ->
+                      match callee with
+                      | Some (pb, fm) ->
+                          (match List.nth_opt fm i with
+                           | Some fn ->
+                               not
+                                 (List.exists
+                                    (fun (n, _l, _u, _e) ->
+                                      String.equal n fn) callee_arrs)
+                               && (match
+                                     List.find_map
+                                       (fun (n, rt, _) ->
+                                         if n = fn then Some rt else None)
+                                       (named_of pb)
+                                   with
+                                   | Some (RTdec _) -> true
+                                   | _ -> false)
+                           | None -> false)
+                      | None -> false)
+                    args
+                in
                 let temps =
-                  List.map
-                    (fun arg ->
+                  List.mapi
+                    (fun i arg ->
                       (* [E2E-22/P3] an array ELEMENT actual is passed by reference to the
                          element's own cell -- AB7 `call p(a(4))' emits `LXI H,A+0006 / SHLD
                          <desc>' and PASSARAY's `call inner(argument(I))' emits the variable-index
@@ -2287,7 +2335,34 @@ let bind_program (blk : Ast.block) : prog_layout =
                       match arg.Ast.e with
                       | Ast.Enumber _ | Ast.Eident _ -> None
                       | _ when is_arr_hd arg -> None
-                      | _ -> let t = !cur in cur := !cur + 2; Some t)
+                      | _ ->
+                          (* [E2E-52/P3-13] a DEC expression actual materialises
+                             into a FORMAL-WIDTH temp (E52ZA dec(10,2) -> 6 B, E52ZB
+                             dec(7,2) -> 4 B, E52ZE dec(9,2) -> 5 B, E52ZF five cells
+                             stride 6); the width is bytes_of of the callee's DEC row,
+                             the SAME sizing authority as cs_copies [C358] and every
+                             declared DEC cell [R507]. Every other expression actual
+                             keeps the 2-byte BIN temp [C145]. *)
+                          let sz =
+                            match i, dec_ok, callee with
+                            | idx, (_ :: _ as dok), Some (pb, fm)
+                              when List.nth dok idx ->
+                                (match List.nth_opt fm idx with
+                                 | Some fn ->
+                                     (match
+                                        List.find_map
+                                          (fun (n, rt, _) ->
+                                            if n = fn then Some rt else None)
+                                          (named_of pb)
+                                      with
+                                      | Some rt -> bytes_of rt
+                                      | None -> 2)
+                                 | None -> 2)
+                            | _ -> 2
+                          in
+                          let t = !cur in
+                          cur := !cur + sz;
+                          Some t)
                     args
                 in
                 (* [E2E-52/P2] DEC copy-in temps, allocated per the cell map of
@@ -2302,17 +2377,6 @@ let bind_program (blk : Ast.block) : prog_layout =
                    shape outside the measured widening family. This is the
                    ONLY place the temp is allocated; codegen consumes the
                    offset and never grows `cur'. *)
-                let callee =
-                  match List.find_opt (fun (n, _, _, _, _) -> n = p) !reg with
-                  | Some (_, pb, recf, attrf, fm) when not recf && not attrf ->
-                      Some (pb, fm)
-                  | _ -> None
-                in
-                let callee_arrs =
-                  match callee with
-                  | Some (pb, _) -> (try bind_arrays pb with _ -> [])
-                  | None -> []
-                in
                 let copies =
                   List.mapi
                     (fun i arg ->
@@ -2360,7 +2424,7 @@ let bind_program (blk : Ast.block) : prog_layout =
                     args
                 in
                 { cs_proc = p; cs_slot = slot; cs_args = args
-                ; cs_temps = temps; cs_copies = copies })
+                ; cs_temps = temps; cs_copies = copies; cs_dec = dec_ok })
               sites0
     in
     calls := !calls @ sites;
