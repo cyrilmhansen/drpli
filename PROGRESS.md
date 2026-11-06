@@ -2765,19 +2765,21 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 401
-checkpoint-id: g401-2ef7950c1f5e
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 402
+checkpoint-id: g402-f6e8797b2808
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-06T06:15:38.979Z
+checkpointed: 2026-11-06T06:16:29.558Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7c1ace02c3abf478920f794c85851c8d5ab0b54833273620145fc0e6696b5da1
-source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
+source-handoff: ec74c028db9367d2da6f397b248326a0b6f136172f7f6cbefd79e25a92a8732b
 source-learnings: 5dc629b662373203cb8144c55ef8a6d80c90c6cd400a77591b793e7c434e4747
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` steps (2)–(5): arm codegen.ml ONLY; build rc=0 + histogram vs 68 + cmp VA–VK whole-file vs `golden/e52p9/` + sweep FAILS 0 + markers (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted `signal error` 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; goldens NEVER re-derived; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 6/12, cap 12.
+next-action: ` (hop 6 REMAINDER) steps (1)–(6): census `--check` OWN path → **C367 measured-bytes-only BEFORE ANY COVERAGE touch** → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`) + coverage_check/prose rc=0 → FULL gate rc=0 `build/gate-e52p9-reg.log` → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); gate inventory now 1260/186 (last full gate ran at 1249 — successor re-runs); goldens NEVER re-derived; chain 01a1adf0 cap 12.
+
+0a-novies-new23. **E2E-52/P3-9 hop 5 PART 6 — FINAL ARM PLAN LANDED; ARM EXECUTION OWED; session RENEWING (2026-11-06, session 01a1ae6a, chain 01a1adf0 renewal 6/12; ZERO `ocaml/` byte, ZERO oracle; build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline; all rc DIRECT; `handoff.config.json` NEVER staged; no push).** Commit `8a7cc32`. New accepted facts: every VA–VK emission list re-confirmed byte-for-byte against `build/e52p9-arm/goldens-dump.txt`; `dec_eq_bool_parts` is VAR-first and matches only var-vs-var — fold DEC `=0` operands emit via the NEW literal-first materialiser in `lower_or` DIRECTLY, never through lower_bool's DEC arms; LOAN2 declares `P fixed decimal(10,2)` (lines 16–22) ⇒ LOAN2:113 witnesses **EqVV in a LATER fold slot** and :120 **Gt0 as And-right** — original-golden decode, panel-unverified = obligation O-1 (re-derive via reldump to `build/e52p9-arm/loan2-decode.txt`, record in C367). The complete plan (placement as `let rec lower_bool … and lower_or …` between @7274/@7276, class head/tail byte lists, node1 rules with BY-NAME refusals, the 7 edit sites, obligations O-1/O-2/O-3) is `LEARNINGS.md` § "hop 5 PART 6" — read it FIRST, then § PART 4 + § PART 3 + § PART 2. **SUCCESSOR:** `PROGRESS.md` → `## Next action` steps (2)–(5): arm codegen.ml ONLY; build rc=0 + histogram vs 68 + cmp VA–VK whole-file vs `golden/e52p9/` + sweep FAILS 0 + markers (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted `signal error` 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; goldens NEVER re-derived; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 6/12, cap 12.
 
 0a-novies-new22. **E2E-52/P3-9 hop 5 PART 4 — arm-session verifications + THREE CORRECTIONS written; ARM OWED; session RENEWING (2026-11-06, session 01a1ae54, chain 01a1adf0 renewal 5/12; ZERO `ocaml/` byte, ZERO oracle; `handoff.config.json` NEVER staged; no push; all rc DIRECT).** Build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline; goldens-dump + probes re-read, every VA–VK region re-confirmed against PART 2/3. CORRECTIONS (LEARNINGS § "hop 5 PART 4", read FIRST, then § PART 3 algorithm + § PART 2 emission lists): (1) `is_plain_bin_auto` does NOT exist — gate = `is_plain_num_auto` @4040 + own `Eident` name extraction; (2) `hl_bias`/`cmp_load_deref` are AFTER `lower_bool` @7276 — fold machinery MUST sit BEFORE lower_bool, inline `op_lhld`+reloc+literal bytes only (plain-gated operands); (3) fold GtC ladder gated k∈{1,2} (DCX×(k+1); k≥3 in-fold refuses BY NAME [TBD]). Anchors: Or test-arm after @8531; `<0` TEST arm (textual `Enumber "0"`) BEFORE @8628; lower_bool Or fold + full arms GtC/Gt0/EqVV/Lt0/DEC-Or + saved-match clauses (NEVER alter And bytes; cross-var rule-2, `a<0|x|y` n≥3, other-var swap all refuse BY NAME); bit_cond_mat Or arm before `_ -> None` @~8316, caller BARE `32` @~9962 stays; DEC literal-first NEW materialiser via `dec_pool`, NEVER `dec_eq_bool_parts`; prescan parity CONFIRMED no edit. **SUCCESSOR:** `PROGRESS.md` → `## Next action` steps (2)–(5): arm codegen.ml ONLY; build rc=0 + histogram vs 68 + cmp VA–VK vs `golden/e52p9/` + sweep FAILS 0 + markers (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted `signal error` 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary 9ecea27aa4f2d80f49ad == baseline; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 5/12, cap 12.
 
@@ -3376,6 +3378,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1af69-84d1-7191-8d53-510874276f71
+readiness-at: 2026-11-06T06:16:29.584Z
+readiness-checkpoint: g402-f6e8797b2808
 <!-- guard:end checkpoint -->
 
 ## Blockers
