@@ -2760,17 +2760,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 396
-checkpoint-id: g396-9144a475f54d
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 397
+checkpoint-id: g397-254dd65e3713
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-06T02:04:45.006Z
+checkpointed: 2026-11-06T02:06:43.260Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5758221ca9900e2bae69756e72acc208e21b4b73fdfbd3e3928f7f56510fa63b
+source-progress: 5f86fa2d13d40c81a4ce30cc28cda4abcbb0d663555d9d04c9726763a3875625
 source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
-source-learnings: df348fab02949d23277eb84596daa7ad8325f6daa21de46dae8351da8a7f5241
+source-learnings: d3aa7bcc62170234176a9b097a54542a92081cfd9907dad6b73731314f78b0ce
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (2)–(5): arm codegen.ml ONLY; build rc=0 + histogram vs 68 + cmp VA–VK whole-file vs `golden/e52p9/` + sweep FAILS 0 + markers (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted `signal error` 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; goldens NEVER re-derived; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 6/12, cap 12.
 
@@ -3371,6 +3371,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1ae80-cd83-7091-837d-1deb7ed3f682
+readiness-at: 2026-11-06T02:06:43.279Z
+readiness-checkpoint: g397-254dd65e3713
 <!-- guard:end checkpoint -->
 
 ## Blockers

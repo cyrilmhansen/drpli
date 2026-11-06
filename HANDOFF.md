@@ -1602,25 +1602,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 395
-checkpoint-id: g395-bbd293295eac
+checkpoint-generation: 397
+checkpoint-id: g397-254dd65e3713
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1514, session 01a1ae6a-aac0-7091-837d-1de7b6ea30ae)
-checkpointed: 2026-11-06T01:37:19.192Z
+status: checkpoint (guard level 4, remaining ~-1717, session 01a1ae80-cd83-7091-837d-1deb7ed3f682)
+checkpointed: 2026-11-06T02:06:43.260Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5758221ca9900e2bae69756e72acc208e21b4b73fdfbd3e3928f7f56510fa63b
+source-progress: 5f86fa2d13d40c81a4ce30cc28cda4abcbb0d663555d9d04c9726763a3875625
 source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
-source-learnings: df348fab02949d23277eb84596daa7ad8325f6daa21de46dae8351da8a7f5241
+source-learnings: d3aa7bcc62170234176a9b097a54542a92081cfd9907dad6b73731314f78b0ce
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1ae6a-aac0-7091-837d-1de7b6ea30ae
-readiness-at: 2026-11-06T01:37:19.219Z
-readiness-checkpoint: g395-bbd293295eac
+readiness-by: session:01a1ae80-cd83-7091-837d-1deb7ed3f682
+readiness-at: 2026-11-06T02:06:43.279Z
+readiness-checkpoint: g397-254dd65e3713
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (finalize: E2E-52/P3-9 hop 5 PART 7 close: durables at c431adf (LEARNINGS § PART 7 + PROGRESS EXACT NEXT). SUCCESSOR: run `python3 build/e52p9-arm/arm-splice.py` (content authority LEARNINGS § hop 5 PART 6 + PART 4 + PART 3 + PART 2), dune build rc DIRECT (NEVER alter And bytes), histogram vs 68, cmp VA-VK whole-file vs golden/e52p9/, sweep FAILS 0, markers (copy build/e52p8-reg/markers.py, CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted signal error 92, NEVER fix), O-1 loan2-decode.txt re-derivation, registration 1249->1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log, RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9, do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary 9ecea27aa4f2d80f49ad == baseline (ZERO ocaml byte); goldens NEVER re-derived; handoff.config.json NEVER staged; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 7/12, cap 12.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2227,5 +2227,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-9 hop 5 — ARM EXECUTION ONLY. Durables at 8a7cc32. Read LEARNINGS § "hop 5 PART 6" FIRST (the FINAL plan: placement between dec_eq_bool_parts @7274 and lower_bool @7276 as a let-rec-and group; exact class head/tail bytes; node1 rules 1–2 with BY-NAME refusals; the 7 edit sites; obligations O-1 loan2-decode.txt re-derivation, O-2 pool invariant, O-3 reloc addr_of+1), then § PART 4 (3 corrections) + § PART 3 (algorithm) + § PART 2 (per-probe emission lists). Execute PROGRESS § "## Next action" steps (2)–(5): arm codegen.ml ONLY (never alter And bytes; fold DEC = literal-first via classifier directly, NEVER via lower_bool DEC arms; bit_cond_mat Or arm ~allow_dec:false; TEST Or arm after @8529; textual-"0" Lt0 leaf arm before @8628); build rc=0 + histogram vs 68 + cmp VA–VK whole-file vs golden/e52p9/ + sweep FAILS 0 + markers (copy build/e52p8-reg/markers.py, CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted signal error 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary 9ecea27aa4f2d80f49ad == baseline; goldens NEVER re-derived; handoff.config.json NEVER staged; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 6/12, cap 12.
+E2E-52/P3-9 hop 5 PART 7 close: durables at c431adf (LEARNINGS § PART 7 + PROGRESS EXACT NEXT). SUCCESSOR: run `python3 build/e52p9-arm/arm-splice.py` (content authority LEARNINGS § hop 5 PART 6 + PART 4 + PART 3 + PART 2), dune build rc DIRECT (NEVER alter And bytes), histogram vs 68, cmp VA-VK whole-file vs golden/e52p9/, sweep FAILS 0, markers (copy build/e52p8-reg/markers.py, CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted signal error 92, NEVER fix), O-1 loan2-decode.txt re-derivation, registration 1249->1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log, RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9, do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary 9ecea27aa4f2d80f49ad == baseline (ZERO ocaml byte); goldens NEVER re-derived; handoff.config.json NEVER staged; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 7/12, cap 12.
 <!-- guard:end checkpoint -->
