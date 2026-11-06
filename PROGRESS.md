@@ -42,9 +42,9 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-13 hop 11 PART LANDED — (A) C371 `1d1885b9` + (B) coverage `afb95163` (144/94 SUPPORTED 94) + guard g465 `d615a96`; (C) FULL GATE rc=1 NEG-FAIL N52_DEC_FORMAL_PUT — cmp rc=0 vs KEPT golden/negpanel1/NG39/NG39.REL MEASURED this session -> N52→NG39 RETIREMENT IN FLIGHT; read `LEARNINGS.md` § "P3-13 hop 10/11 ... GATE rc=1" FIRST — its (C')–(E) list is the successor contract)
+## Next action (E2E-52/P3-13 **CLOSED** at hop 12 — N52→NG39 retired, FULL gate rc=0 1296/186 `build/gate-e52p13-reg.log`, RESULTS §P3-13 + PLAN §5 row + heading CLOSED `79cd5ef0`; SUCCESSOR = P3-14 ONLY; read `LEARNINGS.md` § "P3-13 hop 12" SUCCESSOR CONTRACT (E) FIRST)
 
-**EXECUTE NOW (successor): follow `LEARNINGS.md` § "P3-13 hop 10/11" steps (C')–(E) EXACTLY.** (C') retire N52 to POSITIVE NG39 (probes/NG39.PLI VERBATIM CRLF+bare-^Z sha de1e56e8…; gate REJECTS+NEG_META deleted with retirement comments, SPECIMENS +NG39 golden KEPT NEVER re-derived; --update-inventory 1295/187 -> 1296/186, every line inspected, git diff --cached --stat; census OWN path 15/0/26/0 UNCHANGED LOAN2 msg must NOT move; DATED ADDENDUM bullet appended to C371; PROC.CALL_DEC_ACTUALS probes +NG39 EXACT:8; markers 14/14; divcheck 9/9; DEC regressions; FULL gate rc=0 DIRECT re-run -> OVERWRITE build/gate-e52p13-reg.log (expect 1296/0, 186/186, 9/9, 144 rows 0/0 SUPPORTED 94, census 15/0/26/0, prose 5)). (D) RESULTS §P3-13 (gate-found N52 lesson VERBATIM: sweep/markers never ran the negative panel; retirements N33->NG18 + N52->NG39 honest; every §4 prediction HIT; byte-tier-only) + PLAN §5 row + §P3-13 CLOSED. (E) P3-14 on Line-121 `call summary();` — WHY first-hand ZERO oracle (simple name vs CALL-target guard/cs/entry bookkeeping for zero-arg internal procedures), pre-register PLAN §P3-14 + probes (verify names unused) BEFORE any oracle call/ocaml byte; marathon through P3-19. STATE: HEAD = this durables commit; ledger ENDS C371 (194 headers); inventory 1295/187 (1296/186 owed); coverage 144 rows SUPPORTED 94 (EXACT:8 owed); armed binary sha256 6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2 == tree (build rc=0 re-held this hop); goldens NEVER re-derived; LOAN2 UNMODIFIED rc=2 NO .REL Line-121 blocker VERBATIM NEVER fix; `pli80c` POSITIONAL FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; no push; rc DIRECT; never glue `rm`; byte-tier only; `eval "$(opam env)"` every shell; chain 01a1b1b4 **12/12 cap 12 — the session AFTER this one must close with handoff_finalize, renewal is EXHAUSTED**; renew NOW (last renewal of the chain).
+**EXECUTE NOW (successor): P3-14 on the LOAN2 Line-121 blocker `call summary();` — full contract = `LEARNINGS.md` § "P3-13 hop 12" (E), exact order:** (1) WHY first-hand, ZERO oracle — the guard text claims only `CALL id`/`CALL id(args)`/bare `id;` are lowered yet `summary` IS a simple name; grep `CALL target is not a simple procedure name` in ocaml/lib/codegen.ml, read the call-site classification, inspect what Line-121 hits TODAY (likely zero-arg internal-procedure cs/entry bookkeeping or empty-paren `()` vs bare-name), audit EXISTING arity-0 witnesses in KEPT goldens/claims BEFORE proposing; classify accepted/proposed/falsified. (2) Verify probe names + tag unused (E520A.. or next free; grep E520/e52p14). (3) Write PLAN §P3-14 (template §P3-13) + probes (CRLF+bare-^Z, ≤71 cols, ONE dcl/line, first-line label, continuation statement) + LEARNINGS § hop; commit EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; ZERO-oracle sanity on 6db44394… to pin my-side behaviour. (4) ONE campaign `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py <names> --tag e52p14 --switches '$L$D'` rc DIRECT; read EVERY .PRN; decode into build/p3-14/; goldens VERBATIM before any ocaml/ byte; arm measured shapes ONLY; validation (build rc-0-DIRECT, histogram 68/124, cmp FRESH POSITIONAL, sweep — COUNT MOVES WITH INVENTORY, FAILS 0 binding — markers, DEC regressions 64/0, divcheck 9/9, **FULL GATE BEFORE CLOSE** — hop-11/12 lesson: only the gate runs the negative panel); LOAN2 UNMODIFIED → ACTUAL next blocker VERBATIM NEVER fix; register from 1296/186; C372 measured-bytes-only BEFORE ANY COVERAGE touch; coverage row/extension (SAME-change IDS line if NEW row; NEVER coverage_gen.py; 15 cols FIRST NON-COMMENT row); gate rc=0 DIRECT → build/gate-e52p14-reg.log; RESULTS §P3-14 + PLAN §5 row + CLOSED; marathon through P3-19. STATE at this close (ALL ACCEPTED/VERIFIED THIS SESSION): **P3-13 CLOSED**; HEAD = this durables commit; ledger ENDS **C371** (dated N52→NG39 addendum inside, `016e58e0`); inventory **1296/186**; coverage **144 rows 0/0 SUPPORTED 94** (PROC.CALL_DEC_ACTUALS EXACT:8 incl NG39); LAST FULL GATE rc=0 **build/gate-e52p13-reg.log** (1296/0, 186/186, 9/9, 144 rows, census 15/0/26/0, prose 5); armed binary sha256 **6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2** == tree (build rc=0 re-held); markers 14/14 FAILS 0; DEC 64/0; divcheck 9/9; goldens NEVER re-derived; probes/NG39.PLI sha de1e56e8… cmp rc=0 vs KEPT golden sha 3197de7a… (retirement re-measured first-hand); LOAN2 UNMODIFIED sha 7be23ba3… rc=2 NO .REL Line-121 blocker VERBATIM (`call summary();`) NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; `pli80c` POSITIONAL FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; no push; rc DIRECT; never glue `rm`; byte-tier only; `eval "$(opam env)"` every shell; **CHAIN 01a1b1b4 EXHAUSTED AT CAP 12/12 — renewal NOT available to this session; it closes via handoff_finalize; a NEW chain needs the operator to archive+reset ignored .pi-guard/renewal-state.json.**
 
 SUPERSEDED-BY-ABOVE: 
 
@@ -2903,17 +2903,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 467
-checkpoint-id: g467-16a72670f029
+checkpoint-generation: 469
+checkpoint-id: g469-3c16ef0344c2
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T19:59:17.077Z
+checkpointed: 2026-11-06T20:16:44.993Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 62e4345e26e060ea150c33dc5ea9ac52eb641621f2410980c98d6c9467e5c869
+source-progress: 6e76d6762946c1f10ee81bb512278263b1d64339ad5b96c3eb5886521e145444
 source-handoff: 41794c8b1e673c5f02671007d4e8ad99c1e826f3aaa11cd2cf547048d0dee0d9
-source-learnings: 49bd6f141a5073b34a4d5ca7ff13074b0a6656c735503dd522b8fe724ce2f1c0
+source-learnings: d05eaa8e722acd353d73c10021ea4cbe5b72a4ae925001f0a1fa65ee85089c2d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
 
@@ -3548,9 +3548,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b25c-b8f6-71fa-8218-8237cc24c574
-readiness-at: 2026-11-06T19:59:39.008Z
-readiness-checkpoint: g467-16a72670f029
 <!-- guard:end checkpoint -->
 
 ## Blockers
