@@ -813,6 +813,12 @@ E52YF	specimen	probes/E52YF.PLI	golden/e52p12/E52YF/E52YF.REL
 E52YG	specimen	probes/E52YG.PLI	golden/e52p12/E52YG/E52YG.REL
 E52YH	specimen	probes/E52YH.PLI	golden/e52p12/E52YH/E52YH.REL
 E52YI	specimen	probes/E52YI.PLI	golden/e52p12/E52YI/E52YI.REL
+E52ZA	specimen	probes/E52ZA.PLI	golden/e52p13/E52ZA/E52ZA.REL
+E52ZB	specimen	probes/E52ZB.PLI	golden/e52p13/E52ZB/E52ZB.REL
+E52ZC	specimen	probes/E52ZC.PLI	golden/e52p13/E52ZC/E52ZC.REL
+E52ZD	specimen	probes/E52ZD.PLI	golden/e52p13/E52ZD/E52ZD.REL
+E52ZE	specimen	probes/E52ZE.PLI	golden/e52p13/E52ZE/E52ZE.REL
+E52ZF	specimen	probes/E52ZF.PLI	golden/e52p13/E52ZF/E52ZF.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
@@ -996,7 +1002,6 @@ N308	specimen	probes/N308.PLI	golden/e2e5b/N308/N308.REL
 N30_DECCMP_BUILTIN	refusal	t:\n  procedure options(main);\n  dcl i fixed bin;\n  dcl d fixed dec(9,2);\n  d = 1; i = 2;\n  if decimal(i,9) > d then put list(d);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG15/NG15.REL)
 N31_DIV_LITERAL_NUMERATOR	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,2);\n  a = 6;\n  c = 1200 / a;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG16/NG16.REL)
 N32_DIV_CHAINED	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl b fixed dec(9,2);\n  dcl c fixed dec(9,2);\n  a = 6; b = 2;\n  c = a / b / 2;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG17/NG17.REL)
-N33_DEC_FORMAL	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  r = g(1);\n  put list(r);\n  stop;\n  g: procedure(x) returns(fixed dec(9,2));\n     dcl x fixed dec(9,2);\n     return (x);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG18/NG18.REL)
 N34_DEC_NEGSCALE_DIV	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,0);\n  dcl b fixed dec(9,8);\n  dcl c fixed dec(9,0);\n  a = 6; b = 2;\n  c = a / b;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG19/NG19.REL)
 N36_ROUND_ONEARG	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n  dcl y fixed dec(9,2);\n  a = 2.125;\n  y = round(a);\n  stop;\nend t;\n	DR REFUSES: SYNTAX (golden/negpanel1/NG21/NG21.PRN)
 N37_ROUND_LITERAL	refusal	t:\n  procedure options(main);\n  dcl y fixed dec(9,2);\n  y = round(2.125, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG22/NG22.REL)
@@ -1047,6 +1052,7 @@ N83_EXPR_OF_NO_RETURNS	refusal	E24I:\n  procedure options(main);\n  declare (a, 
 N9_GTZERO	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  if a > 0 then put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)
 NETWORK	specimen	artefacts/NETWORK.PLI	golden/first8080u/NETWORK/NETWORK.REL
 NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
+NG18	specimen	probes/NG18.PLI	golden/negpanel1/NG18/NG18.REL
 NG20	specimen	probes/NG20.PLI	golden/negpanel1/NG20/NG20.REL
 O1	specimen	artefacts/O1.PLI	golden/e2e333d/O1/O1.REL
 O2	specimen	artefacts/O2.PLI	golden/e2e333d/O2/O2.REL

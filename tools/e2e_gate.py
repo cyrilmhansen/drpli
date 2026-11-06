@@ -2522,6 +2522,82 @@ SPECIMENS.update({
     "NG20":  ("probes/NG20.PLI",  "golden/negpanel1/NG20/NG20.REL"),
 })
 
+# [E2E-52/P3-13] DECIMAL EXPRESSION AND LITERAL ACTUALS AGAINST FIXED DECIMAL FORMALS (the
+# LOAN2:117 blocker, now lowered).  The law is [C371], measured from the e52p13 campaign
+# goldens VERBATIM (oracle `NO ERROR(S)' both passes; ALL SIX section-4 pre-registered
+# predictions HIT, zero falsifiers fired): a DEC PRODUCT actual emits a 32 B block -- both
+# operands pushed `LXI H,*src / MVI A,p / ?DLDOP', `?DMUOP', then the [C370]-window scale
+# fix `MVI A,|s_prod - s_formal| / CALL ?QDDSL' (UP) or `?QDDSR' (DOWN; direction from
+# SCALES ALONE -- ZB has dp = -5 yet shifts UP 02), terminating `LXI H,*A(temp) / MVI A,pf
+# / CALL ?DSTOP' into a FORMAL-WIDTH temp (dec_pool_bytes pf = (pf+2)/2, stride = width);
+# a DEC/INT LITERAL actual emits ZERO caller runtime code -- a pre-scaled formal-width pool
+# cell (bcd_pack_scaled at prec=pf, scale=sf) plus a descriptor cell carrying an INLINE
+# DATA RELOC -> that cell; the args are described by ONE STATIC descriptor vector in ARG
+# ORDER (inline LE address constants, never runtime-written) fed to `LXI H,*A(vec) / CALL'
+# (CHAIN-ADDR; target = callee prologue entry); arity-1 peels the 5 B prologue `MOV E,M /
+# INX H / MOV D,M / XCHG / SHLD cell', arity N >= 2 block-copies `LXI D,*A(loc) / MVI C,2N
+# / loop'; formal reads stay `LHLD cell / MVI A,pf / ?DLDOP' ([C094] UNCHANGED).  All SIX
+# registered probes are whole-file BYTE-EXACT on binary 6db44394db5f09ad82cdb... (cmp rc=0
+# POSITIONAL into FRESH build/p3-13/arm-out2/; 384/384/384/384/384/896 B).
+#   E52ZA 384 B; CODE 006F (111 B).  `p = q(a * b)' a dec(10,2) b dec(4,3) vs formal
+#             dec(10,2): product block 0006-0025 `LXI H,*a(0000)/MVI A,0A/?DLDOP; LXI H,
+#             *b(0006)/MVI A,04/?DLDOP; ?DMUOP; MVI A,03/?QDDSR; LXI H,temp(0011)/MVI A,
+#             0A/?DSTOP' -- DOWN d=3 BETWEEN ?DMUOP and the temp store, DSTOP A = FORMAL
+#             precision 0A; descriptor cell 000F = `11 00' -> 6 B temp 0011; call `LXI H,
+#             000F / CALL' CHAIN-ADDR slot 002A -> code@005A; arity-1 peeled prologue SHLD
+#             0017; formal read `LHLD 0017/MVI A,0A/?DLDOP'; value store + skip tail MVI A,
+#             0D/MVI B,02/?QDCOP (width p+3, scale B) [C370-window law intact].
+#   E52ZB 384 B; CODE 006F (111 B).  UP witness `p = q(a * b)' a dec(9,0) b dec(8,0) vs
+#             formal dec(7,2): `MVI A,02/?QDDSL' ACCEPTED (scale 0 -> 2; product p17 ->
+#             formal p7 -- direction from SCALES ONLY, precision never enters the amount);
+#             `LXI H,temp(0010)/MVI A,07/?DSTOP' -- DSTOP A = 07 and the descriptor cell
+#             000E = `10 00' -> 4 B temp 0010-0013: temp width = dec_pool_bytes(7) = 4,
+#             the stride discriminator for H-2.
+#   E52ZC 384 B; CODE 004F (79 B), DATA max 000C.  LITERAL `p = q(1.5)' vs dec(9,2):
+#             pool cell data@0000 `50 01 00 00 00' (5 B formal width, PRE-SCALED to s=2),
+#             descriptor cell 000A with inline DATA RELOC -> 0000; ZERO caller arg code --
+#             main is `LXI H,000A / CALL' (CHAIN-ADDR slot 000A -> code@003A) then the
+#             value store `LXI H,*p(0005)/MVI A,09/?DSTOP'.
+#   E52ZD 384 B; CODE 004F (79 B), DATA max 000C.  INT literal `r = g(1)' -- the NG18
+#             shape with the measured put-skip tail: cell data@0000 `00 01 00 00 00'
+#             (value 1 pre-scaled to 100 at formal s=2), descriptor 000A RELOC -> 0000,
+#             zero caller arg code.
+#   E52ZE 384 B; CODE 0075 (117 B).  MIXED arity 3 `p = q(a, a * b, 2.5)': ONE INTERLEAVED
+#             vector data@0012-0017 = `05 00 | 18 00 | 00 00' -> a's own cell 0005 (by
+#             reference, [C093] variable route UNCHANGED), the 5 B product temp 0018 (32 B
+#             block, DOWN d=3, DSTOP A=09), the literal cell 0000 `50 02 00 00 00'; call
+#             slot 002A CHAIN-ADDR -> code@005A; callee arity-3 block copy `LXI D,*A(001D)
+#             / MVI C,06 / loop' then formal read `LHLD 001D/MVI A,09/?DLDOP'.
+#   E52ZF 896 B; CODE 0106 (262 B).  LOAN2:117-118 REPLICATION verbatim: VOID `call
+#             display(v1*inf, ..., v5*inf)' -- FIVE 32 B product blocks at 0006/0026/0046
+#             /0066/0086 into 6 B temps stride 6 (0031/0037/003D/0043/0049), STATIC 5-cell
+#             vector data@0027-0030 = `31 00 37 00 3D 00 43 00 49 00', `LXI H,0027 / CALL'
+#             CHAIN-ADDR slot 00AA -> code@00D2; callee arity-5 block copy MVI C,0A; five
+#             formal reads `LHLD(004F+2i)/MVI A,0A/?DLDOP'; tail `put skip list(a)' of the
+#             DEREF'd formal = `LHLD 004F/MVI A,0A/?DLDOP' @00ED-00F2 then MVI A,0D/MVI B,
+#             02/?QDCOP -- the second witness for the armed deref-DEC PUT route of 9b81ed0.
+#   NG18  256 B; CODE 0047 (71 B), DATA max 000C.  RETIRED FROM THE NEG PANEL: gate row
+#             N33_DEC_FORMAL (my-gap) was `r = g(1)' (INT literal vs FIXED DEC(9,2) formal)
+#             and DR COMPILES IT -- its own NEG_META verdict said so and the armed literal
+#             route reproduces the kept golden BYTE-EXACT (cmp rc=0 TWICE this campaign:
+#             build/p3-13/ng18.REL and the markers harness output).  Literal cell data@
+#             0000 = `00 01 00 00 00' (5 B formal width, pre-scaled), descriptor 000A ->
+#             0000 (inline DATA RELOC), ZERO caller arg code, peeled arity-1 prologue SHLD
+#             000C, body `LHLD 000C/MVI A,09/?DLDOP/JMP ?DCRET'.  N26_DECDIV/NG20 precedent:
+#             a retired negative whose shape is now PROVEN becomes a POSITIVE specimen.
+#             Source materialized VERBATIM from the retired inline REJECTS text (CRLF +
+#             bare ^Z), sha256 20006b0c...; golden path UNCHANGED, NEVER re-derived.
+#             Refusals 188 -> 187 honestly.
+SPECIMENS.update({
+    "E52ZA": ("probes/E52ZA.PLI", "golden/e52p13/E52ZA/E52ZA.REL"),
+    "E52ZB": ("probes/E52ZB.PLI", "golden/e52p13/E52ZB/E52ZB.REL"),
+    "E52ZC": ("probes/E52ZC.PLI", "golden/e52p13/E52ZC/E52ZC.REL"),
+    "E52ZD": ("probes/E52ZD.PLI", "golden/e52p13/E52ZD/E52ZD.REL"),
+    "E52ZE": ("probes/E52ZE.PLI", "golden/e52p13/E52ZE/E52ZE.REL"),
+    "E52ZF": ("probes/E52ZF.PLI", "golden/e52p13/E52ZF/E52ZF.REL"),
+    "NG18":  ("probes/NG18.PLI",  "golden/negpanel1/NG18/NG18.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -2731,13 +2807,13 @@ REJECTS = {
          "  dcl c fixed dec(9,2);\n  a = 6; b = 2;\n"
          "  c = a / b / 2;\n  put list(c);\nend t;\n",
          "unpinned dividend precision"),
-    "N33_DEC_FORMAL":
-        ("t:\n  procedure options(main);\n"
-         "  dcl r fixed dec(9,2);\n  r = g(1);\n  put list(r);\n  stop;\n"
-         "  g: procedure(x) returns(fixed dec(9,2));\n"
-         "     dcl x fixed dec(9,2);\n     return (x);\n  end g;\n"
-         "end t;\n",
-         "FIXED DECIMAL formal is unproven"),
+    # [E2E-52/P3-13] N33_DEC_FORMAL RETIRED: DR COMPILES its exact shape (the kept golden
+    # golden/negpanel1/NG18/NG18.REL, NEG_META verdict said "DR COMPILES IT") and the armed
+    # literal-actual route [C371] reproduces it whole-file byte-exact (cmp rc=0, verified
+    # twice -- probes/NG18.PLI FRESH positional AND the markers-harness inline source, both
+    # 256 B).  Registered as the POSITIVE specimen NG18 above (N26_DECDIV/NG20 precedent).
+    # No replacement negative is invented for the STILL-refused add/sub/div/suffix/deref
+    # DEC-actual routes: their DR behaviour is UNMEASURED.
     # s_r > s_l + N, i.e. a quotient scale BELOW zero.  R712 proves s_r >
     # s_l is fine when the result stays >= 0 (dividend scale 2, divisor
     # product scale 4, N 6 -> scale 4), so the refused region is exactly the
@@ -3809,8 +3885,8 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG16/NG16.REL)"),
     "N32_DIV_CHAINED": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG17/NG17.REL)"),
-    "N33_DEC_FORMAL": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG18/NG18.REL)"),
+    # [E2E-52/P3-13] N33_DEC_FORMAL's NEG_META row retired WITH its REJECTS entry:
+    # the shape is now the POSITIVE specimen NG18 (verdict kept above and in [C371]).
     "N34_DEC_NEGSCALE_DIV": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG19/NG19.REL)"),
     # [E2E-52/P3-12] N35_DEC_STORE_SCALE_DRIFT's NEG_META row retired WITH its REJECTS entry:
