@@ -1335,3 +1335,173 @@ as science; the VERBATIM text above comes from the repaired, re-run positional c
   diagnosis and not authorization beyond the marathon brief's standing next-slice clause;
   **P3-13 proceeds ONLY on evidence-first pre-registration**. GOLDENS ARE EVIDENCE, NEVER
   RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
+
+---
+
+# E2E-52/P3-13 RESULTS — DEC-expression actuals materialise through the 32 B product block with
+the [C370] shift window at the FORMAL scale; DEC/INT literals are STATIC pre-scaled
+formal-width pool cells with ZERO caller code; the descriptors form ONE static interleaved
+vector in argument order (campaign e52p13) — CLOSED (2026-11-06, hop 12)
+
+Pre-registered in PLAN §P3-13 (hops 4–6: Phase A with ZERO oracle — authentic LOAN2.REL
+`055D–05FA` product blocks + static descriptor vector `031A–0323` + `NG18.REL` literal witness,
+the C093 `*A(005A)=5.67` discrepancy AUDICATED false-as-cited, then PLAN §P3-13 H-1..H-8 +
+probes `probes/E52Z{A..F}.PLI` committed by EXPLICIT paths at `7503552` BEFORE the first oracle
+call and BEFORE any `ocaml/` byte, with ZERO-oracle sanity compiles pinning all six at the
+guard); campaign e52p13 rc=0 **6 ok / 6**, every `.PRN` `NO ERROR(S)` in BOTH passes — ZERO
+`dr-refuses`; goldens + `summary.txt` + transcripts VERBATIM `6267faf` committed BEFORE any
+emitter byte; arm `13e53be` (bind `cs_dec` allocation authority + codegen admits ONLY the two
+measured actual shapes) plus the histogram repair `e971f3e` and the two measured my-gap repairs
+`9b81ed0` (armed binary sha256 `6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2`,
+deterministic, histogram codegen 68 / total 124 == baseline EXACTLY); registration `39bb9a0`
+(inventory 1288→**1295**, refusals 188→**187** by the honest N33→NG18 retirement); census OWN
+path `59be109` (counts UNCHANGED 15/0/26/0, LOAN2 message MOVED VERBATIM to the Line-121
+blocker, NOTHING fixed); claim **C371** `1d1885b9` written from MEASURED BYTES ONLY and
+committed BEFORE any `spec/COVERAGE.tsv` touch, INCLUDING the DATED correction of BOTH [C093]
+errors; NEW row `PROC.CALL_DEC_ACTUALS` + SAME-change `spec/COVERAGE-IDS.txt` line `afb95163`
+(NEVER `coverage_gen.py`; 15 cols from the FIRST NON-COMMENT row; `manual_ref` `NONE:` form);
+then the FIRST full-gate run failed rc=1 on `NEG-FAIL N52_DEC_FORMAL_PUT` — adjudicated,
+retired honestly to POSITIVE `NG39` (`601e20e1`) with a DATED ADDENDUM to [C371] (`016e58e0`)
+and the row extended to **EXACT:8** (`c1059d46`) → `coverage_check` rc=0 **144 rows, 0 errors,
+0 warnings, SUPPORTED 94**; FULL gate rc=0 DIRECT `build/gate-e52p13-reg.log` (OVERWRITING the
+first failing run's log, which stays quoted verbatim below and in [C371]) — **1296/0, 186/186,
+9/9, 144 rows 0/0, census 15/0/26/0, prose 5** — every number pre-registered or adjudicated.
+All rc captured DIRECTLY (never through a trailing pipeline); goldens NEVER re-derived;
+`pli80c` POSITIONAL into FRESH paths; `handoff.config.json` NEVER staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52ZA E52ZB E52ZC E52ZD E52ZE E52ZF --tag
+e52p13 --switches '$L$D'` rc=0 → **6 ok / 6** (`golden/e52p13/summary.txt`: every row
+`PRN=True REL=True`; 5 × 384 B, ZF 896 B). Every accepted `.REL` preserved VERBATIM into
+`golden/e52p13/` and decoded into `build/p3-13/{zsizes,E52ZA-disasm,E52ZF-disasm}.txt` + raw
+data/code reloc dumps via `build/p3-13/p13dump.py` (ondump2 buffers + dis80 table + CHAIN-EXT /
+CHAIN-ADDR annotation through the additive `ondump2.full3()`).
+
+## 2. Measured table (8/8 whole-file cmp rc=0 on armed binary sha256 `6db44394…`, re-verified
+POSITIONAL into FRESH `build/p3-13/arm-out2/`; sizes and sha12 re-read FIRST-HAND from the KEPT
+goldens at this close; every cited region re-verified at claim time against the retained
+`.REL` records — see [C371])
+
+| Probe | Shape | Verdict | Size | CODE | DATA | Measured actual site (bytes in [C371]) | golden sha12 |
+|---|---|---|---|---|---|---|---|
+| E52ZA | `p = q(a * b)`, `a dec(10,2)` `b dec(4,3)` vs `dec(10,2)` formal | EXACT, §4 HIT | 384 B | `006F` | `0011` | 32 B product block `LXI H,*a/MVI A,0A/?DLDOP; LXI H,*b/MVI A,04/?DLDOP/?DMUOP; MVI A,03/?QDDSR; LXI H,*t/MVI A,0A/?DSTOP` — DOWN d=3 between `?DMUOP` and the temp store; 6 B temp; static vector reloc 000F→0011; CHAIN-ADDR slot 002A→code@005A | `33f66277f95c` |
+| E52ZB | `p = q(a * b)`, `dec(9,0)*dec(8,0)` vs `dec(7,2)` formal | EXACT, §4 HIT | 384 B | `006F` | `0010` | UP shift `MVI A,02/?QDDSL` ACCEPTED (Δp = −5 irrelevant — direction from SCALES ONLY); temp **4 B** (formal-width stride discriminates H-2); DSTOP `MVI A,07` = pf | `4e9921d90d0e` |
+| E52ZC | `p = q(1.5)` | EXACT, §4 HIT | 384 B | `004F` | `000C` | ZERO caller arg code; STATIC 5 B formal-width pool cell `50 01 00 00 00` at data@0000; descriptor 000A inline DATA RELOC → 0000 | `76829f5bf7ed` |
+| E52ZD | `r = g(1)` (NG18 shape + skip tail) | EXACT, §4 HIT | 384 B | `004F` | `000C` | pool cell `00 01 00 00 00` (5 B, pre-scaled), descriptor reloc → cell; skip tail QDCOP A `0C`/B `02` as predicted | `ee4cc8e3f021` |
+| E52ZE | `p = q(a, a * b, 2.5)` mixed arity 3 | EXACT, §4 HIT | 384 B | `0075` | `0018` | ONE interleaved static vector 0012–0017 `05 00 18 00 00 00` (relocs 0012→0005 own cell / 0014→0018 temp / 0016→0000 literal); 5 B product temp; literal cell `50 02 00 00 00`; callee arity-3 block copy `MVI C,06` | `7495d0406d92` |
+| E52ZF | `call display(v1*inf, …, v5*inf)` VOID arity 5 | EXACT, §4 HIT | 896 B | `0106` | `0031` | LOAN2:117–118 replication VERBATIM — five 32 B blocks into 6 B temps stride 6, static 5-cell vector `31 00 37 00 3D 00 43 00 49 00`, `LXI H,*A(vec)` + CHAIN-ADDR slot 00AA→code@00D2, callee `MVI C,0A` block copy + five `LHLD(004F+2i)/MVI A,0A/?DLDOP`; deref-PUT tail `LHLD 004F/MVI A,0A/?DLDOP` @00ED–00F2 then A `0D`/B `02`/`?QDCOP` | `b03584edddfe` |
+| NG18 (retired `N33_DEC_FORMAL`) | `r = g(1)` INT literal vs `dec(9,2)` formal | EXACT — POSITIVE specimen | 256 B | `0047` | `000C` | literal cell `00 01 00 00 00` + descriptor 000A→0000, ZERO caller arg code, peeled arity-1 prologue `SHLD 000C`; cmp rc=0 TWICE (fresh positional + markers harness); golden KEPT NEVER re-derived | `59cda824f4a8` |
+| NG39 (retired `N52_DEC_FORMAL_PUT`) | `put skip list(q)` with `q` a `dec(9,2)` FORMAL | EXACT — POSITIVE specimen | 384 B | `005C` | `0016` | found BY THE FULL GATE (hop-11 rc=1 NEG-FAIL); cmp rc=0 re-measured fresh positional on `6db44394…`; caller literal cell `50 01 00 00 00` @0000, descriptor 000A→0000, return descriptor 0014→000A; callee deref-PUT `LHLD 0016/MVI A,09/?DLDOP` + `MVI A,0C/MVI B,02/?QDCOP` — third witness of the armed `9b81ed0` route; `.PRN` `NO ERROR(S)` both passes | `3197de7aa11e` |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; every MISS kept verbatim)
+
+- **H-1..H-8 ALL CONFIRMED — ZERO §4 prediction misses and ZERO falsifiers fired** (the first
+  fully-hit panel of the P3 campaign so far): product block + window (ZA down `03/?QDDSR`, ZB
+  up `02/?QDDSL`), cell width `dec_pool_bytes(pf) = floor((pf+2)/2)` with stride = width (ZA/ZF
+  6 B, ZB 4 B, ZE 5 B), DSTOP `MVI A,pf`, direction from SCALES ONLY (Δp irrelevant), literal =
+  static pre-scaled formal-width cell with ZERO caller code, ONE interleaved arg-ordered static
+  vector, arity-dependent prologue (peeled-1 vs block-copy 2N) with [C094] formal reads
+  UNCHANGED, and ZF = LOAN2 replication byte-for-byte.
+- **The two MY-GAP repairs that the panel forced (honest, adjudicated by the goldens only, never
+  fitted):** (i) `const_cells` — an `Enumber` DEC actual demanded a 2-byte cell while lowering
+  allocated the 5-byte formal-width cell (E52ZC/ZD/ZE died at the C152 loud refusal); repaired by
+  the SAME demand law `dec_pool_bytes(pf)` (`9b81ed0`). (ii) the DEREF'd DEC formal in `PUT LIST`
+  (`put skip list(q);` inside the callee) — my build refused it BY NAME; the E52ZF golden pins it
+  as `LHLD <formal cell>/MVI A,pf/?DLDOP` + the unchanged [R5xx] width/scale edit pair, so that
+  arm was admitted on the ZF witness (`9b81ed0`); the old refusal text retired to a comment
+  VERBATIM per PROTOCOL #2.
+- **The [C093] correction (dated, in [C371], verified FIRST-HAND at claim time):** (i) the
+  DECPOLY `*A(005A) = 5.67` literal-pool citation was FALSE AS CITED — all three DECPOLY goldens
+  (sha `a51a36c2…`) have DATA max `004E`, their descriptor cells 0048/4A/4C relocate to VARIABLE
+  cells 0030/38/40, and `5.67` exists only as the R2038 SOURCE `z = 5.67;` DEC-store; (ii) the
+  "2-byte pool cell" width was wrong for DEC formals — the truth is the 5 B formal-width
+  pre-scaled cell (NG18/ZC/ZD); C093's 2-byte cells were the R2033 INT-literal BIN-formal
+  `pool_alloc` route. The literal-pool LAW itself STANDS with the new witnesses.
+
+## 4. Arm, validation, registration, coverage
+
+Arm `13e53be` (`ocaml/lib/bind.ml` + `ocaml/lib/codegen.ml`): bind's `cs_dec` is the SINGLE
+allocation authority — a DEC expression temp is sized `bytes_of (RTdec(pf,sf))` ONLY for an
+internal, non-recursive, non-attribute callee with a scalar `RTdec` formal (array-named,
+recursive, external and attributed callees excluded); codegen admits ONLY the two measured
+shapes — `Ast.Enumber` literal → the pre-scaled FORMAL-width `dec_pool` cell + static descriptor
+RELOC, ZERO code; `Ebinary(Mul, plain-DEC-auto, plain-DEC-auto)` → the armed `dec_push` route via
+ONE forward slot `dec_actual_mat` installed after `dec_push` (the `lower_hl`/`dpush` chains are
+SEPARATE — the law was NEVER duplicated), terminating `LXI H,*A(temp)/MVI A,pf/?DSTOP`; `dec_pool`
+MOVED before `lower_hl` (`vk_dec_at` precedent); everything else keeps the BY-NAME Line-N [TBD]
+refusal VERBATIM (substring `FIXED DECIMAL formal is unproven` intact, [TBD] histogram codegen 68
+/ total 124 == baseline after repairing the hop-8 W9/W39 regression — the predecessor's reported
+"W9/W39" partial view was FALSIFIED as misleading incremental output, the true new warning was
+the dead `zip3`, fixed in `e971f3e`).
+
+Validation: whole-file cmp E52ZA..ZF **6/6 rc=0** FRESH POSITIONAL `build/p3-13/arm-out2/`; sweep
+`E46N E46K E51 E52 P086 R10` **168/0** pre-registration, **174/0** post-registration, FAILS 0
+binding — SWEEP-COUNT LESSON ACCEPTED: the inherited "159" contract number was STALE because the
+sweep counts INVENTORY rows, which move with every registration; re-derive the expected count from
+the inventory, never from a prose contract; DEC regressions `R5 R6 R7 R8 LOAN1` **64/0**;
+markers **14/15** at hop 10 — the ONLY failing row was retired `N33` firing its old gate row, the
+second NG18 witness (harness `.REL` cmp rc=0) — **14/14** at this close with N33 out; divergences
+**9/9** via `build/p3-12/divcheck.py`; LOAN2/EXPR1/EXPR2 positional re-recorded (below).
+
+**THE GATE-FOUND RETIREMENT (the binding lesson of this subround, kept VERBATIM).** The hop-11
+FULL gate failed rc=1: `NEG-FAIL N52_DEC_FORMAL_PUT: compiled silently (must [TBD])`. The
+sweep, markers and DEC-regression suites NEVER run the complete negative panel — **only the gate
+does** — so an arm touching PUT/CALL lowering MUST be followed by a FULL gate BEFORE any close
+claim. Adjudication measured THIS session, POSITIONAL FRESH: the retired inline gate source
+materialized CRLF + bare `^Z` (sha256 `de1e56e8…`, 253 B — exactly the original `ng39.pli` size
+in the campaign dir listing) compiles rc=0 to a 384 B object (`code=92 data=15`) with `cmp` rc=0
+against the KEPT `golden/negpanel1/NG39/NG39.REL` (sha256 `3197de7a…`, NEVER re-derived); the
+original `.PRN` reads `NO ERROR(S) IN PASS 1` and `NO ERROR(S) IN PASS 2`. N52 is the EXACT
+retirement class of N33→NG18 / N35→NG20 / N26_DECDIV: REJECTS + NEG_META rows deleted WITH
+retirement comments, registered as POSITIVE specimen `NG39`, refusals 187→**186** honestly, NO
+invented replacement negative (N53's DEC-formal-conjunction route stays refused — DR behaviour
+UNMEASURED). The discovery, re-measure and retirement are recorded as a DATED ADDENDUM INSIDE
+[C371] (`016e58e0`), not silently.
+
+Registration `601e20e1`: `--update-inventory` 1295/187 → **1296/186** (+1/−1 exactly, every diff
+line inspected, staged set verified clean of config); census OWN path `42f3f659` re-snapshot at
+the new HEAD, counts **15/0/26/0 UNCHANGED**, row data byte-identical — the LOAN2 message does
+NOT move (the negative panel is not census; NOTHING was fixed). COVERAGE: `PROC.CALL_DEC_ACTUALS`
+row `afb95163` (NEW row, so its `spec/COVERAGE-IDS.txt` line shipped in the SAME change —
+IDENTITY invariant; `EXACT:7`) was EXTENDED at `c1059d46` with probe `NG39` to **EXACT:8** (row
+count 144 UNCHANGED, IDS set UNCHANGED), boundary sentence recording the third deref-PUT panel
+witness while the call-ACTUAL deref route stays refused BY NAME; plus the same-change DATED
+labelled correction of the now-false final clause of `STOR.DEC_SCALE_ASSIGN` (original clause
+kept VERBATIM inside the correction, PROTOCOL #2). `coverage_check` rc=0 **144 rows 0/0
+SUPPORTED 94**; `file_prose_check` rc=0.
+
+## 5. LOAN2 — ADVANCED and recorded, NEVER fixed
+
+With the armed actual-materialisation laws, `artefacts/LOAN2.PLI` UNMODIFIED (sha `7be23ba3…`
+re-verified at this close) lowers PAST Line-117/118 (the five product actuals — they are exactly
+what ZF replicated) and dies at the ACTUAL next blocker — rc=2, NO `.REL`, VERBATIM (re-measured
+POSITIONAL FRESH on `6db44394…` at this close):
+
+`codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` / `CALL id(args)` /
+bare `id;` have a DR lowering sampled; line 121)`
+
+Line 121 = `call summary();` — a ZERO-argument call whose target IS a simple name, so the
+message's own parenthetical is suspicious on its face: this is P3-14's WHY-first investigation
+target, NOT a fix. The Line-117 blocker is CLOSED. EXPR1 (GET 21) and EXPR2 (FLOAT 35)
+UNCHANGED. LOAN2 is NOT claimed exact anywhere in this subround.
+
+## 6. What P3-13 does NOT say (byte tier only)
+
+- **Byte tier only**: nothing from e52p13 was linked or run; NO claim about what
+  `?DMUOP/?QDDSL/?QDDSR/?DLDOP/?DSTOP/?QDCOP` DO inside PLILIB — only WHERE the calls sit and
+  what A/B/C hold at the call; no `spec/RUNTIME.txt` row comes from this contract. Byte parity
+  is not a semantics claim.
+- **Perimeter KEPT, all refusals BY NAME**: add/sub/div-expression, suffix, pointer and
+  deref'd-formal ACTUALS, external/recursive/attribute callees, array-named formals and narrowing
+  actuals keep explicit [TBD] refusals; C371 claims NONE of them. The armed guard admits ONLY an
+  `Enumber` literal or a single `Mul` of two plain DEC autos.
+- **Repeated-literal cross-dedup demand is UNMEASURED** — the C152 loud refusal is the safety
+  net; no dedup law is claimed.
+- **The N52→NG39 retirement is a panel-classification fact, not a new law** — the deref-PUT bytes
+  predated this round (E52ZF golden); what changed is that MY compiler reproduces them
+  byte-exactly and the negative panel was re-adjudicated by the gate.
+- LOAN2 is NEVER claimed exact; the Line-121 blocker is the ACTUAL recorded refusal text, not a
+  diagnosis; **P3-14 proceeds ONLY evidence-first with pre-registration before any oracle call or
+  `ocaml/` byte**. GOLDENS ARE EVIDENCE, NEVER RE-DERIVED; the operator's `handoff.config.json`
+  was NEVER staged; no push.
