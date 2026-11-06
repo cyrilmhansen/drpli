@@ -13,3 +13,12 @@
  (modules arch1)
  (libraries proto80 pli80)
  (flags (:standard -warn-error -a)))
+
+; [E2E-52/P3-10] brief step 2: parse-level AST-preservation test for the
+; SIGNAL frontend repair (Ssignal.cargs kept; FROM kept, never lowered).
+; Isolated like arch1 — nothing in the production compiler links it.
+(executable
+ (name ssignal_ast)
+ (modules ssignal_ast)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
