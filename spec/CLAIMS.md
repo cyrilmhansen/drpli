@@ -9183,3 +9183,94 @@ classified `unmeasured` rather than `dr-refuses`.
   LOAN2 itself still refuses and its first blocker MOVED VERBATIM from line 92 to
   `codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99)` — recorded,
   NOT fixed. Provenance: [C366] [C120] [C109] [C202] [C206] [C208] [C367].
+
+## C369 — behind a lowered PRINT open the named-file PAGE is the VERBATIM 18-byte block — `LXI H,<FILE COMMON>` (SEL-COMMON + `RELOC common 0x0`, group size 34+len(name) [C120] — PF `0024`) `/ LXI D,0x0652` (`11 52 06`) `/ LXI B,<continuation slot>` `/ CALL ?SIOOP / CALL ?PAGOP / CALL ?QIOOP` with **NO `3E nn` count operand for `?PAGOP`** — INVARIANT across titleless/literal-title/literal-title-with-pagesize/variable-varying-title/conditional-open/two-branch-open routes, and the LIST/SKIP statements ride the ONE route-independent item emitter (P019B 26 B, E46N1 20 B, E46N2 31 B verbatim); the PUT attach word is the statement DIRECTION word 0x0652 whatever the OPEN option word ([C280] reconfirmed); under an IF the F2 skip slot AND the PAGE's LXI B slot form a DOUBLE back-patch to the same continuation; DR ACCEPTS a file PAGE behind a `stream input` open AND with NO open at all — this compiler refuses both classes BY NAME as measured `my-gap` rows with their goldens KEPT and UNCLAIMED (E2E-52/P3-11; MEASURED — 9 whole-file `cmp` rc=0 of `E52XA..E52XI` against `golden/e52p11/`, goldens VERBATIM at 060289e from campaign e52p11 `11 ok/11` (no DR refusal), RE-MEASURED at registration on binary sha256 `25c57e27696421e929b8…`, never fitted)
+
+* **Measured — whole-object PRINT-open + PAGE parity (`E52XA`, 256 B, CODE `0036`, DATA
+  `0002`, COMMON PF `0024`).** One object carries BOTH halves: the E52TA-shaped 17-byte
+  titleless open (`AF 47 C5 33 / 21 52 06` — w1 `0x0652` — `/ E5 / 60 68 / E5×5 / 21` +
+  `RELOC common 0x0 / CD` with `CHAIN-EXT code 0019 ?OIOOP`) and at code `001B` the 18-B
+  PAGE — `21` + `RELOC common 0x0` (the CB operand), `11 52 06`, `01` + slot `0022`,
+  `CD` slots with `CHAIN-EXT ?SIOOP@0025 ?PAGOP@0028 ?QIOOP@002B`. The LXI B slot
+  back-patches (`SET-LC code 0022 / RELOC code 0x2d`) to `002D` = start of the following
+  `x = 2`. This is LOAN2:99's own statement (original 03AA-03BB, `build/e52p11/LOAN2-reldump.txt`)
+  panel-verified at last in a minimal whole object; COPYLPT 0215-0226 is the same shape
+  behind w1 `3E52`.
+* **Measured — the PAGE INVARIANT across open routes.** The 18 bytes repeat verbatim behind
+  `title('TEST') print` WITHOUT pagesize (`E52XB`, CODE `003E`, DATA `0006`, open w1 `0E52`,
+  `?SLCTS@000C`, PAGE at `0023`, slot `002A` → `0035`); behind `title('$con') print
+  pagesize(0)` (`E52XC`, CODE `003E`, DATA `0006`, w1 `2E52` — the LOAN2:54+99 mirror); and
+  behind a VARIABLE varying title on the `?SLVTS` 27-B route (`E52XD`, CODE `003C`, DATA
+  `0011`, w1 `0E52`, `?SLVTS@000A`, PAGE slots `?SIOOP@002B ?PAGOP@002E ?QIOOP@0031`, slot
+  `0028` → `0033`). In EVERY case the attach stays `11 52 06`, the CB operand relocates to
+  `common 0x0`, `?PAGOP` carries NO count, and the continuation slot patches to the next
+  statement.
+* **Measured — conditional PAGE (`E52XE`/`E52XF`).** `E52XE` (256 B, CODE `003D`, DATA
+  `0004`): `if n < 0 then put file(pf) page;` — the [C367] `3A r(data+1)/B7/F2` leaf, and a
+  **DOUBLE back-patch CONFIRMED**: `SET-LC code 0029` (the PAGE's LXI B) AND `SET-LC code
+  0020` (the F2 skip slot) BOTH carry `RELOC code 0x34` — the statement after the then-body.
+  This is the LOAN2 98-99 geometry (its CA slot 03A8 and LXI B slot 03B1 both patch to
+  03BC) panel-verified minimally; the SINGLE-patch competitor is FALSIFIED (kept verbatim).
+  `E52XF` (384 B, CODE `0063`, DATA `0017`): TB-shape open in the THEN and TC-shape open in
+  the ELSE, then ONE PAGE — F2 slot `000B` → `002D`, the ELSE jump-over `C3` slot `002B` →
+  `0048` (the PAGE), ONE 18-B PAGE block after the merge, NO pad and NO branch-local
+  eligibility: one open on ANY lowered source path before the PUT is enough.
+* **Measured — LIST and SKIP behind a PRINT open ride the ONE route-independent emitter
+  (`E52XG`/`E52XH`/`E52XI`).** `list('A')` is the P019B 26-B statement verbatim (`E52XG`,
+  CODE `003E`, DATA `0003`: attach 12 B, `21` + `RELOC data 0x0` + `3E 01` + `?SLCTS@002D`,
+  `?PNCOP@0030`, `?QIOOP@0033`, LXI B slot `0022` → `0035`); BARE `skip` is the E46N1 20-B
+  shape (`E52XH`, CODE `0038`, DATA `0002`: `3E 01 / ?SKPOP@002A / ?QIOOP@002D`, **NO
+  `?PNCOP`** — none without an item chain), slot `0022` → `002F`; `skip list('A')` is the
+  E46N2 31-B shape verbatim (`E52XI`, CODE `0043`, DATA `0003`: skip BETWEEN attach and
+  chain — `?SKPOP@002A` then `?SLCTS@0032`, `?PNCOP@0035` only because a chain follows,
+  `?QIOOP@0038`), slot `0022` → `003A`. No statement byte was added or changed for these:
+  the arm is ONE recording condition in `lower_open` (`PRINT` admitted beside `OUTPUT` into
+  the compiler-side eligibility list, commit `3e0a3c1`).
+* **Measured — DR ACCEPTS two shapes this compiler refuses (`E52XJ`/`E52XK`, honest
+  `my-gap` rows, goldens KEPT).** `put file(pf) page;` with NO open anywhere is DR-ACCEPTED
+  (`NO ERROR(S)` both passes; 256 B, CODE `0021`, DATA `0002`): `LINK-SEL-COMMON PF` is
+  emitted at FIRST USE (raw record @834 of `build/e52p11/E52XJ-reldump.txt`) and the SAME
+  18-B PAGE follows (`?SIOOP@0010 ?PAGOP@0013 ?QIOOP@0016`, LXI B slot `000D` → `0018`) —
+  E46L8's no-open LIST geometry asked of `?PAGOP`. `open file(pf) stream input;` + PAGE is
+  DR-ACCEPTED (`E52XK`, 256 B, CODE `0036`, DATA `0002`): the open lowers with w1 `21 90 06`
+  (`0x0690`) and the PAGE's attach is STILL `11 52 06` (`0x0652`) — identical geometry to
+  XA.  Mine refuses BOTH named-PUT classes BY NAME at the open-eligibility guard (rc=2, NO
+  `.REL`, markers RE-MEASURED under the gate's CRLF + bare-`^Z` materialization: XJ names
+  line 8, XK line 9); their bytes are claimed by NO rule of this compiler.
+* **Law reconfirmed — the attach word is the PUT's DIRECTION, not the open's mode.** XA
+  (w1 `0652`), XB (`0E52`), XC (`2E52`), XD (`0E52` via `?SLVTS`) and XK (`0690`) all carry
+  attach `0x0652` on the PAGE/LIST/SKIP statements — [C280]'s direction law again, on the
+  PRINT-opened and INPUT-opened routes; the pre-registered input-mirroring-attach competitor
+  is FALSIFIED (kept verbatim).
+* **Eligibility semantics — SOURCE STRUCTURE, never runtime typestate.** The guard answers
+  "did THIS compiler lower an OUTPUT- or PRINT-spelling OPEN for this file group earlier in
+  source order (either branch of an IF counts — XF)?" It is a monotonic compiler-side list of
+  lowered opens, NOT a claim that DR requires a runtime-open stream: DR's own objects show
+  the same 18 bytes with NO open at all (XJ/E46L8) and behind an INPUT open (XK). The
+  refusal message says so.
+* **Falsified during the campaign (verbatim).** (1) The "pagesize bit required before a PAGE
+  is accepted" competitor — XB has title+print and NO pagesize and DR accepted it. (2) The
+  SINGLE-patch competitor for the conditional PAGE — XE double-patches both slots to `0034`.
+  (3) The input-mirroring attach — XK keeps `0x0652`. (4) MY OWN pre-registration slip: §4
+  predicted the XA LXI B slot would patch to `0030`; the measured target is `002D` =
+  `001B + 18` — recorded honestly, the law bullet above uses the measured value.
+* **Implementation perimeter — what stays refused BY NAME (my gaps, never DR rules).** PAGE
+  with additional control items (COPYLPT 0268 class), counted `page(n)`, `LINE`,
+  counted/`VALUE` LINE, console `put page;`, KEYED files, INPUT-direction named PUTs and
+  no-open named PUTs (the PU1/E41X5/E46K10 class) are NOT armed; each keeps its `[TBD]`
+  refusal and its pinned negative marker (`PUT FILE(F) has no byte-exact DR witness`
+  survives the guard-message rewrite verbatim). Variable LIST items behind PRINT
+  (LOAN2 `list(clear)` sites) are object-witnessed only in original files and are NOT
+  armed. No name-based special-casing: any file identifier in a lowered PRINT (or OUTPUT)
+  open records its group.
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no `e52p11` object
+  was linked or run under cpmsim; NOTHING here asserts page placement, line counting or any
+  PLILIB runtime action, and no `spec/RUNTIME.txt` row comes from this claim. The
+  LOAN2/COPYLPT/P019B citations are ORIGINAL-GOLDEN DECODES kept as corroboration; the
+  binding authority is the nine registered whole-file `cmp` rc=0s. LOAN2 itself still
+  refuses (rc=2, NO `.REL`): its blocker MOVED VERBATIM past line 99 to `codegen: DECIMAL
+  assignment between differing scales is unproven [TBD] (only computed results are pinned as
+  needing a QDDSL/QDDSR fix; a direct DEC operand store always had equal scales in the
+  samples)` — a message that carries NO `(line N)` clause — recorded, NOT fixed (the line-99
+  `PUT FILE(OUTPUT)` blocker is CLOSED); EXPR1 (GET line 21) and EXPR2 (FLOAT line 35) are
+  UNCHANGED. Provenance: [C280] [C282] [C288] [C120] [C365] [C367] [C368].
