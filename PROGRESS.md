@@ -2865,17 +2865,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 439
-checkpoint-id: g439-90bc94db599b
-checkpoint-kind: auto
+checkpoint-generation: 440
+checkpoint-id: g440-8d1fcddfe1a3
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-06T16:30:19.878Z
+checkpointed: 2026-11-06T16:32:25.360Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4575d849344c3f9f4f395076ea1d298104620cc22050ac27ea8402f90e3e4a9c
+source-progress: 544f550aa694b33ad2f631fd0af8225efa45b3f8abf8c9435a564d8b1adfef08
 source-handoff: 8a5ccb0b629311e16251aecfecbe63c5431f0957427539347ebfb08cb1824474
-source-learnings: 5f194f47ec7ecf1d53a12e24e13534343e55a91faf4378a9af4e68fe6cd432e2
+source-learnings: f3ddc8d6c3076cb1ab2ffd6c435a52c8d23149991cf37807f68b8b9c211771ba
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (2)–(6) EXACTLY** — (2) ONE campaign `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py E52YA E52YB E52YC E52YD E52YE E52YF E52YG E52YH E52YI --tag e52p12 --switches '$L$D'` rc DIRECT, read EVERY `.PRN`, decode accepted `.REL`s into `build/p3-12/`, commit goldens VERBATIM BEFORE any `ocaml/` byte; (3) arm ONLY the measured shapes in the `dpush` simple-operand arm, unproven shapes keep BY-NAME [TBD] refusals, never special-case LOAN2 names/addresses; (4) build rc=0 + histogram codegen 68/total 124 == baseline + whole-file `cmp` on FRESH POSITIONAL paths + sweep FAILS 0 + markers (CRLF+bare `^Z`) + DEC regressions + negative panel incl. the honest N35 retirement + divergences 9/9; (5) LOAN2 UNMODIFIED → record the ACTUAL next blocker VERBATIM, or if it compiles go STRAIGHT to whole-file parity (first-mismatch localization per the brief §7; a matching CODE stream is NOT completion); (6) register from **1278** (accepted-and-byte-exact only, `--update-inventory`, `git diff --cached --stat`, census OWN path), claim **C370** measured-bytes-only BEFORE any COVERAGE touch, NEW row + its `spec/COVERAGE-IDS.txt` line in the SAME change (NEVER `coverage_gen.py`; 15 cols from the FIRST NON-COMMENT row; textual tab edit), coverage_check+prose rc=0, FULL gate rc=0 DIRECT → `build/gate-e52p12-reg.log`, RESULTS §P3-12 + §P3-12 **CLOSED**, commit guard blocks VERBATIM, then **BEGIN P3-13 on the next actual blocker without waiting for a prompt**. Ledger ENDS **C369**; inventory **1278/189**; coverage **142/92** 0/0; last full gate rc=0 `build/gate-e52p11-reg.log`; armed binary `25c57e27696421e929b8…`==tree; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; no push; renew autonomously only at committed safe boundaries.
 
@@ -3502,6 +3502,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b1a2-b493-71fa-8218-820fcc606e87
+readiness-at: 2026-11-06T16:32:25.395Z
+readiness-checkpoint: g440-8d1fcddfe1a3
 <!-- guard:end checkpoint -->
 
 ## Blockers

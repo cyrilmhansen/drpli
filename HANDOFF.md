@@ -1628,25 +1628,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 438
-checkpoint-id: g438-4cb34e99eb1f
+checkpoint-generation: 440
+checkpoint-id: g440-8d1fcddfe1a3
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-35, session 01a1b18b-4334-71fa-8218-820a88bdf152)
-checkpointed: 2026-11-06T16:13:12.691Z
+status: checkpoint (guard level 4, remaining ~-2752, session 01a1b1a2-b493-71fa-8218-820fcc606e87)
+checkpointed: 2026-11-06T16:32:25.360Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a0364cfb6d61d1047b90bd9b8beaac97da466c881fb607cd7e236446a3d70b36
+source-progress: 544f550aa694b33ad2f631fd0af8225efa45b3f8abf8c9435a564d8b1adfef08
 source-handoff: 8a5ccb0b629311e16251aecfecbe63c5431f0957427539347ebfb08cb1824474
-source-learnings: a77757f9d4d6f0d9dd0dc88dc23f4860c86e1cb3d01cb2f23367e1d2fcd998cb
+source-learnings: f3ddc8d6c3076cb1ab2ffd6c435a52c8d23149991cf37807f68b8b9c211771ba
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b18b-4334-71fa-8218-820a88bdf152
-readiness-at: 2026-11-06T16:13:12.712Z
-readiness-checkpoint: g438-4cb34e99eb1f
+readiness-by: session:01a1b1a2-b493-71fa-8218-820fcc606e87
+readiness-at: 2026-11-06T16:32:25.395Z
+readiness-checkpoint: g440-8d1fcddfe1a3
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2279,5 +2279,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-12 PRE-REGISTRATION LANDED at ecba8c5 (PLAN §P3-12 + probes E52YA..E52YI + LEARNINGS Phase A + PROGRESS next action; ocaml/ UNCHANGED, binary 25c57e27696421e929b8… == tree, ZERO oracle so far, goldens untouched, config never staged, no push). SUCCESSOR: execute PROGRESS.md '## Next action' step (2) — ONE campaign: cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py E52YA E52YB E52YC E52YD E52YE E52YF E52YG E52YH E52YI --tag e52p12 --switches '$L$D' (rc DIRECT, never a pipeline tail); read EVERY .PRN; decode accepted .RELs into build/p3-12/ with the ondump2+dis80+CHAIN-EXT harness (anchor = opcode+1); commit goldens VERBATIM BEFORE any ocaml/ byte; then arm ONLY the measured direct-store shift in the dpush simple-operand arm, validate (build rc=0, histogram 68/124, cmp fresh paths, sweep FAILS 0, markers, DEC regressions, negatives incl. the honest N35 retirement, divergences 9/9, full gate -> build/gate-e52p12-reg.log), recompile unmodified LOAN2, register from 1278 with claim C370 measured-bytes-only BEFORE any COVERAGE touch (new row ships its COVERAGE-IDS line in the same change, never coverage_gen.py), close §P3-12, then continue the authorized marathon (P3-13..P3-19 remain available; budget 8 slices) to the next ACTUAL blocker; stop early only when LOAN2 is whole-file byte-exact or a §6 Outcome-C condition holds. Byte-tier only; never re-derive goldens; never modify artefacts/LOAN2.PLI; never stage handoff.config.json; never push.
+P3-12 ARM LANDED at 1111d5e, durables 7e9ecb0: 9/9 E52YA..YI whole-file cmp rc=0 on armed binary f56142696f344acc80f6… (sha256 == tree; ocaml/lib/codegen.ml edited per LEARNINGS § P3-12 ARM LANDED). SUCCESSOR: execute PROGRESS.md '## Next action' steps (a)-(m) exactly — first check the Warning-27 ptr/histogram against baseline 68/124; goldens already committed VERBATIM (0c43932); NEVER re-derive goldens; NEVER fix LOAN2, record ACTUAL blocker VERBATIM; N35 retirement honest; C370 before any COVERAGE touch; new row ships COVERAGE-IDS line same change; never coverage_gen.py; never stage handoff.config.json; rc DIRECT never pipeline-tail; no push; then close §P3-12 and BEGIN P3-13 under marathon authorization.
 <!-- guard:end checkpoint -->
