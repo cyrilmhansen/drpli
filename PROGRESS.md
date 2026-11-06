@@ -45,7 +45,17 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (E2E-52/P3-9 hop 5 PART — dis80 FIXED+VERIFIED (UNCOMMITTED), ALL 11 golden folds RAW-DERIVED, exact arm design in `LEARNINGS.md` § "E2E-52/P3-9 hop 5 PART" — read it FIRST; then commit dis80, ARM, verify, register, close P3-9, STOP)
+## Next action (E2E-52/P3-9 hop 5 REMAINDER — ARM ONLY, then verify/register/close and STOP; read `LEARNINGS.md` § "hop 5 REMAINDER IN FLIGHT" FIRST — it carries the corrected DEC-operand finding and every measured byte)
+
+**DONE (verified this session, all rc DIRECT; session 01a1ae1e, chain 01a1adf0 renewal 2/12):** recovery verified HEAD `8b929d7`; hop-5 step (1) "commit dis80 fix" is **already LANDED** there (`git status` clean but for the guard blocks + operator `handoff.config.json`, NEVER staged). `dune build` rc=0 DIRECT, binary `9ecea27aa4f2d80f49ad…` == baseline; ZERO `ocaml/` byte, ZERO oracle. Raw dump `build/e52p9-arm/goldens-dump.txt` + all 11 probe sources re-read and confirmed against the hop-5 PART byte list.
+
+**FALSIFIED (accepted finding, blocks a naive arm):** the predecessor's design step "reuse/extend `dec_eq_bool_parts` … literal-first" is WRONG — `codegen.ml:7249` hoists the **VARIABLE** `21 r(var)` (AND route, DECPOLY/R2026), while the OR witnesses VG/VI put the **POOLED LITERAL** cell first (`21 r(zero) / 3E p / ?DLDOP / 21 r(var) / 3E p / ?DLDOP / ?DCMOP / D6 01 9F`). Arming needs a SEPARATE OR DEC materialiser; NEVER edit `dec_eq_bool_parts` (it would alter And). PROPOSED (unverified): implement it address-ordered per the residual **ADD** law and let VG/VI + the DECPOLY AND goldens adjudicate; record the ambiguity in C367.
+
+**EXECUTE (in order):** (2) arm `ocaml/lib/codegen.ml` ONLY: `Ast.Or` arm in `lower_test_skip0` BESIDE And (And arm at line **8527**), `Ast.Or` fold arm BESIDE And in `lower_bool` (7276) with `C1 POP B / B0 ORA B (0xB0)`, `<0` standalone TEST leaf (VA `3A r(cell+1)/B7/F2`; refusal site 8635), rules 1–3 NODE-LOCAL (rule 2 same-var `=0|>c` only; other-var refuses BY NAME [TBD]), encoders `2A…/hl_bias(-(k+1))/7C 2F`, `bin_zero_tail`, `21/AF/BE/23/9E` for `> 0`, atomic `3A` for `<0`, ident-vs-ident `=` via `2A/E5/2A/D1/?IS22N/7C/B5/D6 01/9F`; VK `a|(b&c)` = AND sandwich first, `(a|b)&c` = OR fold then And sandwich, value position = OR fold then BARE `32 r(b)` (audit `bit_cond_mat` 8105; refuse anything outside VK); NEVER alter And. (3) build rc=0 DIRECT + histogram vs **68** + cmp VA–VK whole-file vs `golden/e52p9/` + `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 + markers harness (copy `build/e52p8-reg/markers.py`, CRLF + bare `^Z`) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted next blocker `signal error` at 91, `?SIGOP` out of scope, NEVER fix). (4) registration from **1249** (`--update-inventory`, census OWN path, **C367 measured-bytes-only BEFORE COVERAGE**, explicit `spec/COVERAGE-IDS.txt` line, NEVER `coverage_gen.py`), gate rc=0 `build/gate-e52p9-reg.log`. (5) RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED, durables. **STOP at P3-9 — do NOT start P3-10.**
+
+**STATE:** ledger ENDS **C366**; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; goldens NEVER re-derived; no push; `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; chain 01a1adf0 2/12 (cap 12).
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-9 hop 5 PART — dis80 FIXED+VERIFIED (UNCOMMITTED), ALL 11 golden folds RAW-DERIVED, exact arm design in `LEARNINGS.md` § "E2E-52/P3-9 hop 5 PART" — read it FIRST; then commit dis80, ARM, verify, register, close P3-9, STOP)
 
 **DONE THIS HOP (session 01a1ae0d, chain 01a1adf0 renewal 1/12; ZERO `ocaml/` byte, ZERO oracle):** build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline re-held; `tools/dis80.py` minimally fixed (`0xD6 SUI` len2, `0x2F CMA` len1) and VERIFIED linear on E52VE/VG/VI; every VA–VK fold region re-derived byte-for-byte from raw reldump records into `build/e52p9-arm/goldens-dump.txt`; all 11 probe sources re-read; prescan parity audited (`prescan_cond` descends `Or` generally, DEC zero-cell demand fires); full arm design (operand encoders, rules 1–3 node-local, `ORA B 0xB0` fold, VK precedence/value-position, refuse-BY-NAME perimeter) recorded ACCEPTED/PROPOSED in the LEARNINGS hop-5 section.
 
@@ -2724,17 +2734,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 381
-checkpoint-id: g381-f053da61bd01
+checkpoint-generation: 384
+checkpoint-id: g384-da2d3e77a531
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T23:48:55.754Z
+checkpointed: 2026-11-06T00:11:37.579Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f56da7ec04d03dfcdc8d65943593b3e8ac63b79d8474fa003dc107ef7e9a8c1b
+source-progress: c4fb7f7a4376dcdce9cdf0d9303e37b13adbe8e0d322e547a3859127097ff26d
 source-handoff: 39bbc32b9f63eef5045a70e0c702cc49a5328c720457ec36cf18001bef5d7b9b
-source-learnings: f61878d8aa5fdafd8f9eb9c3efdd5422417b5d366f9fe6774fa36ed7118d748a
+source-learnings: f4488f7ed0f3c3b1c8396f436ef341b1fd3ad10840bae6948037e96bde186522
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-5 contract EXACTLY: arm ONLY measured shapes (`lower_test_skip0` Or arm + `lower_bool` Or fold; NEVER alter And), build rc=0 + histogram 68, cmp VA–VK whole-file, sweep FAILS 0, markers (CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (record new blocker, NEVER fix; ?SIGOP out of scope), register exact subset, **C367 BEFORE COVERAGE** (explicit COVERAGE-IDS.txt edit, NEVER coverage_gen.py), gate `build/gate-e52p9-reg.log`, RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9; do NOT start P3-10. Ledger ENDS **C366**; gate baseline **1249/186/9/140-0-0**, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL.
 

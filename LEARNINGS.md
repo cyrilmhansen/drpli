@@ -7474,6 +7474,65 @@ ACCEPTED decode (every block = prologue, PUSH words w1..w6, `LXI H,*CB`, `CALL ?
   `ba1ca9b11e2934a4…` and coverage-stats.json sha `39e096d5fcfc9fcf…` byte-identical to the repaired
   P3-8 state — the scientific ledger did not move.
 
+## E2E-52/P3-9 hop 5 REMAINDER IN FLIGHT — recovery VERIFIED, dis80 step (1) ALREADY LANDED, and a DEFECT FOUND IN THE PREDECESSOR'S ARM DESIGN (DEC operand push order) (2026-11-06, session 01a1ae1e, chain 01a1adf0 renewal 2/12; ZERO `ocaml/` byte, ZERO oracle)
+
+**ACCEPTED (verified this session):** HEAD `8b929d7` == the predecessor's hop-5 PART commit, so
+the hop-5 contract's step (1) — "commit `tools/dis80.py`" — is **already DONE**; `git status` shows
+only the guard's own blocks + the operator `handoff.config.json` (never staged). Clean `dune build`
+rc=0 DIRECT, binary `9ecea27aa4f2d80f49ad…` == baseline (ZERO `ocaml/` change). `golden/e52p9/`
+holds all 11 probes; the authoritative raw dump `build/e52p9-arm/goldens-dump.txt` (751 lines) and
+all 11 probe sources were re-read in full — the hop-5 PART byte list matches it verbatim
+(VA `3A r(dl+1)/B7/F2` @0006 CODE 001C DATA 0004; VB==VC `2A r(dl)/2B×3/7C/2F/F5/3A r(dl+1)/C1/B0/F2`
+CODE 0026; VE `2A r0/2B×3/7C/2F / 21 r0 / F5 / 7E 23 B6 D6 01 9F / C1 B0 F2` CODE 002C;
+VF 4-op emission `>2,=0,>1,<0` with 3×(F5/C1/B0) + ONE F2, CODE 003C; VG literal-first CODE 0047
+DATA 0014; VI two IFs literal-first, ONE shared zero10 cell (relocs `r@11`,`r@11` twice) CODE 0076
+DATA 001A; VJ `21 r0/AF BE 23 9E/F5/3A r1/C1 B0 F2` CODE 0025; VH `F2`@0015→0020 + `C3`@001D→0026
+TWO independent SET-LC/RELOC pairs; VK three statements as hop-5 PART describes, CODE 0080 DATA 0009).
+
+**FALSIFIED — the hop-5 PART design's DEC step is WRONG as written.** It says to "reuse/extend
+`dec_eq_bool_parts` … with **literal-first** order". Reading `codegen.ml:7249` shows the existing
+AND-route `dec_eq_bool_parts` `pre ()` = `d st op_lxi_h; reloc st Data (addr_of st v)` — the **VARIABLE**
+load hoisted above `F5` (its [DECPOLY/R2026] authority), and `post ()` pushes the literal second. The
+VG/VI **OR** witnesses are the opposite: `21 r(zero-cell) / 3E p / ?DLDOP / 21 r(var) / 3E p / ?DLDOP /
+?DCMOP / D6 01 / 9F` — the POOLED LITERAL cell first, the variable second (VG relocs: literal@9 before
+pv@0, literal@14 before pmt@5; VI literal@11 before p@0, literal@17 before q@6). So the OR DEC operand
+needs its **own** materialiser; calling `dec_eq_bool_parts` unchanged would emit AND-route order and
+fail VG/VI, and editing that function in place would alter And bytes — both forbidden.
+
+**PROPOSED (unverified, successor must measure against the goldens, not adopt):** the two observed
+orders are BOTH consistent with the residual **ADD (higher DATA address first)** law the hop-4 section
+already flagged indistinguishable from literal-first on pool-above-data layouts (VG pool@9,14 >
+vars@0,5; VI pool@11,17 > p@0,q@6). Implement the OR DEC operand as address-ordered (emit the
+higher-address operand's `LXI H` first) and let VG/VI + the DECPOLY AND goldens adjudicate; record the
+ambiguity in **C367** exactly as hop-4 planned. If ADD cannot reproduce the AND-route goldens unchanged,
+keep the two materialisers separate and refuse the un-witnessed order BY NAME.
+
+**UNRESOLVED / owed (unchanged from hop-5 PART, minus step (1)):** (2) arm `ocaml/lib/codegen.ml`
+ONLY — `Ast.Or` arm in `lower_test_skip0` BESIDE the And arm (the And arm is at line **8527** on THIS
+tree, not 8526: `| Ast.Ebinary (Ast.And, _, _) -> lower_bool st c; d st op_jp; slot`), plus an `Ast.Or`
+fold arm BESIDE And in `lower_bool` (line 7276) using `C1 POP B / B0 ORA B (0xB0)` where And uses
+`A0`, plus the `<0` standalone TEST leaf (VA 6 B `3A r(cell+1)/B7/F2`, refuse non-auto BY NAME — the
+present refusal is `codegen: < 0 / negative const form unproven [TBD]` at line **8635**), rules 1–3
+NODE-LOCAL (rule 2 ONLY same-var `=0`-then-`>c`; other-var zero-vs-ladder refuses BY NAME [TBD]),
+operand encoders per hop-5 PART (`2A…/hl_bias(-(k+1))/7C/2F`, `21/7E/23/B6/D6 01/9F` = `bin_zero_tail`,
+`21/AF/BE/23/9E` for `> 0`, atomic `3A r(cell+1)` for `<0`, ident-vs-ident `=` via `2A/E5/2A/D1/?IS22N
+/7C/B5/D6 01/9F`), VK `a|(b&c)` = AND-fold sandwich FIRST, `(a|b)&c` = OR fold then And's own sandwich,
+value-position `b=(…)` = OR fold then BARE `32 r(b)` (the existing BIT(1) condition-store route at
+`bit_cond_mat` line 8105 + its `STA` at ~9944 admits only its pinned classes — audit, refuse anything
+outside VK); NEVER alter And bytes. (3) build rc=0 DIRECT + histogram vs **68** + cmp VA–VK 11
+whole-file vs `golden/e52p9/` + `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 +
+markers harness copied from `build/e52p8-reg/markers.py` (MUST materialise CRLF + bare `^Z`) +
+LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (LOAN2 predicted next blocker = the `signal error` body at 91,
+`?SIGOP` UNARMED, NEVER fix). (4) registration from **1249**, **C367 measured-bytes-only BEFORE
+COVERAGE** (new `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line, NEVER `coverage_gen.py`),
+gate rc=0 `build/gate-e52p9-reg.log`. (5) RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED, durables.
+**STOP at P3-9 closure — do NOT start P3-10/SIGNAL ERROR.**
+
+**STATE:** HEAD = durables commit after `8b929d7`; ledger ENDS **C366**; gate 1249/186/9/140-0-0
+census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; ZERO `ocaml/` byte; goldens untouched;
+`handoff.config.json` NEVER staged; no push; all rc DIRECT; `pli80c` POSITIONAL; chain 01a1adf0
+2/12 used (cap 12).
+
 ## E2E-52/P3-9 hop 5 PART — dis80 FIXED+VERIFIED, ALL 11 golden folds RAW-DERIVED (`build/e52p9-arm/goldens-dump.txt`), exact arm design written; ZERO `ocaml/` byte yet; session closed at pressure before the arm edit (2026-11-06, session 01a1ae0d, chain 01a1adf0 renewal 1/12)
 
 **ACCEPTED (measured this hop, raw reldump records):**

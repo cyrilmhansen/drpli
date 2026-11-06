@@ -1594,23 +1594,20 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 379
-checkpoint-id: g379-d6402b82926e
+checkpoint-generation: 384
+checkpoint-id: g384-da2d3e77a531
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4977, session 01a1adf0-3ad6-7091-837d-1dce226d12dd)
-checkpointed: 2026-11-05T23:30:35.256Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4047, session 01a1ae1e-971c-7091-837d-1dd6b08f8448)
+checkpointed: 2026-11-06T00:11:37.579Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f56da7ec04d03dfcdc8d65943593b3e8ac63b79d8474fa003dc107ef7e9a8c1b
+source-progress: c4fb7f7a4376dcdce9cdf0d9303e37b13adbe8e0d322e547a3859127097ff26d
 source-handoff: 39bbc32b9f63eef5045a70e0c702cc49a5328c720457ec36cf18001bef5d7b9b
-source-learnings: 41555ec3a5775b38166c0263ba7d3a0c88c4a6eba1542dfc6e517fdfddbdd3c2
+source-learnings: f4488f7ed0f3c3b1c8396f436ef341b1fd3ad10840bae6948037e96bde186522
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1adf0-3ad6-7091-837d-1dce226d12dd
-readiness-at: 2026-11-05T23:30:47.653Z
-readiness-checkpoint: g379-d6402b82926e
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
@@ -2211,5 +2208,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-9 hop 3 DONE (campaign 11/11, goldens 9bb3f99, durables 5f4f577). Hop 4 = pin fold-order rule from raw reldumps, then arm-only-measured; full contract in PROGRESS Next action + LEARNINGS hop-3 section.
+E2E-52/P3-9 hop 5 PART committed at 8b929d7. Execute PROGRESS.md Next action hop-5-remainder contract and LEARNINGS.md § "E2E-52/P3-9 hop 5 PART" (all golden folds raw-derived + exact arm design). Arm ocaml/lib/codegen.ml ONLY (Or test-arm beside And @8526, Or fold beside And in lower_bool, 0xB0 ORA B, rules 1-3 node-local, refuse BY NAME); NEVER alter And. Then build rc=0, histogram vs 68, cmp VA-VK whole-file vs golden/e52p9, sweep FAILS 0, markers (CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted blocker signal error at 91, ?SIGOP out of scope, NEVER fix), register from 1249, C367 BEFORE COVERAGE (explicit COVERAGE-IDS.txt edit, NEVER coverage_gen.py), gate build/gate-e52p9-reg.log, RESULTS/PLAN CLOSED, durables. STOP at P3-9 closure. Ledger ENDS C366; gate 1249/186/9/140-0-0 census 15/0/26/0; binary 9ecea27aa4f2d80f49ad; goldens NEVER re-derived; handoff.config.json NEVER staged; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 1/12 used.
 <!-- guard:end checkpoint -->
