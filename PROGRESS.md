@@ -42,7 +42,7 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-13 — hop 8: recovery + g456 `afff5e0` LANDED, ARM IMPLEMENTATION DESIGN FULLY PINNED in `LEARNINGS.md` § "P3-13 hop 8" — read THAT FIRST, it is the current successor contract and supersedes the hop-7 arm sketch; EDITS + validation + register + close OWED)
+## Next action (E2E-52/P3-13 hop 8 PART LANDED — ARM EDITS COMMITTED `13e53be` UNVALIDATED; histogram repair FIRST, then validation/register/close; read `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" FIRST — it is the current successor contract)
 
 **EXECUTE NOW (successor): read `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" FIRST and follow its steps (0)–(7) EXACTLY. STATE: ARM EDITS ALREADY APPLIED (UNCOMMITTED at hop-8 close — commit them first, explicit paths ocaml/lib/bind.ml ocaml/lib/codegen.ml) — bind gained `cs_dec` sizing authority (DEC expression temps sized bytes_of callee RTdec row, array-named/recursive/external excluded); codegen admits ONLY the measured literal (`dec_pool` pre-scaled formal-width cell, ZERO code) and Mul-of-two-plain-DEC-autos product (armed `dec_push` route + `!dec_actual_mat` hook terminating DSTOP A=pf into the formal-width temp); Line-N BY-NAME refusal VERBATIM otherwise; `dec_pool` MOVED before lower_hl. Default build rc=0 binary `26ed7ccf54e6bf77…`, but NEW Warnings 9 (missing-record-field — find other call_site constructions) + 39 (unused-rec) MUST be repaired to histogram codegen 68/total 124 == baseline FIRST (full fresh `--build-dir` build; `eval "$(opam env)"` every shell). Then cmp ZA..ZF FRESH POSITIONAL, sweep 159/0, markers + honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC 64/0, divcheck 9/9, LOAN2 never-predict, register from 1288/188, C371 measured-bytes-only + DATED both-errors C093 correction, coverage extension, gate rc=0 → build/gate-e52p13-reg.log, RESULTS §P3-13 + PLAN §5 row + CLOSED; marathon through P3-19.**
 
@@ -2897,17 +2897,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 458
-checkpoint-id: g458-256c43d96cf4
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 459
+checkpoint-id: g459-ec4e6cd96562
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-06T18:58:02.621Z
+checkpointed: 2026-11-06T18:59:44.105Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 90ffe9c0a28b9ca189807e8733bdee7954d3775752a6da7c5e6a5cf6142251ec
+source-progress: 715590c4704c310a6b65a357b3c7755a2e531b1773c21a1207b177b5879f3830
 source-handoff: 9699a18ea6f973ce640091d64cde8693d3c64d771b5cd3514aeef01ce2d399fa
-source-learnings: fd5a99f3615cb248132a26ca6bda646f4b59f7dbac79a6bb6be90ca6018a78a6
+source-learnings: 103ac6c00062813bb23881e4a1b447f7a8ffca21e04da1201f096de6fcbe34a6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
 
@@ -3542,6 +3542,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b225-1716-71fa-8218-822ad1d0cada
+readiness-at: 2026-11-06T18:59:44.130Z
+readiness-checkpoint: g459-ec4e6cd96562
 <!-- guard:end checkpoint -->
 
 ## Blockers

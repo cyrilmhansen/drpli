@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-marathon-6. **P3-13 hop 8 PART LANDED (session 01a1b225, chain 01a1b1b4 renewal 8/12→9; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier): recovery + g456 VERBATIM `afff5e0`; design pinned `5f29ee5`; ARM EDITS COMMITTED `13e53be` — bind `cs_dec` single allocation authority (DEC expression temps sized `bytes_of` callee scalar RTdec row; array-named/recursive/attr/external excluded), codegen admits ONLY the measured shapes: `Enumber` literal → `dec_pool` pre-scaled FORMAL-width cell + static descriptor reloc, ZERO code (E52ZC/ZD/NG18); `Ebinary(Mul, plain-DEC-auto, plain-DEC-auto)` → armed `dec_push` via ONE forward slot `dec_actual_mat` (installed after `dec_push`; lower_hl/dpush are SEPARATE chains — never duplicate the law), terminating `LXI H,*A(temp)/MVI A,pf/?DSTOP`, C370-window shift kept (ZA/ZB/ZF); `dec_pool` MOVED before `lower_hl` (vk_dec_at precedent); Line-N BY-NAME refusal VERBATIM otherwise, substring `FIXED DECIMAL formal is unproven` intact. Default build rc=0 binary `26ed7ccf54e6bf77…` (supersedes pre-arm `6a4c6c11…`). NOT YET DONE: histogram repair (NEW Warnings 9 missing-record-field + 39 unused-rec vs baseline 68/124 — fix FIRST, full fresh `--build-dir`, `eval "$(opam env)"` every shell), cmp ZA..ZF FRESH POSITIONAL, sweep 159/0, markers + N33→NG18 retirement iff cmp rc=0 golden KEPT (refusals 188→187), DEC 64/0, divcheck 9/9, LOAN2 never-predict, register from 1288/188, C371 measured-bytes-only + DATED BOTH-errors C093 correction, coverage extension, gate `build/gate-e52p13-reg.log`, RESULTS+PLAN §5+CLOSED. SUCCESSOR contract = `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" steps (0)–(7) EXACTLY; marathon through P3-19. All inherited constraints VERBATIM (goldens never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); chain cap 12, 9/12 used.**
+
 0a-marathon-5. **P3-13 hop 6 LANDED (session 01a1b201, chain 01a1b1b4 renewal 6/12→7; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier): step (0) COMPLETE — g450 blocks at `f281500`, e52p12 summary/transcripts additive VERBATIM `ed8f1a8`; first-hand re-verification + durables `c9d1a27`. NEW accepted correction: NG18 DEC-literal pool cell = 5 B FORMAL-width `00 01 00 00 00` pre-scaled ([C084] R505 law; predecessor "2-byte" bullet FALSIFIED — C371 must correct BOTH C093 errors: DECPOLY `*A(005A)=5.67` false-as-cited AND the 2-byte width); LOAN2 product block 32 B ×5 at 055D..05DD; [C358] copyin emission already equals the LOAN2 temp-materialiser shape; put-skip tail pinned; `E52Z*`+`e52p13` UNUSED; N33 marker substring recorded. SUCCESSOR: execute PROGRESS.md `## Next action` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
 
 0a-marathon-4. **P3-12 CLOSED (session 01a1b1d9, renewal 4/12→5; chain 01a1b1b4): (l) LANDED — FULL gate rc=0 DIRECT `build/gate-e52p12-reg.log` 1288/0, 188/188, 9/9, 143 rows 0/0 SUPPORTED 93, census 15/0/26/0, prose 5; RESULTS §P3-12 + PLAN §5 row + §P3-12 CLOSED `c6f587a`; honest note kept: first gate launch lost rc in background, canonical log is the synchronous rc-captured re-run. Durables 98ddca9 (`## Next action` rewritten for P3-13) + guard blocks effbb66/15fdc9a. SUCCESSOR: execute PROGRESS.md `## Next action` P3-13 Phase A steps (1)–(6) EXACTLY, ZERO oracle FIRST: decode authentic LOAN2.REL display-call (five `dec(10,2)*dec(4,3)` products vs five `fixed dec(10,2)` formals @142-151) + NG18.REL (N33 retirement route, golden KEPT) into fresh `build/p3-13/`; re-verify the C093 `5.67`-vs-DECPOLY-source discrepancy traceably; PLAN §P3-13 + probes E52ZA.. committed BEFORE any oracle call/`ocaml/` byte; contract in LEARNINGS § "P3-13 Phase A IN FLIGHT"; marathon through P3-19. All inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, config NEVER staged, `git diff --cached --stat`, no push, rc DIRECT, never glue `rm`, byte-tier only); armed binary `6a4c6c1154a0acd8403b…` == tree; commit guard g447+ blocks VERBATIM on recovery.**
@@ -1636,25 +1638,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 456
-checkpoint-id: g456-ed4463285fbd
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 459
+checkpoint-id: g459-ec4e6cd96562
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4588, session 01a1b215-c294-71fa-8218-8226fa810a89)
-checkpointed: 2026-11-06T18:35:12.251Z
+status: checkpoint (guard level 4, remaining ~219, session 01a1b225-1716-71fa-8218-822ad1d0cada)
+checkpointed: 2026-11-06T18:59:44.105Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 70574016e7734e04ceab608f1501664955f4d37ab1670dc20360db01a6d1d020
+source-progress: 715590c4704c310a6b65a357b3c7755a2e531b1773c21a1207b177b5879f3830
 source-handoff: 9699a18ea6f973ce640091d64cde8693d3c64d771b5cd3514aeef01ce2d399fa
-source-learnings: a5375c7629e0d3ccb4673a35c8a877fc46f02839550439c045ffb9e38cf9336b
+source-learnings: 103ac6c00062813bb23881e4a1b447f7a8ffca21e04da1201f096de6fcbe34a6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b215-c294-71fa-8218-8226fa810a89
-readiness-at: 2026-11-06T18:35:37.606Z
-readiness-checkpoint: g456-ed4463285fbd
+readiness-by: session:01a1b225-1716-71fa-8218-822ad1d0cada
+readiness-at: 2026-11-06T18:59:44.130Z
+readiness-checkpoint: g459-ec4e6cd96562
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2295,5 +2297,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-13 hop 7 LANDED: steps (5) pre-registration 7503552 + (6) campaign e52p13 6 ok/6 (ZERO dr-refuses, every .PRN NO ERROR(S) both passes; H-1..H-8 ALL CONFIRMED, ZERO falsifiers fired — down/up QDDSR/QDDSL in C370 window, DSTOP A=pf, temp width=ceil((pf+2)/2) (ZA/ZF 6B, ZB 4B, ZE 5B), literal cells pre-scaled formal-width 50 01 00 00 00 / 00 01 00 00 00 with ZERO caller code + static descriptor relocs, ZE interleaved vector, ZF LOAN2 verbatim replication MVI C,0A); goldens+summary+transcripts VERBATIM 6267faf BEFORE any ocaml/ byte; durables 49d382c. Successor: read LEARNINGS.md § "P3-13 hop 7 PART LANDED" (PINNED ARM CONTRACT) + PROGRESS.md ## Next action FIRST; execute steps (1)-(7) EXACTLY: arm ONLY the measured shapes at the DEC-formal guard ~4748-4810 + target-selection ~4822-4861 (inspect pairs/copy/tmp provenance first; NEVER hand-pick addresses; ALL else BY-NAME [TBD], marker substrings survive, histogram 68/124==baseline); validation (cmp FRESH POSITIONAL build/p3-13/arm-out/, sweep 159/0, markers incl honest N33→NG18 retirement iff armed cmp rc=0 vs KEPT golden — probes/NG18.PLI from inline gate source, refusals 188→187; DEC regressions 64/0; divcheck 9/9 build/p3-12/divcheck.py); LOAN2 UNMODIFIED never-predict ACTUAL blocker VERBATIM; register from 1288/188 (--update-inventory, git diff --cached --stat, census OWN path 15/0/26/0); C371 measured-bytes-only BEFORE COVERAGE + DATED correction of BOTH C093 errors; coverage extension preferred (NEVER coverage_gen.py; 15 cols; manual_ref pNN[:§X.Y][=phrase]|NONE:); FULL gate rc=0 DIRECT → build/gate-e52p13-reg.log; RESULTS §P3-13 + PLAN §5 row + CLOSED; marathon through P3-19. Armed binary 6a4c6c1154a0acd8403b… == tree; chain 01a1b1b4 7/12 cap 12; goldens NEVER re-derived; POSITIONAL FRESH paths; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier only.
+P3-13 hop 8: ARM EDITS LANDED+COMMITTED 13e53be (bind cs_dec + formal-width temps; codegen Enumber-literal and Mul-product arms via dec_actual_mat slot; dec_pool hoisted; Line-N BY-NAME refusal VERBATIM). Default build rc=0 binary 26ed7ccf54e6bf77 (supersedes 6a4c6c11 == PRE-arm tree). SUCCESSOR: LEARNINGS § "P3-13 hop 8 PART LANDED" steps (0)-(7) EXACTLY — FIRST repair histogram to codegen 68/total 124 == baseline (NEW Warnings 9 missing-record-field [find other call_site constructions] + 39 unused-rec [zip3 area ~4565]; full fresh --build-dir build, eval "$(opam env)" EVERY shell), then cmp E52ZA..ZF FRESH POSITIONAL build/p3-13/arm-out/, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 vs KEPT golden (probes/NG18.PLI, refusals 188→187), DEC 64/0, divcheck 9/9, LOAN2 never-predict VERBATIM, register from 1288/188, C371 measured-bytes-only + DATED both-errors C093 correction, coverage extension (NEVER coverage_gen.py, 15 cols, manual_ref pNN|NONE:), gate rc=0 build/gate-e52p13-reg.log, RESULTS §P3-13 + PLAN §5 row + CLOSED; marathon through P3-19. Goldens NEVER re-derived; POSITIONAL FRESH paths; git diff --cached --stat; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier only; chain 01a1b1b4 8/12 cap 12.
 <!-- guard:end checkpoint -->
