@@ -1045,3 +1045,133 @@ the raw records before appending) and committed BEFORE any `spec/COVERAGE.tsv` t
 - LOAN2 is NEVER claimed exact; it still refuses (NO .REL) at the line-99 `PUT FILE(OUTPUT)`
   blocker, recorded and NOT fixed; **P3-11 is NOT authorized**. GOLDENS ARE EVIDENCE, NEVER
   RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
+
+# E2E-52/P3-11 RESULTS — the named-file PAGE/LIST/SKIP blocks ride VERBATIM behind a lowered
+PRINT open; the eligibility guard is a SOURCE-STRUCTURE list; the DOUBLE back-patch under IF
+(campaign e52p11) — CLOSED (2026-11-07, hop 5)
+
+Pre-registered in PLAN §P3-11 (hops 1–2: Phase-A raw-record audit with ZERO oracle, then PLAN
+§P3-11 H-A..H-K + probes `probes/E52XA..XK.PLI` committed by EXPLICIT paths BEFORE the first
+oracle call and BEFORE any `ocaml/` byte); campaign e52p11 **11 ok / 11**, every `.PRN`
+`NO ERROR(S)` in BOTH passes — ZERO `dr-refuses`; goldens VERBATIM `060289e` committed BEFORE
+any emitter byte; arm `3e0a3c1` (candidate A); registration `69dd508` (inventory 1269→**1278**,
+refusals 187→**189**); census OWN path in the same commit (counts UNCHANGED 15/0/26/0); claim
+**C369** `a00fc13` written from MEASURED BYTES ONLY and committed BEFORE any `spec/COVERAGE.tsv`
+touch; coverage row EXTENSIONS `b9645fa` (NO new rows, `spec/COVERAGE-IDS.txt` diff EMPTY,
+`coverage_gen.py` NEVER run, 15 columns from the FIRST NON-COMMENT row, tab-delimited text edit
+because `csv.writer` would have re-quoted 7 unrelated lines); FULL gate rc=0 DIRECT
+`build/gate-e52p11-reg.log` — **1278/0, 189/189, 9/9, 142 rows 0/0, census 15/0/26/0, prose 5** —
+every pre-registered number HIT. All rc captured DIRECTLY (never through a trailing pipeline);
+goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; `handoff.config.json` NEVER
+staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52XA..E52XK --tag e52p11 --switches '$L$D'`
+rc=0 → **11 ok / 11**; `build/e52p11/campaign-rc.txt`; every accepted `.REL` preserved VERBATIM
+into `golden/e52p11/` and re-dumped to `build/e52p11/E52X*-reldump.txt`.
+
+## 2. Measured table (9/9 cmp rc=0 on armed binary sha256 `25c57e27696421e929b8…`, re-verified
+POSITIONAL into FRESH `build/e52p11/out/`; every region re-read FIRST-HAND from the raw records
+at registration and again before C369; sizes from the DEF-CODE-SIZE / DEF-DATA-SIZE records)
+
+| Probe | Shape | Verdict | Size | CODE | DATA | Measured region | golden sha12 |
+|---|---|---|---|---|---|---|---|
+| E52XA | `open file(pf) print;` + `put file(pf) page;` + `x = 2` | EXACT | 256 B | `0036` | `0002` | open `AF 47 C5 33 / 21 52 06` (w1 `0x0652`) `… CD` `?OIOOP@0019`; PAGE at `001B`: `21`+`RELOC common 0x0` / `11 52 06` / `01`+slot `0022` / `CD` `?SIOOP@0025 ?PAGOP@0028 ?QIOOP@002B`; SET-LC `0022` RELOC `code 0x2d` → `x = 2` at `002D` | `595f31bd6180` |
+| E52XB | `title('TEST') print` (NO pagesize) + page | EXACT | 256 B | `003E` | `0006` | 29-B TB block, w1 `0E52`, `?SLCTS@000C`; PAGE at `0023`, slot `002A` → `0035` | `073ffb3a20d1` |
+| E52XC | `title('$con') print pagesize(0)` + page (LOAN2:54+99 mirror) | EXACT | 256 B | `003E` | `0006` | w1 `2E52`; PAGE at `0023`, slot `002A` → `0035` | `0f47ebfe5444` |
+| E52XD | `title(name) print` — VARIABLE varying title (LOAN2:56 mirror) | EXACT | 256 B | `003C` | `0011` | 27-B `?SLVTS@000A` route, w1 `0E52`; PAGE slots `?SIOOP@002B ?PAGOP@002E ?QIOOP@0031`, slot `0028` → `0033` | `e40a283adb7e` |
+| E52XE | `if n < 0 then put file(pf) page;` | EXACT | 256 B | `003D` | `0004` | **DOUBLE back-patch**: SET-LC `0029` (PAGE LXI B) AND SET-LC `0020` (F2 skip) BOTH carry RELOC `code 0x34`; `?SIOOP@002C ?PAGOP@002F ?QIOOP@0032` | `646e8ac3fd1c` |
+| E52XF | TB open in THEN, TC open in ELSE, then ONE page | EXACT | 384 B | `0063` | `0017` | F2 slot `000B` → `002D`; ELSE `C3` slot `002B` → `0048`; ONE 18-B PAGE after the merge, `?SIOOP@0052`, NO pad | `fe39d3534116` |
+| E52XG | print open + `list('A')` | EXACT | 256 B | `003E` | `0003` | P019B 26-B LIST verbatim: `21`+`RELOC data 0x0`+`3E 01`, `?SLCTS@002D ?PNCOP@0030 ?QIOOP@0033`, slot `0022` → `0035` | `b498e2f1ac72` |
+| E52XH | print open + bare `skip` | EXACT | 256 B | `0038` | `0002` | E46N1 20-B shape `3E 01 / ?SKPOP@002A / ?QIOOP@002D`, **NO `?PNCOP`**, slot `0022` → `002F` | `7b6db79cf78b` |
+| E52XI | print open + `skip list('A')` | EXACT | 384 B | `0043` | `0003` | E46N2 31-B shape: skip BETWEEN attach and chain `?SKPOP@002A` then `?SLCTS@0032`, `?PNCOP@0035` only because a chain follows, `?QIOOP@0038`, slot `0022` → `003A` | `7578173a18ed` |
+| E52XJ | `put file(pf) page;` with NO open anywhere | DR-ACCEPTED, **my-gap** (rc=2, NO `.REL` here) | 256 B | `0021` | `0002` | `LINK-SEL-COMMON PF` at FIRST USE (raw record @834), same 18 B `?SIOOP@0010 ?PAGOP@0013 ?QIOOP@0016`, slot `000D` → `0018` — E46L8's no-open LIST geometry asked of `?PAGOP` | `f164f7770e31` (kept UNCLAIMED) |
+| E52XK | `open file(pf) stream input;` + page | DR-ACCEPTED, **my-gap** (rc=2, NO `.REL` here) | 256 B | `0036` | `0002` | open word `21 90 06` (`0x0690`), PAGE attach STILL `11 52 06` (`0x0652`) — geometry IDENTICAL to XA | `4acb18b5ce6d` (kept UNCLAIMED) |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; every MISS kept verbatim)
+
+- **H-A CONFIRMED except for MY OWN pre-registration slip.** Everything measured as predicted —
+  18-B PAGE at `001B`, attach `11 52 06`, CB operand `RELOC common 0x0`, `?PAGOP` with NO count
+  operand, CODE `0036`, COMMON PF `0024` = 34+2, ONE `SEL-COMMON` at the open — but §4 predicted
+  the LXI B slot would patch to `0030`; **the measured target is `002D` = `001B + 18`**. Recorded
+  VERBATIM, the law bullet in [C369] uses the measured value. No falsifier fired: no attach
+  mirroring, no `3E nn`, no extra CALL, no refusal.
+- **H-B CONFIRMED; the pagesize-required competitor FALSIFIED.** `title('TEST') print` with NO
+  pagesize and NO linesize is DR-ACCEPTED (`NO ERROR(S)` both passes) with w1 `0E52` and the
+  ordinary 18-B PAGE. A pagesize bit is NOT required before a file PAGE is accepted.
+- **H-C / H-D CONFIRMED** (CODE `003E` w1 `2E52`; CODE `003C` on the 27-B `?SLVTS` route). The
+  18 bytes are INVARIANT across titleless / literal-title / literal-title-with-pagesize /
+  variable-varying-title open routes.
+- **H-E CONFIRMED — DOUBLE back-patch; the SINGLE-patch competitor FALSIFIED.** Both slots patch
+  to the same continuation `0034`, the LOAN2 98–99 geometry (03A8 + 03B1 → 03BC) panel-verified
+  minimally.
+- **H-F CONFIRMED** — ONE PAGE after the merge of two branch-local opens; NO pad and NO
+  branch-local eligibility: an open on ANY lowered source path before the PUT suffices.
+- **H-G / H-H / H-I CONFIRMED — the ONE route-independent item emitter.** LIST/SKIP/SKIP-LIST
+  behind a PRINT open reproduce P019B (26 B), E46N1 (20 B, no `?PNCOP`) and E46N2 (31 B)
+  VERBATIM; zero statement bytes were added or changed for these three.
+- **H-J RESOLVED — DR ACCEPTS (my-gap).** No-open file PAGE compiles in DR with `SEL-COMMON` at
+  FIRST USE. My compiler refuses it BY NAME; the golden is KEPT and claimed by NO rule of mine
+  (E46L8/SE precedent). DR's object is the evidence that the guard's open-list is a compiler-side
+  eligibility choice, not a DR requirement.
+- **H-K RESOLVED — DR ACCEPTS (my-gap); the input-mirroring attach competitor FALSIFIED.** The
+  open carries `0x0690` and the PUT attach stays `0x0652` — [C280]'s direction law reconfirmed on
+  a new route. Mine refuses the INPUT-direction named PUT BY NAME.
+
+## 4. Arm, coverage, registration
+
+Arm `3e0a3c1` = candidate A: ONE condition line in `lower_open` records a `PRINT`-spelling OPEN
+beside `OUTPUT` into the compiler-side eligibility list. The open emitters, the 18-B PAGE
+encoder, the LIST/SKIP emitters and the `[TBD]` refusals are UNCHANGED — zero statement bytes
+differ; the PU1 negative-panel marker substring `PUT FILE(F) has no byte-exact DR witness`
+survives VERBATIM (its message BODY moved, per PLAN §5). Verification: build rc=0, binary
+`25c57e27696421e929b8…` (deterministic, fresh `_build-e52p11`), histogram codegen 68 / total 124
+== baseline, 9/9 cmp rc=0, XJ/XK rc=2 BY NAME, sweep FAILS 0, markers 5/5 MARKER_FAILS 0
+(incl. PU1/E41X5/E46K10/N3_PAGE/E46N21), regressions 38/38. Registration `69dd508`: SPECIMENS +9
+(XA..XI ONLY), XJ/XK → REJECTS as honest `my-gap` rows with markers RE-MEASURED under the gate's
+CRLF + bare-`^Z` materialization (XJ line 8, XK line 9); `--update-inventory` 1269→**1278 / 189**
+(+9/+2 EXACTLY, every added line inspected, config NOT staged). Coverage `b9645fa` EXTENDS
+`FILE.PUT_PAGE` (EXACT:1→**7**), `FILE.PUT_SKIP` (EXACT:18→**20**) and `FILE.PUT_LIST`
+(EXACT:10→**11**) — LIST counts 12 probes as EXACT:10 because E46M33/M34 are `dr-refuses`, so
+EXACT = byte-exact panel members, not len(probes); `coverage_check.py` validates the FORMAT of
+`rel_parity` only, never N against the panel, so the bumps were verified by hand against
+`spec/INVENTORY.txt` (all nine X-probes are `golden/` specimens) and then adjudicated rc=0; the
+LIST row's now-false "No object yet pairs a file PUT with one of the newly lowered PRINT opens"
+clause is kept AS WRITTEN inside a labelled `[E2E-52/P3-11 CORRECTION]` (quote-then-correct, the
+P3-8/P3-10 precedent). `coverage_check` rc=0 **142 rows, 0 errors, 0 warnings, SUPPORTED 92**
+(rows and the canonical stats UNCHANGED — extensions move no counter), `file_prose_check` rc=0.
+
+**TOOL LESSONS (accepted).** (1) A reldump DATA record can print a SINGLE hex digit (`0x6`);
+a `0x[0-9a-f]{2}` regex silently MISSES it and produced false `-1` holes in my first quick dump —
+always `0x[0-9a-f]{1,2}`. (2) Do NOT hand-parse raw `.REL`: MACREL record types carry the HIGH bit
+(81H..8FH) and a 01H..0FH walk dies at byte 0 — use the `build/e52p8/ondump2.py` /
+`build/e52p9/reldumps.py` chain (ondump2 IGNORES CLI args, hard-coded TARGETS). (3) `csv.writer`
+with `delimiter='\t'` still re-quotes 7 unrelated COVERAGE lines; edit these rows TEXTUALLY and
+verify the diff BY CONTENT (3 lines, 15 columns each).
+
+**LOAN2 — the line-99 blocker is CLOSED; the ACTUAL next blocker is recorded, NEVER fixed**
+(PLAN §6 STOP): rc=2, NO `.REL`, message VERBATIM `codegen: DECIMAL assignment between differing
+scales is unproven [TBD] (only computed results are pinned as needing a QDDSL/QDDSR fix; a direct
+DEC operand store always had equal scales in the samples)` — a message that carries **NO `(line N)`
+clause**, so the census/registration lines moved accordingly. EXPR1 (GET line 21) and EXPR2 (FLOAT
+line 35) UNCHANGED. Nothing further is authorized from this text.
+
+## 5. What P3-11 does NOT say (byte tier only)
+
+- **Byte tier only**: no `e52p11` object was linked or run under cpmsim; NOTHING here asserts page
+  placement, line counting, skip semantics or any PLILIB runtime action, and no `spec/RUNTIME.txt`
+  row comes from this subround. Byte parity is not a semantics claim.
+- **Eligibility is SOURCE STRUCTURE, never runtime typestate**: the guard answers only "did THIS
+  compiler lower an OUTPUT- or PRINT-spelling OPEN for this file group earlier in source order
+  (either branch of an IF counts)". XJ (no open) and XK (INPUT open) prove DR does NOT require what
+  my guard requires; that difference is my `my-gap`, never a DR rule.
+- **Perimeter KEPT, all refusals BY NAME**: PAGE with additional control items (COPYLPT 0268
+  class), counted `page(n)`, `LINE` (dr-refuses E46N21), console `put page;` (N3_PAGE), KEYED
+  files, INPUT-direction named PUTs and no-open named PUTs (PU1/E41X5/E46K10 class), and VARIABLE
+  LIST items behind a PRINT open (LOAN2 `list(clear)` sites, original-golden witnesses only). No
+  name-based special-casing: any file identifier in a lowered PRINT (or OUTPUT) open records its
+  group.
+- LOAN2 is NEVER claimed exact; **the DEC-scales blocker is NOT a diagnosis and NOT authorization**
+  — it is the ACTUAL recorded refusal text, unfixed; **P3-12 is NOT authorized** and no next-blocker
+  work may be opened from this section.
