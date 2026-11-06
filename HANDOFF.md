@@ -1610,25 +1610,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 411
-checkpoint-id: g411-65eab60b8d0d
+checkpoint-generation: 412
+checkpoint-id: g412-4bcb560993ae
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 1, remaining ~11149, session 01a1afa7-e94c-7191-8d53-511533190591)
-checkpointed: 2026-11-06T07:19:05.365Z
+status: checkpoint (guard level 2, remaining ~7299, session 01a1b069-c213-727f-87af-801a2770a2b1)
+checkpointed: 2026-11-06T11:00:01.279Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a72f9f13c58aaea8e559c787b8bd9b03efbcb2a3a183ce698fed0012bf72840b
+source-progress: a8f8bf65cc484a87cab73d4dfc64d57e48ba11f77a165745c82b1a3638cf6414
 source-handoff: 223316199e81fd52f0f707c35f1d23828fca05f5bcc13ec25b59f96568346199
-source-learnings: fad51c590d9246f4968a39818f3273b867058c73121a034763cc0060680bc321
+source-learnings: 57791434b56c5365bb52050806cb86e8acb4e58b33396c083ec24f622189e573
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1afa7-e94c-7191-8d53-511533190591
-readiness-at: 2026-11-06T07:19:05.384Z
-readiness-checkpoint: g411-65eab60b8d0d
+readiness-by: session:01a1b069-c213-727f-87af-801a2770a2b1
+readiness-at: 2026-11-06T11:00:01.298Z
+readiness-checkpoint: g412-4bcb560993ae
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2241,5 +2241,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-9 IS FULLY CLOSED (commits: COND.OR row 7da60b5; gate rc=0 build/gate-e52p9-reg.log 1260/0, 186/186, 9/9, 141 rows 0/0, census 15/0/26/0, prose 5; RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED 66cb943; durables da8ba1e; ledger ENDS C367; inventory 1260/186; binary 11c6283e75b60fe3 == tree; goldens NEVER re-derived; ZERO oracle). SUCCESSOR: the ONLY remaining step is committing the guard-refreshed managed blocks in HANDOFF.md/PROGRESS.md VERBATIM (explicit paths, git diff --cached --stat first, handoff.config.json NEVER staged), then STOP — NOTHING is authorized: do NOT start P3-10/signal error/?SIGOP (PROPOSED only), no oracle, no PLILIB/MIR, no push.
+E2E-52/P3-10 hop 1 LANDED (pre-registration c6c4460 + durables 077309a; ZERO oracle, ZERO ocaml byte; goldens untouched; config NEVER staged; no push). Successor: execute PROGRESS.md ## Next action hop 2 EXACTLY — run the ONE e52p10 campaign on E52WA..WL (PLI_SRC=probes timeout 900 python3 oracle/batch.py E52WA..E52WL --tag e52p10 --switches '$L$D', rc DIRECT), read PLAN.md sec P3-10 (evidence table, H-A..H-X falsifiers, arm contract) and LEARNINGS.md sec P3-10 hop 1 FIRST (incl. sigdump.py driver — ondump2.py IGNORES CLI args); goldens VERBATIM before any emitter code; frontend cargs repair AFTER evidence; arm measured shapes ONLY; STOP at P3-10 closure, never the next LOAN2 blocker.
 <!-- guard:end checkpoint -->
