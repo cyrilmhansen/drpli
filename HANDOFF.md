@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-marathon-5. **P3-13 hop 6 LANDED (session 01a1b201, chain 01a1b1b4 renewal 6/12→7; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier): step (0) COMPLETE — g450 blocks at `f281500`, e52p12 summary/transcripts additive VERBATIM `ed8f1a8`; first-hand re-verification + durables `c9d1a27`. NEW accepted correction: NG18 DEC-literal pool cell = 5 B FORMAL-width `00 01 00 00 00` pre-scaled ([C084] R505 law; predecessor "2-byte" bullet FALSIFIED — C371 must correct BOTH C093 errors: DECPOLY `*A(005A)=5.67` false-as-cited AND the 2-byte width); LOAN2 product block 32 B ×5 at 055D..05DD; [C358] copyin emission already equals the LOAN2 temp-materialiser shape; put-skip tail pinned; `E52Z*`+`e52p13` UNUSED; N33 marker substring recorded. SUCCESSOR: execute PROGRESS.md `## Next action` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
+
 0a-marathon-4. **P3-12 CLOSED (session 01a1b1d9, renewal 4/12→5; chain 01a1b1b4): (l) LANDED — FULL gate rc=0 DIRECT `build/gate-e52p12-reg.log` 1288/0, 188/188, 9/9, 143 rows 0/0 SUPPORTED 93, census 15/0/26/0, prose 5; RESULTS §P3-12 + PLAN §5 row + §P3-12 CLOSED `c6f587a`; honest note kept: first gate launch lost rc in background, canonical log is the synchronous rc-captured re-run. Durables 98ddca9 (`## Next action` rewritten for P3-13) + guard blocks effbb66/15fdc9a. SUCCESSOR: execute PROGRESS.md `## Next action` P3-13 Phase A steps (1)–(6) EXACTLY, ZERO oracle FIRST: decode authentic LOAN2.REL display-call (five `dec(10,2)*dec(4,3)` products vs five `fixed dec(10,2)` formals @142-151) + NG18.REL (N33 retirement route, golden KEPT) into fresh `build/p3-13/`; re-verify the C093 `5.67`-vs-DECPOLY-source discrepancy traceably; PLAN §P3-13 + probes E52ZA.. committed BEFORE any oracle call/`ocaml/` byte; contract in LEARNINGS § "P3-13 Phase A IN FLIGHT"; marathon through P3-19. All inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, config NEVER staged, `git diff --cached --stat`, no push, rc DIRECT, never glue `rm`, byte-tier only); armed binary `6a4c6c1154a0acd8403b…` == tree; commit guard g447+ blocks VERBATIM on recovery.**
 
 0a-marathon-3. **P3-12 hop 4 (g)(i)(j)(k) LANDED (session 01a1b1c5, chain 01a1b1b4 renewal 3/12→renew 4/12 scheduled; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier):** divergences 9/9 via NEW standalone `build/p3-12/divcheck.py` (lesson: gate `--only-divergent` is the WRITE/re-measure arm and aborts on stale census — not the check arm); registration `5bf5c88` (SPECIMENS +9 E52YA..YI measured comments; N35_DEC_STORE_SCALE_DRIFT retired HONESTLY to POSITIVE `NG20` — `probes/NG20.PLI` sha `acf8e951…` CRLF+bare-^Z, golden KEPT cmp rc=0 fresh positional, refusals 189→188, inventory 1288/188 exact, census OWN path 15/0/26/0 UNCHANGED, LOAN2 msg MOVED VERBATIM to Line-117, NOTHING fixed); **C370** `172a642` measured-bytes-only BEFORE COVERAGE (ledger ENDS **C370**, 193 headers); row `STOR.DEC_SCALE_ASSIGN` SUPPORTED EXACT:10 + SAME-change IDS line `bf135a9` (lesson: manual_ref must be `pNN[:§X.Y][=phrase]` or start `NONE:`), coverage_check rc=0 **143/93 0/0**, prose rc=0, stats companion `d283623`; durables `29228dc`. Armed binary `6a4c6c1154a0acd8403b…` == tree. **SUCCESSOR: PROGRESS.md → `## Next action` steps (l),(m) EXACTLY** — FULL gate rc=0 DIRECT → `build/gate-e52p12-reg.log` (expect 1288/0, 188/188, 9/9, 143 rows, census 15/0/26/0, prose 5); RESULTS §P3-12 (every §4 miss VERBATIM: YB/YE QDDSR-predicted/QDDSL-measured, YG down-not-up, YI byte-68 my-gap closed by sc=0; NG20 retirement; LOAN2 111→117 NEVER fix; byte-tier-only) + PLAN §5 row + §P3-12 **CLOSED**; then BEGIN P3-13 on the ACTUAL Line-117 blocker (`call display(PL * INF, …)` DEC-expression actuals vs FIXED DECIMAL formals) evidence-first ZERO-oracle: audit DECPOLY/R2037/R2038/R725 + N33 family, PLAN §P3-13 + probes E52ZA.. pre-registered and committed BEFORE any oracle call/`ocaml/` byte; marathon budget through P3-19. All inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm` operands to follow-ups, byte-tier only).
@@ -1634,23 +1636,23 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 450
-checkpoint-id: g450-396fb340c6ba
+checkpoint-generation: 452
+checkpoint-id: g452-4f27b7d7b1a9
 checkpoint-kind: auto
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3400, session 01a1b1ec-8106-71fa-8218-821f89300fcc)
-checkpointed: 2026-11-06T17:56:01.774Z
+status: checkpoint (guard level 4, remaining ~3339, session 01a1b201-d1e7-71fa-8218-82236f44683b)
+checkpointed: 2026-11-06T18:17:35.425Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b098d6dc376b85e62dcdf9b44b1e685860ffacccdb2e2c8ca0b276fc87be9806
+source-progress: 501405f262bf81f96a85ef69d4b8e82d1dc8a4cefa5a81bb104a99f41e82e76d
 source-handoff: f96b4fca296f20d7c5825841ec4e232e9a6adbb52429989d1526cf81251ab9cb
-source-learnings: 074781600e5baa2d5efc076d3bce20e9a083473224d2413b8849620736cec8e8
+source-learnings: b6ca1db1dd77ce96bd0a6e2667bbacf6dd23fa26dfb38f6bf3580e0fb067d5a6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b1ec-8106-71fa-8218-821f89300fcc
-readiness-at: 2026-11-06T17:56:40.498Z
-readiness-checkpoint: g450-396fb340c6ba
+readiness-by: session:01a1b201-d1e7-71fa-8218-82236f44683b
+readiness-at: 2026-11-06T18:18:03.211Z
+readiness-checkpoint: g452-4f27b7d7b1a9
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
