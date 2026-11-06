@@ -4593,12 +4593,7 @@ let rec lower_hl st (e : Ast.expr) =
                   emit one push per argument [R2001 two, R2034 three, R2035
                   four, DECPOLY three decimals]. *)
                let slot = cs.Bind.cs_slot + st.base in
-               (* this stdlib has no List.combine3 -- zip by nesting pairs *)
-               let zip3 l1 l2 l3 =
-                 List.map2
-                   (fun (x, y) z -> (x, y, z))
-                   (List.combine l1 l2) l3
-               in
+               (* this stdlib has no List.combine3/4 -- zip by nesting pairs *)
                let pairs =
                  let zip4 l1 l2 l3 l4 =
                    List.map2
