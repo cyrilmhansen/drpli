@@ -1646,22 +1646,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 469
-checkpoint-id: g469-3c16ef0344c2
-checkpoint-kind: auto
+checkpoint-generation: 470
+checkpoint-id: g470-8481cb56260b
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4666, session 01a1b272-040b-71fa-8218-823b87eb3316)
-checkpointed: 2026-11-06T20:16:44.993Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~666, session 01a1b272-040b-71fa-8218-823b87eb3316)
+checkpointed: 2026-11-06T20:17:44.089Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 6e76d6762946c1f10ee81bb512278263b1d64339ad5b96c3eb5886521e145444
-source-handoff: 41794c8b1e673c5f02671007d4e8ad99c1e826f3aaa11cd2cf547048d0dee0d9
+source-handoff: 9120650afdc6bec007692fbbe8bce31d1d041a7ec773e0c8f4c42b21ca3e89f1
 source-learnings: d05eaa8e722acd353d73c10021ea4cbe5b72a4ae925001f0a1fa65ee85089c2d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b272-040b-71fa-8218-823b87eb3316
+readiness-at: 2026-11-06T20:17:44.111Z
+readiness-checkpoint: g470-8481cb56260b
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: P3-13 CLOSED (hop 12): N52→NG39 retired first-hand (de1e56e8 source, cmp rc=0 vs KEPT 3197de7a golden, .PRN NO ERROR(S) both passes); inventory 1296/186; coverage 144/0/0 SUPPORTED 94 (PROC.CALL_DEC_ACTUALS EXACT:8); markers 14/14, DEC 64/0, divcheck 9/9; FULL gate rc=0 build/gate-e52p13-reg.log (1296/0,186/186,9/9,144,census 15/0/26/0,prose 5); RESULTS §P3-13+PLAN §5+CLOSED 79cd5ef0; durables 6fc3928c; ledger ENDS C371 (dated addendum). SUCCESSOR: execute LEARNINGS § "P3-13 hop 12" (E) EXACTLY — P3-14 Line-121 call summary(); WHY-first-hand ZERO oracle, verify E520*/e52p14 unused, pre-register PLAN §P3-14+probes+LEARNINGS by EXPLICIT paths BEFORE any oracle call/ocaml byte; campaign e52p14; goldens VERBATIM first; arm measured shapes ONLY; FULL GATE BEFORE CLOSE (only the gate runs the negative panel); register from 1296/186; C372 measured-bytes-only BEFORE COVERAGE; gate rc=0 build/gate-e52p14-reg.log; RESULTS+PLAN §5+CLOSED; marathon through P3-19. CHAIN 01a1b1b4 EXHAUSTED at cap 12/12 — successor likewise closes via handoff_finalize unless the operator archive-resets ignored .pi-guard/renewal-state.json. Binary 6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2 == tree; eval "$(opam env)" every shell; POSITIONAL pli80c.exe into FRESH paths; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2302,5 +2305,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-13 hop 11 PART LANDED, committed: guard g465 d615a96; C371 1d1885b9 (ledger ENDS C371, 194 headers, both C093 errors corrected dated + first-hand); coverage afb95163 (NEW row PROC.CALL_DEC_ACTUALS EXACT:7, 144 rows 0/0 SUPPORTED 94, coverage_check+prose rc=0). FULL gate rc=1: NEG-FAIL N52_DEC_FORMAL_PUT — MEASURED cmp rc=0 vs KEPT golden/negpanel1/NG39/NG39.REL = N33/N35 retirement class. SUCCESSOR: execute LEARNINGS § "P3-13 hop 10/11" steps (C')–(E) EXACTLY — (C') retire N52→NG39 (probes/NG39.PLI VERBATIM CRLF+bare-^Z sha de1e56e8…; gate REJECTS+NEG_META deleted w/ retirement comments, SPECIMENS +NG39 golden KEPT NEVER re-derived; --update-inventory 1295/187→1296/186 inspect every line + git diff --cached --stat; census OWN path 15/0/26/0 UNCHANGED LOAN2 msg MUST NOT move; DATED ADDENDUM bullet to C371; row probes +NG39 EXACT:8; markers 14/14 N33 stays out; divcheck 9/9; DEC regressions; FULL gate rc=0 DIRECT overwrite build/gate-e52p13-reg.log expect 1296/0,186/186,9/9,144 rows); (D) RESULTS §P3-13 (gate-found lesson VERBATIM) + PLAN §5 + CLOSED; (E) P3-14 Line-121 call summary(); WHY-first-hand ZERO oracle then pre-register PLAN §P3-14+probes BEFORE oracle/ocaml byte; marathon through P3-19. THIS IS RENEWAL 12/12 = CAP: the successor CANNOT renew — it must close via handoff_finalize and the operator must archive/reset .pi-guard/renewal-state.json for any new chain. Binary 6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2 == tree; eval "$(opam env)" every shell; POSITIONAL pli80c.exe into FRESH paths; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier.
+P3-13 CLOSED (hop 12): N52→NG39 retired first-hand (de1e56e8 source, cmp rc=0 vs KEPT 3197de7a golden, .PRN NO ERROR(S) both passes); inventory 1296/186; coverage 144/0/0 SUPPORTED 94 (PROC.CALL_DEC_ACTUALS EXACT:8); markers 14/14, DEC 64/0, divcheck 9/9; FULL gate rc=0 build/gate-e52p13-reg.log (1296/0,186/186,9/9,144,census 15/0/26/0,prose 5); RESULTS §P3-13+PLAN §5+CLOSED 79cd5ef0; durables 6fc3928c; ledger ENDS C371 (dated addendum). SUCCESSOR: execute LEARNINGS § "P3-13 hop 12" (E) EXACTLY — P3-14 Line-121 call summary(); WHY-first-hand ZERO oracle, verify E520*/e52p14 unused, pre-register PLAN §P3-14+probes+LEARNINGS by EXPLICIT paths BEFORE any oracle call/ocaml byte; campaign e52p14; goldens VERBATIM first; arm measured shapes ONLY; FULL GATE BEFORE CLOSE (only the gate runs the negative panel); register from 1296/186; C372 measured-bytes-only BEFORE COVERAGE; gate rc=0 build/gate-e52p14-reg.log; RESULTS+PLAN §5+CLOSED; marathon through P3-19. CHAIN 01a1b1b4 EXHAUSTED at cap 12/12 — successor likewise closes via handoff_finalize unless the operator archive-resets ignored .pi-guard/renewal-state.json. Binary 6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2 == tree; eval "$(opam env)" every shell; POSITIONAL pli80c.exe into FRESH paths; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier.
 <!-- guard:end checkpoint -->
