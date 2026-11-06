@@ -11552,8 +11552,20 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
            lor (if ls <> A_absent then 0x1000 else 0) in
   (* [E2E-41/P3b] remember that THIS group was opened for output by a lowered open: the named-file
      PUT takes its attach word (0x0652) from that fact and nothing else [C280].  Recorded only
-     after open_mode_word has accepted the combination, so a refused open claims nothing. *)
-  if List.exists (fun (o : Ast.io_opt) -> o.Ast.io_key = "OUTPUT") opts then
+     after open_mode_word has accepted the combination, so a refused open claims nothing.
+     [E2E-52/P3-11] a PRINT-bearing open records the group here too: E52XA..XG measure the
+     PAGE/LIST/SKIP statement bytes VERBATIM behind PRINT openings -- titleless (w1 0652),
+     literal title with and without pagesize (0E52/2E52; XB falsifies the pagesize-required
+     competitor), variable title (?SLVTS, w1 0E52) -- all through the ONE route-independent
+     item emitter, attach STILL 0x0652 whatever the open word.  E52XK additionally shows DR
+     accepting the same PAGE behind a `stream input' open (w1 0690, attach unchanged -- the
+     [C280] direction law), but INPUT-direction named PUTs are NOT recorded: they stay refused
+     BY NAME [TBD].  E52XJ shows DR accepting PAGE with NO open at all (SEL-COMMON at first use,
+     E46L8's geometry); this list records lowered OPENs only, so an unopened group keeps
+     refusing (PU1/E41X5/E46K10 class).  This is SOURCE-STRUCTURE evidence -- an OPEN this
+     compiler lowered earlier in source order, in any branch (XF) -- never a runtime typestate. *)
+  if List.exists (fun (o : Ast.io_opt) ->
+                     o.Ast.io_key = "OUTPUT" || o.Ast.io_key = "PRINT") opts then
     st.file_out <- fu :: st.file_out;
   (match title with
    | Some (T_var n) ->
@@ -13759,12 +13771,13 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
        | Pitems (sk, its) -> lower_put_items st sk its
        | Pfile (fe, sk, its) ->
            (* [E2E-41/P3b] `put file(<f>) list(<literal>)'.  The file must have been OPENED for
-              output by a lowered `open ... stream output title(<literal>)' in THIS program: that
-              is the only complete statement -- OPEN word, attach word and LIST item chain in one
-              object -- this compiler is byte-exact against.  DR attaches streams this compiler
-              does not lower (P019B's PRINT, CREATE's variable TITLE) and even a stream with no
-              OPEN at all (P086K 001F, an EDIT PUT), so the guard is about what THIS compiler can
-              reproduce as a whole, not about what DR requires. *)
+              output -- or, since E2E-52/P3-11, with PRINT (E52XA..XG [C369]) -- by a lowered
+              OPEN in THIS program: those are the complete statements -- OPEN word, attach word
+              and item chain in one object -- this compiler is byte-exact against.  DR attaches
+              streams this compiler still does not lower (a `stream input' open: E52XK) and even
+              a stream with no OPEN at all (P086K 001F EDIT, E46L8/XJ LIST and PAGE), so the
+              guard is about what THIS compiler can reproduce as a whole, not about what DR
+              requires. *)
            let fu = file_group st s (Some fe) in
            (* [E2E-42/P2a] THE ITEM FIRST, then the open.  Order matters for what a refusal
               CLAIMS: `authorize_file_item' answers "is this operand class lowered on this
@@ -13777,13 +13790,16 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                (Printf.sprintf
                   "codegen: PUT FILE(%s) has no byte-exact DR witness [TBD] (line %d) -- this \
                    route claims the complete statement only where a whole object pins it: \
-                   OPEN 0x0E50 + attach 0x0652 + LIST item chain, which is E16D and E17D.  DR \
-                   attaches 0x0652 elsewhere too (SIOMODES.txt: P019B 006C behind a PRINT open, \
-                   LOAN2/DEPREC/COPYLPT/REPORT/KEYFILE behind print-with-attribute opens, CREATE \
-                   behind a VARIABLE-title open, and P086K 001F with NO open at all -- but that \
-                   one is an EDIT PUT, `?EDITF ?DLDOP'), and none of those opens nor the EDIT \
-                   route is lowered here, so this file must have been opened \
-                   `stream output title(<literal>)' by this compiler"
+                   OPEN 0x0E50 + attach 0x0652 + LIST item chain, which is E16D and E17D, and \
+                   since E2E-52/P3-11 the PRINT-opened PAGE/LIST/SKIP routes, which are \
+                   E52XA..XG.  DR attaches 0x0652 elsewhere too (SIOMODES.txt: LOAN2/DEPREC/ \
+                   COPYLPT/REPORT/KEYFILE behind print-with-attribute opens, CREATE behind a \
+                   VARIABLE-title open, and P086K 001F with NO open at all -- an EDIT PUT, \
+                   `?EDITF ?DLDOP'); and the e52p11 panel measures DR accepting the same attach \
+                   behind a `stream input' open (XK) and with NO open at all (XJ, E46L8) -- \
+                   neither direction nor geometry is lowered here, and this list records \
+                   lowered OPENs only, so this file must have been opened `stream output \
+                   title(<literal>)' or with `print' by this compiler"
                   fu s.Ast.spos.Source.line);
            lower_put_items_gen st ~file:(Some fu) None sk its
        | Pnone -> failwith
