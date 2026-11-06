@@ -9366,3 +9366,134 @@ classified `unmeasured` rather than `dr-refuses`.
   this slice; `artefacts/LOAN2.PLI` is UNMODIFIED (sha `7be23ba3…`) and LOAN2 is NOT
   claimed exact. EXPR1 (GET line 21) and EXPR2 (FLOAT line 35) are UNCHANGED. Provenance:
   [C084] [C086] [C360] [C369].
+
+## C371 — DEC-expression and DEC-literal ACTUALS against a FIXED DECIMAL formal: the product actual lowers as the 32 B two-push/?DMUOP block with the [C370] shift window BETWEEN `?DMUOP` and the temp store; the literal actual lowers as a pre-scaled pool cell of FORMAL width with ZERO caller code; the descriptors live in ONE static interleaved vector in argument order, never runtime-written; the callee prologue is arity-dependent ([C094] ABI unchanged); temp/pool cell width = `floor((pf+2)/2)` and the `?DSTOP` `MVI A` carries the FORMAL precision; plus the DATED correction of BOTH [C093] mis-citations (E2E-52/P3-13; MEASURED — 6 whole-file `cmp` rc=0 of `E52ZA..E52ZF` against `golden/e52p13/`, goldens VERBATIM at `6267faf` from campaign e52p13 `6 ok/6` with every `.PRN` `NO ERROR(S)` both passes, PLUS `NG18` `cmp` rc=0 against the KEPT golden `golden/negpanel1/NG18/NG18.REL` (two witnesses), every cited byte re-verified FIRST-HAND against the retained `.REL` records at claim time, never fitted)
+
+* **Measured — the PRODUCT actual is a 32 B block carrying the [C370] shift window
+  verbatim (`E52ZA`, 256 B, CODE `006F`).** `p = q(a * b)` with `a` dec(10,2), `b`
+  dec(4,3) against one `fixed dec(10,2)` formal: caller code 0006-0025 is raw
+  `21 00 00 3E 0A CD.. 21 06 00 3E 04 CD.. CD.. 3E 03 CD.. 21 11 00 3E 0A CD..` =
+  `LXI H,*a(data@0000) / MVI A,0A / ?DLDOP(slot 000C) / LXI H,*b(data@0006) / MVI A,04 /
+  ?DLDOP(0014) / ?DMUOP(0017) / MVI A,03 / ?QDDSR(001C) / LXI H,*temp(data@0011) / MVI
+  A,0A / ?DSTOP(0024)` (slot = CD+1; ext slots confirmed in the file's CHAIN-EXT records).
+  H-1 HIT: the shift sits BETWEEN the multiply and the temp store — the same window [C370]
+  pins for a direct store — d = |s_prod − s_formal| = 5−2 = 3, DOWN (`?QDDSR`); the `MVI
+  A,0A` before `?DSTOP` is the FORMAL precision (H-4 HIT). The product temp 0011-0016 is 6
+  bytes (H-2, below).
+
+* **Measured — the shift amount comes from SCALES ONLY; the precision difference is
+  irrelevant (H-3; `E52ZB`, 256 B, CODE `006F`).** `q(a * b)` with `a` dec(9,0), `b`
+  dec(8,0) (product scale 0) against a `fixed dec(7,2)` formal: raw 0016-0025 =
+  `CD.. 3E 02 CD.. 21 10 00 3E 07 CD..` — `?DMUOP(0017) / MVI A,02 / ?QDDSL(001C) / LXI
+  H,*temp(data@0010) / MVI A,07 / ?DSTOP(0024)`. UP d = 2−0 = 2 although both operand
+  precisions (9, 8) EXCEED the formal precision 7 (Δp negative); direction is fixed by the
+  scales alone, exactly as [C370] established for stores, and `?DSTOP` again carries pf =
+  07.
+
+* **Measured — temp/pool cell width = `dec_pool_bytes(pf) = floor((pf+2)/2)`; stride =
+  width (H-2).** ZA product temp 0011-0016 = 6 B (pf 10); ZB temp 0010-0013 = 4 B (pf 7);
+  ZE product temp 0018-001C = 5 B (pf 9); ZF five temps at 0031/37/3D/43/49, stride 6 (pf
+  10); literal cells the same width — the `1.5` and `1` dec(9,2) cells are 5 B. This is
+  the [C084] BCD width law applied to the CALL formal context, first pinned here.
+
+* **Measured — the LITERAL actual is a pre-scaled pool cell of FORMAL width, ZERO caller
+  runtime code, and its descriptor cell is an inline DATA RELOC pointing at that cell
+  (H-5; `E52ZC` CODE `004F`, `E52ZD` CODE `004F`, `NG18` CODE `0047` = 71 B / DATA max
+  `000C`).** ZC `q(1.5)`: data@0000-0004 = raw `50 01 00 00 00` (1.50 pre-scaled at formal
+  scale 2, BCD little-byte-order) and the descriptor cell data@000A carries a data-reloc
+  record `000A -> data@0000` (re-read from the `.REL` records first-hand this session;
+  ZD's INT `1` cell is `00 01 00 00 00`, value 100 at scale 2, with the same `000A ->
+  data@0000` record). Main's entire argument handling is `LXI H,000A(data@000A
+  descriptor) / CALL` whose operand slot (code 000A) is a CHAIN-ADDR head patched to the
+  callee entry LC code@003A — then the returned value store `LXI H,*p(data@0005) / MVI
+  A,09 / ?DSTOP(slot 0012)`. NO push, NO conversion call exists for the literal.
+
+* **Measured — ONE static interleaved descriptor vector in ARGUMENT ORDER, never
+  runtime-written (H-6; `E52ZE` 256 B, CODE `0075`).** `q(a, a * b, 2.5)`: data@0012-0017
+  = raw `05 00 18 00 00 00` with the three data-reloc records re-read first-hand: `0012 ->
+  data@0005` (variable `a` own cell), `0014 -> data@0018` (5 B product temp), `0016 ->
+  data@0000` (literal cell `50 02 00 00 00`, 2.50 at scale 2) — variable/temporary/literal
+  INTERLEAVED exactly as each argument materialises, confirming the [C093] interleaving law
+  holds across the new actual classes too. ZF repeats it statically for five products:
+  data@0027-0030 = raw `31 00 37 00 3D 00 43 00 49 00`.
+
+* **Measured — the callee prologue is arity-dependent; DEC formal READS are the unchanged
+  [C094] shape.** Arity 1 (ZA entry code@005A): peeled dereference `MOV E,M / INX H / MOV
+  D,M / XCHG / SHLD 0017` then formal read `LHLD 0017 / MVI A,0A / ?DLDOP(slot 0067) / JMP
+  ?DCRET`. Arity 3 (ZE): the entry region begins `JMP 0072` at 0057 (main-tail skip-slot
+  geometry, NG18 precedent), callee at 005A = ONE block copy `LXI D,001D / MVI C,06 / loop
+  MOV A,M / INX H / STAX D / INX D / DCR C / JNZ 005F` then `LHLD 001D / MVI A,09 /
+  ?DLDOP(slot 006C)`; arity 5 (ZF): `MVI C,0A` (=2N). Every call site's `CALL` operand
+  slot is CHAIN-ADDR-patched to the callee prologue LC at emission (ZA slot 002A →
+  code@005A; ZF slot 00AA → code@00D2 — re-read via the chains dump first-hand).
+
+* **Measured — the LOAN2:117-118 replication holds VERBATIM (H-7/H-8; `E52ZF`, CODE
+  `0106`, DATA max `0031`).** The void call `call display(<five products>)` emits five
+  identical 32 B blocks (CHAIN-EXT records show `?DLDOP/?DLDOP/?DMUOP/?QDDSR/?DSTOP`
+  ×5, each `?QDDSR MVI A,03`, each `?DSTOP MVI A,0A`); the callee's five formal reads are
+  `LHLD 004F(+2i) / MVI A,0A / ?DLDOP`; and the PUT LIST of the DEREFERENCED formal is
+  raw 00ED-00F2 = `2A 4F 00 3E 0A CD(slot 00F2 = ?DLDOP) 3E 0D 06 02 CD(?QDCOP)` —
+  `LHLD 004F / MVI A,0A / ?DLDOP` then the unchanged [R5xx] edit pair (width pf+3 = `0D`,
+  scale = `02`) and `?QDCOP`: the by-reference descriptor IS the value cell ([C094]).
+
+* **Two `my-gap` repairs, recorded honestly (they changed MY compiler, adjudicated ONLY by
+  the goldens; commit `9b81ed0`).** (i) the binder's `const_cells` demand must reserve the
+  DEC-formal pool cell at `dec_pool_bytes(pf)` in the SAME change as any new pool route —
+  E52ZC/ZD/ZE first failed gate `C152` with demanded-2/allocated-5, and `C152`'s loud
+  refusal remains the safety net for any future width mismatch; repeated-literal
+  cross-dedup demand is UNMEASURED and no law claims it. (ii) the deref-DEC-formal PUT
+  LIST route was armed ONLY in the `LHLD` shape the ZF golden pins (00ED-00F2); the prior
+  unsampled-refusal text was retired to a comment VERBATIM per PROTOCOL #2 — float
+  formals and every other variant stay refused BY NAME.
+
+* **Retirement record — N33_DEC_FORMAL became POSITIVE specimen `NG18` (2026-11-06).**
+  The shape is exactly [C093]'s R2038 literal case (INT `1` against a dec(9,2) formal);
+  my compiler now reproduces the KEPT golden `golden/negpanel1/NG18/NG18.REL` byte-exact
+  — `cmp` rc=0 twice (fresh positional `build/p3-13/arm-out2/` on binary sha256
+  `6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2`, AND the markers
+  harness inline source `/tmp/e52p8-markers/N33_DEC_FORMAL.REL`). The REJECTS and NEG_META
+  rows were DELETED with retirement comments; the source was materialized VERBATIM
+  (CRLF + bare `^Z`) as `probes/NG18.PLI` (sha256 `20006b0c…`); the golden path is
+  UNCHANGED and NEVER re-derived; refusals moved 188 -> 187. NO replacement negative was
+  invented: the still-unproven DEC-actual routes are UNMEASURED at DR, so the coverage
+  loss is ACCEPTED and recorded (N26/N35 precedents).
+
+* **DATED correction to [C093] — BOTH errors, re-verified first-hand 2026-11-06.** [C093]
+  says, VERBATIM: "The CALLER'S OWN value for a decimal argument is an `LXI H,*A(pool
+  cell)` pair: a decimal LITERAL argument takes a 2-byte pool cell and the descriptor
+  points at that cell, and in the 3-arg case the last descriptor is the caller's own cell
+  (DECPOLY `*A(005A) = 5.67`, R2038 same shape)." Error (i): the DECPOLY citation is FALSE
+  AS CITED — all three kept DECPOLY.REL goldens (`golden/first`, `golden/first8080u`,
+  `golden/e2e12`; sha256 `a51a36c2…`, identical) have DATA max `004E`; there is NO data
+  address `005A` in DECPOLY, and its three descriptor cells are the relocations
+  `0048/004A/004C -> data@0030/0038/0040`, i.e. the CALLER'S OWN dec(15,4) variable cells
+  (8 B per [C084]). `5.67` exists in this evidence base ONLY as the R2038 SOURCE line
+  `z = 5.67;` — a DEC STORE to a variable, not a call actual; R2038's own descriptor
+  relocations are `0039/003B/003D -> data@0019/0021/0029`, again variable cells. Error (ii):
+  "2-byte pool cell" is the WRONG width for a DEC formal: the measured DEC literal cells
+  are FORMAL-width pre-scaled BCD — `NG18`/`E52ZD` `00 01 00 00 00`, `E52ZC` `50 01 00 00
+  00`, `E52ZE` `50 02 00 00 00` — 5 B at dec(9,2). The 2-byte pool cells [C093] actually
+  observed belong to the INT-literal BIN-formal `pool_alloc [|lo;hi|]` route (R2033 shape)
+  and are unaffected by this correction. The literal-pool-cell LAW (static pre-scaled cell
+  + descriptor RELOC to it + zero caller code) STANDS; its true witnesses are now
+  `NG18`/`E52ZC`/`E52ZD`/`E52ZE`/`E52ZF`.
+
+* **Perimeter — what stays refused BY NAME (my gaps, never DR rules).** Expression actuals
+  other than a single product of two plain DEC autos — add, sub, div, suffix-referenced,
+  pointer, deref'd formal — plus external, recursive and attribute callees, array-named
+  formals and narrowing actuals all keep their explicit `[TBD]` refusals; the guard arm
+  admits ONLY the two shapes this panel pins (`Enumber` literal; `Ebinary(Mul, plain-DEC
+  auto, plain-DEC auto)`). Marker substrings of the still-live negative rows survive
+  (PU1 `PUT FILE(F) has no byte-exact DR witness`; the remaining DEC-formal refusals keep
+  `FIXED DECIMAL formal is unproven`). No name-based special-casing anywhere.
+
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no `e52p13` object
+  was linked or run under cpmsim; NOTHING here asserts what `?DMUOP`/`?QDDSL`/`?QDDSR`/
+  `?DLDOP`/`?DSTOP` DO at runtime, and no `spec/RUNTIME.txt` row comes from this claim.
+  LOAN2 itself still refuses (rc=2, NO `.REL`): its blocker MOVED VERBATIM past Line-117
+  to `codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` / `CALL
+  id(args)` / bare `id;` have a DR lowering sampled; line 121)` = `call summary();` —
+  recorded, NOT fixed by this slice; `artefacts/LOAN2.PLI` is UNMODIFIED (sha256
+  `7be23ba3…`) and LOAN2 is NOT claimed exact. EXPR1 (GET line 21) and EXPR2 (FLOAT line
+  35) are UNCHANGED. Provenance: [C084] [C086] [C093] (corrected above) [C094] [C152]
+  [C358] [C360] [C370].
