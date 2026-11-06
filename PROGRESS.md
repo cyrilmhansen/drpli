@@ -42,13 +42,15 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-11 hop 4 IN FLIGHT — (6a) REGISTRATION `69dd508` + (6b) C369 `a00fc13` LANDED; (6c) COVERAGE EXTENSIONS IN FLIGHT; read `LEARNINGS.md` § "P3-11 hop 4 IN FLIGHT" FIRST — it carries the exact extension contract; STOP at P3-11 closure)
+## Next action (E2E-52/P3-11 **CLOSED** at `9c1d9c6` — **STOP REACHED; NOTHING FURTHER IS AUTHORIZED**)
 
-**DONE this hop (session 01a1b14e, chain 01a1b0c9 renewal 4/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT):** recovery verified HEAD `df5b269`; build rc=0 armed binary sha256 `25c57e27696421e929b8…` == tree. **(6a)** SPECIMENS +9 E52XA..XI (comments from first-hand reldump records), XJ/XK → REJECTS as honest my-gap (goldens KEPT UNCLAIMED; markers re-measured rc=2 under gate CRLF+bare-^Z: line 8/line 9); `--update-inventory` → **1278/189** (+9/+2, every line inspected); census OWN path rc=0 counts 15/0/26/0, LOAN2 msg MOVED VERBATIM to the DEC-scales blocker, NOTHING fixed → `69dd508`. **(6b)** C369 appended MEASURED-BYTES-ONLY BEFORE any COVERAGE touch (bullets (a)-(i); falsifiers verbatim incl. my §4 XA-slot-0030 slip measured 002D); ledger ENDS **C369** (192 headers); prose rc=0 → `a00fc13`.
+**LANDED this hop (session 01a1b160, chain 01a1b0c9 renewal 5/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT):** **(6c)** `b9645fa` — EXTENDED ONLY the three existing `spec/COVERAGE.tsv` rows (`FILE.PUT_PAGE` probes += E52XA..XF, EXACT:1->7; `FILE.PUT_SKIP` += E52XH,E52XI, 18->20; `FILE.PUT_LIST` += E52XG, 10->11), each contract carrying the e52p11 sentence and provenance += [C369]; the LIST row's now-false "No object yet pairs a file PUT with one of the newly lowered PRINT opens" clause is kept AS WRITTEN inside a labelled `[E2E-52/P3-11 CORRECTION]`; NO new rows, `spec/COVERAGE-IDS.txt` diff EMPTY, `coverage_gen.py` NEVER run, 15 cols from the FIRST NON-COMMENT row, TEXTUAL edit (`csv.writer` re-quotes 7 unrelated lines); `coverage_check` rc=0 **142 rows 0/0 SUPPORTED 92**, canonical stats UNCHANGED, prose rc=0. **(6d)** FULL gate rc=0 DIRECT `build/gate-e52p11-reg.log` — **1278/0, 189/189, 9/9, 142 rows 0/0, census 15/0/26/0, prose 5** — every pre-registered number HIT. **(6e)** `9c1d9c6` — RESULTS §P3-11 (measured table, every falsifier VERBATIM incl. my §4 XA-slot-0030 slip measured 002D; XJ/XK honest my-gap with goldens KEPT; LOAN2 line-99 CLOSED and the ACTUAL DEC-scales blocker recorded NEVER fixed; byte-tier-only) + PLAN §5 P3-11 row + §P3-11 **CLOSED**; prose rc=0.
 
-**EXECUTE (successor, EXACT order — full contract LEARNINGS § hop 4 IN FLIGHT):** (6c) EXTEND ONLY rows `FILE.PUT_LIST` (+E52XG) / `FILE.PUT_SKIP` (+E52XH,E52XI) / `FILE.PUT_PAGE` (+E52XA..XF) in `spec/COVERAGE.tsv`; NEVER new rows, NEVER `coverage_gen.py`; 15 cols from FIRST NON-COMMENT row; `delimiter='\t'`; COVERAGE-IDS diff EMPTY (verify); add the e52p11 PRINT-open sentence + provenance [C369]; the LIST row's "No object yet pairs a file PUT with … PRINT opens" clause gets a LABELLED CORRECTION (never silent rewrite); EXACT bumps PAGE 1→7, SKIP 18→20, LIST 10→11 (read `coverage_check.py` first — let it adjudicate); `coverage_check` rc=0 expect **142 rows 0/0 SUPPORTED 92** + prose rc=0; verify diff BY CONTENT; commit explicit paths. (6d) FULL gate `python3 tools/e2e_gate.py` rc=0 DIRECT → `build/gate-e52p11-reg.log` expect **1278/0, 189/189, 9/9, 142 rows, census 15/0/26/0, prose 5**. (6e) RESULTS §P3-11 (parity table; every falsifier + 0030-slip VERBATIM; XJ/XK my-gap; LOAN2 line-99 CLOSED advance VERBATIM NEVER fix; byte-tier-only) + PLAN §5 row + §P3-11 **CLOSED** + durables + commit guard blocks VERBATIM. **STOP at P3-11 — NEVER the DEC-scales blocker, no P3-12, no runtime claims.**
+**EXECUTE (successor — the ONLY steps):** commit the guard-refreshed managed blocks in HANDOFF.md/PROGRESS.md VERBATIM (explicit paths, NEVER hand-edit, NEVER stage `handoff.config.json`, ALWAYS `git diff --cached --stat` first), then **STOP**. **E2E-52/P3-11 IS CLOSED AND NOTHING IS AUTHORIZED**: do NOT touch the DEC-scales blocker (`codegen: DECIMAL assignment between differing scales is unproven [TBD] (only computed results are pinned as needing a QDDSL/QDDSR fix; a direct DEC operand store always had equal scales in the samples)`, NO `(line N)` clause — never a diagnosis, never authorization), no P3-12, no `REVERT ERROR`, no PLILIB/MIR, no oracle, no runtime claims. A NEW operator brief is required for any further subround.
 
-**STATE:** HEAD = this durables commit; ledger ENDS **C369**; inventory **1278/189**; coverage 142/92 (row EXTENSIONS owed); armed binary `25c57e27696421e929b8…` == tree; goldens NEVER re-derived; `pli80c` POSITIONAL FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; chain 01a1b0c9 renewal 4/12 cap 12; no push; rc DIRECT; byte-tier only.
+**STATE:** HEAD = `9c1d9c6` + this durables commit; ledger ENDS **C369** (192 headers); inventory **1278/189**; coverage **142 rows, SUPPORTED 92**, 0 errors 0 warnings; FULL gate rc=0 at `b9645fa` (`build/gate-e52p11-reg.log`); armed binary `25c57e27696421e929b8…` == tree; goldens NEVER re-derived; census 15/0/26/0 with LOAN2 blocker VERBATIM (rc=2, NO .REL, NEVER fix); `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; tree clean except guard blocks + operator `handoff.config.json` (NEVER stage) + ignored `build/e52p1*/`, `ocaml/_build*`, `ocaml/*.log`; chain 01a1b0c9 renewal 5/12 cap 12; no push; rc DIRECT; byte-tier only.
+
+SUPERSEDED-BY-ABOVE: 
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-11 hop 3 LANDED — campaign 11 ok/11, goldens VERBATIM `060289e` BEFORE any byte, candidate A ARMED `3e0a3c1` 9/9 byte-exact, LOAN2 past 99; REGISTRATION → C369 → COVERAGE → GATE → CLOSE OWED; read `LEARNINGS.md` § "P3-11 hop 3 LANDED" STILL-OWED FIRST; STOP at P3-11 closure)
 
@@ -2859,13 +2861,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 433
-checkpoint-id: g433-72851af70e26
+checkpoint-generation: 434
+checkpoint-id: g434-08d70b03c43e
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T14:59:53.068Z
+checkpointed: 2026-11-06T15:17:48.014Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: f0274b5aea28ca18b43038c75f84d891ffee60daea98aac9ee5ae5baeed9f664
 source-handoff: dcef6d55c46e7d3435c5f01c2a1d8f4407c65a8801c0b98f287f9b96a21afc93
