@@ -120,7 +120,16 @@ and stmt_kind =
 | Srevert of {
     cond : string
   ; cargs : expr list }      (* REVERT con(stmt) [E2E-34/P2] *)
-  | Ssignal of { cond : string; target : expr option }
+  | Ssignal of {
+      cond : string
+    ; cargs : expr list       (* [E2E-52/P3-10] the conditional-name argument list,
+                                  PRESERVED as for Son/Srevert.  The parser used to parse
+                                  and DISCARD `_sargs', so `signal error(1)' (EXPR1/EXPR2,
+                                  COPYLPT, E52WC..WE, E52WJ) was indistinguishable from a
+                                  bare `signal error;' at every later stage. *)
+    ; target : expr option }  (* FROM(expr): kept as parsed, NEVER lowered; no DR object
+                                  in this repository witnesses SIGNAL ... FROM (refused
+                                  BY NAME in codegen). *)
   | Selse of stmt                                  (* orphan ELSE *)
   | Sdeclare_fail of pos                           (* DECLARED/NOT>RESERVED *)
   | Sprocedure_stmt of { target : expr; args : expr list }

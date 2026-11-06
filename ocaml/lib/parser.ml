@@ -673,10 +673,12 @@ and parse_stmt_body p q labels =
   | Token.Ident { key = "SIGNAL"; _ } ->
       advance p;
       let cond = if at_num p then num_text p else (name_any p).key in
-      (* SIGNAL cond(args) [EX EXPR1 `signal error(1)`, COPYLPT] *)
-      let _sargs = opt_paren_exprs p in
+      (* SIGNAL cond(args) [EX EXPR1 `signal error(1)`, COPYLPT] — [E2E-52/P3-10]
+         the arguments are PRESERVED (Ast.Ssignal.cargs); this parser used to bind
+         them to `_sargs' and drop them. *)
+      let cargs = opt_paren_exprs p in
       let target = if eat_key p "FROM" then Some (expr0 p) else None in
-      Ssignal { cond; target }
+      Ssignal { cond; cargs; target }
   | Token.Ident { key = "RETURN"; _ } ->
       advance p;
       Sreturn (if at_punct p Token.Semi || is_end_term p then None else Some (expr0 p))

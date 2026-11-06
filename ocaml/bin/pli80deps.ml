@@ -259,8 +259,9 @@ let rec walk_stmt (s : Ast.stmt) =
    | Ast.Son { cond; cargs = _; handler } ->
        tag ~detail:("ON " ^ cond) ("ON_COND:" ^ lower cond) line;
        walk_stmt handler
-   | Ast.Ssignal { cond; target } ->
+   | Ast.Ssignal { cond; cargs; target } ->
        tag ~detail:("SIGNAL " ^ cond) ("SIGNAL_COND:" ^ lower cond) line;
+       List.iter walk_expr cargs;
        Option.iter walk_expr target
    | Ast.Selse b -> walk_stmt b
    | Ast.Sdeclare_fail _ -> tag "DECLARED_STMT" line

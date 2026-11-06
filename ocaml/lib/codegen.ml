@@ -13132,6 +13132,23 @@ let on_error_reg_prefix st (arg : int) =
   d st ((arg lsr 8) land 0xff);
   d st op_xra_a
 
+(* [E2E-52/P3-10] the SIGNAL ERROR prefix — the SAME byte shape as on_error_reg_prefix
+   (ABSOLUTE 16-bit little-endian LXI H,<argument> + XRA A) but a DIFFERENT role: SIGNAL
+   is a pure statement, not an ON registration — no C3 jump-over slot, no handler, no
+   pad, no SP cell (all six original witnesses and E52WA..WE carry exactly LXI+A-byte+
+   CALL).  Deliberately its own encoder beside the ON one (the [C202] two-consumers rule
+   covers the FILE prefix, whose on_reg_prefix this route DOES reuse): a future edit to
+   the ON role must never silently move SIGNAL's bytes.  Measured arguments, all
+   verbatim into the operand: bare/0 -> 21 00 00 (LOAN2 0359, E52WA/WB), 1 -> 21 01 00
+   (EXPR1 0175/018D, EXPR2 023D/0255, E52WJ 0017), 2 -> 21 02 00 (E52WC), 255 -> 21 FF
+   00 (E52WD), 256 -> 21 00 01 (E52WE — the COMPILER applies NO 0..255 range check: the
+   documented subcode range is a runtime notion, the LXI operand is a full 16-bit). *)
+let signal_error_prefix st (arg : int) =
+  d st op_lxi_h;
+  d st (arg land 0xff);
+  d st ((arg lsr 8) land 0xff);
+  d st op_xra_a
+
 (* The block-entry stack save, emitted ONLY by a block containing an ON ... GOTO unit:
      LXI H,0000 / DAD SP / SHLD * A(<cell>)
    E32E1 -- one ON-unit, statement handler, same block -- has no DAD SP, no `*' cell and
@@ -14731,6 +14748,83 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       failwith
         (Printf.sprintf "codegen: %s of a named file has no DR witness in this repository yet [TBD] (line %d)"
            k s.Ast.spos.Source.line)
+  | Ast.Ssignal { cond; cargs; target } ->
+      (* [E2E-52/P3-10] SIGNAL <conditional-name>[(<args>)]; — armed on the bytes
+         MEASURED by campaign e52p10 (golden/e52p10, 11 probes DR-ACCEPTED, every
+         prediction HIT or recorded) plus the six original witnesses (PLAN §2).
+         SIGNAL is a PURE statement: LXI(3 or via reloc) + A-byte (AF, or MVI A,nn)
+         + CALL ?SIGOP(3); NO jump-over slot, NO handler, NO pad, NO SP cell, and
+         enclosing condition jumps patch PAST it (LOAN2 0356->0360; E52WK slot
+         0015->001E = signal start + 7).
+         Admitted shapes:
+         * ERROR bare or ONE integer literal 0..65535, written VERBATIM as the
+           absolute 16-bit LE LXI operand — the [C366] ON ERROR operand law, now
+           measured on the SIGNAL route too at 0/1/2/255/256 (E52WA..WE);
+         * ENDPAGE(f) -> MVI A,08 (COPYLPT 02AA + E52WH) and ENDFILE(f) -> MVI A,05
+           (E52WI) through on_reg_prefix (file-CB addressing + the SEL-COMMON
+           change-rule [C202]); the SIGNAL A byte TRACKS the ON condition code [C120].
+         Refused BY NAME: FROM (no DR object here witnesses it — kept in the AST,
+         never lowered); every other conditional name; multiple or non-integer or
+         out-of-range arguments; BARE file conditions — DR itself REFUSES
+         `signal endfile;' (E52WL: PASS 2 `SYNTAX ?', no .REL); and the VARIABLE and
+         EXPRESSION arguments — DR ACCEPTED those shapes (E52WG: LHLD n + AF + CALL;
+         E52WF: two ?DLDOP pushes + ?DADOP + ?QDI15 + AF + CALL, value left on the
+         stack, NOT folded) but each is ONE witness with the pre-registered H-D2
+         no-generalisation clause, so arming them stays an open my-gap [TBD]. *)
+      st.last_imm <- None;
+      (match target with
+       | Some _ ->
+           failwith
+             (Printf.sprintf
+                "codegen: SIGNAL ... FROM(...) has no DR sample in this repository [TBD] (line %d; the FROM field is parsed and preserved in the AST but never lowered)"
+                s.Ast.spos.Source.line)
+       | None -> ());
+      (match String.lowercase_ascii cond, cargs with
+       | "error", [] ->
+           st.lowered <- st.lowered + 1;
+           signal_error_prefix st 0;
+           call_ext st "?SIGOP"
+       | "error", [ { Ast.e = Ast.Enumber txt; _ } ] ->
+           (match int_of_string_opt txt with
+            | Some v when v >= 0 && v <= 0xffff ->
+                st.lowered <- st.lowered + 1;
+                signal_error_prefix st v;
+                call_ext st "?SIGOP"
+            | _ ->
+                failwith
+                  (Printf.sprintf
+                     "codegen: SIGNAL ERROR(%s) -- this literal argument is unsampled [TBD] (line %d; measured: bare = LXI H,0000 and error(0/1/2/255/256) write the value verbatim as the 16-bit absolute LXI operand (E52WA..WE); negative and > 65535 literals have no armed DR sample)"
+                     txt s.Ast.spos.Source.line))
+       | "error", _ ->
+           failwith
+             (Printf.sprintf
+                "codegen: SIGNAL ERROR with %d argument(s) of this shape is unsampled [TBD] (line %d; armed: bare or ONE integer literal 0..65535 (E52WA..WE); multiple args unmeasured; variable E52WG and expression E52WF args are DR-ACCEPTED single witnesses kept ungeneralised)"
+                (List.length cargs) s.Ast.spos.Source.line)
+       | (("endpage" | "endfile") as cname), [ { Ast.e = Ast.Eident f; _ } ] ->
+           let fu = String.uppercase_ascii f.Ast.orig in
+           let code = if cname = "endpage" then 0x08 (* COPYLPT 02AA, E52WH *)
+                      else 0x05 (* E52WI, tracking [C120] *)
+           in
+           if not (List.mem fu st.files) then
+             failwith
+               (Printf.sprintf
+                  "codegen: SIGNAL %s(%s) names something that is not a declared FILE [TBD] (line %d)"
+                  cname f.Ast.orig s.Ast.spos.Source.line)
+           else begin
+             st.lowered <- st.lowered + 1;
+             on_reg_prefix st fu code;
+             call_ext st "?SIGOP"
+           end
+       | (("endpage" | "endfile") as cname, _) ->
+           failwith
+             (Printf.sprintf
+                "codegen: SIGNAL %s with %d argument(s) of this shape is unsampled [TBD] (line %d; armed: ONE declared-file identifier, endpage = MVI A,08 endfile = MVI A,05; a BARE file condition is a dr-refuse — E52WL `SYNTAX ?')"
+                cname (List.length cargs) s.Ast.spos.Source.line)
+       | (c, _) ->
+           failwith
+             (Printf.sprintf
+                "codegen: SIGNAL %s is not armed from measured bytes [TBD] (line %d; campaign e52p10 armed ERROR literals and ENDPAGE/ENDFILE(file); no DR object here carries any other condition through SIGNAL)"
+                c s.Ast.spos.Source.line))
   | _ -> failwith
          (Printf.sprintf "codegen: statement kind not in supported subset \
                           [TBD] (line %d)" s.Ast.spos.Source.line)

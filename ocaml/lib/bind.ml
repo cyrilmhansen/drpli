@@ -571,7 +571,7 @@ let check_qualified_uses ?(outer : (string * rt * int * bool) list = []) (b : bl
     | Sreadwv { to_ = x; _ } -> ex x
     | Sreturn (Some x) | Sstop (Some x) -> ex x
     | Son { handler; _ } -> st handler
-    | Ssignal { target; _ } -> Option.iter ex target
+    | Ssignal { target; cargs; _ } -> Option.iter ex target; List.iter ex cargs
     | Sprocedure_stmt { target; args } -> ex target; List.iter ex args
     | Salloc { ptr; based } -> ex ptr; Option.iter ex based
     | Sfree es -> List.iter ex es
@@ -1515,7 +1515,7 @@ and collect_builtins (blk : block) =
     | Sreadwv { to_ = x; _ } -> e x
     | Sreturn (Some x) | Sstop (Some x) -> e x
     | Son { handler; _ } -> st handler
-    | Ssignal { target; _ } -> Option.iter e target
+    | Ssignal { target; cargs; _ } -> Option.iter e target; List.iter e cargs
     | Sprocedure_stmt { target; args } -> e target; List.iter e args
     | Salloc { ptr; based } -> e ptr; Option.iter e based
     | Sfree es -> List.iter e es
