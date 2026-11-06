@@ -2765,13 +2765,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 400
-checkpoint-id: g400-7658c0d8563c
+checkpoint-generation: 401
+checkpoint-id: g401-2ef7950c1f5e
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-06T06:15:01.639Z
+guard-level: 4
+checkpointed: 2026-11-06T06:15:38.979Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7c1ace02c3abf478920f794c85851c8d5ab0b54833273620145fc0e6696b5da1
 source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
