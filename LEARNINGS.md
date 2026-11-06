@@ -7721,3 +7721,54 @@ census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; ZERO `ocaml/` byte; goldens 
 **ACCEPTED (verified this session):** g410 blocks committed VERBATIM `8ada736`; `dune build` rc=0 binary `11c6283e75b60fe3…` == tree. **Step (3) LANDED `7da60b5`:** `COND.OR` row appended to `spec/COVERAGE.tsv` (SUPPORTED, EXACT:11, probes E52VA..VK, corpus LOAN2,ANNUITY, perimeter S, dr ACCEPTS, runtime NONE, confidence MEASURED, provenance [C367][C105][C155][C366]) + EXPLICIT `COND.OR` line to `spec/COVERAGE-IDS.txt`; law text derived ONLY from [C367]; boundary = BY-NAME perimeter + falsifiers RB/SN-LB/PAR/LITERAL-FIRST VERBATIM + O-1 panel-unverified + BYTE-TIER-ONLY + census advances VERBATIM (LOAN2 line-92, ?SIGOP UNARMED; EXPR1 21, EXPR2 35). The hop-7 LAW held: column count from the FIRST NON-COMMENT row (15); NEW sub-lesson: `csv.writer` DEFAULTS TO COMMA DELIMITER — the first script attempt died on its own `line.split('\t') == row` round-trip assertion BEFORE any write (harmless); always pass `delimiter='\t'`. Diff verified 1 TSV + 1 IDS + stats (own write path); `coverage_check.py` rc=0 **141 rows 0/0, SUPPORTED 91** (`build/e52p9-hop7/coverage-after-condor.log`); prose rc=0. **Step (4) LANDED:** FULL gate rc=0 DIRECT `build/gate-e52p9-reg.log` — **1260/0, 186/186, 9/9, coverage 141 rows 0/0, census 15/0/26/0, prose 5** — every pre-registered number HIT. **Step (5) LANDED `66cb943`:** RESULTS §P3-9 (parity table; H1 CONFIRMED; H2 SPLIT — RB falsified by VB==VC, SN/LB falsified by VE/VF-node1 `2A`, surviving law NODE-LOCAL rules 1–3; H3/H4/H8-law/H9/H10 CONFIRMED; H5 order-clause + H6 SN-sequence falsified; H7 PAR + literal-first dead, VAR-FIRST law, [C155] dedup CONFIRMED; falsifiers incl EVERY §4 CODE-size SHORT miss VA 0014→001C / VB VC VD 001F→0026 / VE 0024→002C / VF 0034→003C / VG 0038→0047 / VH 002C→002F / VJ 001E→0025; VG/VI first-attempt cmp FAILs adjudicated by the VAR-FIRST refit per `build/e52p9-arm/parity.txt` header; hop-4 VI 001B falsified, console `data=` COSMETIC; LOAN2 line-92 PREDICTED=MEASURED NEVER fix) + PLAN §5 P3-9 row + §P3-9 **CLOSED** heading; prose rc=0.
 **STATE:** **E2E-52/P3-9 IS FULLY CLOSED.** HEAD after this durables commit; the ONLY uncommitted files will be the guard-refreshed managed blocks (g411+, written by the renewal) — the SUCCESSOR commits them VERBATIM and then **STOPS: NOTHING FURTHER IS AUTHORIZED** (P3-10/`signal error`/`?SIGOP` is PROPOSED ONLY, never started without a new operator brief). Ledger ENDS **C367**; inventory 1260/186; coverage 141 rows SUPPORTED 91; gate rc=0 at HEAD; binary `11c6283e75b60fe3…`; goldens NEVER re-derived; census `b080894`; chain 01a1af4f 4/12 cap 12; config NEVER staged; no push; rc DIRECT; `pli80c` POSITIONAL into FRESH paths.
 **PROPOSED (never authorization):** P3-10 = `signal error` (`?SIGOP`, bytes `21 00 00 / AF / CD ?SIGOP` already recorded in [C367]'s byproduct note) is the next LOAN2 blocker at line 92; decode existing evidence + pre-register before any `ocaml/` byte.
+
+## E2E-52/P3-10 hop 1 — PRE-REGISTRATION LANDED; ORACLE CAMPAIGN OWED (2026-11-07; ZERO ocaml/, ZERO oracle so far)
+
+ACCEPTED (verified first-hand this session, original-golden decode, PANEL-UNVERIFIED):
+the complete SIGNAL evidence table is PLAN sec 2. Core laws read raw from the bitstream
+records (`build/e52p10/*-reldump.txt`, `*-signal-disasm.txt`, `loan2-signal-disasm.txt`):
+ERROR forms = `21 <arg LE> <arg hi> / AF / CD 00 00` + LINK-CHAIN-EXT `?SIGOP` at the
+operand slot, 7 B, operand bytes are plain DATA (NO RELOC anywhere between opcode and
+slot) in LOAN2 0359-035F (arg 0000), EXPR1 0175/018D, EXPR2 023D/0255 (arg 0001, four
+byte-identical sites); FILE form COPYLPT 02AA-02B4 = `21` + RELOC common@0000 (active
+group PRINTF, DEF-COMMON-SIZE 002B, selected at record @16935 — the SEL-COMMON SOURCE at
+@20924 belongs to the NEXT statement) + `3E 08` + CD ?SIGOP slot 02B0, 11 B. The ON-route
+control (COPYLPT on endpage @0254, ?ONCOP slot 025A) carries the SAME `3E 08`.
+SIGNAL has NO jump-over slot, NO handler, NO pad, NO SP cell at any of the six sites;
+enclosing IF jumps patch to the statement AFTER the signal bytes. Full-corpus scan:
+?SIGOP in exactly 4 objects; ?SIGNA in NO object.
+
+TOOLS LESSON (accepted): `build/e52p8/ondump2.py` has HARD-CODED P3-8 TARGETS and ignores
+extra CLI args — it silently re-dumped the old ON regions and nearly produced a false
+reading of EXPR1. The reusable part is its module-level full()/dis(); driver for P3-10:
+`build/e52p10/sigdump.py code|data LABEL REL lo-hi [lo-hi ...]`. `tools/dis80.py` .REL
+text mode still prints reloc bytes as '.' gaps — never trust it for region absence.
+
+PROPOSED (arm-time, adjudicate against goldens, NEVER adopt silently): Ssignal arm reuses
+the on_error_reg_prefix primitives (ABS LXI + AF) then `call_ext "?SIGOP"` — do NOT reuse
+on_error_reg_prefix itself (it carries the ON registration role); file form =
+`load_file_cb` + `d st op_mvi_a; d st <code>` (on_reg_prefix shape) + ?SIGOP, NO C3 slot;
+set st.lowered, st.last_imm <- None after the CALL (branch-boundary law [C202] audit).
+
+NEXT (successor hop 2): (1) ONE campaign
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52WA E52WB E52WC E52WD E52WE E52WF
+E52WG E52WH E52WI E52WJ E52WK E52WL --tag e52p10 --switches '$L$D'` rc DIRECT;
+read every .PRN; classify; goldens VERBATIM + reldumps/sigdump of every accepted probe
+into build/e52p10/; commit goldens BEFORE any ocaml byte. (2) frontend: Ssignal gains
+cargs (ast.ml/parser.ml/bind.ml sites 574/1518; FROM kept; no acceptance widening); test
+preservation on refused forms too. (3) arm ONLY measured shapes per PLAN sec 5 perimeter;
+build rc=0 + histogram vs codegen 68/total 124; cmp WHOLE-FILE vs golden/e52p10/ (fresh
+paths, positional); sweep FAILS 0; markers; regressions E52UA..UF, E52VA..VK, ENDFILE/
+UNDEFINEDFILE ON, REVERT, IF/ELSE, FILE COMMON, STOP/CALL/RETURN, negatives 186,
+divergences 9/9. (4) LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (LOAN2 should pass 92; record
+ACTUAL next blocker, NEVER fix). (5) registration from 1260 (--update-inventory, git diff
+--cached --stat ALWAYS, config NEVER staged), census OWN path, C368 measured-bytes-only
+BEFORE COVERAGE (COND.SIGNAL row + explicit COVERAGE-IDS line, NEVER coverage_gen.py,
+columns from FIRST NON-COMMENT row=15), coverage_check+prose rc=0, FULL gate rc=0 ->
+build/gate-e52p10-reg.log. (6) RESULTS sec P3-10 + PLAN sec 5 row + sec P3-10 CLOSED +
+durables. STOP at P3-10; do NOT start the next blocker. STATE: HEAD c6c4460 (PLAN+probes
+committed BEFORE oracle AND before any ocaml byte — chronology PROVEN by blob order);
+ledger ENDS C367; inventory 1260/186; coverage 141/SUPPORTED 91; binary
+11c6283e75b60fe3 == tree; goldens NEVER touched; config dirty-but-NEVER-staged; chain
+01a1af4f CLOSED (gate rc=0 log at HEAD); this session is a FRESH operator-launched chain
+(banner said startup); no push.
