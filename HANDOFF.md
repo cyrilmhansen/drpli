@@ -1610,25 +1610,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 410
-checkpoint-id: g410-2aa62c9a2e67
+checkpoint-generation: 411
+checkpoint-id: g411-65eab60b8d0d
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-6056, session 01a1af94-1330-7191-8d53-511070848452)
-checkpointed: 2026-11-06T06:59:39.425Z
+status: checkpoint (guard level 1, remaining ~11149, session 01a1afa7-e94c-7191-8d53-511533190591)
+checkpointed: 2026-11-06T07:19:05.365Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5efdc93a94fde5b9309c7265f233cf0f113cb6139f80b17834211feff267c7e3
-source-handoff: 77ea829fd6995c3647e17863c91b5fb9b4b449fa94a6957226ba12d93a411471
-source-learnings: 99137d081c89d95b8fa9ed59322bdcbe86af53ec479af1ec15a995abd7843e8a
+source-progress: a72f9f13c58aaea8e559c787b8bd9b03efbcb2a3a183ce698fed0012bf72840b
+source-handoff: 223316199e81fd52f0f707c35f1d23828fca05f5bcc13ec25b59f96568346199
+source-learnings: fad51c590d9246f4968a39818f3273b867058c73121a034763cc0060680bc321
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1af94-1330-7191-8d53-511070848452
-readiness-at: 2026-11-06T06:59:39.452Z
-readiness-checkpoint: g410-2aa62c9a2e67
+readiness-by: session:01a1afa7-e94c-7191-8d53-511533190591
+readiness-at: 2026-11-06T07:19:05.384Z
+readiness-checkpoint: g411-65eab60b8d0d
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2241,5 +2241,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-9 hop 7 PART DONE: C367 LANDED eaa5ef3 (measured-bytes-only, BEFORE any COVERAGE touch; prose rc=0); durables 98b26b8; 11/11 E52VA..VK cmp rc=0 re-verified FIRST-HAND into fresh build/e52p9-hop7/out on binary 11c6283e75b60fe3 == tree. EXACT NEXT per PROGRESS.md ## Next action: (3) append COND.OR row to spec/COVERAGE.tsv (SUPPORTED, EXACT:11, probes E52VA..E52VK, corpus LOAN2,ANNUITY, law from [C367], BY-NAME perimeter, falsifiers RB/SN-LB/PAR/LITERAL-FIRST verbatim, byte-tier-only, O-1 panel-unverified) + EXPLICIT line COND.OR in spec/COVERAGE-IDS.txt — NEVER coverage_gen.py; TAKE COLUMN COUNT FROM FIRST NON-COMMENT ROW (15 cols; LINE 1 IS A COMMENT — my script asserted on n=1 and fired BEFORE any write, so ledger+IDS are UNMODIFIED at 140 rows / SUPPORTED 90); verify git diff --stat ≈1 TSV + 1 IDS line BY CONTENT, coverage_check rc=0 expecting 141 rows / SUPPORTED 91, file_prose_check rc=0, commit. (4) FULL gate rc=0 DIRECT -> build/gate-e52p9-reg.log (expect 1260/0, 186/186, 9/9, 141 rows 0/0, census 15/0/26/0, prose 5). (5) RESULTS §P3-9 (parity table; falsifiers VERBATIM: PAR, hop-4/5 literal-first, PLAN §4 VG literal-first order, EVERY §4 CODE-size SHORT miss VA 0014->001C / VB VC VD 001F->0026 / VE 0024->002C / VF 0034->003C / VG 0038->0047 / VH 002C->002F / VJ 001E->0025, RB by VB==VC, SN by VE head, VG/VI first-attempt cmp FAILs adjudicated by VAR-FIRST refit; LOAN2 line-92 / EXPR1 21 / EXPR2 35 advances; §6 byte-tier-only) + PLAN §5 P3-9 row + §P3-9 CLOSED; prose rc=0; commit explicit paths. (6) durables + renew/finalize. STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR. Ledger ENDS C367; inventory 1260/186; coverage panel 140 (COND.OR owed); census landed b080894; goldens NEVER re-derived; pli80c POSITIONAL into FRESH paths; ALWAYS git diff --cached --stat before commit — handoff.config.json NEVER staged; chain 01a1af4f 4/12 cap 12; no push; ZERO oracle this hop.
+E2E-52/P3-9 IS FULLY CLOSED (commits: COND.OR row 7da60b5; gate rc=0 build/gate-e52p9-reg.log 1260/0, 186/186, 9/9, 141 rows 0/0, census 15/0/26/0, prose 5; RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED 66cb943; durables da8ba1e; ledger ENDS C367; inventory 1260/186; binary 11c6283e75b60fe3 == tree; goldens NEVER re-derived; ZERO oracle). SUCCESSOR: the ONLY remaining step is committing the guard-refreshed managed blocks in HANDOFF.md/PROGRESS.md VERBATIM (explicit paths, git diff --cached --stat first, handoff.config.json NEVER staged), then STOP — NOTHING is authorized: do NOT start P3-10/signal error/?SIGOP (PROPOSED only), no oracle, no PLILIB/MIR, no push.
 <!-- guard:end checkpoint -->
