@@ -2296,6 +2296,63 @@ SPECIMENS.update({
     "E52UF": ("probes/E52UF.PLI", "golden/e52p8/E52UF/E52UF.REL"),
 })
 
+# [E2E-52/P3-9] OR OF RELATIONS -- THE VALUE-LEVEL DISJUNCTION FOLD.  Pre-registered at
+# 4495604 (PLAN sec P3-9 H1..H10 + these eleven probes, committed BEFORE any ocaml/ byte);
+# the ORACLE answered at 9bb3f99 (campaign e52p9, 11 ok/11, ZERO dr-refuses, goldens
+# VERBATIM and NEVER re-derived); the ARM is d918dde + 1356b8b (codegen.ml only; And bytes
+# UNTOUCHED).  Every fold is LEFT-assoc post-order: the left truth byte travels through
+# F5 PUSH PSW / C1 POP B / B0 ORA B and ONE terminal F2 JP tests the sign (LEARNINGS
+# hop-4/hop-5/hop-6; claim C367).  DEC operand pair is VAR-FIRST -- the hop-4/5
+# LITERAL-FIRST reading was FALSIFIED at hop 6 by golden reldump re-derivation (pool
+# cells BELOW the autos; VG/VI first-draft cmp FAILs adjudicated it).  Whole-file cmp
+# rc=0 eleven-for-eleven (build/e52p9-arm/parity.txt; re-verified build/e52p9-reg/):
+#   E52VA 128 B; code 001C, DATA 0004.  STANDALONE `if dl < 0' TEST leaf: 3A r(cell+1) /
+#             B7 / F2 slot (the LOAN2:91 leaf's standalone geometry, previously [TBD]).
+#   E52VB 128 B; code 0026, DATA 0004.  `dl < 0 | dl > 2' -- RULE 1: ladder head
+#             LHLD+DCX x3 hoisted above F5, <0 (atomic LDA hi-byte, bare, bit7 IS truth)
+#             computed LAST in its node; C1 B0 fold, ONE F2.
+#   E52VC 128 B; code 0026, DATA 0004.  `dl > 2 | dl < 0' -- BYTE-IDENTICAL TO VB:
+#             rule 1 normalizes both source orders of the two-operand <0 pair.
+#   E52VD 128 B; code 0026, DATA 0006.  separate variables `a < 0 | b > 2' -- rule 1.
+#   E52VE 128 B; code 002C, DATA 0004.  same-variable `dl = 0 | dl > 2' -- RULE 2: FIXBIN
+#             `= 0' immediately followed by `> k' on the SAME ident swaps (ladder produced
+#             and pushed FIRST, zero-test materialises after the F5); the hoist placement
+#             differs from VF node1 and is recorded as witnessed-but-unexplained.
+#   E52VF 256 B; code 003C, DATA 0006.  four-operand `dl = 0 | dl > 2 | m > 1 | dl < 0':
+#             node1 rule-2 swap, node2 ladder, node3 <0 LAST; chained folds, ONE F2.
+#   E52VG 256 B; code 0047, DATA 0014.  ANNUITY mirror `pv = 0 | pmt = 0' -- DEC pair
+#             LXI H,&var / MVI A,p / ?DLDOP / LXI H,*zero-cell / MVI A,p / ?DLDOP /
+#             ?DCMOP / D6 01 / 9F (VAR-FIRST); DATA @0..10 = pool zero cells.
+#   E52VH 256 B; code 002F, DATA 0004.  OR unit with ELSE -- the then-jump and the
+#             else-chain are TWO independent patch targets (mirrors [C312] on the AND side).
+#   E52VI 384 B; code 0076, DATA 001A.  LOAN2 mirror: `p = 0 | dl > 1' (DEC-vs-ladder keeps
+#             SOURCE order, ladder head hoisted above F5) and `q = 0 | p = 0' (DEC-vs-DEC).
+#   E52VJ 128 B; code 0025, DATA 0004.  `dl > 0 | dl < 0' -- Gt0 memory compare
+#             (head LXI H,&dl / XRA A / CMP M / INX H / SBB M) first, <0 LAST.
+#   E52VK 256 B; code 0080, DATA 0009.  precedence and value position: `dl < 0 | m = fm
+#             & dl > 2' AND-sandwich inside the OR fold; `(dl < 0 | dl > 2) & m = fm' OR
+#             fold inside the AND (C1 A0); `b = (dl < 0 | dl > 2)' BIT(1) store = fold then
+#             BARE 32 STA (no D6/9F normalization).
+# Outside the registered perimeter (refuse BY NAME with [TBD], nothing fitted): any OR
+# operand outside the eight classifier classes (non-plain-auto ident, subscript, based
+# member, expression side); `< 0' FIRST in a 3+-operand chain (no witness); rule-2 swap
+# across DIFFERENT variables; DEC operand in the BIT(1) value position (allow_dec:false);
+# fold ladder k>=3 (LXI B/DAD B form unmeasured in a fold); every other relation as a
+# fold operand.  Byte-tier only -- NO runtime-branch claim for |.
+SPECIMENS.update({
+    "E52VA": ("probes/E52VA.PLI", "golden/e52p9/E52VA/E52VA.REL"),
+    "E52VB": ("probes/E52VB.PLI", "golden/e52p9/E52VB/E52VB.REL"),
+    "E52VC": ("probes/E52VC.PLI", "golden/e52p9/E52VC/E52VC.REL"),
+    "E52VD": ("probes/E52VD.PLI", "golden/e52p9/E52VD/E52VD.REL"),
+    "E52VE": ("probes/E52VE.PLI", "golden/e52p9/E52VE/E52VE.REL"),
+    "E52VF": ("probes/E52VF.PLI", "golden/e52p9/E52VF/E52VF.REL"),
+    "E52VG": ("probes/E52VG.PLI", "golden/e52p9/E52VG/E52VG.REL"),
+    "E52VH": ("probes/E52VH.PLI", "golden/e52p9/E52VH/E52VH.REL"),
+    "E52VI": ("probes/E52VI.PLI", "golden/e52p9/E52VI/E52VI.REL"),
+    "E52VJ": ("probes/E52VJ.PLI", "golden/e52p9/E52VJ/E52VJ.REL"),
+    "E52VK": ("probes/E52VK.PLI", "golden/e52p9/E52VK/E52VK.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form

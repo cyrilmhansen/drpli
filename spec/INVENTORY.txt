@@ -772,6 +772,17 @@ E52UC	specimen	probes/E52UC.PLI	golden/e52p8/E52UC/E52UC.REL
 E52UD	specimen	probes/E52UD.PLI	golden/e52p8/E52UD/E52UD.REL
 E52UE	specimen	probes/E52UE.PLI	golden/e52p8/E52UE/E52UE.REL
 E52UF	specimen	probes/E52UF.PLI	golden/e52p8/E52UF/E52UF.REL
+E52VA	specimen	probes/E52VA.PLI	golden/e52p9/E52VA/E52VA.REL
+E52VB	specimen	probes/E52VB.PLI	golden/e52p9/E52VB/E52VB.REL
+E52VC	specimen	probes/E52VC.PLI	golden/e52p9/E52VC/E52VC.REL
+E52VD	specimen	probes/E52VD.PLI	golden/e52p9/E52VD/E52VD.REL
+E52VE	specimen	probes/E52VE.PLI	golden/e52p9/E52VE/E52VE.REL
+E52VF	specimen	probes/E52VF.PLI	golden/e52p9/E52VF/E52VF.REL
+E52VG	specimen	probes/E52VG.PLI	golden/e52p9/E52VG/E52VG.REL
+E52VH	specimen	probes/E52VH.PLI	golden/e52p9/E52VH/E52VH.REL
+E52VI	specimen	probes/E52VI.PLI	golden/e52p9/E52VI/E52VI.REL
+E52VJ	specimen	probes/E52VJ.PLI	golden/e52p9/E52VJ/E52VJ.REL
+E52VK	specimen	probes/E52VK.PLI	golden/e52p9/E52VK/E52VK.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
