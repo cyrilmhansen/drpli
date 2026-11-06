@@ -1608,31 +1608,33 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 409
-checkpoint-id: g409-fed28b4c9d44
+checkpoint-generation: 410
+checkpoint-id: g410-2aa62c9a2e67
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-2479, session 01a1af94-1330-7191-8d53-511070848452)
-checkpointed: 2026-11-06T06:58:40.190Z
+status: checkpoint (guard level 4, remaining ~-6056, session 01a1af94-1330-7191-8d53-511070848452)
+checkpointed: 2026-11-06T06:59:39.425Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 5efdc93a94fde5b9309c7265f233cf0f113cb6139f80b17834211feff267c7e3
-source-handoff: 1f82121b6c111e4fcf3602d85e378f7e7dec26e69cf46bdcc3baafb4b71be322
+source-handoff: 77ea829fd6995c3647e17863c91b5fb9b4b449fa94a6957226ba12d93a411471
 source-learnings: 99137d081c89d95b8fa9ed59322bdcbe86af53ec479af1ec15a995abd7843e8a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1af94-1330-7191-8d53-511070848452
-readiness-at: 2026-11-06T06:58:40.213Z
-readiness-checkpoint: g409-fed28b4c9d44
+readiness-at: 2026-11-06T06:59:39.452Z
+readiness-checkpoint: g410-2aa62c9a2e67
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` steps (2)–(6): **C367 measured-bytes-only committed to `spec/CLAIMS.md` BEFORE ANY `spec/COVERAGE.tsv` touch** (bullet contract = LEARNINGS § "hop 6 CLOSE PART 1" STILL OWED (i)) → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; verify diff ≈ 2 lines by content) + coverage_check/prose rc=0 → FULL gate rc=0 DIRECT `build/gate-e52p9-reg.log` (expect 1260/0, 186/186, 9/9, rows 0/0, census 15/0/26/0, prose 5) → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); inventory 1260/186; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat` before commit; chain 01a1af4f cap 12; no push.
+` steps (3)–(6): `COND.OR` SUPPORTED `EXACT:11` row + EXPLICIT IDS line (**NEVER `coverage_gen.py`**) + coverage_check/prose rc=0 → FULL gate rc=0 DIRECT `build/gate-e52p9-reg.log` (expect 1260/0, 186/186, 9/9, **141 rows 0/0**, census 15/0/26/0, prose 5) → RESULTS §P3-9 (all §4 CODE-size SHORT misses + every falsifier VERBATIM, VG/VI first-attempt cmp FAILs adjudicated by the VAR-FIRST refit) + PLAN §5 row + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C367**; inventory 1260/186; census `b080894` done; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat` before commit; chain 01a1af4f 4/12 cap 12; no push.
+
+0a-novies-new25. **E2E-52/P3-9 hop 6 CLOSE PART 1 — CENSUS LANDED; C367→COVERAGE→GATE→RESULTS→DURABLES OWED; RENEWAL PENDING (2026-11-06, session 01a1af80, chain 01a1af4f renewal 2/12; ZERO oracle; goldens NEVER touched; `handoff.config.json` NEVER staged; no push; all rc DIRECT).** Recovery verified; build rc=0 binary `11c6283e75b60fe3…` == STATE; 11/11 cmp re-held from committed tree; g402 blocks committed `618fbe6`; **census OWN path `b080894`**: rc=0, counts **15/0/26/0 UNCHANGED**, LOAN2 message MOVED VERBATIM to `codegen: statement kind not in supported subset [TBD] (line 92)` (PREDICTED=MEASURED, NEVER fix), EXPR1/EXPR2 unchanged. Durables `ebbab52`: C367 byte authority re-verified FIRST-HAND (VAR-FIRST VG/VI reloc pairs incl shared zero10 cell [C155]; CODE sizes VA 001C VB/VC/VD 0026 VE 002C VF 003C VG 0047 VH 002F VI 0076 VJ 0025 VK 0080; RB falsified by VC byte-identity, SN by VE head `2A`; F5-sandwich mechanism PROPOSED) + the three pre-registration falsifier classes for RESULTS §P3-9 (PAR; hop-4/5 literal-first incl PLAN §4 VG order; EVERY §4 CODE-size SHORT — they omitted the `x = 2;` continuation). **SUCCESSOR:** execute `PROGRESS.md` → `## Next action` steps (2)–(6): **C367 measured-bytes-only committed to `spec/CLAIMS.md` BEFORE ANY `spec/COVERAGE.tsv` touch** (bullet contract = LEARNINGS § "hop 6 CLOSE PART 1" STILL OWED (i)) → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; verify diff ≈ 2 lines by content) + coverage_check/prose rc=0 → FULL gate rc=0 DIRECT `build/gate-e52p9-reg.log` (expect 1260/0, 186/186, 9/9, rows 0/0, census 15/0/26/0, prose 5) → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); inventory 1260/186; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat` before commit; chain 01a1af4f cap 12; no push.
 
 0a-novies-new24. **E2E-52/P3-9 hop 6 REMAINDER PART CLOSED — O-1/MARKERS/SWEEP/EXPR/SPECIMENS+INVENTORY LANDED; RENEWAL PENDING (2026-11-06, session 01a1af69, chain 01a1adf0; ZERO `ocaml/` byte except line-preserving comment fix `1356b8b`; ZERO oracle; goldens NEVER touched; `handoff.config.json` NEVER staged; no push; all rc DIRECT).** Commits: `1356b8b` (ODecEq0 stale-comment VAR-FIRST correction, parity re-held), `bdbc28a` (SPECIMENS +11 measured-bytes block + `--update-inventory` 1249→**1260 EXACTLY +11**, refusals 186), `c059c56` (durables), this + guard **g400-7658c0d8563c refreshed+attested — renewal scheduled, successor receives ONLY the durable files**. ACCEPTED this hop: recovery verified; FULL fresh `--build-dir` rebuild deterministic; histogram **68/124 == baseline**; **11/11 E52VA..VK whole-file cmp rc=0 re-verified from the COMMITTED tree** (golden cmp, NOT the recorded hash, is the authority — `c621ea8c…` unreproducible, current `11c6283e75b60fe3…`); O-1 `build/e52p9-arm/loan2-decode.txt` raw-reldump: :91 ladder-first/`<0`-last/one-F2 + `?SIGOP@035E` unarmed; :113 DEC pair **VAR-FIRST verbatim** (LXI &P@02CA then *zero@01E6; ADD==VAR-first here), EqVV-LATER hoist, one F2→0603; :120 Gt0-And-right `21`-hoist + `AF BE 23 9E`, C1 A0, NEW: then-body ONLY `call summary();`, `m=m+1` OUTSIDE the if, slot 0601 = `call display(...)`; VG DATA **0014** / VI **001A** from DEF-DATA records (hop-4 VI 001B FALSIFIED, off-by-one; console `data=` COSMETIC). EXPR1/EXPR2/LOAN2 POSITIONAL VERBATIM (LOAN2 `(line 92)`, NEVER fix); markers 10/10 rc=0; sweep FAILS 0. LESSONS: `--update-inventory` STAGES its file — ALWAYS `git diff --cached --stat` before commit (config rode into `57fc210`, soft-reset repaired, NEVER pushed); `pli80c` POSITIONAL into FRESH paths — stale .REL FALSE-PASSes cmp. **SUCCESSOR:** execute `PROGRESS.md` → `## Next action` (hop 6 REMAINDER) steps (1)–(6): census `--check` OWN path → **C367 measured-bytes-only BEFORE ANY COVERAGE touch** → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`) + coverage_check/prose rc=0 → FULL gate rc=0 `build/gate-e52p9-reg.log` → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); gate inventory now 1260/186 (last full gate ran at 1249 — successor re-runs); goldens NEVER re-derived; chain 01a1adf0 cap 12.
 
