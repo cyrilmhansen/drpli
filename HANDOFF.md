@@ -1602,25 +1602,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 397
-checkpoint-id: g397-254dd65e3713
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 399
+checkpoint-id: g399-b477c7080014
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1717, session 01a1ae80-cd83-7091-837d-1deb7ed3f682)
-checkpointed: 2026-11-06T02:06:43.260Z
+status: checkpoint (guard level 4, remaining ~3841, session 01a1af4f-3a99-7191-8d53-5105c29b33b7)
+checkpointed: 2026-11-06T05:50:21.696Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5f86fa2d13d40c81a4ce30cc28cda4abcbb0d663555d9d04c9726763a3875625
+source-progress: 87c77245e47a2a03796e104046bf1724c8671360b12240462f404372fb474cde
 source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
-source-learnings: d3aa7bcc62170234176a9b097a54542a92081cfd9907dad6b73731314f78b0ce
+source-learnings: c6c529c43d24f6e2018a9efbd42c1a70c2c7a3aafcd0514bd742578cc2e3a6d4
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1ae80-cd83-7091-837d-1deb7ed3f682
-readiness-at: 2026-11-06T02:06:43.279Z
-readiness-checkpoint: g397-254dd65e3713
+readiness-by: session:01a1af4f-3a99-7191-8d53-5105c29b33b7
+readiness-at: 2026-11-06T05:50:48.698Z
+readiness-checkpoint: g399-b477c7080014
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-52/P3-9 hop 5 PART 7 close: durables at c431adf (LEARNINGS § PART 7 + PROGRESS EXACT NEXT). SUCCESSOR: run `python3 build/e52p9-arm/arm-splice.py` (content authority LEARNINGS § hop 5 PART 6 + PART 4 + PART 3 + PART 2), dune build rc DIRECT (NEVER alter And bytes), histogram vs 68, cmp VA-VK whole-file vs golden/e52p9/, sweep FAILS 0, markers (copy build/e52p8-reg/markers.py, CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted signal error 92, NEVER fix), O-1 loan2-decode.txt re-derivation, registration 1249->1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log, RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9, do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary 9ecea27aa4f2d80f49ad == baseline (ZERO ocaml byte); goldens NEVER re-derived; handoff.config.json NEVER staged; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 7/12, cap 12.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
