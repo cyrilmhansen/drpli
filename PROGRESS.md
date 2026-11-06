@@ -2773,17 +2773,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 402
-checkpoint-id: g402-f6e8797b2808
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 405
+checkpoint-id: g405-545a9964ee36
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T06:16:29.558Z
+checkpointed: 2026-11-06T06:37:11.811Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7c1ace02c3abf478920f794c85851c8d5ab0b54833273620145fc0e6696b5da1
+source-progress: 9e5f025b781c76b4194ddfab48d88af354dcc03b40cad5ae6f3a5f4fb20bcba1
 source-handoff: ec74c028db9367d2da6f397b248326a0b6f136172f7f6cbefd79e25a92a8732b
-source-learnings: 5dc629b662373203cb8144c55ef8a6d80c90c6cd400a77591b793e7c434e4747
+source-learnings: 5c83a647a876c9499a0e309c271cb4ea59707e1550d0fb1afd3a70f41a0c8772
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` (hop 6 REMAINDER) steps (1)–(6): census `--check` OWN path → **C367 measured-bytes-only BEFORE ANY COVERAGE touch** → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`) + coverage_check/prose rc=0 → FULL gate rc=0 `build/gate-e52p9-reg.log` → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); gate inventory now 1260/186 (last full gate ran at 1249 — successor re-runs); goldens NEVER re-derived; chain 01a1adf0 cap 12.
 
@@ -3386,9 +3386,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1af69-84d1-7191-8d53-510874276f71
-readiness-at: 2026-11-06T06:16:29.584Z
-readiness-checkpoint: g402-f6e8797b2808
 <!-- guard:end checkpoint -->
 
 ## Blockers
