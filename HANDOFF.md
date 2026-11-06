@@ -1636,25 +1636,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 453
-checkpoint-id: g453-a9ad1ca95b75
+checkpoint-generation: 454
+checkpoint-id: g454-746dc886b318
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-822, session 01a1b201-d1e7-71fa-8218-82236f44683b)
-checkpointed: 2026-11-06T18:18:52.899Z
+status: checkpoint (guard level 2, remaining ~7242, session 01a1b215-c294-71fa-8218-8226fa810a89)
+checkpointed: 2026-11-06T18:34:43.486Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 501405f262bf81f96a85ef69d4b8e82d1dc8a4cefa5a81bb104a99f41e82e76d
+source-progress: 70574016e7734e04ceab608f1501664955f4d37ab1670dc20360db01a6d1d020
 source-handoff: 9699a18ea6f973ce640091d64cde8693d3c64d771b5cd3514aeef01ce2d399fa
-source-learnings: b6ca1db1dd77ce96bd0a6e2667bbacf6dd23fa26dfb38f6bf3580e0fb067d5a6
+source-learnings: a5375c7629e0d3ccb4673a35c8a877fc46f02839550439c045ffb9e38cf9336b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b201-d1e7-71fa-8218-82236f44683b
-readiness-at: 2026-11-06T18:18:52.931Z
-readiness-checkpoint: g453-a9ad1ca95b75
+readiness-by: session:01a1b215-c294-71fa-8218-8226fa810a89
+readiness-at: 2026-11-06T18:34:43.508Z
+readiness-checkpoint: g454-746dc886b318
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2295,5 +2295,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-13 hop 6 durables committed c9d1a27 (ZERO oracle; goldens untouched; config never staged; no push). Successor: read PROGRESS.md ## Next action + LEARNINGS.md § "P3-13 hop 5 IN FLIGHT" FIRST — execute step (5) EXACTLY (write probes/E52Z{A..F}.PLI per the pre-registered panel + PLAN §P3-13 with §1 blocker VERBATIM, §2 witness table incl. the FALSIFIED-and-corrected NG18 5B cell 00 01 00 00 00, §3 hypotheses+falsifiers, §4 per-probe byte predictions NEVER fit, §5 arm contract inside formal_is_dec only with BY-NAME refusals + histogram 68, §6 LOAN2 never-predict, §7 framing binding C371), optional ZERO-oracle local pli80c sanity (FRESH positional paths), commit PLAN+probes+durables by EXPLICIT paths BEFORE any oracle call or ocaml/ byte; then (6) campaign e52p13 (6 probes, $L$D, rc DIRECT), goldens+summary+transcripts VERBATIM first, arm, validation (histogram 68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + DATED correction of BOTH C093 errors (DECPOLY 5.67 false citation AND 2-byte width), row+SAME-change IDS line (never coverage_gen.py), FULL gate rc=0 DIRECT → build/gate-e52p13-reg.log, RESULTS §P3-13 + PLAN §5 + CLOSED; marathon through P3-19. Armed binary 6a4c6c1154a0acd8403b… == tree; chain 01a1b1b4 6/12 cap 12; goldens NEVER re-derived; POSITIONAL FRESH paths; git diff --cached --stat always; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier only.
+P3-13 hop 7 LANDED: steps (5) pre-registration 7503552 + (6) campaign e52p13 6 ok/6 (ZERO dr-refuses, every .PRN NO ERROR(S) both passes; H-1..H-8 ALL CONFIRMED, ZERO falsifiers fired — down/up QDDSR/QDDSL in C370 window, DSTOP A=pf, temp width=ceil((pf+2)/2) (ZA/ZF 6B, ZB 4B, ZE 5B), literal cells pre-scaled formal-width 50 01 00 00 00 / 00 01 00 00 00 with ZERO caller code + static descriptor relocs, ZE interleaved vector, ZF LOAN2 verbatim replication MVI C,0A); goldens+summary+transcripts VERBATIM 6267faf BEFORE any ocaml/ byte; durables 49d382c. Successor: read LEARNINGS.md § "P3-13 hop 7 PART LANDED" (PINNED ARM CONTRACT) + PROGRESS.md ## Next action FIRST; execute steps (1)-(7) EXACTLY: arm ONLY the measured shapes at the DEC-formal guard ~4748-4810 + target-selection ~4822-4861 (inspect pairs/copy/tmp provenance first; NEVER hand-pick addresses; ALL else BY-NAME [TBD], marker substrings survive, histogram 68/124==baseline); validation (cmp FRESH POSITIONAL build/p3-13/arm-out/, sweep 159/0, markers incl honest N33→NG18 retirement iff armed cmp rc=0 vs KEPT golden — probes/NG18.PLI from inline gate source, refusals 188→187; DEC regressions 64/0; divcheck 9/9 build/p3-12/divcheck.py); LOAN2 UNMODIFIED never-predict ACTUAL blocker VERBATIM; register from 1288/188 (--update-inventory, git diff --cached --stat, census OWN path 15/0/26/0); C371 measured-bytes-only BEFORE COVERAGE + DATED correction of BOTH C093 errors; coverage extension preferred (NEVER coverage_gen.py; 15 cols; manual_ref pNN[:§X.Y][=phrase]|NONE:); FULL gate rc=0 DIRECT → build/gate-e52p13-reg.log; RESULTS §P3-13 + PLAN §5 row + CLOSED; marathon through P3-19. Armed binary 6a4c6c1154a0acd8403b… == tree; chain 01a1b1b4 7/12 cap 12; goldens NEVER re-derived; POSITIONAL FRESH paths; config NEVER staged; no push; rc DIRECT; never glue rm; byte-tier only.
 <!-- guard:end checkpoint -->
