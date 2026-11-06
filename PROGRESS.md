@@ -49,6 +49,8 @@ C359 derived ONLY from the existing measured evidence.
 
 **DONE THIS HOP (session 01a1ae54, chain 01a1adf0 renewal 5/12; all rc DIRECT; ZERO `ocaml/` byte, ZERO oracle):** build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline; goldens-dump re-read IN FULL — all VA–VK regions re-confirmed against PART 2/3 lists; probe condition lines re-extracted; THREE CORRECTIONS written to LEARNINGS § hop 5 PART 4: (1) `is_plain_bin_auto` does NOT exist — use `is_plain_num_auto` @4040 + own `Eident` name extraction; (2) `hl_bias`/`cmp_load_deref` are AFTER `lower_bool` @7276 — fold machinery MUST be placed BEFORE lower_bool using inline `op_lhld/reloc` + literal byte sequences only; (3) fold GtC ladder gated k∈{1,2} (DCX×(k+1) witnessed; k≥3 in-fold refuses BY NAME [TBD]). Anchors re-pinned: And test-arm @8528-8531 (Or arm goes right after); Lt TEST arm @8628-8641 (`<0` leaf arm goes BEFORE it; textual `Enumber "0"` match, no int_lit_checked); bit_cond_mat @8105 ends `| _ -> None` @~8316, caller BARE `32 STA` @~9962; prescan parity re-confirmed, NO edit; DEC literal-first via `dec_pool` manual `21 r(zero)/3E p/?DLDOP/21 r(var)/3E p/?DLDOP/?DCMOP/D6 01 9F`, NEVER `dec_eq_bool_parts`.
 
+**HOP 5 PART 7 (session 01a1ae80, renewal 7/12, CLOSING at pressure; ZERO `ocaml/` byte remains):** recovery verified HEAD `1318891`, g395 guard blocks committed `284e178`, build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline. ALL 8 PART 6 anchor sites re-pinned on THIS tree; the COMPLETE ready-to-run arm splice is saved at `build/e52p9-arm/arm-splice.py` (idempotent, asserts every anchor, backs up to `codegen.ml.pre-splice`; contents = PART 6 plan items 1–7 exactly: or_cls/or_classify/or_head/or_tail/collect_or + let-rec-and `lower_or`, lower_bool Or arm beside And + leaf arms after DEC-Eq/`Eq ident 0` before catch-all, And-right saved clause after DEC clause (OAnd/OGroup excluded), TEST Or arm + `<0` TEST arm `3A r(v+1)/B7/F2` before the Lt arm, bit_cond_mat arm `~allow_dec:false`). LESSON (accepted): codegen.ml anchors containing backtick/apostrophe pairs fail edit-tool exact matching — use Python line-equality splices. Renewal NOT available (g395 already seeded this successor) — finalized at this boundary.
+**EXACT NEXT (successor):** (a) `python3 build/e52p9-arm/arm-splice.py`; (b) `cd ocaml && eval "$(opam env)" && dune build` rc DIRECT (fix ONLY syntax if any; NEVER alter And bytes); then steps (3)–(5) below unchanged (histogram 68, cmp VA–VK whole-file, sweep, markers, LOAN2/EXPR1/EXPR2 POSITIONAL — predicted `signal error` 92 NEVER fix — O-1 loan2-decode re-derivation, registration 1260, C367 BEFORE COVERAGE, gate, RESULTS/PLAN/CLOSED, STOP at P3-9). Full details LEARNINGS § "hop 5 PART 7".
 **EXECUTE (successor, hop-5 steps (2)–(5)):** (2) arm `ocaml/lib/codegen.ml` ONLY per **LEARNINGS § "hop 5 PART 6" — the FINAL ARM PLAN (placement, class list with exact bytes, node1 rules, the seven edit sites, obligations O-1/O-2/O-3)** alongside § PART 4 corrections + § PART 3 algorithm + § PART 2 emission lists. PART 6 NEW accepted facts: LOAN2 `P fixed dec(10,2)` ⇒ LOAN2:113 witnesses **EqVV in a LATER fold slot** and :120 witnesses **Gt0 as And-right**; fold DEC operands emit via the classifier DIRECTLY (lower_bool's DEC arms are VAR-first — never dispatch fold DEC through them); bit_cond_mat Or arm uses `~allow_dec:false`. O-1: LOAN2/ANNUITY fold regions are original-golden-decode, panel-unverified — re-derive LOAN2 113/120 via reldump into `build/e52p9-arm/loan2-decode.txt`, record under C367; probes VA–VK cmps are the binding authority. (3) `cd ocaml && eval "$(opam env)" && dune build` rc=0 DIRECT + per-File warning histogram vs **68** + cmp VA–VK whole-file vs `golden/e52p9/` + `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 + markers harness (copy `build/e52p8-reg/markers.py`, CRLF + bare `^Z`) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted LOAN2 blocker `signal error` 92, NEVER fix). (4) registration from 1249 (SPECIMENS +11, `--update-inventory` → **1260**, refusals 186, census OWN path, **C367 measured-bytes-only BEFORE COVERAGE**, new `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line, NEVER `coverage_gen.py`), coverage_check+prose rc=0, gate rc=0 `build/gate-e52p9-reg.log`. (5) RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED, durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.**
 
 **STATE:** ledger ENDS **C366**; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; goldens NEVER re-derived; no push; `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; chain 01a1adf0 **5/12** (cap 12).
@@ -2758,13 +2760,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 395
-checkpoint-id: g395-bbd293295eac
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 396
+checkpoint-id: g396-9144a475f54d
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T01:37:19.192Z
+checkpointed: 2026-11-06T02:04:45.006Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 5758221ca9900e2bae69756e72acc208e21b4b73fdfbd3e3928f7f56510fa63b
 source-handoff: 843fbbce0f02abd3b87c92f7e8dc00ed3b62f6a5e4a024879c66eff5e27b2546
@@ -3369,9 +3371,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ae6a-aac0-7091-837d-1de7b6ea30ae
-readiness-at: 2026-11-06T01:37:19.219Z
-readiness-checkpoint: g395-bbd293295eac
 <!-- guard:end checkpoint -->
 
 ## Blockers
