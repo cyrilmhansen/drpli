@@ -1,0 +1,11 @@
+E52XJ: procedure options(main);
+   /* E2E-52/P3-11 probe XJ (PLAN H-J): file PAGE with
+      NO open at all -- E46L8's no-open LIST geometry
+      (SEL-COMMON at first use) asked of ?PAGOP.
+      Verdict UNKNOWN; PU1's refusal must survive. */
+   dcl pf file;
+   dcl x fixed bin;
+   put file(pf) page;
+   x = 2;
+end E52XJ;
+

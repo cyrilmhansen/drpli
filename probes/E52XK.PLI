@@ -1,0 +1,12 @@
+E52XK: procedure options(main);
+   /* E2E-52/P3-11 probe XK (PLAN H-K): is PAGE a mode
+      question?  stream INPUT open then a file PAGE.
+      Attach predict 0652 (statement direction [C280]);
+      competitors: refusal or a mirroring attach. */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) stream input;
+   put file(pf) page;
+   x = 2;
+end E52XK;
+

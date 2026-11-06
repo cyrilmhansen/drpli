@@ -1,0 +1,12 @@
+E52XD: procedure options(main);
+   /* E2E-52/P3-11 probe XD (PLAN H-D): LOAN2:56 mirror
+      -- VARIABLE varying title + print (?SLVTS route,
+      E52TC block, w1 0E52) then a bare file PAGE. */
+   dcl pf file;
+   dcl name char(14) varying;
+   dcl x fixed bin;
+   open file(pf) title(name) print;
+   put file(pf) page;
+   x = 2;
+end E52XD;
+

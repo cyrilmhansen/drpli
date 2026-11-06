@@ -1,0 +1,11 @@
+E52XC: procedure options(main);
+   /* E2E-52/P3-11 probe XC (PLAN H-C): LOAN2:54+99
+      mirror -- title('$con') print pagesize(0) open
+      (E52TB block, w1 2E52) then a bare file PAGE. */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) title('$con') print pagesize(0);
+   put file(pf) page;
+   x = 2;
+end E52XC;
+

@@ -1049,3 +1049,189 @@ distinguish `signal error;`, `error(0)`, `error(1)`, `error(2)` or
 Remedy: `cargs : expr list` in the AST (analogous to `Son`/`Srevert`), parser passes the
 parsed list, bind use-walkers traverse it; codegen continues to refuse every unmeasured
 shape BY NAME. No lowering is ever assigned to `FROM` without a witness.
+
+## Subround P3-11 — PRINT-opened-file PUT eligibility: the line-99 guard and the PAGE/LIST/SKIP routes behind a PRINT OPEN (LOAN2:99 blocker) — PRE-REGISTERED 2026-11-07 (operator brief E2E-52/P3-11; chain 01a1b0c9; baseline HEAD `57e7f62`+guard `f58f64f`, ledger ENDS C368, inventory 1269/187, coverage 142/92)
+
+### 1. Measured blocker (VERBATIM, census record at `0198fe5`, gate `build/gate-e52p10-reg.log`)
+
+`codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99)` rc=2, NO .REL —
+LOAN2 line 99 `put file(output) page;` (the THEN body of `if name ^= '' then` at 98, the
+file group `OUTPUT` opened ONLY with PRINT-bearing options at 54/56). CLASSIFICATION
+`my-gap`: DR ACCEPTS the statement; its own original object carries the lowering at
+03AA-03BB (decoded below).
+
+### 2. EXISTING DR evidence (Phase A + hop-1 first-hand raw-record re-verification;
+ZERO oracle at pre-registration; dumps in ignored `build/e52p11/` and `build/e52p11/xplan/`)
+
+| Witness | Open (w1) | PUT shape | Statement bytes | Continuation patching | Dump |
+|---|---|---|---|---|---|
+| LOAN2:99 | 53-56 `title('$con') print pagesize(0)` (2E52) / `title(name) print` (0E52) | bare PAGE | 03AA-03BB = 18 B: `21`+RELOC **common 0x0** / `11 52 06` / `01`+slot 03B1 / CD slot 03B4 CHAIN-EXT `?SIOOP` / CD 03B7 `?PAGOP` / CD 03BA `?QIOOP` | **DOUBLE** SET-LC both to 03BC: LXI B slot 03B1 (@30135→30179) AND the `if name ^= ''` CA skip-slot 03A8 (@30204→30248); 03BC = `call header()` | xplan/LOAN2-full.txt |
+| COPYLPT:53 | printfile open w1 `3E52` (title+print+pagesize+linesize) | bare PAGE | 0215-0226 same 18 B | LXI B slot 021C → SET-LC/RELOC code 0x227 (`?STOPX` region) | COPYLPT-reldump.txt |
+| P019B | titleless PRINT open w1 `0652` | `list('hello')` | 0063-007C = 26 B: attach 12 + `21`+RELOC data 0x5 / `3E 05` / CD `?SLCTS`@0075 + `?PNCOP`@0078 + `?QIOOP`@007B | slot 006A → RELOC code 0x7D (next console put) | P019B-reldump.txt |
+| E46N10 (registered, stream-output route) | `title('N10OUT DAT') stream output` | bare PAGE | 0023-0034 = 18 B (`?PAGOP` bare at 002F-0031, NO count operand) | LXI B slot → 0035 = `?CIOOP` close | E46N10-reldump.txt |
+| E46N1 (registered) | stream output + literal title | BARE skip | 0023-0036 = 20 B: attach 12 + `3E 01` + CD `?SKPOP` + CD `?QIOOP` (NO `?PNCOP` — no item chain) | slot 002A → RELOC code 0x37 (close) | xplan/E46N1.txt |
+| E46N2 (registered) | same | `skip list('A')` | 0023-0041 = 31 B: attach 12 + skip 5 + `21`+RELOC data 0x9 / `3E 01` / `?SLCTS` + `?PNCOP` + `?QIOOP` | slot 002A → close region 0042 | xplan/E46N2.txt |
+| E46L8 (golden, my compiler REFUSES = PU1's program) | NO open | `list(x)` variable | 000C-0025: attach `21` + **LINK-SEL-COMMON F at first use** + RELOC common 0x0 / `11 52 06` / `01`+slot / CD `?SIOOP`, then `2A`+RELOC / `3E 09` / `?QICOP` / `?PNVOP` / `?QIOOP` | slot 0013 → 0x26 (`?STOPX`) | reldump this session |
+
+Open-block geometries (registered goldens, `build/e52p11/xplan/E52T{A,B,C}.txt`):
+- E52TA titleless PRINT: entry `01 00 02 CD ?START` 0000-05, prologue `AF 47 C5 33`
+  0006-09, block 000A-001A = `21 52 06`/`E5`/`60 68`/`E5 E5 E5 E5 E5`/`21`+RELOC common
+  0x0/CD `?OIOOP`@0019 = **17 B** (block+prologue = 21 B, the E46E4 titleless law); CODE
+  0035, COMMON PF abs `0024` (34+len, [C120]).
+- E52TB literal-title `title('$con') print pagesize(0)`: block 0006-0022 = **29 B**, w1
+  `21 52 2e`, literal-title prologue `21`+RELOC data/`3E 04`/`?SLCTS` then `47 C5 33`;
+  the `21 00 00`+`E5` word and the FOUR trailing `E5` pushes are part of the TITLED
+  route itself, NOT of pagesize — E52TC proves it. CODE 003D, OUTF `0026`.
+- E52TC variable varying-title `title(name) print`: block 0006-0020 = **27 B**, w1 `21 52
+  0e` (0E52 — NO pagesize bit although TC spells no pagesize), `?SLVTS` route; [C288]
+  varying = 2 shorter than literal. CODE 003B.
+- E52VA (P3-9): `if dl < 0 then` TEST leaf = `3A`+RELOC data 0x1/`B7`/`F2`+slot = **7 B**;
+  immediate store `x = 2` = `21 nn nn`+`22`+RELOC-embedded operand = **6 code bytes**
+  (CODE 001C = 6+7+6+6+3 arithmetic re-verified FIRST-HAND this session; the hop-1 note
+  "7-B imm store" is hereby CORRECTED to 6).
+- SIOMODES pairing (e2e41-p0): the PUT attach word is `0x0652` behind EVERY print/title/
+  $con/vartitle open — COPYLPT 021E (page), 029E (skip(4)), 0315 (skip(expr)), 02E1
+  (edit), LOAN2 03B3/052B/068A/0796/0813/0830/0951, P019B 006C — the attach is the
+  statement's DIRECTION, never a mirror of the open word ([C280]/[C282]).
+
+MY-SIDE PRE-ARM BEHAVIOR (zero-oracle sanity compiles this session, current binary
+`a4c0e235ed4bb81fe284…`, `build/e52p11/xplan/sanity.txt`): ALL ELEVEN probes rc=2 at the
+line-99 guard `PUT FILE(PF) has no byte-exact DR witness [TBD]` on the PUT's own line —
+every OPEN portion (including XB's unmeasured literal-title+print-without-pagesize and
+XK's titleless stream-input) lowers today; the refusal is purely the eligibility guard.
+
+GUARD ANATOMY (`ocaml/lib/codegen.ml`, read this session): `lower_open` (~11557) records
+`st.file_out <- fu :: st.file_out` ONLY when an option spells `OUTPUT` — a PRINT open
+records NOTHING (LOAN2's 54/56 spell no OUTPUT keyword; their file operand is NAMED
+`output`, the [C287] trap). The `Pfile` arm (~13778) is the ONE eligibility guard for
+LIST, SKIP and PAGE alike (`List.mem fu st.file_out` AFTER per-item
+`authorize_file_item`); the `Sk_page` emitter (~12800) is route-independent (`file=Some`
+→ bare `CALL ?PAGOP`); the EDIT route deliberately bypasses the guard (P086K [C282]).
+NEGATIVE-PANEL CONSTRAINTS: PU1 marker substring `PUT FILE(F) has no byte-exact DR
+witness` (no-open LIST) and E41X5 (EDIT-then-no-open) MUST keep firing — no registered
+negative pairs a PRINT open with a named PUT (hop-1 collision scan: the two grep hits
+were comment prose); E46K10 refuses by ITEM class before the guard; N3_PAGE (console
+`put page;`) and E46N21 (LINE with a count) refuse earlier still.
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-A** (XA): DR ACCEPTS; open = TA's 21 B verbatim (w1 `52 06`); PAGE = 18 B at 001B,
+  attach `11 52 06`, CB operand RELOC common 0x0, `?PAGOP` bare with NO count operand;
+  LXI B slot → 0030 = start of `x = 2`; predicted CODE `0036`, one SEL-COMMON PF at the
+  open, COMMON PF `0024` (34+2). Falsifiers: attach mirroring the open word; `3E nn`
+  before `?PAGOP`; any extra CALL/registration byte; refusal.
+- **H-B** (XB): the combination LITERAL-title + print WITHOUT pagesize/linesize — OPEN
+  verdict UNKNOWN (absent from the TA..TJ panel; my side accepts it and lowers the 29-B
+  TB block with w1 `0E52`). If accepted: PAGE = 18 B, predicted CODE `003E`; competitor:
+  the pagesize bit is REQUIRED for PAGE acceptance (refusal), or w1 ≠ 0E52.
+- **H-C** (XC): LOAN2:54+99 mirror — TB block verbatim (w1 `2E52`) + 18-B PAGE; accepted;
+  predicted CODE `003E`.
+- **H-D** (XD): LOAN2:56 mirror — TC `?SLVTS` block (w1 `0E52`) + 18-B PAGE; accepted;
+  predicted CODE `003C`.
+- **H-E** (XE): PAGE as a conditional THEN-body (LOAN2 98-99 geometry): `if n < 0 then`
+  emits the 7-B VA leaf; **DOUBLE back-patch predicted** — the F2 skip slot AND the LXI B
+  continuation slot BOTH patch to the start of `x = 2` (LOAN2 patched CA-slot 03A8 and
+  LXI-B slot 03B1 both to 03BC); competitor SINGLE-patch (only one of the two moves).
+  Predicted CODE `003D`.
+- **H-F** (XF): conditional opens + later PAGE (LOAN2 53-56+99 composed): TB block in the
+  THEN, else-jump `C3`+slot 3 B, TC block in the ELSE, ONE 18-B PAGE after the merge; F2
+  slot → start of ELSE body, C3 slot → start of PAGE, LXI B slot → start of `x = 2`.
+  Accepted; predicted CODE `0063`. Falsifier: any branch-local eligibility or pad bytes.
+- **H-G** (XG): PRINT open + `list('A')` — the P019B LIST route (26 B, ONE close,
+  `?SLCTS`+`?PNCOP`) panel-verified in a minimal whole object. Accepted; predicted CODE
+  `003E`. This decides whether the SHARED item emitter is route-independent for LIST.
+- **H-H** (XH): PRINT open + bare `skip` — the E46N1 20-B shape (`3E 01`/`?SKPOP`, NO
+  `?PNCOP`). Accepted; predicted CODE `0038`.
+- **H-I** (XI): PRINT open + `skip list('A')` — the E46N2 31-B shape (skip BETWEEN attach
+  and chain; `?PNCOP` appears because a chain follows). Accepted; predicted CODE `0043`.
+- **H-J** (XJ): file PAGE with NO open — verdict UNKNOWN. Competitors: `dr-refuses`; or
+  accept with the E46L8 geometry (SEL-COMMON at first use + same 18 B; predicted CODE
+  `0021` if accepted). Either outcome kept; NO invented golden. My compiler refuses this
+  either way (candidate A records OPENs only).
+- **H-K** (XK): PAGE behind a `stream input` open — is PAGE a mode question? UNKNOWN
+  verdict. If accepted, predicted open = E46E4's 21-B titleless block with w1 `90 06` and
+  attach STILL `11 52 06` ([C280] direction law) → CODE `0036`; competitors: refusal, or
+  an input-direction attach.
+
+Deliberately NOT probed (kept UNMEASURED, refused BY NAME in my compiler): PAGE+items
+(COPYLPT 0268 is the original witness, out of scope this subround); counted PAGE; LINE;
+counted/variable-operand skip behind PRINT beyond what XH/XI pin; KEYED, UPDATE, RANDOM;
+any console PUT change; `REVERT ERROR`; INPUT-direction named PUTs.
+
+### 4. Probes E52XA..XK (11; sources in `probes/E52X*.PLI`, CRLF + bare `^Z`, ≤71 cols,
+first line `E52XX: procedure options(main);`, a statement after EVERY PUT so the LXI B
+continuation slot is measurable)
+
+| Probe | Shape | Panel | Prediction |
+|---|---|---|---|
+| E52XA | titleless `print` open + page + `x = 2` | A | H-A, CODE 0036 |
+| E52XB | `title('TEST') print` (no attrs) + page + store | B | H-B, CODE 003E, w1 0E52 |
+| E52XC | `title('$con') print pagesize(0)` + page + store | C | H-C, CODE 003E |
+| E52XD | `title(name char(14) varying) print` + page + store | D | H-D, CODE 003C |
+| E52XE | print open; `if n < 0 then put file(pf) page;` + store | E | H-E DOUBLE patch, CODE 003D |
+| E52XF | if/else TB+TC opens; page; store | F | H-F, CODE 0063 |
+| E52XG | print open + `list('A')` + store | G | H-G 26 B, CODE 003E |
+| E52XH | print open + bare `skip` + store | H | H-H 20 B, CODE 0038 |
+| E52XI | print open + `skip list('A')` + store | I | H-I 31 B, CODE 0043 |
+| E52XJ | NO open + page + store | J | H-J UNKNOWN verdict |
+| E52XK | `stream input` open + page + store | K | H-K UNKNOWN verdict |
+
+### 5. Campaign + arm contract (hops 2+)
+
+ONE grouped run: `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52XA E52XB E52XC
+E52XD E52XE E52XF E52XG E52XH E52XI E52XJ E52XK --tag e52p11 --switches '$L$D'`, rc
+DIRECT (never a pipeline tail); read EVERY `.PRN`; reldump accepted .RELs into
+`build/e52p11/`; goldens committed VERBATIM from the campaign BEFORE any emitter change;
+XJ/XK classified honestly (`dr-refuses` → REJECTS + VERBATIM verdict, WL precedent;
+accepted-and-mine-refuses → golden KEPT + my-gap REJECTS, SE/E46L8 precedent); NEVER
+invent goldens.
+
+ARM (Phase D, AFTER goldens are in git) — the SMALLEST measured rule:
+- **Candidate A** — `lower_open` records PRINT-bearing opens into `st.file_out` beside the
+  OUTPUT spelling (ONE line; the guard, item authorizers, attach emitter and PAGE emitter
+  are UNCHANGED): admitted iff XA..XI all land DR-accepted AND byte-exact through the ONE
+  route-independent emitter with NO new statement bytes. This is the general, file-name-
+ agnostic rule; NO special-casing of a group named `OUTPUT`.
+- **Candidate C** — PAGE-only admission (a `Sk_page`-specific allowance) if any of
+  XG/XH/XI refuses or misses byte-exactness while the PAGE probes land; the LIST/SKIP
+  guards keep their refusal BY NAME with the message-body prose moved VERBATIM.
+- The refusal MESSAGE body may move (it currently cites E16D/E17D and `OPEN 0x0E50`);
+  the PU1 substring `PUT FILE(F) has no byte-exact DR witness` MUST survive verbatim.
+  BY-NAME refusals KEPT: PAGE+items, counted PAGE, LINE, console PAGE (N3_PAGE), INPUT-
+  direction named PUT, no-open PUT (PU1/E41X5/E46L8 class), KEYED etc.
+
+Validation: build rc=0 DIRECT; per-File [TBD] histogram vs baseline codegen 68 / total
+124; whole-file `cmp` of every ACCEPTED probe against `golden/e52p11/` (POSITIONAL
+`pli80c` into FRESH output paths — a stale output FALSE-PASSes); sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers harness
+(CRLF + bare `^Z` materialization — `build/e52p8-reg/markers.py` precedent) incl. PU1,
+E41X5, E46K10, N3_PAGE, E46N21 → MARKER_FAILS 0; regressions: E46N*/E16D/E17D/E52TA..TJ/
+UA..UF/VA..VK/WA..WK whole-file, negative panel 187, divergences 9/9.
+
+Registration: SPECIMENS +N for DR-accepted AND byte-exact probes ONLY (baseline 1269),
+sanctioned `--update-inventory`, ALWAYS `git diff --cached --stat` (operator
+`handoff.config.json` NEVER staged); census OWN write path. Claim **C369** written from
+MEASURED BYTES ONLY, committed BEFORE any `spec/COVERAGE.tsv` touch; PREFER EXTENDING
+the existing `FILE.PUT_PAGE`/`FILE.PUT_LIST`/`FILE.PUT_SKIP` rows' probe lists (new rows
+ship their `spec/COVERAGE-IDS.txt` line in the SAME change; NEVER `coverage_gen.py`; 15
+columns from the FIRST NON-COMMENT row; csv `delimiter='\t'`); `coverage_check` +
+`file_prose_check` rc=0; FULL gate rc=0 DIRECT → `build/gate-e52p11-reg.log`. Then
+RESULTS §P3-11 + PLAN §5 row + §P3-11 CLOSED + durables.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the measured PRINT-open eligibility rule lands, LOAN2 moves PAST line 99. The next
+refusal is NOT predicted: `call header()` (internal PROCEDURE call), the `do while`
+surface, GET/PUT EDIT shapes, the DEC formal surface or the read loop may stop it first.
+Record the ACTUAL verbatim diagnostic + line and STOP. If LOAN2 unexpectedly emits a
+complete .REL, compare byte-for-byte against `golden/first/LOAN2/LOAN2.REL` and report —
+do NOT chase the next gap. **STOP at P3-11: no next-blocker fix, no P3-12.**
+
+### 7. Guard semantics (accepted framing; binding on C369 wording)
+
+`st.file_out` is a COMPILER-SIDE monotonic eligibility list built from the SOURCE
+STRUCTURE (an OPEN statement lowered earlier in source order, including inside a
+conditional — LOAN2 53-56 opens BOTH branches), NOT a proof of runtime file state: DR
+emits the PUT regardless of execution order, and byte-parity is not a runtime claim
+(byte-tier-only, PROTOCOL). C369 must say "an OPEN this compiler lowered recorded the
+group", never "DR requires the file to be open at runtime".

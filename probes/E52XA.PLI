@@ -1,0 +1,12 @@
+E52XA: procedure options(main);
+   /* E2E-52/P3-11 probe XA (PLAN H-A): titleless PRINT
+      open + bare file PAGE.  Open block is E52TA's 17
+      bytes; the PUT is the 18-byte PAGE (LOAN2 03AA,
+      E46N10) behind a print open. */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) print;
+   put file(pf) page;
+   x = 2;
+end E52XA;
+

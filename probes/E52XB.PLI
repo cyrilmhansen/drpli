@@ -1,0 +1,12 @@
+E52XB: procedure options(main);
+   /* E2E-52/P3-11 probe XB (PLAN H-B): LITERAL title
+      + print with NO pagesize/linesize -- a combination
+      absent from TA..TJ.  w1 predict 0E52; attach of
+      the PAGE predict 0652 (direction, not open word). */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) title('TEST') print;
+   put file(pf) page;
+   x = 2;
+end E52XB;
+

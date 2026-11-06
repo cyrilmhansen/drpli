@@ -1,0 +1,13 @@
+E52XE: procedure options(main);
+   /* E2E-52/P3-11 probe XE (PLAN H-E): PAGE under IF --
+      LOAN2 98-99 geometry.  Predict DOUBLE back-patch:
+      the F2 skip slot AND the LXI B continuation slot
+      both to the start of x = 2; competitor: single. */
+   dcl pf file;
+   dcl n fixed binary;
+   dcl x fixed bin;
+   open file(pf) print;
+   if n < 0 then put file(pf) page;
+   x = 2;
+end E52XE;
+

@@ -1,0 +1,18 @@
+E52XF: procedure options(main);
+   /* E2E-52/P3-11 probe XF (PLAN H-F): LOAN2 53-56 + 99
+      composed minimally -- TB-shape open in the THEN,
+      TC-shape open in the ELSE, then ONE file PAGE.
+      Eligibility after a conditional open is the
+      compiler-side question; DR measures the bytes. */
+   dcl pf file;
+   dcl n fixed binary;
+   dcl name char(14) varying;
+   dcl x fixed bin;
+   if n < 0 then
+      open file(pf) title('$con') print pagesize(0);
+   else
+      open file(pf) title(name) print;
+   put file(pf) page;
+   x = 2;
+end E52XF;
+

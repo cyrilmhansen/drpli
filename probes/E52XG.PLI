@@ -1,0 +1,12 @@
+E52XG: procedure options(main);
+   /* E2E-52/P3-11 probe XG (PLAN H-G): PRINT open +
+      LIST literal behind it.  P019B 0063-007C measures
+      26 B (attach 12, LXI/MVI/?SLCTS 8, ?PNCOP,
+      ?QIOOP); candidate A needs this route measured. */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) print;
+   put file(pf) list('A');
+   x = 2;
+end E52XG;
+

@@ -1,0 +1,12 @@
+E52XI: procedure options(main);
+   /* E2E-52/P3-11 probe XI (PLAN H-I): PRINT open +
+      skip then literal.  E46N2 measures 31 B with the
+      skip BETWEEN attach and chain and ?PNCOP only
+      because an item chain follows. */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) print;
+   put file(pf) skip list('A');
+   x = 2;
+end E52XI;
+

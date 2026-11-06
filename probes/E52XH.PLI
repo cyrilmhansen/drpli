@@ -1,0 +1,12 @@
+E52XH: procedure options(main);
+   /* E2E-52/P3-11 probe XH (PLAN H-H): PRINT open +
+      BARE skip.  E46N1 measures 20 B (attach 12,
+      MVI A,01 + ?SKPOP 5, ?QIOOP 3) on the stream
+      route; does the shape ride unchanged here? */
+   dcl pf file;
+   dcl x fixed bin;
+   open file(pf) print;
+   put file(pf) skip;
+   x = 2;
+end E52XH;
+
