@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-marathon-8. **P3-13 hop 10 PART LANDED (session 01a1b249, chain 01a1b1b4 renewal 10/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier): guard g462 VERBATIM `8c9bf60`; markers 14/15 — ONLY retired N33 fails its old row (harness .REL cmp rc=0 vs KEPT NG18 golden = second witness); REGISTRATION `39bb9a0` — SPECIMENS +6 E52ZA..ZF measured-byte comments + honest N33→NG18 retirement (REJECTS+NEG_META deleted, golden KEPT NEVER re-derived), inventory **1295/187 exact**; CENSUS `59be109` rc=0 counts 15/0/26/0, LOAN2 msg MOVED VERBATIM to Line-121 `codegen: CALL target is not a simple procedure name [TBD] (…line 121)` = `call summary();`, NEVER fix; SWEEP post-reg 174/0 FAILS-0 (168+6 prediction HIT; count moves with INVENTORY rows, FAILS 0 binding). SUCCESSOR contract = `LEARNINGS.md` § "P3-13 hop 10 PART LANDED" steps (A)–(E) EXACTLY: (A) **C371 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch + DATED both-errors C093 correction** (false DECPOLY `*A(005A)=5.67` — DATA max 004E; 2-byte width → 5 B formal-width `00 01 00 00 00`); (B) coverage row/extension (NEVER coverage_gen.py, 15 cols FIRST NON-COMMENT row, manual_ref `pNN[:§X.Y][=phrase]`|`NONE:`, SAME-change IDS, coverage_check adjudicates); (C) FULL gate rc=0 DIRECT → `build/gate-e52p13-reg.log` (1295/0, 187/187, 9/9, census 15/0/26/0, prose 5); (D) RESULTS §P3-13 + PLAN §5 row + §P3-13 **CLOSED**; (E) P3-14 on Line-121 `call summary();` — WHY first-hand (summary IS a simple name; inspect cs/entry bookkeeping), pre-register PLAN §P3-14 + probes BEFORE any oracle call/`ocaml/` byte; marathon through P3-19. All inherited constraints VERBATIM (goldens NEVER re-derived, POSITIONAL FRESH paths, `eval "$(opam env)"` every shell, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); ledger ENDS C370; armed binary `6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2` == tree; chain 01a1b1b4 10/12 cap 12.**
+
 0a-marathon-7. **P3-13 hop 9 VALIDATION LANDED (session 01a1b23b, chain 01a1b1b4 renewal 9/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier): histogram repair `e971f3e` (ONLY true new warning = dead zip3; predecessor's W9/W39 was misleading incremental output — FALSIFIED) → codegen 68/total 124 == baseline EXACTLY; TWO measured repairs `9b81ed0` (const_cells DEC-formal demand `dec_pool_bytes pf` — C152 demanded-2/allocated-5; deref-DEC PUT `LHLD/MVI A,p/?DLDOP` armed by E52ZF golden 00ED-00F2, old refusal text retired to comment VERBATIM) → E52ZA..ZF 6/6 whole-file cmp rc=0 FRESH POSITIONAL `build/p3-13/arm-out2/` on deterministic binary `6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2`; sweep 168/0 (contract 159 STALE — inventory rows moved; FAILS 0 binding); DEC regressions 64/0; divcheck 9/9; `probes/NG18.PLI` sha `20006b0c…` cmp rc=0 vs KEPT golden → N33→NG18 retirement PROVEN (refusals 188→187 owed at registration); LOAN2 ADVANCED VERBATIM past 117 to ACTUAL Line-121 blocker `codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` / `CALL id(args)` / bare `id;` have a DR lowering sampled; line 121)` = `call summary();` — NEVER fix, §6 never-predict HELD. SUCCESSOR contract = `LEARNINGS.md` § "P3-13 hop 9" STILL OWED (1)–(7) EXACTLY: markers harness; register from 1288/188 (+6 ZA..ZF + NG18 → expect 1295/187, `--update-inventory`, `git diff --cached --stat`, census OWN path 15/0/26/0 LOAN2 msg MOVES VERBATIM); C371 measured-bytes-only BEFORE COVERAGE + DATED both-errors C093 correction; coverage row/extension (NEVER coverage_gen.py, 15 cols FIRST NON-COMMENT row, manual_ref `pNN[:§X.Y][=phrase]`|`NONE:`, same-change IDS line); FULL gate rc=0 DIRECT → `build/gate-e52p13-reg.log`; RESULTS §P3-13 + PLAN §5 row + CLOSED; BEGIN P3-14 on Line-121 `call summary();` — investigate WHY it refuses first-hand (summary IS a simple name — likely cs/entry bookkeeping) evidence-first, pre-register PLAN §P3-14 + probes BEFORE any oracle call/`ocaml/` byte; marathon through P3-19. All inherited constraints VERBATIM (goldens NEVER re-derived, POSITIONAL FRESH paths, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only, `eval "$(opam env)"` EVERY shell); chain 01a1b1b4 9/12 cap 12.**
 
 0a-marathon-6. **P3-13 hop 8 PART LANDED (session 01a1b225, chain 01a1b1b4 renewal 8/12→9; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier): recovery + g456 VERBATIM `afff5e0`; design pinned `5f29ee5`; ARM EDITS COMMITTED `13e53be` — bind `cs_dec` single allocation authority (DEC expression temps sized `bytes_of` callee scalar RTdec row; array-named/recursive/attr/external excluded), codegen admits ONLY the measured shapes: `Enumber` literal → `dec_pool` pre-scaled FORMAL-width cell + static descriptor reloc, ZERO code (E52ZC/ZD/NG18); `Ebinary(Mul, plain-DEC-auto, plain-DEC-auto)` → armed `dec_push` via ONE forward slot `dec_actual_mat` (installed after `dec_push`; lower_hl/dpush are SEPARATE chains — never duplicate the law), terminating `LXI H,*A(temp)/MVI A,pf/?DSTOP`, C370-window shift kept (ZA/ZB/ZF); `dec_pool` MOVED before `lower_hl` (vk_dec_at precedent); Line-N BY-NAME refusal VERBATIM otherwise, substring `FIXED DECIMAL formal is unproven` intact. Default build rc=0 binary `26ed7ccf54e6bf77…` (supersedes pre-arm `6a4c6c11…`). NOT YET DONE: histogram repair (NEW Warnings 9 missing-record-field + 39 unused-rec vs baseline 68/124 — fix FIRST, full fresh `--build-dir`, `eval "$(opam env)"` every shell), cmp ZA..ZF FRESH POSITIONAL, sweep 159/0, markers + N33→NG18 retirement iff cmp rc=0 golden KEPT (refusals 188→187), DEC 64/0, divcheck 9/9, LOAN2 never-predict, register from 1288/188, C371 measured-bytes-only + DATED BOTH-errors C093 correction, coverage extension, gate `build/gate-e52p13-reg.log`, RESULTS+PLAN §5+CLOSED. SUCCESSOR contract = `LEARNINGS.md` § "P3-13 hop 8 PART LANDED" steps (0)–(7) EXACTLY; marathon through P3-19. All inherited constraints VERBATIM (goldens never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); chain cap 12, 9/12 used.**
@@ -1640,25 +1642,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 462
-checkpoint-id: g462-b618723f6cc8
+checkpoint-generation: 463
+checkpoint-id: g463-b289e9e70199
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4360, session 01a1b23b-ea2d-71fa-8218-822fac98e891)
-checkpointed: 2026-11-06T19:14:26.653Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6913, session 01a1b249-176c-71fa-8218-8232c0b8d988)
+checkpointed: 2026-11-06T19:34:37.620Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5d815447ba866cc70e66c4a18b69b841fff28bde28fa62d73d1f7bd5a97ae0c7
+source-progress: 9125118dee15ca89f04b384ef3e73d3f3ed9c246ad9ab59ebd27cf8ef886f80a
 source-handoff: 623cfb8b8be7c754f56fd41e8d050df5b80c4d327afb0e517f9400833af66ecc
-source-learnings: 2282c83ed46636758421cc8345f2cfe4debe0f9470eecb7e96222af5d8896138
+source-learnings: 626d74d7a5693706df19dd123cad868d7e7879e56c0f963cb93f357d372b569b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b23b-ea2d-71fa-8218-822fac98e891
-readiness-at: 2026-11-06T19:14:41.199Z
-readiness-checkpoint: g462-b618723f6cc8
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
