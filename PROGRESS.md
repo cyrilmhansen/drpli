@@ -47,11 +47,11 @@ C359 derived ONLY from the existing measured evidence.
 
 ## Next action (E2E-52/P3-9 hop 5 — ARM `ocaml/lib/codegen.ml` ONLY, then verify/register/close and STOP; read `LEARNINGS.md` § "hop 5 PART 2" FIRST — it holds the arm-time verified facts, the exact per-probe emission lists and the five arm-time decisions — then § "hop 5 REMAINDER" for the corrected DEC-operand finding)
 
-**DONE (verified this hop, session 01a1ae33, chain 01a1adf0 renewal 3/12; all rc DIRECT; ZERO `ocaml/` byte, ZERO oracle):** recovery re-verified — HEAD `0c62d1f` (guard g384 blocks atop durables `48a5fc2`), tree clean but operator `handoff.config.json` (NEVER staged) + ignored `ocaml/*.log`; `dune build` rc=0 DIRECT, binary `9ecea27aa4f2d80f49ad…` == baseline; `build/e52p9-arm/goldens-dump.txt` (751 lines) and ALL 11 `probes/E52V*.PLI` re-read in full; `golden/e52p9/` holds all 11. Arm-time facts ACCEPTED by code reading (see the LEARNINGS § "hop 5 PART 2"): parser is LEFT-assoc precedence-climbing with `Or=10 < And=20 < rel=30` (VK parses exactly as measured); `F5` saves the LEFT truth byte in **A**, so only HL-only prefixes (`21`/`2A` + `hl_bias`) are hoistable and `3A` is atomic — the mechanism behind rule 1; DEC `=0` OR operand = `dec_push(literal)` then `dec_push(var)` then `?DCMOP`/`D6 01`/`9F`, and `dec_pool`/`dec_cell_addr` REUSES the cell `prescan_cond` already demands for `Or` (parity holds, no prescan edit); insertion points pinned — Or test-arm beside And @**8526**, Or fold beside And in `lower_bool` @**7276**, new `<0` TEST arm **BEFORE** the `EqR Lt` arm @**~8630** (whose refusal `codegen: < 0 / negative const form unproven [TBD]` must survive for non-auto operands), value-position arm in `bit_cond_mat` @**8105** (`32 STA` stays at the caller @~9963). LOAN2 91/92/113/120 re-read verbatim; E52VB still refuses rc=2 with the catch-all at **9154** (nothing armed).
+**DONE (verified this hop, session 01a1ae33, chain 01a1adf0 renewal 4/12 after checkpoint g385-422366900219 attested; all rc DIRECT; ZERO `ocaml/` byte, ZERO oracle):** recovery re-verified — HEAD `0c62d1f` (guard g384 blocks atop durables `48a5fc2`), tree clean but operator `handoff.config.json` (NEVER staged) + ignored `ocaml/*.log`; `dune build` rc=0 DIRECT, binary `9ecea27aa4f2d80f49ad…` == baseline; `build/e52p9-arm/goldens-dump.txt` (751 lines) and ALL 11 `probes/E52V*.PLI` re-read in full; `golden/e52p9/` holds all 11. Arm-time facts ACCEPTED by code reading (see the LEARNINGS § "hop 5 PART 2"): parser is LEFT-assoc precedence-climbing with `Or=10 < And=20 < rel=30` (VK parses exactly as measured); `F5` saves the LEFT truth byte in **A**, so only HL-only prefixes (`21`/`2A` + `hl_bias`) are hoistable and `3A` is atomic — the mechanism behind rule 1; DEC `=0` OR operand = `dec_push(literal)` then `dec_push(var)` then `?DCMOP`/`D6 01`/`9F`, and `dec_pool`/`dec_cell_addr` REUSES the cell `prescan_cond` already demands for `Or` (parity holds, no prescan edit); insertion points pinned — Or test-arm beside And @**8526**, Or fold beside And in `lower_bool` @**7276**, new `<0` TEST arm **BEFORE** the `EqR Lt` arm @**~8630** (whose refusal `codegen: < 0 / negative const form unproven [TBD]` must survive for non-auto operands), value-position arm in `bit_cond_mat` @**8105** (`32 STA` stays at the caller @~9963). LOAN2 91/92/113/120 re-read verbatim; E52VB still refuses rc=2 with the catch-all at **9154** (nothing armed).
 
 **EXECUTE (in order):** (2) arm `ocaml/lib/codegen.ml` ONLY — `Ast.Or` arm in `lower_test_skip0` BESIDE And (`lower_bool st c; d st op_jp; slot`), `Ast.Or` fold arm BESIDE And in `lower_bool` with `C1 POP B / B0 ORA B (0xB0)`, VA `<0` TEST leaf (`3A r(cell+1)/B7/F2`, plain `Vint` auto only), rules 1–3 NODE-LOCAL per the LEARNINGS emission lists (rule 2 same-var FIXBIN `=0`-then-`>c` ONLY, other-var refuses BY NAME [TBD]; `a<0|b|c` has no witness → refuse), separate OR DEC materialiser (literal-first — NEVER edit `dec_eq_bool_parts`), VK precedence + value-position BARE `32`, **NEVER alter And bytes**; record the ADD-vs-literal-first and hoist-placement ambiguities for C367. (3) build rc=0 DIRECT + histogram vs **68** + cmp VA–VK whole-file vs `golden/e52p9/` (first-mismatch offsets honest) + `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 + markers harness (copy `build/e52p8-reg/markers.py`, CRLF + bare `^Z`) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted LOAN2 blocker = `signal error` at 92, `?SIGOP` out of scope, NEVER fix). (4) registration from **1249** (`--update-inventory`, census OWN path, **C367 measured-bytes-only BEFORE COVERAGE**, new `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line, NEVER `coverage_gen.py`), coverage_check+prose rc=0, gate rc=0 `build/gate-e52p9-reg.log`. (5) RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED, durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.**
 
-**STATE:** ledger ENDS **C366**; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; goldens NEVER re-derived; no push; `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; chain 01a1adf0 **3/12** (cap 12).
+**STATE:** ledger ENDS **C366**; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; goldens NEVER re-derived; no push; `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; chain 01a1adf0 **4/12** (cap 12); durables HEAD `8e86ad2` (dis80 fix `8b929d7`, hop-5 prose `48a5fc2`).
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-9 hop 5 REMAINDER — ARM ONLY, then verify/register/close and STOP; read `LEARNINGS.md` § "hop 5 REMAINDER IN FLIGHT" FIRST — it carries the corrected DEC-operand finding and every measured byte)
 
@@ -2742,17 +2742,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 384
-checkpoint-id: g384-da2d3e77a531
-checkpoint-kind: auto
+checkpoint-generation: 385
+checkpoint-id: g385-422366900219
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-06T00:11:37.579Z
+guard-level: 1
+checkpointed: 2026-11-06T00:29:47.174Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c4fb7f7a4376dcdce9cdf0d9303e37b13adbe8e0d322e547a3859127097ff26d
+source-progress: 430f4b0c7040788c61f3cf79ed32991a654404d9d9cf15090f1ed5c6dc459724
 source-handoff: 39bbc32b9f63eef5045a70e0c702cc49a5328c720457ec36cf18001bef5d7b9b
-source-learnings: f4488f7ed0f3c3b1c8396f436ef341b1fd3ad10840bae6948037e96bde186522
+source-learnings: a55605a08222e97a3bfe29ceccefe882f3e41ad4b1ec3812807e3108f464197e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-5 contract EXACTLY: arm ONLY measured shapes (`lower_test_skip0` Or arm + `lower_bool` Or fold; NEVER alter And), build rc=0 + histogram 68, cmp VA–VK whole-file, sweep FAILS 0, markers (CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (record new blocker, NEVER fix; ?SIGOP out of scope), register exact subset, **C367 BEFORE COVERAGE** (explicit COVERAGE-IDS.txt edit, NEVER coverage_gen.py), gate `build/gate-e52p9-reg.log`, RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9; do NOT start P3-10. Ledger ENDS **C366**; gate baseline **1249/186/9/140-0-0**, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL.
 
@@ -3345,9 +3345,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ae1e-971c-7091-837d-1dd6b08f8448
-readiness-at: 2026-11-06T00:12:07.078Z
-readiness-checkpoint: g384-da2d3e77a531
+readiness-by: session:01a1ae33-883a-7091-837d-1ddb1354b54e
+readiness-at: 2026-11-06T00:29:47.191Z
+readiness-checkpoint: g385-422366900219
 <!-- guard:end checkpoint -->
 
 ## Blockers
