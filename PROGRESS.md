@@ -42,7 +42,15 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-9 hop 6 CLOSE PART 1 — CENSUS LANDED `b080894`; C367 → COVERAGE → GATE → RESULTS → DURABLES OWED; read `LEARNINGS.md` § "hop 6 CLOSE PART 1" FIRST (it holds the first-hand raw-byte re-verification + the three pre-registration falsifier classes), then § "hop 6 REMAINDER", § "hop 6"; STOP at P3-9 closure)
+## Next action (E2E-52/P3-9 hop 7 PART DONE — C367 LANDED `eaa5ef3`; COND.OR COVERAGE ROW + GATE + RESULTS/PLAN CLOSE OWED; read `LEARNINGS.md` § "hop 7 (this session 01a1af94)" FIRST; STOP at P3-9 closure)
+
+**DONE THIS HOP (session 01a1af94, chain 01a1af4f renewal 3/12; ZERO oracle; goldens NEVER touched; config NEVER staged; all rc DIRECT; no push):** g406 blocks committed VERBATIM `16d3db7`; build rc=0 binary `11c6283e75b60fe3…` == STATE; **11/11 E52VA..VK cmp rc=0 re-verified FIRST-HAND** into FRESH `build/e52p9-hop7/out/` (`parity.txt`); every C367 byte re-read first-hand from the raw reldump records; **C367 measured-bytes-only committed `eaa5ef3` BEFORE any COVERAGE touch**, prose rc=0. **NOT LANDED:** the `COND.OR` row — my csv script took the column count from comment LINE 1 of `spec/COVERAGE.tsv` (n=1), its assertion fired BEFORE any write, so the ledger and the IDS manifest are UNMODIFIED (`coverage_check` still 140 rows 0/0 SUPPORTED 90). Context went critical at this step; this session RENEWES.
+
+**EXECUTE (successor, in order):** (3) append `COND.OR` to `spec/COVERAGE.tsv` (SUPPORTED, `EXACT:11`, probes `E52VA,E52VB,…,E52VK`, corpus `LOAN2,ANNUITY`, law text from [C367], boundary = my BY-NAME refusals (`<0`-first-in-3+-chain, cross-var rule-2, ladder k>=3, value-position DEC, other operand classes) + And-route untouched + LOAN2 still refuses at line 92 (`?SIGOP` UNARMED) + O-1 panel-unverified disclaimer + BYTE-TIER-ONLY NOT-say + the falsifiers (RB by VB==VC, SN/LB by VE/VF-node1 `2A` heads, PAR, hop-4/5 LITERAL-FIRST) + the census advances VERBATIM; provenance `[C367] [C105] [C155] [C366]`, confidence MEASURED) + EXPLICIT appended line `COND.OR` to `spec/COVERAGE-IDS.txt` — **NEVER `coverage_gen.py`; take the column count from the first NON-COMMENT row (15), not line 1**; verify `git diff --stat` ≈ one TSV line + one IDS line BY CONTENT, then `python3 tools/coverage_check.py` rc=0 (expect **141 rows / 0/0 / SUPPORTED 91**) + `python3 tools/file_prose_check.py` rc=0; commit explicit paths. (4) FULL gate `python3 tools/e2e_gate.py` rc=0 DIRECT -> `build/gate-e52p9-reg.log` (expect 1260/0, 186/186, 9/9, 141 rows 0/0, census 15/0/26/0, prose 5). (5) RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED (all falsifiers VERBATIM incl. EVERY §4 CODE-size SHORT miss and the VG/VI first-attempt cmp FAILs adjudicated by the VAR-FIRST refit); prose rc=0; commit. (6) durables (`/handoff` + `/handoff ready`) + renew/finalize. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.**
+
+**STATE:** HEAD after this commit; ledger ENDS **C367**; gate inventory **1260/186**; coverage panel still **140 rows** (COND.OR owed); binary `11c6283e75b60fe3…`; goldens NEVER re-derived; tree clean except operator `handoff.config.json` (NEVER stage; ALWAYS `git diff --cached --stat` before commit); `pli80c` POSITIONAL into FRESH paths; no push; all rc DIRECT; chain **01a1af4f 3/12**, cap 12.
+
+SUPERSEDED-BY-ABOVE:  — CENSUS LANDED `b080894`; C367 → COVERAGE → GATE → RESULTS → DURABLES OWED; read `LEARNINGS.md` § "hop 6 CLOSE PART 1" FIRST (it holds the first-hand raw-byte re-verification + the three pre-registration falsifier classes), then § "hop 6 REMAINDER", § "hop 6"; STOP at P3-9 closure)
 
 **DONE THIS HOP (session 01a1af80, chain 01a1af4f renewal 2/12; ALL rc DIRECT; ZERO oracle; goldens NEVER touched; config NEVER staged; no push):** recovery verified HEAD `a53d7e2`; build rc=0 binary `11c6283e75b60fe3a4984210…` == recorded state; 11/11 E52VA..VK cmp rc=0 re-verified into FRESH `build/e52p9-close/out/`; guard g402 blocks committed VERBATIM `618fbe6`; **step (1) CENSUS LANDED `b080894`** (prescribed OWN path `cp spec/census/corpus-census.json /tmp/census-prev-e52p9.json; python3 tools/corpus_census.py --check /tmp/census-prev-e52p9.json` rc=0; counts UNCHANGED 15/0/26/0; LOAN2 message MOVED VERBATIM to `codegen: statement kind not in supported subset [TBD] (line 92)` — PREDICTED=MEASURED, NEVER fix; EXPR1/EXPR2 unchanged). C367 byte authority re-verified FIRST-HAND from `build/e52p9-arm/goldens-dump.txt`: VAR-FIRST DEC pairs VG(pv@9→zero@0; pmt@E above F5→zero7@5)/VI(p@B→zero10@0; q@11→zero9@6; second p operand hoisted above F5, SHARED zero10 cell ✓[C155]); CODE sizes VA 001C VB/VC/VD 0026 VE 002C VF 003C VG 0047 VH 002F VI 0076 VJ 0025 VK 0080; VB==VC byte-identical 17 B; VE/VF-node1 rule-2 FULL ladder head `2A` (RB falsified by VC; SN falsified by VE); F5-sandwich mechanism PROPOSED (left truth rides in A across the right HL-only head; swapped-first operand needs no split).
 
@@ -2773,13 +2781,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 406
-checkpoint-id: g406-9df6289fa727
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 408
+checkpoint-id: g408-d8ba15e6f3ed
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T06:37:59.428Z
+checkpointed: 2026-11-06T06:56:40.512Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 9e5f025b781c76b4194ddfab48d88af354dcc03b40cad5ae6f3a5f4fb20bcba1
 source-handoff: 1f82121b6c111e4fcf3602d85e378f7e7dec26e69cf46bdcc3baafb4b71be322
@@ -3388,9 +3396,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1af80-64a1-7191-8d53-510dd9fe4d05
-readiness-at: 2026-11-06T06:37:59.455Z
-readiness-checkpoint: g406-9df6289fa727
 <!-- guard:end checkpoint -->
 
 ## Blockers
