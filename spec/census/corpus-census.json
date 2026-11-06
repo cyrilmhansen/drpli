@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "3757ecfb586715004db053438b4870b1",
+ "binary_md5": "bd93d857226546d9de1a41ca484110bb",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,20 +15,22 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-05T13:33:01",
+ "generated": "2026-11-06T07:19:06",
  "git_dirty_paths": [
   "M handoff.config.json",
-  " M spec/INVENTORY.txt",
-  " M tools/e2e_gate.py",
   "?? ocaml/build-e52p7-arm.log",
   "?? ocaml/build-e52p7-arm2.log",
   "?? ocaml/build-e52p8-arm.log",
   "?? ocaml/build-e52p8-hist.log",
+  "?? ocaml/build-e52p9-arm-build.log",
+  "?? ocaml/build-e52p9-arm-run.log",
+  "?? ocaml/build-e52p9-arm6.log",
+  "?? ocaml/build-e52p9-arm7.log",
   "?? ocaml/build-h12verify.log",
   "?? ocaml/build-p37.log",
   "?? ocaml/build-warn-e52p6.log"
  ],
- "git_head": "1dc53f4e121bfc2294336f80f380c69b97465c41",
+ "git_head": "618fbe6d1ce47b0dd73f301ca32e51d18942fd87",
  "rows": [
   {
    "dir_present": true,
@@ -406,7 +408,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))\")",
+   "msg": "Fatal error: exception Failure(\"codegen: statement kind not in supported subset [TBD] (line 92)\")",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
