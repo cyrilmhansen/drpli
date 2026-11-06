@@ -1023,7 +1023,6 @@ N4_SKIPVAR	specimen	e24src/N4_SKIPVAR.PLI	golden/negpanel1/NG36/NG36.REL
 N5	specimen	e16src/N5.PLI	golden/e2e176/N5/N5.REL
 N50_DOZEROBOUND	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl s fixed;\n  s = 0;\n  do i = 1 to 0;\n    s = s + i;\n  end;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG37/NG37.REL)
 N51_DOSTEP3	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl s fixed;\n  s = 0;\n  do i = 1 to 9 by 3;\n    s = s + i;\n  end;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG38/NG38.REL)
-N52_DEC_FORMAL_PUT	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  r = g(x);\n  stop;\n  g: procedure(q) returns(fixed dec(9,2));\n     dcl q fixed dec(9,2);\n     put skip list(q);\n     return (q);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG39/NG39.REL)
 N53_DEC_FORMAL_CONJ	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n  r = g(x, y);\n  stop;\n  g: procedure(q,w) returns(fixed dec(9,2));\n     dcl (q,w) fixed dec(9,2);\n     if q = 0 & w = 0 then stop;\n     return (q);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG40/NG40.REL)
 N57_ADD_LIT_LIT	refusal	t:\n  procedure options(main);\n  dcl x fixed;\n  x = 3 + 2;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG41/NG41.REL)
 N6	specimen	e16src/N6.PLI	golden/e2e176/N6/N6.REL
@@ -1054,6 +1053,7 @@ NETWORK	specimen	artefacts/NETWORK.PLI	golden/first8080u/NETWORK/NETWORK.REL
 NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
 NG18	specimen	probes/NG18.PLI	golden/negpanel1/NG18/NG18.REL
 NG20	specimen	probes/NG20.PLI	golden/negpanel1/NG20/NG20.REL
+NG39	specimen	probes/NG39.PLI	golden/negpanel1/NG39/NG39.REL
 O1	specimen	artefacts/O1.PLI	golden/e2e333d/O1/O1.REL
 O2	specimen	artefacts/O2.PLI	golden/e2e333d/O2/O2.REL
 O3	specimen	artefacts/O3.PLI	golden/e2e333d/O3/O3.REL

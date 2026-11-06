@@ -2588,6 +2588,27 @@ SPECIMENS.update({
 #             Source materialized VERBATIM from the retired inline REJECTS text (CRLF +
 #             bare ^Z), sha256 20006b0c...; golden path UNCHANGED, NEVER re-derived.
 #             Refusals 188 -> 187 honestly.
+#   NG39  384 B; CODE 005C (92 B), DATA max 0018 (data AREA 0018 per .PRN).  RETIRED FROM
+#             THE NEG PANEL (found BY THE FULL GATE, not by the sweep/markers suites -- the
+#             lesson of P3-13 hop 11): gate row N52_DEC_FORMAL_PUT (my-gap) was
+#             `put skip list(q);' with q a FIXED DEC(9,2) formal and DR COMPILES IT -- its
+#             own NEG_META verdict said so and the armed deref-DEC PUT route of 9b81ed0
+#             reproduces the kept golden BYTE-EXACT (cmp rc=0 re-measured THIS session,
+#             FRESH POSITIONAL on binary 6db44394...; .PRN NO ERROR(S) IN PASS 1 AND PASS 2).
+#             Caller block 0006-0022: `LXI H,*A(data 0000)/MVI A,09/?DLDOP; LXI H,*A(000A)/
+#             MVI A,09/?DLDOP; LXI H,*A(0014)/CALL' -- literal `1.5' = pre-scaled 5 B
+#             formal-width pool cell data@0000 `50 01 00 00 00' (same cell as E52ZC),
+#             descriptor data@000A with inline DATA RELOC -> 0000, return store descriptor
+#             data@0014 RELOC -> 000A; callee body deref-PUT `LHLD q A(0016)/MVI A,09/
+#             ?DLDOP' @0049-004F then `MVI A,0C/MVI B,02/?QDCOP/?PNVOP/?QIOOP' -- the
+#             THIRD witness for the armed LHLD deref-DEC PUT route (with [C371] ZF 00ED-
+#             00F2 and LOAN2.REL).  N33/NG18, N35/NG20 and N26_DECDIV precedent: a retired
+#             negative whose shape is now PROVEN becomes a POSITIVE specimen.  Source
+#             materialized VERBATIM from the retired inline REJECTS text (CRLF + bare ^Z),
+#             sha256 de1e56e8...; the golden is the ORIGINAL negpanel1/NG39 campaign object
+#             -- path UNCHANGED, NEVER re-derived.  Refusals 187 -> 186 honestly; NO
+#             invented replacement negative for the still-refused DEC-formal conjunction
+#             (N53) etc.: their DR behaviour is UNMEASURED.
 SPECIMENS.update({
     "E52ZA": ("probes/E52ZA.PLI", "golden/e52p13/E52ZA/E52ZA.REL"),
     "E52ZB": ("probes/E52ZB.PLI", "golden/e52p13/E52ZB/E52ZB.REL"),
@@ -2596,6 +2617,7 @@ SPECIMENS.update({
     "E52ZE": ("probes/E52ZE.PLI", "golden/e52p13/E52ZE/E52ZE.REL"),
     "E52ZF": ("probes/E52ZF.PLI", "golden/e52p13/E52ZF/E52ZF.REL"),
     "NG18":  ("probes/NG18.PLI",  "golden/negpanel1/NG18/NG18.REL"),
+    "NG39":  ("probes/NG39.PLI",  "golden/negpanel1/NG39/NG39.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -2911,13 +2933,16 @@ REJECTS = {
                     "DO BY magnitude > 2 unproven"),
     # [E2E-9 slice 6] perimeter of the multi-arg / DEC-formal subset.  Each
     # is a tested negative: my build must refuse with [TBD], never guess bytes.
-    "N52_DEC_FORMAL_PUT": (
-        "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
-        "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  r = g(x);\n  stop;\n"
-        "  g: procedure(q) returns(fixed dec(9,2));\n"
-        "     dcl q fixed dec(9,2);\n     put skip list(q);\n"
-        "     return (q);\n  end g;\nend t;\n",
-        "PUT LIST of a FIXED DECIMAL formal is unsampled"),
+    # [E2E-52/P3-13 hop 12] N52_DEC_FORMAL_PUT RETIRED: DR COMPILES its exact shape (the
+    # kept golden golden/negpanel1/NG39/NG39.REL, NEG_META verdict said "DR COMPILES IT:
+    # no errors in either pass, .REL emitted") and the armed deref-DEC PUT route of 9b81ed0
+    # -- admitted by [C371] on the E52ZF and NG18 witnesses -- reproduces that golden
+    # whole-file byte-exact (cmp rc=0, re-measured FRESH POSITIONAL this session; 384 B,
+    # CODE 005C, DATA max 0018).  Registered as the POSITIVE specimen NG39 above
+    # (N26_DECDIV/NG20/NG18 precedent).  Discovered by the FULL GATE, not by the sweep or
+    # markers suites -- see LEARNINGS § P3-13 hop 10/11.  No replacement negative is
+    # invented for the STILL-refused routes (DEC-formal conjunction N53, suffix/pointer
+    # DEC actuals): their DR behaviour is UNMEASURED.
     "N53_DEC_FORMAL_CONJ": (
         "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
         "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n"
@@ -3923,8 +3948,8 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG37/NG37.REL)"),
     "N51_DOSTEP3": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG38/NG38.REL)"),
-    "N52_DEC_FORMAL_PUT": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG39/NG39.REL)"),
+    # [E2E-52/P3-13 hop 12] N52_DEC_FORMAL_PUT's NEG_META row retired WITH its REJECTS
+    # entry: the shape is now the POSITIVE specimen NG39 (verdict kept above and in [C371]).
     "N53_DEC_FORMAL_CONJ": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG40/NG40.REL)"),
     "N57_ADD_LIT_LIT": ("my-gap",
