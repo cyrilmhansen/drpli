@@ -8750,3 +8750,85 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
 - **ACCEPTED — LOAN2 ACTUAL next blocker VERBATIM, NEVER fix** (re-held FRESH POSITIONAL `build/p3-17/tail-out/loan2.log` on `b744acfb…`, rc=2, NO `.REL`, sha `7be23ba3…` UNMODIFIED): `codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser cells, or with a format-table group that does not start at data 0, is an unmeasured .REL record order [E2E-52/P3-2 measures P086K only: tables at data 0000, NO static cells]` — NO `(line N)`: the blocker class MOVED from per-item guards to the DATA record-ORDER law.
 - **STATE AT CLOSE:** P3-17 **CLOSED**; ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95 EXACT:47**; gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfb…` == tree; goldens KEPT NEVER re-derived. **MARATHON SLICE BUDGET EXHAUSTED (8 of ≤8): STOP — NO P3-18 without a new operator decision.**
 - **PROPOSAL (unchanged, operator decision owed):** replace the per-hop VERBATIM restatement of inherited constraints with a `PROTOCOL.md` Part 2 anchor citation — the restatement, not the science, is what burned this marathon's slice budget.
+
+## E2E-52/P3-18 hop 1 — OPERATOR BUDGET CORRECTION + ZERO-ORACLE RECORD-ORDER AUDIT LANDED; BLOCKER CLASS IS ALREADY MEASURED BY THE AUTHENTIC GOLDEN (2026-11-08, session 01a1b674, chain 01a1b554 renewal 6/12; ZERO oracle; ZERO `ocaml/` byte; goldens untouched)
+
+- **ACCEPTED — OPERATOR CORRECTION (dated 2026-11-08):** the hop-5-tail statement
+  "marathon slice budget EXHAUSTED (8 of ≤8)" was a PLANNING ERROR. The original brief
+  authorized P3-12..P3-19; P3-12..P3-17 were done, so **P3-18 and P3-19 remain authorized**
+  with NO further operator brief between them. P3-17 stays CLOSED, its evidence untouched.
+  The scientific budget and the guard's renewal cap (12/chain) are distinct limits.
+- **ACCEPTED — recovery verified first-hand:** HEAD `a45bdd99`, `dune build` rc=0 ZERO
+  `Error`, binary sha256 `b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f`
+  == tree; LOAN2 rc=2 blocker VERBATIM (record-order `[TBD]`); `ocaml/lib/codegen.ml`
+  refusal at ~15770 (index-window partition `n_static_blocks..+n_fmt_blocks` of `pool_sorted`).
+- **ACCEPTED — corpus order audit (ZERO oracle, all 1871 distinct goldens, `build/p3-18/order_audit.py`
+  + `order-audit.log`):** 26 goldens emit data blocks on BOTH sides of a COMMON group — in EVERY
+  one the pre-COMMON data is ONE merged region starting at data@0000; ZERO inversions across the
+  boundary; Q4 (>=2 distinct pre-common regions) 0. The LOAN2 class (tables ABOVE static cells)
+  has NO witness among the probes — but see next bullet. Separately: 3 goldens have
+  out-of-address-order DATA anywhere — `golden/first/DIOCALLS/DIOCALLS.REL` (data@0x3d re-emitted
+  between 0x1be and 0x20a) and `golden/first8080u/MPMCALLA|B` (intermittent low-address re-emissions,
+  incl. data writes during the CODE phase) — DR's DATA stream is allocation/phase-driven, not a
+  global address sort; these three are a different class (late small writes), recorded for reference.
+- **ACCEPTED — THE AUTHENTIC GOLDEN ALREADY MEASURES THE DISPUTED CLASS (first-hand decode of
+  `golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…`, never re-derived; raw record stream in
+  `build/p3-18/loan2-prelude.txt`):** the DATA preamble is EIGHT format tables
+  (`data@0000-0006`, `0007-0014`, `0015-0046`, `0047-0071`, `0072-0078`, `0079-0099`,
+  `0098-009C`, `009D-00A1` — two identical `80 00 03 ff 81` five-byte tables kept as SEPARATE blocks)
+  then `DEF-COMMON-SIZE abs 0028 OUTPUT / SEL-COMMON / SET-LC(common,0) + 40 bytes`,
+  THEN `SET-LC(data,00A2)` + the 15-byte STATIC `name character(14) varying` cell
+  (`04 '$con' + 9 spaces`, LOAN2.PLI:39) and then the lowering-allocated literal pool
+  (`00B2 'SUMMARY OF PAYMENTS'`, …, up to `02AE+`) before `DEF-DATA-SIZE 035A`.
+  **=> H-A (full address sort, COMMON at the prescan/lowering boundary) is FALSIFIED BY EXISTING
+  EVIDENCE**: it predicts the static cell at 0x00A2 emitted BEFORE the 0x0007 table; the golden
+  emits it AFTER the COMMON group. **H-B (statics-first, then tables, then COMMON)** is likewise
+  contradicted (the authentic stream has ALL eight tables below the static cell).
+  The shape consistent with the golden is: **prealloc tables (source order) -> COMMON group ->
+  every remaining block (statics + lowering) in address-ascending order**.
+  Table-to-statement mapping proposed pre-measurement: the eight tables correspond in source order
+  to the FILE/console PUT EDITs incl. LOAN2:85 console `(skip,a)` and :116/:147/:177/:191/:195/
+  :199/:212 — the console table riding with the FILE tables is [PROPOSED, unverified] consistent
+  with the [C360] prealloc law (ALL edit tables prescan-allocated).
+- **ACCEPTED — my emitter's index-window partition is the BUG, independent of the order law:**
+  `st.pool` is seeded with `statics.sy_cells` FIRST ([C114] statics-below-pool model), so the
+  "table window" `[n_static_blocks, +n_fmt_blocks)` picks the wrong blocks for LOAN2 — and the
+  refusal condition `fmt_grp first block addr > 0` fires. The fix must identify table blocks BY
+  ALLOCATION PHASE (prealloc FIFO order), not by index window. [PROPOSED — unverified: exact
+  sy_cells count and pool-block addresses for LOAN2 under my bind; measure first-hand with a
+  throwaway `Pli80.Bind` dune exe BEFORE the implementation edit, since codegen.ml refuses.]
+- **OPERATOR-BRIEF NOTES:** the brief's step-3 "grouped oracle if required" is likely NOT required
+  for this blocker — the authentic LOAN2.REL golden IS the oracle measurement of the class; the
+  verdict rides on the final whole-file `cmp`. New claims derive from existing goldens (protocol-
+  admissible: measured by the oracle, recorded with golden paths).
+- **STATE:** ledger ENDS C375; inventory 1309/190; coverage 145/95 (relevant rows
+  `IO.PUT_EDIT` EXACT:47, `STOR.STATIC_MEMBER_INITIAL`); LAST gate rc=0
+  `build/gate-e52p17-reg.log`; binary `b744acfbea24…` == tree; goldens NEVER re-derived;
+  `build/` evidence git-IGNORED; config NEVER staged; no push; chain 6/12 used, cap 12.
+- **SUCCESSOR CONTRACT (BINDING) — P3-18 implementation hop:**
+  (1) `cd ocaml && eval "$(opam env)" && dune build` rc=0 (grep `Error`), fingerprint `b744acfb…` == tree.
+  (2) ZERO-oracle self-audit: throwaway dune exe calling `Pli80.Bind.bind_program` on LOAN2 (pattern
+      `bin/pli80bind.ml`) to dump my static-cell addresses/bytes and the [C360] prealloc table addresses
+      — reconcile against `build/p3-18/loan2-prelude.txt`; if my DATA layout does NOT already place the
+      statics ABOVE the 8 tables (0x00A2 region), that is a SEPARATE bind/layout blocker — record VERBATIM,
+      do not fake addresses.
+  (3) PRE-REGISTER PLAN §P3-18 (hypotheses incl. the FALSIFIED H-A/H-B with golden byte citations, the
+      phase-identified emission law, falsifiers) + this LEARNINGS § + probes ONLY if a discriminating
+      oracle shape is genuinely needed (verify `E524*`/tag `e52p18` unused) — commit EXPLICIT paths
+      BEFORE any `ocaml/` byte.
+  (4) Implement: replace the index-window partition with phase-tagged table blocks; emission
+      tables(prealloc order) -> COMMON -> rest(address order); keep the legacy shape
+      (`tables addr 0, no statics`) byte-identical — P086K + the 25 other both-sides goldens must not move.
+  (5) FRESH POSITIONAL compile of LOAN2; if rc=0, FULL-FILE `cmp` vs `golden/first/LOAN2/LOAN2.REL`
+      sha `712cfcb2…` is the verdict; any NEW blocker VERBATIM, never fix by prediction.
+  (6) FULL validation tail (fingerprint determinism fresh `--build-dir`; histogram 68/124; sweep FAILS 0;
+      markers; DEC 64/0; divcheck 9/9) -> register (inventory from REAL `--update-inventory`; census OWN
+      path, LOAN2 msg MOVES VERBATIM or retires) -> claim C376 measured-bytes-only BEFORE ANY
+      `spec/COVERAGE.tsv` touch -> coverage adjudication (candidates `STOR.STATIC_MEMBER_INITIAL`,
+      `IO.PUT_EDIT`) -> FULL gate rc=0 DIRECT -> `build/gate-e52p18-reg.log` -> RESULTS §P3-18 +
+      PLAN §5 row (LINE-anchored, 7-unescaped-pipes assert RUN IN CODE, escape raw `\|`) + §P3-18
+      CLOSED -> P3-19 on the ACTUAL next blocker (marathon LAST slice per corrected budget).
+  Keep ALL standing constraints (PROTOCOL Part 2 anchor per the hop-5 PROPOSAL): goldens NEVER
+  re-derived; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT;
+  never glue `rm`; never parallelize dependent bash; byte-tier; `build/` NEVER `git add -f`;
+  `handoff.config.json` NEVER staged; no push.
