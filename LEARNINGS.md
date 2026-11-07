@@ -8323,3 +8323,60 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
 - **ACCEPTED — (4) FULL gate rc=0 DIRECT** `build/gate-e52p15-reg.log`: **1303/0, 188/188, 9/9, 145 rows 0/0, census 15/0/26/0, prose 5 — EVERY number hit**.
 - **SUCCESSOR CONTRACT — P3-15 hop 7 (FINAL CLOSE-OUT), EXACT ORDER:** (5) RESULTS **§P3-15** in `spec/lab-evidence/e2e52-p3/RESULTS.md` (template §P3-14 at line ~1512: parity table A 640 B CODE 00B8 / B 640 CODE 00AD / C 1024 CODE 012C DATA 005B cmp rc=0 FRESH `build/p3-15/claim-out/` + D 512 B my-gap row; H-A/H-B/H-C/H-D CONFIRMED verdicts; 21 B table predicted-before-measured HIT; LOAN2 anchor DATED correction; contract-slip 1303/187→1303/188 VERBATIM; E521D do-not-generalise; gate-found INVENTORY law; LOAN2 147→**160** VERBATIM never-fix; byte-tier NOT-say) + PLAN **§5 progress row INSIDE the table** (grep -n the table — P3-14 row ends ~line 105; insert P3-15 row after it, anchor by LINE NUMBER, **7-unescaped-pipes check**, escape raw `|` as `\|`) + change PLAN §P3-15 heading (line 1676) to **CLOSED**; prose rc=0; commit explicit paths. (6) **P3-16**: FIRST `sed -n '155,165p' artefacts/LOAN2.PLI | tr -d '\r'` — blocker VERBATIM `codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (…Line 160)`; hop-3 recon candidate `call current_year(IP-YIN)` DEC-SUB is PROPOSAL ONLY; audit armed P3-13 Mul/literal routes vs ACTUAL shape; verify `E522*`/`e52p16` unused; pre-register PLAN §P3-16 + probes + LEARNINGS by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; ONE campaign; goldens VERBATIM first; arm measured shapes ONLY; FULL validation incl gate BEFORE close → `build/gate-e52p16-reg.log`; register from **1303/188**; marathon through P3-19 (slice 7 of ≤8).
 - **STATE at this checkpoint:** HEAD = durables commit after this; ledger ENDS **C373**; inventory **1303/188**; coverage **145/95 EXACT:45 IO.PUT_EDIT**; LAST gate rc=0 **`build/gate-e52p15-reg.log`**; armed binary `02ea809e…` == tree; goldens `golden/e52p15/` KEPT NEVER re-derived; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO `.REL` Line-160 blocker VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; config NEVER staged; no push; rc DIRECT; POSITIONAL `pli80c IN OUT` NO `-o`; `eval "$(opam env)"` every shell; never glue `rm`; never parallelize dependent bash; byte-tier; escape raw `|` in §5 (7-pipe); chain 01a1b2d5 renewal 8/12 used, cap 12.
+
+## P3-15 hop 7 CLOSED + P3-16 hop 1 RECON LANDED (session 01a1b4b5, chain 01a1b2d5 renewal 9/12; ZERO oracle; ZERO `ocaml/` byte; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — P3-15 hop 7 (5) COMPLETE:** RESULTS §P3-15 written + PLAN §5 P3-15 row INSIDE
+  the table after P3-14 (inserted at line 106, **7 unescaped pipes verified programmatically**,
+  raw `|` escaped `\|`) + §P3-15 heading (line 1677) **CLOSED 2026-11-07 (hop 7)**; prose rc=0;
+  committed `615e1a02`. Parity re-held FRESH this close: cmp A/B/C **3/3 rc=0** into FRESH
+  `build/p3-15/close-out/` on `02ea809e…` (sizes 640/640/1024; CODE `00B8`/`00AD`/`012C`, DATA
+  `0026`/`0026`/`005B`; sha12s `2fffd14ec85c`/`f239e43e145a`/`1820c21e6a50`/`edca27a01a50`
+  re-read from KEPT goldens); E521D rc=2 BY NAME re-measured. Guard blocks g491 committed VERBATIM
+  `49b76ad2`. **TOOL NOTE accepted:** the harness binary path is `pli80c.exe` — a no-`.exe`
+  invocation gives rc=127, NOT a compile refusal.
+- **ACCEPTED — P3-16 hop 1 FIRST-HAND source read (contract-mandated, lines 155-170):**
+  LOAN2 sha `7be23ba3…` UNMODIFIED; line 159 `end = true;`; line 160
+  **`call current_year(IP-YIN);`** INSIDE `summary: procedure;` — the blocker is a DEC **Sub**
+  expression actual against `current_year: procedure(I); dcl I fixed decimal(10,2);` (line 172).
+  `IP`, `YIN` are both `fixed decimal(10,2)` (lines 29-30) → **equal scales p=10 s=2**.
+  The hop-3 recon "PROPOSAL" is now a MEASURED fact of the source; no prediction was involved.
+- **ACCEPTED — authentic LOAN2.REL witness decoded FIRST-HAND (ZERO oracle, `p13dump code2`/
+  `chains`/raw data replay):** the `summary` body is code `0733-0769`:
+  `21 BD 02 / 36 80` (`end = true` store); then the **22 B Sub-actual block** at `0738-0752`:
+  `LXI H,*A(data@02FA) / MVI A,0A / ?DLDOP` + `LXI H,*A(data@02F4) / MVI A,0A / ?DLDOP` +
+  `?DSUOP` + `LXI H,*A(temp data@034E) / MVI A,0A / ?DSTOP` — **NO QDDSL/QDDSR window because
+  s_src = s_tgt = 2** (consistent with the [C370] shift law d = s_src − s_tgt = 0, and DIFFERS
+  from the P3-13 Mul shape which carries the window only when scales differ; here `PL*INF`
+  needed QDDSR because 2 ≠ 3); then the **arity-1 actual setup** `LXI H,*A(data@034C) /
+  CD (chain slot 0757 → LC code@076A)` — the callee `current_year` ENTRY is `076A` (peeled
+  prologue `5E 23 56 EB / SHLD 0354`), and the CALL lands at `0756`; `YIN = IP` follows via
+  `LHLD route 0759-0766`; `RET` at `0769`. **DATA statics:** `data@034C = 4E 03` with
+  `RELOC data@034C → data@034E` — the static descriptor-vector cell pointing at the 6 B
+  expression temp at `034E`, EXACTLY the P3-13 static-vector law (stride-2 cells, temps stride 6);
+  the temp has NO static bytes. `data max 034E` (onds count of first-unwritten) is NOT the segment
+  length law — trust per-record claims, not `onds.full` max.
+- **ACCEPTED — codebase state:** `?DSUOP`/`?DADOP` are ALREADY armed inside `dpush`
+  (`ocaml/lib/codegen.ml` ~6596, laws 6208-6210 [R705/R707/R715]); the refusal lives ONLY in the
+  DEC-formal actual guard (the `dec_actual_mat`/`decact` route armed P3-13 admits ONLY
+  `Enumber` literal and `Mul` of two plain DEC autos). PLILIB symbol table has `?DADOP`/`?DSUOP`
+  (`artefacts/PLILIB.IRL`, `spec/notes/plilib-routines.txt`). Authentic corpus DSUOP sites:
+  `0486`, `04A2` (variable-store route with SYSPR reload — NOT this shape), `0748` (the actual
+  block above), plus more in later procedures.
+- **PROPOSED (NOT yet pre-registered, NOT measured):** the P3-16 arm shape = admit
+  `Ebinary(Sub, plain-dec-auto, plain-dec-auto)` (and likely `Add` — MUST be measured, never fit)
+  actuals in the same `decact` guard, reusing the armed `dec_push` chain with the scale-window law
+  already in `dpush`; probes E522A..~D around: Sub-equal-scale control (the 0733 shape),
+  Sub-differing-scales (does the window appear between DSUOP and DSTOP? UNMEASURED — strongest
+  open question), Add twin, and a boundary twin. Verify `E522*`/`e52p16` UNUSED before writing
+  anything; pre-register PLAN §P3-16 + probes + LEARNINGS by EXPLICIT paths BEFORE any oracle
+  call/`ocaml/` byte; ONE campaign; goldens VERBATIM first; arm measured ONLY; gate BEFORE close
+  → `build/gate-e52p16-reg.log`; register from **1303/188**; marathon through P3-19 (slice 7 of ≤8).
+- **STATE at this checkpoint:** HEAD = durables commit after this; P3-15 **CLOSED** `615e1a02`;
+  ledger ENDS **C373**; inventory **1303/188**; coverage **145/95** (IO.PUT_EDIT EXACT:45); LAST
+  gate rc=0 **`build/gate-e52p15-reg.log`**; armed binary `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb`
+  == tree; goldens `golden/e52p15/` KEPT NEVER re-derived; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2
+  NO `.REL` Line-160 VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; config NEVER staged; no
+  push; rc DIRECT; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell;
+  never glue `rm`; never parallelize dependent bash; byte-tier; escape raw `|` in §5 (7-pipe);
+  chain 01a1b2d5 renewal 9/12 used, cap 12.
