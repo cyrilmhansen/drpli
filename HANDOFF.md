@@ -1666,13 +1666,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 513
-checkpoint-id: g513-fbddd465b087
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-3099, session 01a1b5d8-0d11-76f6-9177-fd5eeeede9b1)
-checkpointed: 2026-11-07T12:18:28.354Z
+checkpoint-generation: 514
+checkpoint-id: g514-d89254117447
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4160, session 01a1b5f2-9a2b-76f6-9177-fd626b130ec4)
+checkpointed: 2026-11-07T12:39:15.991Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 9e4c8ae1e5fa9626d470fb70fb33cdfd16622e5a1a600086d2683309de41bffa
 source-handoff: 8b0dba65744afae86df253bc218923c93bba2667e069765c134611350b7fa904
@@ -1680,11 +1680,8 @@ source-learnings: f0f2e194012cf859309ab9252326445a25adcdec9df65080948eaca1394bf0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b5d8-0d11-76f6-9177-fd5eeeede9b1
-readiness-at: 2026-11-07T12:18:28.379Z
-readiness-checkpoint: g513-fbddd465b087
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
