@@ -1,12 +1,12 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "afaae6e8ce2003e482bd099063fbb19d",
+ "binary_md5": "ce0e030a10f75f91e67f9226ae81013a",
  "counts": {
   "AUTHENTIC": 41,
-  "DIFFERS": 1,
+  "DIFFERS": 0,
   "DR_REJECTED": 3,
-  "EXACT": 15,
+  "EXACT": 16,
   "HISTORICAL": 44,
   "NOSRC": 0,
   "NO_ORACLE": 3,
@@ -15,11 +15,13 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-07T17:37:18",
+ "generated": "2026-11-07T21:55:53",
  "git_dirty_paths": [
-  "M HANDOFF.md",
-  " M PROGRESS.md",
-  " M handoff.config.json",
+  "M handoff.config.json",
+  " M ocaml/lib/codegen.ml",
+  "?? golden/e52p19/E524A/dir.txt",
+  "?? golden/e52p19/E524B/dir.txt",
+  "?? golden/e52p19/E524C/dir.txt",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-p312hist/",
@@ -34,6 +36,8 @@
   "?? ocaml/_build-p318b/",
   "?? ocaml/_build-p318c/",
   "?? ocaml/_build-p318dbg/",
+  "?? ocaml/_build-p319/",
+  "?? ocaml/_build-p319b/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
   "?? ocaml/build-e52p10-hop3rem-build.log",
@@ -52,7 +56,7 @@
   "?? ocaml/scratch-p314/",
   "?? ocaml/scratch-p318/"
  ],
- "git_head": "a18f35b4189d629cfb82f254da91ae488eafc8da",
+ "git_head": "4747cbee0f493f7e56c4db7687cb15958facaf92",
  "rows": [
   {
    "dir_present": true,
@@ -427,13 +431,10 @@
    "src_present": true
   },
   {
-   "differing_bytes": 7361,
    "dir_present": true,
-   "dr_bytes": 7680,
    "dr_verdict": "ok",
-   "first_diff": 323,
-   "mine": "DIFFERS",
-   "mine_bytes": 7808,
+   "mine": "EXACT",
+   "mine_bytes": 7680,
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
