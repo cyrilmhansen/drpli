@@ -8832,3 +8832,56 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   re-derived; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT;
   never glue `rm`; never parallelize dependent bash; byte-tier; `build/` NEVER `git add -f`;
   `handoff.config.json` NEVER staged; no push.
+
+## E2E-52/P3-18 hop 2 — BIND/POOL SELF-AUDIT LANDED: THE BLOCKER IS AN ALLOCATION-ORDER BLOCKER, NOT ONLY A RECORD-ORDER ONE (2026-11-08, session 01a1b687, chain 01a1b554 renewal 7/12; ZERO oracle; ZERO committed `ocaml/` byte; goldens untouched; scratch NEVER staged)
+
+- **ACCEPTED — recovery + step (1) verified first-hand:** HEAD `8cb923d7`, `dune build` rc=0 with ZERO
+  `Error` (`build/p3-18/build-hop2.log`), binary sha256 `b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f`
+  == tree; LOAN2 sha `7be23ba3…`, golden `golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…` (both re-read).
+- **ACCEPTED — step (2) self-audit instrumented HONESTLY (no faked addresses):** throwaway dune exe
+  `ocaml/scratch-p318/{audit.ml,dune}` (UNTRACKED scratch, `scratch-p314` precedent; NEVER `git add`) calls
+  the REAL authorities — `Pli80.Codegen.rows_of` (bind static offsets) + `Pli80.Codegen.edit_stmts` /
+  `match_put_edit` / `match_get_edit` / `fmt_table_bytes` — and replays `prealloc_fmt_tables`' arithmetic
+  (`pool` seeded `statics.sy_cells`, `pool_next = statics.sy_total`). Output kept ignored:
+  `build/p3-18/bind-selfaudit.txt`. Tool notes: the field is `s.Ast.spos.Pli80.Source.line`, and
+  `fmt_table_bytes` returns an `int array` (not a byte array).
+- **ACCEPTED — MEASURED FACT (my side, LOAN2):** bind gives ONE static cell — `name` at **data@0x0000**,
+  15 bytes `04 24 63 6F 6E 20…20` — `sy_total = 15`; `sy_files = [OUTPUT]`; `auto_bytes = 91`.
+  My eight prealloc format tables then occupy **0x000F–0x00B0**, in FIFO/source order
+  (line 85 7 B, 115 14 B, 147 50 B, 177 43 B, 191 7 B, 195 31 B, 199 5 B, 212 5 B; total 162 = 0xA2).
+- **ACCEPTED — RECONCILIATION WITH THE GOLDEN (`build/p3-18/loan2-prelude.txt`):** my table BYTES and
+  table ORDER are IDENTICAL to the golden's eight pre-COMMON blocks (same lengths, same hex, same sequence,
+  the two 5-byte `80 00 03 FF 81` tables kept separate); my static cell's BYTES are identical too.
+  ONLY THE ADDRESSES DIFFER: golden = tables **0x0000–0x00A1** -> COMMON -> static `name` **0x00A2–0x00B0**
+  -> lowering pool **0x00B1+** (`1a` at 00B1, then the 39-byte `09 09 'S U M M A R Y…'`); mine = static
+  **0x0000–0x000E** -> tables **0x000F–0x00B0** -> lowering pool 0x00B1+.
+  **The sums agree exactly: 162 (tables) + 15 (statics) = 177 = 0x00B1 = where lowering starts in BOTH.**
+- **ACCEPTED — therefore the P3-18 fix is an ALLOCATION-ORDER fix, not just a record-order fix:** DR
+  allocates the prealloc format tables at data **0** and the static initialiser cells ABOVE them
+  (`pool_next = tables_total` before lowering), i.e. DATA = [prealloc tables][static cells][lowering pool]
+  [automatics]. My code allocates [static cells][prealloc tables][lowering pool] (the [C114]
+  statics-below-pool seeding) and additionally partitions the emission by a wrong index window
+  (`codegen.ml ~15749-15752`, `n_static_blocks..+n_fmt_blocks`). Fixing ONLY the record order would put
+  the right RECORDS in the right order at the WRONG addresses and the whole-file `cmp` would still fail.
+  The two changes are ONE law and must land together.
+- **PROPOSED (unimplemented — successor executes, never treat as adopted):** implementation =
+  (i) run `prealloc_fmt_tables` with `pool = []` and `pool_next = 0`, THEN append `statics.sy_cells`
+  shifted by `tables_total`, then set `pool_next = tables_total + statics.sy_total` before lowering
+  (`st.base = statics.sy_total + pool_total` is UNCHANGED — pool_total already includes the tables);
+  (ii) emit SET-LC(data,0)+table blocks in FIFO order -> COMMON group -> every remaining block in
+  ADDRESS order (which for LOAN2 reproduces 0x00A2, 0x00B1, 0x00B2…); (iii) DELETE the index-window
+  partition and the P3-2 `[TBD]` refusal. Legacy shape check is BY CONSTRUCTION unchanged when
+  `sy_cells = []` (P086K: tables already at 0, so the byte stream cannot move); the other 25 both-sides
+  goldens have no static cells and must stay byte-identical — the sweep (187/0) is the falsifier.
+  **FALSIFIER to watch: `statics.sy_addrs` (ADDR-of, member/static references, `LXI H,*D(cell)`) are
+  bind-relative addresses — every consumer of a static address must gain `tables_total` or DATA
+  references will point 15 bytes low. `st.stat_addrs`/`st.stat_total` are exactly those consumers.**
+- **ACCEPTED — probe/tag check for a discriminating oracle campaign is NOT needed for the law:** the
+  golden already measures tables-below-statics (162 B of tables under a 15 B static cell); `E524*`/tag
+  `e52p18` remain UNUSED and unverified-for-use only if the successor decides probes ARE needed; a probe
+  WOULD be genuinely discriminating for the one open sub-question: whether the COMMON group sits after
+  the tables because of the TABLES or because of the statics. Pre-register before burning oracle time.
+- **STATE:** ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95 EXACT:47**;
+  LAST gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfb…` == tree; goldens KEPT NEVER re-derived;
+  LOAN2 sha `7be23ba3…` rc=2 NO `.REL`; `handoff.config.json` NEVER staged; no push; chain 01a1b554
+  renewal 7/12 used, cap 12.

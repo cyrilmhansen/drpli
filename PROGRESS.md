@@ -42,7 +42,13 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-18 hop 1 LANDED — OPERATOR BUDGET CORRECTED (P3-18/P3-19 AUTHORIZED); ZERO-ORACLE RECORD-ORDER AUDIT DONE; IMPLEMENTATION OWED — read `LEARNINGS.md` § "P3-18 hop 1" SUCCESSOR CONTRACT, BINDING)
+## Next action (E2E-52/P3-18 hop 2 — BIND/POOL SELF-AUDIT LANDED; THE BLOCKER IS ALLOCATION ORDER, NOT ONLY RECORD ORDER; IMPLEMENTATION OWED — read `LEARNINGS.md` § "P3-18 hop 2" — BINDING)
+
+**EXECUTE NOW (hop 3) — implement P3-18 per `LEARNINGS.md` § hop 2.** Verified this hop: HEAD `8cb923d7`; `dune build` rc=0 ZERO `Error`; binary `b744acfbea24…` == tree; **throwaway UNTRACKED** `ocaml/scratch-p318/{audit.ml,dune}` (never `git add`) measured MY side (`build/p3-18/bind-selfaudit.txt`): static `name` cell **data@0x0000** 15 B, my 8 prealloc tables **0x000F–0x00B0** (FIFO order/bytes IDENTICAL to the golden's `0x0000–0x00A1`); golden = tables 0x0000–00A1 → COMMON → static **0x00A2** → lowering **0x00B1+**; both sums = 177 = 0x00B1. **=> record order alone is NOT the fix: DR allocates the tables BELOW the static cells.** (1) PRE-REGISTER PLAN §P3-18 (this law + falsifiers; probes only if genuinely needed and `E524*`/`e52p18` verified unused) BEFORE any `ocaml/lib/` byte; commit explicit paths. (2) Implement: `prealloc_fmt_tables` on `pool=[]`,`pool_next=0`, then append `statics.sy_cells` shifted by `tables_total`, then `pool_next = tables_total + sy_total`; emit tables(FIFO) → COMMON → rest by ADDRESS order; DELETE the index-window partition + the P3-2 `[TBD]` refusal (`codegen.ml ~15749-15782`). **FALSIFIER: every consumer of a bind-relative static address (`st.stat_addrs`, `LXI H,*D(cell)`, `addr()`, members) must gain `tables_total` or references sit 15 B low.** (3) FRESH POSITIONAL LOAN2 → rc=0 ⇒ FULL-FILE `cmp` vs `712cfcb2…` is the verdict; new blocker ⇒ VERBATIM, never fix by prediction. (4) Validation tail (fingerprint determinism fresh `--build-dir`, grep `Error`; histogram 68/124; sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers 16/16; DEC 64/0; divcheck 9/9) → register (REAL `--update-inventory`; census OWN path, LOAN2 msg MOVES VERBATIM or retires) → **C376 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage (`STOR.STATIC_MEMBER_INITIAL`, `IO.PUT_EDIT` read FIRST-HAND) → FULL gate rc=0 DIRECT `build/gate-e52p18-reg.log` → RESULTS §P3-18 + PLAN §5 row (LINE-anchored, 7-unescaped-pipes assert RUN IN CODE, escape raw `\|`) + §P3-18 **CLOSED** → P3-19 (last slice per the corrected budget).
+
+**STATE:** ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfb…` == tree; goldens KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` NEVER fix; standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` + `ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no push); chain 01a1b554 renewal 7/12 used, cap 12.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-18 hop 1 LANDED — OPERATOR BUDGET CORRECTED (P3-18/P3-19 AUTHORIZED); ZERO-ORACLE RECORD-ORDER AUDIT DONE; IMPLEMENTATION OWED — read `LEARNINGS.md` § "P3-18 hop 1" SUCCESSOR CONTRACT, BINDING)
 
 **OPERATOR CORRECTION (dated 2026-11-08, recorded here in manual prose, guard blocks untouched):** the previous "marathon slice budget EXHAUSTED (8/8)" statement was a PLANNING ERROR — the original brief authorized P3-12..P3-19; **P3-18 and P3-19 remain authorized, no further brief needed between them**. P3-17 stays CLOSED with its evidence untouched. (Distinct from the guard renewal cap: chain 01a1b554 now 6/12.)
 
@@ -2999,17 +3005,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 520
-checkpoint-id: g520-92dbd934fe18
-checkpoint-kind: manual
+checkpoint-generation: 523
+checkpoint-id: g523-46b99c2d2005
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-07T15:00:23.600Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-07T15:32:56.021Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: fa56231e488b4a06a0d23a628fb9a4dd6cb87a377ba1c07b4ad95c49d1be534d
-source-handoff: 846c992f18848c177d71a623705fd640c04f1b516440c379f1a42bfd18ed940e
-source-learnings: 0564465d3e8fb0da2b946ea5b462f01c145e97167adb5076164caf8fe3b8d699
+source-handoff: 24c269e9571aeb8bdfe3420e1c8cc9722a09d0e204cf865035af543e0ff06808
+source-learnings: 147ecd0a93a4347992b12e80a76e7aff74032a8e15edee9a51415563c059035b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` + LEARNINGS § "P3-17 hop 5 IN FLIGHT"): coverage `IO.PUT_EDIT` **EXACT:45→47** + col11 `,E523A,E523B` (37→39) + DATED col4/col13 clauses (NEVER `coverage_gen.py`, 15 tab cols, NO IDS line) → `coverage_check`+prose rc=0 → **FULL gate rc=0 DIRECT** `build/gate-e52p17-reg.log` (1309/0,190/190,9/9,145 rows SUPPORTED 95,census 15/0/26/0,prose 5) → RESULTS §P3-17 + PLAN §5 row LINE-anchored (7-pipe assert RUN IN CODE) + §P3-17 **CLOSED** → **STOP, budget EXHAUSTED 8/8**, report LOAN2 blocker VERBATIM never fix, NO P3-18 without operator decision. Ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95 EXACT:45**; LAST gate rc=0 `build/gate-e52p16-reg.log`; goldens `golden/e52p17/` KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL`; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` git-IGNORED NEVER `git add -f`; config NEVER staged; no push; chain 01a1b554 renewal 5/12 scheduled, cap 12.
 
@@ -3676,9 +3682,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b674-d2b9-7577-b10f-a89aaf534431
-readiness-at: 2026-11-07T15:00:23.627Z
-readiness-checkpoint: g520-92dbd934fe18
 <!-- guard:end checkpoint -->
 
 ## Blockers
