@@ -1,0 +1,13 @@
+E523A: procedure options(main);
+   /* E2E-52/P3-17 probe A (PLAN H-A): FILE PUT  */
+   /* EDIT whose item is a MAIN-AUTO fixed-bin   */
+   /* variable; literal twins and the LOAN2      */
+   /* 2(a,p'99') nested-rep format kept.         */
+   dcl pf file;
+   dcl a fixed binary;
+   open file(pf) print;
+   a = 7;
+   put file(pf) edit('|','XX',a,'|')(a,x(15),2(a,p'99'),a);
+   put skip list(a);
+end E523A;
+

@@ -1952,3 +1952,160 @@ OBJECT shows pushes/ops/shifts in a byte order; it may NOT claim what `?DSUOP`/`
 context, the ledger records the DIFFERENCE as a measured DR fact and the arm is narrowed
 to the measured shapes ONLY — never a fit. The nested-compound boundary (H-E) stays
 `my-gap`/unmeasured unless DR's own object decides otherwise.
+
+## Subround P3-17 — FILE-EDIT ITEM ON A PLAIN FIXED-BINARY AUTOMATIC VARIABLE: the one-clause guard arm the authentic LOAN2 line-177 route pins — PRE-REGISTERED 2026-11-08 (operator marathon brief, LAST slice 8 of <=8; fresh chain; baseline HEAD `b1ee927a`+guard `511da709`, ledger ENDS C374, inventory 1307/189, coverage 145/95, armed binary `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175`) — **OPEN (hop 2 pre-registration)**
+
+### 1. Measured blocker (VERBATIM, re-held this hop on `215c4503…`, POSITIONAL FRESH `build/p3-17/sanity/`)
+
+LOAN2 sha `7be23ba3…` UNMODIFIED: rc=2, NO `.REL`:
+
+`codegen: PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary has no byte-exact DR witness [TBD] (line 177) -- the file EDIT route is lowered for the item classes its objects pin: the DEC variable of golden/probe55/P086K and the string literal of LOAN2's own golden (115: MVI A,01/?SLCTS/?EDTOV at 053F-0542; 199: six literal chains against one format record).  A list is refused as a WHOLE, item by item, before the attach is emitted.  P086K/P086J measure the DEC variable and LOAN2 measures the string literal; every other class is carried by no EDIT object of ours on either route`
+
+The statement (source read FIRST-HAND hop 1): LOAN2 177-178 inside
+`current_year: procedure(I)`: `put skip file(output) edit` with items
+`('|','Interest Paid During ''',yp,'-''',y,' is ',I,'|')` and formats
+`(a,x(15),2(a,p'99'),a,p'$$$,$$$,$$9V.99',x(16),a)` -- 8 items / 7 format entries.
+`yp fixed binary` = current_year LOCAL auto (cell data@0356); `y fixed binary` = MAIN
+auto (cell data@02C2); `I fixed decimal(10,2)` = deref'd FORMAL, ALREADY armed by
+P3-15. The refused class is exactly: **plain FIXED BINARY automatic VARIABLE as a
+file EDIT (PIvar, non-deref) item.**
+
+DATED CORRECTION of the hop-1 LEARNINGS byte labels (accepted per PROTOCOL #2; the
+hop-1 text stands unchanged, this section is the authority): re-verified FIRST-HAND
+this hop from `build/p3-13/p13dump.py rawcode` on the KEPT authentic golden (sha
+`712cfcb2…`). The hop-1 slot numbers were disasm-column artifacts, consistently ~2-3
+bytes LOW: the two fixed-bin VARIABLE chains are 11 B (not "13 B"); the `?QICOP` CALL
+opcodes sit at **07BF**/**07D5** (operand slots 07C0/07D6), the `?EDTOV` CALLS at
+**07C2**/**07D8** (slots 07C3/07D9); the LHLD opcodes are at 07BA (`2A 56 03`, operand
+reloc **07BB->data@0356** = yp) and 07D0 (`2A C2 02`, reloc **07D1->data@02C2** = y);
+the continuation word `01 06 08` reloc is **0794->code@0806** (NOT 0807 -- 0806 is the
+next statement `call line();` `CD 8B 07` at 0806-0808, operand slot 0807 CHAIN-ADDR ->
+078B, the first call's operand word; `C9` of current_year is at **0809**, body ENDS
+076A-0809). The hop-1 "0800 `CD 62 06`" mislocated call line() #2 -- the raw bytes
+show `CD 62 06` is the operand image at call #1's slot 078B-078C (chain geometry
+[C358]/[C372], not new ground). Every citation below is re-derived from the raw hex +
+reloc/EXT records printed this hop.
+
+### 2. Existing DR evidence (ZERO oracle so far this subround; goldens untouched)
+
+1. **THE witness -- authentic LOAN2.REL `07BA-07C4` and `07D0-07DA`**: each fixed-bin
+   variable item = `LHLD <own cell> (2A lo hi, operand RELOC -> DATA cell) / MVI A,09
+   (3E 09 = fixed binary default width) / CALL ?QICOP (CD 00 00, EXT slot) / CALL
+   ?EDTOV (CD 00 00, EXT slot)` -- 11 bytes, NO `5E 23 56 EB` deref quartet, NO
+   `MVI B,s`/`?QDCOP` pair. The WHOLE statement context is armed except this item
+   class: attach `21 00 00`(078E->common@0) / `11 52 06` / `01 06 08`(0794->code@0806)
+   / ?SIOOP(slot 0797); skip `3E 01` / ?SKPOP(slot 079C); table `21 47 00`(079F->
+   data@0047) / ?EDITF(slot 07A2); literal chains `21 EC 01 / 3E 01`(SLCTS 07A9-07AB,
+   EDTOV 07AC-07AE; second '|' at 07F8-07FA REUSES the SAME shared cell data@01EC,
+   reloc 07F9->data@01EC); the deref'd DEC formal I `2A 54 03`(07E7->data@0354) /
+   `3E 0A / DLDOP(07EB) / 3E 0D / 06 02 / QDCOP(07F2) / EDTOV(07F5)` [P3-15]; close
+   ?QIOOP 0803-0805 (slot 0804). The format record (data@0047.., nested `80 02 … 81`
+   rep wrapper, `p'99'` at data 0052-0056) is the armed [C090]/[C361]/[C362] machinery.
+2. **KEPT accepted anchor** `golden/e52p15/E521D/E521D.REL` (sha `edca27a01a50…`,
+   raw re-read this hop): the DEREF'd fixed-bin FORMAL `2A 0D 00 / 5E 23 56 EB / 3E 09
+   / CD.. / CD..` at 005F-006D (operand reloc 0060->data@000D descriptor cell). The
+   VARIABLE form differs by the ABSENCE of the deref quartet and by LHLD targeting the
+   variable's own cell. E521D stays a SINGLE accepted-unarmed witness (do-not-
+   generalise, P3-10 WF/WG law): the deref-Vint branch keeps refusing BY NAME.
+3. **Console-route twins, panel-proven**: the SAME item-lowering arm `Vint | Vbased _ |
+   Vbfix _` (codegen.ml ~13085) emits `lower_hl(Eident) / MVI A,vi.w / CALL ?QICOP /
+   tail`, and `tail` under `is_edit` is `?EDTOV` -- E46L3 `LHLD a / MVI A,09 / ?QICOP`
+   and E52PW/PX/PY/PZ/PA `… 3E 09 / ?QICOP / ?EDTOV`. **THE LOWERING ALREADY EXISTS;
+   `authorize_file_edit_item` (codegen.ml 12541) is the ONLY blocker** -- its non-deref
+   branch (12578-12584) admits `Vdec _` only; `Vint` falls to the `no_witness` arm.
+4. P3-15 hop-2 verified the FULL record machinery (EDITF/EDTOV/attach/skip/literal
+   sharing/nested rep) precedes and is independent of the guard.
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-A (auto fixed-bin item):** a plain MAIN- or block-level `fixed binary` automatic
+  variable as a file EDIT item emits EXACTLY the 11 B authentic chain
+  `LHLD <own cell> (DATA reloc) / MVI A,09 / CALL ?QICOP / CALL ?EDTOV` -- no deref
+  quartet, no QDCOP pair, width from the declared precision. FALSIFIER: any shift,
+  width byte, extra op or a `5E 23 56 EB` quartet in the VARIABLE item.
+- **H-B (LOAN2:177 twin):** the whole mixed statement -- skip prefix before EDITF,
+  literals with the shared-cell law, LOCAL auto + cross-block MAIN auto + deref'd DEC
+  formal in ONE list, the nested `2(a,p'99')` format -- is DR-ACCEPTED, and after the
+  one-clause arm my whole file is BYTE-EXACT vs the probe golden. FALSIFIER: any
+  `.PRN` error on the probe, or any cmp diff after the arm.
+- **H-C (STATIC boundary, honest perimeter):** the authentic object does NOT answer
+  the storage class (both LOAN2 fixed-bin items are autos). Probe C records the DR
+  verdict VERBATIM. MY SIDE ALREADY REFUSES THE DECLARATION ITSELF (`codegen: STATIC
+  on FIXED BINARY(15,0) is unsampled [TBD] … line 8`, sanity measured this hop) -- the
+  EDIT guard is UNREACHABLE for a static bin in this compiler; whatever DR does, the
+  arm decision rides ONLY on A+B, and C stays `my-gap`/unmeasured, never fitted.
+- **Perimeter (never generalise silently):** the `Vint -> ()` arm admits the PLAIN
+  non-deref variable class ONLY. Deref'd fixed-bin formals (E521D shape), based/
+  pointer/char-class items and every other guard arm keep the VERBATIM refusal text.
+
+### 4. Probes E523A..E523C (`probes/E523{A,C}.PLI` main-level, `E523B.PLI` the LOAN2
+class twin; CRLF + bare `^Z` + <=71 cols + ONE dcl per line + first-line label +
+`procedure(i);` header + a continuation statement after every put) -- predictions are
+the DECODED chains VERBATIM; whole-file identity is adjudicated by `cmp`, NEVER by
+size arithmetic (P3-13/14/15/16 lesson). Item chains below are opcode patterns; cells/
+addresses are bind layout and are NEVER predicted.
+
+| Probe | Statement under test | Predicted item chain (law-derived) | My side TODAY (sanity `215c4503…`, this hop) |
+|---|---|---|---|
+| E523A auto | `put file(pf) edit('\|','XX',a,'\|')(a,x(15),2(a,p'99'),a);` `a fixed binary` main auto | literals `LXI H,*C / MVI A,len / ?SLCTS / ?EDTOV`; `a`: **`2A lo hi (operand RELOC -> data cell) / 3E 09 / CD ?QICOP / CD ?EDTOV`** = 11 B, the LOAN2 yp/y pattern verbatim | rc=2 BY-NAME `PUT FILE(PF) EDIT of a variable bound as fixed-binary … (line 10)`, NO `.REL` (sanity HIT) |
+| E523B LOAN2 twin | LOAN2 177-178 VERBATIM on named `pf`: `put skip file(pf) edit` 8 items incl LOCAL `yp`, MAIN `y`, deref'd DEC formal `i` | B's yp/y chains = the same 11 B pattern (width 3E 09); `i` = armed deref-Vdec `LHLD desc / 3E 0A / ?DLDOP / 3E 0D / 06 02 / ?QDCOP / ?EDTOV`; prologue `?SIOOP / 3E 01 / ?SKPOP / LXI H,*C(table) / ?EDITF`, close `?QIOOP`; the two '\|' items share ONE literal cell | rc=2 BY-NAME `… (line 17)`, NO `.REL` (sanity HIT; skip+EDITF route NOT separately refused -- the list guard fires FIRST exactly as in LOAN2) |
+| E523C STATIC | `put file(pf) edit('\|',s)(a,2(a,p'99'));` `s fixed binary static` | H-C: DR verdict OPEN, recorded VERBATIM; if accepted, decode only, NO arm depends on C | rc=2 at the STATIC-DECLARATION guard `STATIC on FIXED BINARY(15,0) is unsampled [TBD] … line 8` (BEFORE the EDIT guard -- recorded honestly), NO `.REL` |
+
+### 5. Campaign + arm + validation + registration contract
+
+ONE grouped run `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900
+python3 oracle/batch.py E523A E523B E523C --tag e52p17 --switches '$L$D'`, rc DIRECT
+(NEVER pipeline-tail); read EVERY `.PRN`; decode EVERY accepted `.REL` FIRST-HAND into
+`build/p3-17/`; goldens + `summary.txt` + transcripts committed VERBATIM BEFORE any
+`ocaml/` byte; honest verdicts, NEVER invent a golden.
+
+ARM (iff E523A and E523B are DR-ACCEPTED AND my compile of the SAME probes is whole-file
+`cmp` rc=0 against their goldens): exactly ONE clause in the non-deref `PIvar` branch of
+`authorize_file_edit_item` (codegen.ml 12580-12581): add `| Vint -> ()` after `| Vdec _
+-> ()`, with a dated evidence comment (LOAN2 07BA-07C4/07D0-07DA + E523A/B). ZERO
+bind/emitter change; the deref branch and ALL other arms keep the VERBATIM refusal
+(marker substrings survive; E521D-form stays my-gap). Build rc=0 (grep the build log for
+`Error` BEFORE recording any fingerprint -- P3-16 lesson); NEW fingerprint determinism
+(default == fresh `_build-p317`); histogram codegen 68 / total 124 == baseline (fresh
+`--build-dir`); whole-file `cmp` of every accepted probe FRESH POSITIONAL into a NEW
+out dir; sweep -- COUNT MOVES WITH INVENTORY, FAILS 0 binding; markers (CRLF + bare
+`^Z`) incl. any E523 boundary re-measure; DEC regressions 64/0; divcheck 9/9; LOAN2
+UNMODIFIED POSITIONAL FRESH -> ACTUAL next blocker VERBATIM, NEVER fix (§6). **FULL
+GATE BEFORE CLOSE** (only the gate runs the negative panel) ->
+`build/gate-e52p17-reg.log`.
+
+Registration from **1307/189** -- COMPUTE expectations from panel deltas, never quote
+them: each accepted-and-byte-exact probe adds ONE SPECIMENS row (+k positives); each
+dr-refuses probe goes to REJECTS (+r) with VERBATIM `.PRN` evidence; any prose edit of
+a REJECTS row needs the SAME-change `--update-inventory` (P3-15 gate-found law);
+`git diff --cached --stat`; config NEVER staged; census OWN path (expect counts
+15/0/26/0; the LOAN2 msg MOVES VERBATIM, NOTHING fixed); **C375 written from MEASURED
+BYTES ONLY BEFORE ANY `spec/COVERAGE.tsv` touch** (reproduce every cited byte/span from
+raw records FIRST-HAND -- P3-16 lesson, hop-1 labels already corrected once this hop);
+coverage: read row 66 `IO.PUT_EDIT` (currently EXACT:45) FIRST-HAND and adjudicate the
+EXTEND count (expect 45 + accepted probes sharing its law; a NEW row needs explicit
+justification + SAME-change IDS line; NEVER `coverage_gen.py`; 15 cols from the FIRST
+NON-COMMENT row); `coverage_check` + prose rc=0; FULL gate rc=0 DIRECT; RESULTS §P3-17
+(every §4 miss VERBATIM; the DATED hop-1 label corrections; parity table) + PLAN §5
+progress row INSIDE the table **anchored by LINE NUMBER with the 7-unescaped-pipes
+assert RUN IN CODE** (escape raw `\|`) + §P3-17 **CLOSED**.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the arm lands byte-exact, LOAN2 moves PAST line 177. The next refusal is NOT
+predicted -- lines after 178 were NOT audited as candidates; record the ACTUAL verbatim
+diagnostic. If LOAN2 unexpectedly emits a complete `.REL`, go STRAIGHT to whole-file
+parity against `golden/first/LOAN2/LOAN2.REL` (sha `712cfcb2…`, NEVER re-derived) and
+report the FIRST genuine difference; a matching CODE stream is NOT completion. LOAN2
+stays UNMODIFIED (sha `7be23ba3…`). **After §P3-17 closes: STOP. The marathon slice
+budget (8 of <=8) is EXHAUSTED; no P3-18 without a new operator decision.**
+
+### 7. Framing binding on C375 wording
+
+C375 is BYTE-TIER ONLY -- every statement derives from MEASURED BYTES (authentic
+goldens + this campaign), never from runtime behaviour or PLILIB semantics. The claim
+may say the OBJECT shows LHLD/width/QICOP/EDTOV in a byte order and a reloc pointing at
+a DATA cell; it may NOT claim what `?QICOP`/`?EDTOV` DO at run time beyond recorded
+bytes. If the probe bytes deviate from the authentic chain, the DIFFERENCE is recorded
+as a measured DR fact and the arm NARROWS to the measured shapes -- never a fit; if
+either A or B fails to land byte-exact, the arm is NOT taken at all.

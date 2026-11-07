@@ -1,0 +1,23 @@
+E523B: procedure options(main);
+   /* E2E-52/P3-17 probe B (PLAN H-B): the exact */
+   /* LOAN2 177-178 statement class - put skip   */
+   /* file EDIT list with a LOCAL fixed-bin auto,*/
+   /* a MAIN fixed-bin auto and a deref'd DEC    */
+   /* formal in ONE list; LOAN2 format verbatim. */
+   dcl pf file;
+   dcl y fixed binary;
+   dcl q fixed decimal(10,2);
+   open file(pf) print;
+   call cy(q);
+   put skip list(y);
+cy: procedure(i);
+   dcl yp fixed binary;
+   dcl i fixed decimal(10,2);
+   yp = y;
+   put skip file(pf) edit
+      ('|','Interest Paid During ''',yp,'-''',y,' is ',i,'|')
+      (a,x(15),2(a,p'99'),a,p'$$$,$$$,$$9V.99',x(16),a);
+   put skip list(yp);
+   end cy;
+end E523B;
+

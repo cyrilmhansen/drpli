@@ -1,0 +1,13 @@
+E523C: procedure options(main);
+   /* E2E-52/P3-17 probe C (PLAN H-C boundary):  */
+   /* the EDIT item is a STATIC fixed-bin        */
+   /* variable -- the storage class the authentic*/
+   /* LOAN2 object does NOT answer (its fixed-   */
+   /* bin items are autos). Verdict as measured. */
+   dcl pf file;
+   dcl s fixed binary static;
+   open file(pf) print;
+   put file(pf) edit('|',s)(a,2(a,p'99'));
+   put skip list(s);
+end E523C;
+
