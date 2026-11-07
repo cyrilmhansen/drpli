@@ -50,8 +50,11 @@ let scan_ident t =
   Token.Ident { orig; key = up orig }
 
 (* quoted literal; '' escapes a quote; optional b/x suffix.
-   NOTE [PROBE 3]: caret ^x sequences inside strings are runtime
-   conventions — preserved verbatim here. *)
+   [E2E-52/P3-19] caret decoding measured by E524A/E524B (golden e52p19,
+   zero 5E in golden DATA; '^z' -> 1A, '^i' -> 09): DR masks the high three
+   bits off the character AFTER a caret at literal assembly (manual
+   1044-1056), one byte per pair.  A caret followed by a quote, CR, LF or
+   EOF is UNMEASURED and passes through verbatim ([TBD] honesty). *)
 let scan_string t start =
   let buf = Buffer.create 16 in
   advance t (* opening quote *);
@@ -64,6 +67,13 @@ let scan_string t start =
       advance t;
       if peek t = '\'' then begin Buffer.add_char buf '\''; advance t end
       else closed := true
+    end else if c = '^'
+              && (match peek ~k:1 t with
+                  | '\'' | '\000' | '\r' | '\n' -> false
+                  | _ -> true) then begin
+      advance t;
+      Buffer.add_char buf (Char.chr (Char.code (peek t) land 0x1f));
+      advance t
     end else begin Buffer.add_char buf c; advance t end
   done;
   let value = Buffer.contents buf in
