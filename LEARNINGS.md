@@ -8622,3 +8622,69 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"`
   every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier;
   config NEVER staged; no push.
+
+## P3-16 hop 6 CLOSED 2a9215dd — C374 `85500489` + coverage 8→12 `0e20023f` + FULL gate rc=0 EVERY NUMBER HIT (session 01a1b504, chain 01a1b2d5 renewal 12/12 = CAP reached; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — the whole hop-5 contract executed EXACTLY, in order:** C374
+  measured-bytes-only committed BEFORE any `spec/COVERAGE.tsv` touch; every cited
+  byte/span/record re-verified FIRST-HAND from the KEPT goldens at claim time
+  (`build/p3-13/p13dump.py rawcode/data` + `tools/reldump.py`): A block `0006-0020`
+  = 27 raw B opcode-stream-identical to authentic LOAN2 `0738-0752` (also 27 B);
+  DEF fields A `006A/001C`, B/C `0074/0019`, D `006F/0017`, E `007F/001F`;
+  `cmp -l` B/C = EXACTLY 5 bytes (0-based 6/19/28 packed names + 112/113 `SU`→`AD`
+  chain-NAME record bytes); claim-time `cmp` 4/4 rc=0 FRESH positional
+  `build/p3-16/claim-out/` on armed `215c4503…`; E522E rc=2 NO `.REL` `Line 13`;
+  all 5 `.PRN` NO ERROR(S) both passes. Coverage EXTEND `PROC.CALL_DEC_ACTUALS`
+  EXACT:8→12 (samples +E522A..D, IDS line UNCHANGED — extension not new row; law
+  column extended, perimeter column got a DATED SUPERSEDED correction of the
+  false-as-written "admits ONLY … a single Mul" clause); coverage_check rc=0 145/0/0
+  SUPPORTED 95. FULL gate rc=0 DIRECT `build/gate-e52p16-reg.log`: **1307/0,
+  189/189 (E522E NEG-OK VERBATIM), 9/9, 145 rows, census 15/0/26/0, prose 5** —
+  every pre-registered number HIT. RESULTS §P3-16 + PLAN §5 row inserted INSIDE the
+  table after line 106 (7-UNESCAPED-pipe check asserted IN CODE before insert —
+  escaped `\\|` inside the Ast pattern; my FIRST attempt asserted 8 and correctly
+  refused to write) + §P3-16 heading OPEN→CLOSED; prose rc=0 throughout.
+- **ACCEPTED — DATED working-note corrections recorded at C374 (never silent):**
+  (a) hop-3 decode `E522A DATA 0014` was the temp CELL value inlined in the vector
+  cell; the DEF-DATA-SIZE RECORD is **001C** (`tools/reldump.py`). (b) the §4 block
+  labels `22/32/27 B` were composed-op labels; raw INCLUSIVE spans are A 27, B/C 37,
+  D 32, E 48 bytes — the pre-registered byte SEQUENCES all HIT, ZERO misses.
+- **ACCEPTED — first-hand lesson reconfirmed:** count raw spans yourself; do not
+  carry a predecessor's size label into a claim without reproducing it from bytes.
+- **STILL OWED (successor; P3-17, slice 8 of ≤8 = LAST of the marathon):**
+  (1) ZERO-oracle pre-audit FIRST-HAND of the ACTUAL Line-177 blocker
+  `PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary has no byte-exact DR
+  witness [TBD] (line 177)` — read `artefacts/LOAN2.PLI` line 177 + its authentic
+  LOAN2.REL route BEFORE proposing anything; anchor witness ALREADY KEPT:
+  `golden/e52p15/E521D/E521D.REL` (DR-ACCEPTED fixed-bin formal item, chain `005F-006D`
+  `2A 0D 00 / 5E 23 56 EB / 3E 09 / ?QICOP@0069 / ?EDTOV@006C`, table `80 00 03 FF 81`
+  at `data@0000`, sha `edca27a01a50`) — but note LOAN2:177 edits a fixed-bin
+  VARIABLE (not a formal): audit the PREP difference before predicting bytes.
+  (2) Verify `E523*` probe names + tag `e52p17` UNUSED
+  (`grep -n "E523" spec/INVENTORY.txt`, `grep -rn e52p17 spec golden`). (3) Write
+  PLAN §P3-16-style §1–§7 + probes + LEARNINGS and commit by EXPLICIT paths
+  BEFORE any oracle call or `ocaml/` byte. (4) ONE campaign e52p17; goldens
+  VERBATIM first; arm measured shapes ONLY (the E521D do-not-generalise law + the
+  single-witness rule apply — extend `authorize_file_edit_item` ONLY if the
+  measured LOAN2-177-class shape pins it); full validation tail incl. **FULL GATE
+  BEFORE CLOSE** → `build/gate-e52p17-reg.log`; register from **1307/189**
+  (COMPUTE from panel deltas; refusals MOVE with REJECTS rows); C375
+  measured-bytes-only BEFORE COVERAGE; coverage EXTEND `IO.PUT_EDIT` (row 66,
+  EXACT:45) adjudicated first-hand; RESULTS §P3-17 + PLAN §5 row (LINE-NUMBER
+  anchor + 7-pipe assert) + CLOSED. (5) After P3-17: the marathon slice budget is
+  EXHAUSTED — STOP, report LOAN2 status (blocker after 177 VERBATIM, never fix),
+  do NOT start P3-18 without a new operator decision.
+- **CHAIN STATE:** this session entered at renewal 12/12 of chain 01a1b2d5 (cap).
+  RENEWAL IS NOT AVAILABLE — this session closes via `handoff_finalize`. A NEW
+  chain needs the operator to archive + reset the ignored
+  `.pi-guard/renewal-state.json`.
+- **STATE:** HEAD = this session's durables commit; armed binary
+  `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175` == tree
+  (build rc=0 DIRECT re-held this session); ledger ENDS **C374** (197 headers);
+  inventory **1307/189**; coverage **145/95**; LAST gate rc=0
+  `build/gate-e52p16-reg.log`; goldens `golden/e52p16/`+`golden/e52p15/` KEPT
+  NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` Line-177 VERBATIM NEVER
+  fix; EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` NO `-o`;
+  `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize
+  dependent bash; byte-tier; build/ git-IGNORED evidence never `git add -f`;
+  ALWAYS `git diff --cached --stat`; config NEVER staged; no push.
