@@ -12578,6 +12578,25 @@ let authorize_file_edit_item st (fu : string) (ln : int) (it : pitem) =
       else (
         match vk_of st n.Ast.orig with
         | Vdec _ -> ()    (* P086K 0028-0039, P086J 0025-0036 -- the SAME prep both routes *)
+        | Vint -> ()
+            (* [E2E-52/P3-17 arm 2026-11-08] E523A and the LOAN2:177-class twin E523B
+               (golden/e52p17, DR `NO ERROR(S)' in PASS 1 and PASS 2) MEASURE a plain FIXED
+               BINARY automatic variable as a file EDIT item: `LHLD <own cell>' (operand
+               RELOC -> DATA) / `MVI A,09' (declared width) / `CALL ?QICOP' / `CALL ?EDTOV'
+               -- ELEVEN bytes, with NO `5E 23 56 EB' deref quartet and NO `MVI B,s' /
+               `?QDCOP' pair.  E523A chain 0049-0053 (LHLD data@0017, QICOP slot 004F, EDTOV
+               slot 0052); E523B yp 007A-0084 (data@0054, slots 0080/0083) and y 0090-009A
+               (data@0048, slots 0096/0099); the authentic LOAN2.REL line-177 route pins the
+               SAME two chains at 07BA-07C4 and 07D0-07DA (ledger C375).  The lowering arm
+               `Vint | Vbased _ | Vbfix _' below ALREADY emits exactly that sequence (console
+               twins E46L3, E52PW/PX/PY/PZ/PA are panel-proven), so this clause only opens the
+               guard -- ZERO bind/emitter change.  PERIMETER (do-not-generalise, P3-10 WF/WG
+               law): the PLAIN non-deref variable class ONLY.  A deref'd fixed-bin FORMAL
+               keeps refusing BY NAME in the branch above -- E521D is a SINGLE
+               accepted-unarmed witness and stays an honest my-gap golden.  E523C measured DR
+               ACCEPTING `dcl s fixed binary static' (item chain byte-identical, LHLD
+               data@0010) but THIS compiler refuses the STATIC declaration itself (honest
+               my-gap), so NOTHING here is armed on C's authority. *)
         | vk ->
             no_witness ("a variable bound as " ^ vk_name vk)
               "P086K/P086J measure the DEC variable and LOAN2 measures the string literal; \
