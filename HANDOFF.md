@@ -1660,25 +1660,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 500
-checkpoint-id: g500-92f6f73afce4
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 501
+checkpoint-id: g501-8e0f155501a0
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4689, session 01a1b4e5-a1c1-71e7-84a1-51008d8151ff)
-checkpointed: 2026-11-07T07:57:44.465Z
+status: checkpoint (guard level 4, remaining ~575, session 01a1b4e5-a1c1-71e7-84a1-51008d8151ff)
+checkpointed: 2026-11-07T07:59:05.656Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 53c2c2e3de77b4f9ff645f4cef2c6df9a434a200337f5192507446e82a4f67dc
-source-handoff: 901fa6cb19ccd7f81f59ae7c151e7d02f8f83eb1ff9523f50a3f9c14c4a8bc99
+source-handoff: a5854c0d6aac74da83f8f0b3018c49e83f86fb2bb0efcd99affbeacec42aa01f
 source-learnings: 766fe701ac3601ead71ef71389f1dd82633e7f13c4d415627bda090b4278dcd6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1b4e5-a1c1-71e7-84a1-51008d8151ff
-readiness-at: 2026-11-07T07:58:03.413Z
-readiness-checkpoint: g500-92f6f73afce4
+readiness-at: 2026-11-07T07:59:05.688Z
+readiness-checkpoint: g501-8e0f155501a0
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
@@ -2339,5 +2339,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-16 hop 4 ARM LANDED 85bc0463: guard widened Ebinary(Mul|Add|Sub) non-recursive dec_arith_operand; cmp E522A/B/C/D 4/4 rc=0 FRESH build/p3-16/arm-out/; E522E nested DR-accepted UNARMED (my-gap, REJECTS owed); LOAN2 advanced VERBATIM to Line-177 fixed-bin EDIT NEVER fix; fingerprint 215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175 (grep-build-output-for-Error lesson). NEXT (LEARNINGS § hop 4 STILL-OWED BINDING): /handoff verify+refresh; validation tail (histogram 68/124 fresh --build-dir, sweep count-moves-with-inventory FAILS 0, markers incl E522E rc=2 Line-13, DEC 64/0, divcheck 9/9); register from 1303/188 COMPUTE +4 SPECIMENS +1 REJECTS expect 1307/189 by REAL --update-inventory; census msg MOVES VERBATIM; C374 measured-bytes-only BEFORE COVERAGE (L1-for-Add+actual-context DATED extends C086; L5 window Mul->Add/Sub; E522E accepted-unarmed); coverage EXTEND PROC.CALL_DEC_ACTUALS 8->12; FULL gate -> build/gate-e52p16-reg.log; RESULTS §P3-16 + PLAN §5 row line-anchored 7-pipe + CLOSED; P3-17 Line-177 (E521D golden already the fixed-bin witness; ZERO-oracle pre-audit; E523*/e52p17 unused; pre-register BEFORE oracle; slice 8 of <=8 LAST). Goldens golden/e52p16/ NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT; opam env every shell; never glue rm; never parallelize dependent bash; byte-tier; chain 01a1b2d5 10/12 cap 12.
+P3-16 hop 5 LANDED (session 01a1b4e5, chain 01a1b2d5 renewal 11/12): validation tail + REGISTRATION `7fd4cdfd` inventory 1307/189 EXACT; sweep 185/0 markers 15/15 DEC 64/0 divcheck 9/9 histogram 68/124 fingerprint 215c4503 default==fresh _build-p316; census LOAN2 msg MOVED VERBATIM Line-177 NOTHING fixed; durables `68bdef52`. SUCCESSOR (BINDING = LEARNINGS § "P3-16 hop 5" STILL OWED): (1) C374 measured-bytes-only BEFORE ANY COVERAGE touch (bullets there; A DATA-SIZE 001C correction; B/C 5-file-byte name-only identity 6/19/28+112/113 = H-D witness; L1 FOR ADD dated-extends [C086]; L5 Mul->Add/Sub; D window-only UP d=02 DSTOP A=07; E522E accepted-UNARMED; BY-NAME perimeter; byte-tier). (2) coverage EXTEND PROC.CALL_DEC_ACTUALS EXACT 8->12 IDS unchanged NEVER coverage_gen.py; coverage_check+prose rc=0. (3) FULL gate rc=0 DIRECT -> build/gate-e52p16-reg.log expect 1307/0, 189/189, 9/9, 145 rows SUPPORTED 95, census 15/0/26/0, prose 5. (4) RESULTS §P3-16 + PLAN §5 row INSIDE table LINE-ANCHORED 7-pipes + CLOSED. (5) P3-17 Line-177 fixed-bin EDIT ZERO-oracle pre-audit (E521D golden KEPT witness; verify E523*/e52p17 unused; pre-register BEFORE oracle/ocaml byte; slice 8 of <=8 LAST). Goldens golden/e52p16/+e52p15/ NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT NO -o; opam env every shell; never glue rm; never parallelize dependent bash; build/ git-IGNORED never git add -f; chain 11/12 used cap 12 — 12/12 successor closes via handoff_finalize.
 <!-- guard:end checkpoint -->
