@@ -699,8 +699,21 @@ and parse_stmt_body p q labels =
       Sgoto { tgt = n; subscript = opt_paren_exprs p }
   | Token.Ident { key = "CALL"; _ } ->
       advance p;
-      let e = expr0 p in
-      Sprocedure_stmt { target = e; args = [] }
+      (* [E2E-52/P3-14] A CALL STATEMENT target is a procedure DESIGNATOR, never a
+         builtin function value: the operand is read as a plain identifier plus its
+         suffix chain WITHOUT consulting `builtins`, so `call summary();` (LOAN2
+         line 121 — an internal procedure shadowing the SUMMARY builtin key) reaches
+         codegen as Eident/Suffix and lowers through the ordinary [C123]/[C124]
+         route.  DR adjudicated: E520B/E520C are ACCEPTED with CODE byte-identical
+         to the non-shadow control E520A (only the packed program-name records
+         differ) [golden/e52p14b].  The bare-statement arm (`id;`) below is
+         deliberately UNCHANGED: DR REFUSES bare `summary();` (E520E, SYNTAX ? at
+         line 14 on both passes), so the non-CALL route keeps its BY-NAME [TBD]
+         refusal.  Expression-position `primary` is untouched — builtin capture
+         stays exactly where it was measured. *)
+      let n = name_any p in
+      let target = suffix_chain p { e = Eident n; epos = n.pos } in
+      Sprocedure_stmt { target; args = [] }
   | Token.Ident { key = "ALLOCATE"; _ } ->
       advance p;
       let e = expr0 p in
