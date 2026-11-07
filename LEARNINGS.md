@@ -8925,3 +8925,52 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   no push; chain 01a1b554 renewal 8/12 used, cap 12. **NEXT ACTION = PROGRESS.md `## Next
   action` hop-4 contract (pre-register PLAN §P3-18 by EXPLICIT paths BEFORE any `ocaml/lib/`
   byte, then implement, then LOAN2 verdict, then tail → C376 → coverage → gate → close → P3-19).**
+
+## E2E-52/P3-18 hop 4 — PRE-REGISTRATION + STATIC-ADDRESS CONSUMER AUDIT CLOSED BY ZERO-ORACLE SANITY; IMPLEMENTATION OWED (2026-11-08, session 01a1b6c2, chain 01a1b554 renewal 9/12; ZERO oracle; ZERO `ocaml/` byte BEFORE this pre-registration; goldens untouched; scratch never staged)
+
+- **ACCEPTED — recovery verified first-hand:** HEAD `9eea8876`; the guard's g528 switch
+  refresh (HANDOFF/PROGRESS managed blocks) committed VERBATIM as `b39021e9`; `dune build`
+  rc=0 with ZERO `Error` (`build/p3-18/build-hop4-verify.log`); binary sha256
+  `b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f` == tree.
+- **ACCEPTED — the hop-3 PROPOSED consumer question is now MEASURED (ZERO oracle, rc
+  DIRECT, probes in ignored `/tmp/p318sanity/`, NOT added to the repo panel):**
+  **SAN1** `dcl a(3) fixed bin static;` → rc=2 `codegen: [TBD] STATIC array is not
+  independently characterized [C159/AB5]`, raised at **`bind.ml:1048-1056`** — the refusal
+  happens IN BIND, before codegen ever builds a statics record, so a static array can NEVER
+  appear in `sy_addrs`/`sy_cells`/`sy_total` and no array-element consumer of a bind-relative
+  static address exists below that boundary (`addr_of_raw`'s `Suf_element` path only ever
+  sees AUTOMATIC arrays). **SAN3** static STRUCTURE head (`dcl 1 rec static, 2 a fixed bin,
+  2 c char(3);`) → rc=2 `STATIC on FIXED BINARY(15,0) MEMBER OF REC@0 is unsampled [TBD] …
+  line 3` — every member row falls into the `collect_statics` catch-all, and `bind.ml`
+  (comment ~912) never aliases an explicitly-static head, so member addressing ALWAYS goes
+  through the (shifted) owner path or refuses. **SAN2** control (`char(3) static
+  initial('AB')` alone) → rc=0, 256 B, `code=38 data=2`. CONCLUSION: `sy_addrs`/`sy_cells`
+  carry ONLY `BIT(1)`/`CHAR(n)`/`CHAR(n) VARYING` scalars; the hop-3 shift surface
+  (`stat_addrs` via the single reader `addr_of_raw` + the `sy_cells` addresses) is
+  COMPLETE — one shift covers every consumer.
+- **ACCEPTED — emission-site mechanics re-read first-hand this hop:** `pool_alloc`
+  (codegen.ml 530) RETURNS the allocated address and appends `st.pool` in allocation order,
+  so `prealloc_fmt_tables` can RECORD its table blocks (addresses + bytes) instead of the
+  emission site re-deriving them through the wrong index window; `List.sort` is STABLE, so
+  address-equal blocks keep allocation order; with `sy_cells = []` the new stream equals the
+  old one BY CONSTRUCTION (P086K cannot move).
+- **LANDED — PRE-REGISTRATION (this commit, BEFORE any `ocaml/lib/` byte, PROTOCOL #1):**
+  PLAN §P3-18 §1–§5 appended to `spec/lab-evidence/e2e52-p3/PLAN.md` + §5 progress row
+  LINE-anchored at line **109** (after the P3-17 row at 108; 7-unescaped-pipes assert RUN IN
+  CODE — passed at 7 on the first attempt). §1 blocker VERBATIM; §2 golden evidence + H-A/
+  H-B FALSIFIED with byte citations; §3 the allocation+record-order law as **PROPOSED** with
+  four falsifiers (C152 assertion fires; any both-sides golden moves; whole-file cmp differs;
+  consumer-surface assumption — now measured); §4 NO-PROBE decision (`E524*`/`e52p18` remain
+  UNUSED — the golden already measures the class; minimum-evidence rule); §5 the implementation
+  + validation + registration tail (sweep FAILS 0 → LOAN2 whole-file cmp verdict → register →
+  C376 measured-bytes-only BEFORE ANY COVERAGE touch → coverage `STOR.STATIC_MEMBER_INITIAL`/
+  `IO.PUT_EDIT` FIRST-HAND → FULL gate `build/gate-e52p18-reg.log` → RESULTS + §5 finalisation
+  + CLOSED → P3-19).
+- **STATE:** ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95
+  EXACT:47**; LAST gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfb…` == tree; goldens
+  KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` NEVER fix; standing constraints
+  per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"`
+  every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier;
+  `build/` + `ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no push);
+  chain 01a1b554 renewal 9/12 used, cap 12. **NEXT = implement per PLAN §P3-18 §5.1 in this
+  session (hop 4 continues), then the §5.2–§5.7 tail.**
