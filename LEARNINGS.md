@@ -9100,3 +9100,83 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
 - **OWED VERBATIM — EDIT 3/3 same file, prescan MIRROR `pdec_operand_bytes` (~1880):** in the `Ast.Ebinary ((Ast.Add | Ast.Sub) as op, l, r)` arm, function `prec x` gains ONE arm before `| _ -> None`: for `Ast.Ebinary (Ast.Div, dl, dr)` compute the QUOTIENT SCALE exactly as `dv_of` does: dividend p,s ONLY from `cx.pd_vars` (`Ast.Eident n` -> `Some (Vdec (p,s))`, else None); divisor scale: `Ast.Enumber t` -> own digits count irrelevant, scale 0; `Ast.Eident` -> pd_vars scale; any other shape -> None (mirrors lowering refusals; C152 is the lockstep check, NEVER adjust `base`). Result `Some (15, sl + (15 - pl) - sr)`. Then in `side lit other`, when `prec other = Some (po, sc)` the existing `pdec_dec_cell cx po sc k` line already gives 8-byte demand for `1` (image `00 00 00 00 00 00 10 00`).
 - **THEN (contract hop-5 steps unchanged):** `eval "$(opam env)"; cd ocaml && dune build` rc=0 ZERO `Error` (stale-exe law: grep `Error`) → FRESH POSITIONAL probe parity A/B/C vs `golden/e52p19/` → LOAN2 UNMODIFIED whole-file `cmp` vs `712cfcb2…` (the ONLY finale; PARTIAL ⇒ record first divergence VERBATIM) → tail (fingerprint fresh `--build-dir`; hist 68/124; markers argv; DEC 64/0; divcheck 9/9; sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0) → REAL `--update-inventory` → census OWN path → **C377 measured-bytes-only BEFORE ANY COVERAGE touch** → coverage FIRST-HAND → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe, escape `\|`) + CLOSED.
 - **RENEWAL NOTE (tool refusal, first-hand):** `handoff_renew` refused `not-authorized: no current transactional checkpoint id (missing/corrupt/stale)` — the prose commit after g540 legitimately STALE-ized the checkpoint; recovery order is: commit durables → `handoff_finalize` (refreshes + attests synchronously) → `handoff_renew` on the next safe boundary.
+
+## E2E-52/P3-19 hop 5 LANDED — ARM + PARITY + **LOAN2 WHOLE-FILE BYTE-EXACT (P3 FINALE)** + TAIL + REGISTER + CENSUS; C377 → COVERAGE → GATE → CLOSE OWED (session 01a1b7bc, fresh chain renewal 1/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — EDIT 2/3 + 3/3 landed VERBATIM** (`b78f00f6`, codegen.ml only): the
+  `let rec dpartner ... and nop_cx ... and round_arg_cx ... and round_split ... and
+  round_n ... and round_shape ... and dchild_cx ... and dv_of ...` group (ALL
+  intervening bindings must join the group — an `and` cannot follow a standalone
+  `let`); dpartner arm `| Ast.Ebinary (Ast.Div, _, _) -> Some (15, (dv_of st
+  nop_cx e).sc)` with dated E524B comment; prescan `prec` mirror arm
+  `Ast.Ebinary (Ast.Div, dl, dr)`: dividend `Eident` p,s ONLY from pd_vars,
+  divisor `Enumber` -> scale 0 | `Eident` -> pd_vars scale | else None; result
+  `Some (15, sl + (15 - pl) - sr)` (equals dv_of for n=0 and n>0 since p<=15).
+  TOOL INCIDENT honestly recorded: my first prescan edit produced malformed OCaml
+  (stray `> ->` + consumed the `| _ -> None` fallback) — caught by FIRST-HAND
+  re-read, rewritten clean BEFORE the build.
+- **ACCEPTED — EDIT 1/3 (lexer caret decode, f34fd422) BUILT**: `dune build` rc=0
+  ZERO `Error` (grep, stale-exe law) `build/p3-19/build-hop5.log`. ARMED binary
+  sha256 **`baec1f826cd789dddd77a2f4438550598cb9f07f9d09669df4abfb10a74d58a9`**
+  deterministic (default == fresh `_build-p319b`, ZERO Error); supersedes unarmed
+  `f93b86ea…`. Histogram codegen **68** / total **124** == baseline (bind 30,
+  parser 12, ir 8, token 4, bin 1+1).
+- **ACCEPTED — probe parity 3/3**: E524A 384 B / E524B 768 B / E524C 512 B whole-file
+  `cmp` rc=0 vs `golden/e52p19/` FRESH POSITIONAL `build/p3-19/hop5-out/`.
+- **ACCEPTED — P3 FINALE (MEASURED, NOT YET CLAIMED)**: LOAN2 UNMODIFIED (source sha
+  `7be23ba3…` re-verified) rc=0, `.REL` **7680 B**, WHOLE-FILE `cmp` **rc=0** vs
+  `golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…` — the P3-18 byte-324 divergence and
+  the entire pool-literal class are CLOSED by this arm. Claim C377 (owed) must
+  re-HOLD the cmp FRESH POSITIONAL at claim time and cite ONLY bytes reproduced
+  FIRST-HAND; until then LOAN2-exact is a MEASURED fact of this hop, not a ledger claim.
+- **ACCEPTED — tail**: markers **16/16 MARKER_FAILS 0** (`build/p3-19/markers-hop5.log`)
+  incl **N32_DIV_CHAINED still refused** — the `dv_of pv = None` law held exactly as
+  contracted; DEC regressions 64/0; divcheck 9/9; sweep pre-reg 187/0 → post-reg
+  **190/0 FAILS 0** (+3 = count-moves-with-inventory law HIT again).
+- **ACCEPTED — registration `4747cbee`**: SPECIMENS +3 with measured-byte comments
+  (ALL bytes re-derived FIRST-HAND this hop via p13dump sizes/data + reldump DEF
+  records, P3-16 law: A code used 71/max 0047 DATA 0021 zero `5E`, cells 0000/0001/
+  0010 lens 01/0F/11; B CODE 00B2 DATA 0053, `00 12 00`@0011-13, 10^13@0014-1B,
+  10^14@001C-23, ext slots DLDOP66/QDDSL71/DLDOP79/DDVOP82/DLDOP90/DADOP93/QDDSR98/
+  DSTOP106/DLDOP114/DSTOP122; C CODE 005E DATA 0014, slots SKPOP24, cells 0000/0009
+  A=09). REAL `--update-inventory` **1312 specimens / 190 refusals** EXACT (+3, never
+  forced; diff = exactly 3 lines, every line inspected). Census OWN path `--check`
+  rc=1 BY DESIGN: counts **MOVE 15/1/25/0 → 16/0/25/0 — LOAN2 DIFFERS → EXACT**,
+  binary_md5 `afaae6e8…→ce0e030a…`, committed `a87a8ed9`.
+- **PROPOSED (carried, unchanged)**: nothing armed on unmeasured shapes; `^` before
+  quote/CR/LF/EOF passes through verbatim ([TBD] in lexer comment).
+- **SUCCESSOR CONTRACT (hop 6 = CLOSE-OUT, EXACT ORDER)**: (1) recover: HEAD = this
+  session's durables + guard commits; build rc=0 ZERO Error; binary sha256 MUST equal
+  `baec1f826cd789dddd77a2f4438550598cb9f07f9d09669df4abfb10a74d58a9` == tree;
+  RE-HOLD FRESH POSITIONAL cmp E524A/B/C + LOAN2 whole-file (claim-time). (2) **C377
+  measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** (append after C376;
+  ledger ENDS C376, 199 headers): bullets — caret-decode law (byte = char code land
+  1F, one byte per pair, falsifier zero `5E` in golden DATA [E524A]); per-literal
+  SEPARATE cells law (hop-1 merge law FALSIFIED, E524A + E524B P1/P3/P4 adjacency);
+  quotient-alignment law (additive literal against a DIV partner aligns to (15,
+  quotient scale) — E524B `1` -> 10^13 8-byte cell + `?QDDSR 8` + `?DSTOP A=07`; own
+  `15 - pl` formula [C086 L3/L4/L8] reconfirmed); LOAN2 whole-file byte-exact vs
+  `712cfcb2…` 7680 B — P3-18 my-gap CLOSED, classify as measured my-gap-closed +
+  P3-finale; perimeter: `^`-before-quote/EOL UNMEASURED verbatim pass, N32_DIV_CHAINED
+  stays refused (pv None); byte-tier NOT-say. Commit spec/CLAIMS.md explicit path.
+  (3) coverage FIRST-HAND: grep `spec/COVERAGE.tsv` for the literal-pool / DEC-literal
+  / EDIT rows this evidence touches (candidates: the pool-literal row family and
+  `IO.PUT_EDIT` col4/col15/col11 +E524A,B? adjudicate against the row laws, NEVER
+  assume; EXTEND preferred, NEW row needs SAME-change `spec/COVERAGE-IDS.txt` line;
+  NEVER coverage_gen.py; 15 tab cols; then coverage_check + file_prose_check rc=0).
+  (4) FULL gate rc=0 DIRECT → `build/gate-e52p19-reg.log` (expect 1312/0, 190/190,
+  9/9, rows per adjudication, census **16/0/25/0**, prose 5). (5) RESULTS §P3-19 in
+  `spec/lab-evidence/e2e52-p3/RESULTS.md` (parity table 3 rows + LOAN2 finale row,
+  sizes/cmp re-read FIRST-HAND at close; H-A/H-B'/H-C CONFIRMED; ZERO §4 misses if true;
+  byte-tier) + PLAN §5 row INSIDE table anchored by LINE NUMBER after 109 with the
+  7-unescaped-pipes assert RUN IN CODE (escape raw `|` as `\|`) + §P3-19 heading
+  **CLOSED**; prose rc=0; commit explicit paths. (6) **P3-19 IS THE LAST SLICE of the
+  corrected operator budget — after CLOSE, STOP and report the LOAN2 finale to the
+  operator; open NOTHING new without authorization.** (7) commit refreshed guard
+  blocks VERBATIM; if stale use handoff_finalize then renew on the next boundary.
+  STATE: inventory 1312/190; coverage 145/95 EXACT:47 (until hop-6 adjudication); LAST
+  gate rc=0 `build/gate-e52p18-reg.log`; goldens `golden/e52p19/` KEPT VERBATIM NEVER
+  re-derived (`dir.txt` leftovers NEVER staged); POSITIONAL `pli80c.exe IN OUT` NO `-o`;
+  `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize
+  dependent bash; byte-tier; `build/`+`ocaml/scratch-*`+`ocaml/_build-*` NEVER staged;
+  `handoff.config.json` NEVER staged; no push.
