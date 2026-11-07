@@ -1672,3 +1672,128 @@ UNMEASURED pending the corrected twin. NEW PROBE LAW (accepted): DR headers are
 DR-only syntax (my parser accepts both). Corrected probes (identical statements, header
 fixed) re-measure under tag **e52p14b**; `golden/e52p14/` KEPT UNTOUCHED as the campaign-1
 record (precedent e52p3d, e42p0b/c).
+
+## Subround P3-15 — FILE-EDIT ITEM ON A DEREFERENCED DEC FORMAL: the guard clause that refuses the one item class the authentic LOAN2 display body proves — PRE-REGISTERED 2026-11-07 (operator marathon brief; chain 01a1b2d5 renewal 6/12; baseline HEAD `96f7a85d`+guard `936eeb61`, ledger ENDS C372, inventory 1300/187, coverage 145/95, armed binary `b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2`)
+
+### 1. Measured blocker (VERBATIM) + pre-audit (hops 1–2, ZERO oracle)
+
+Re-measured THIS hop on the armed binary, POSITIONAL FRESH (`build/p3-15/recheck/`):
+rc=2, NO `.REL`:
+
+`codegen: PUT FILE(OUTPUT) EDIT of the FORMAL A has no byte-exact DR witness [TBD] (line 147) -- the file EDIT route is lowered for the item classes its objects pin: the DEC variable of golden/probe55/P086K and the string literal of LOAN2's own golden (115: MVI A,01/?SLCTS/?EDTOV at 053F-0542; 199: six literal chains against one format record).  A list is refused as a WHOLE, item by item, before the attach is emitted.  a procedure formal is read through its pointer cell on the console route, and no object puts a formal between a file EDIT attach and ?EDTOV`
+
+The LOAN2 statement (lines 147–150, source sha `7be23ba3…`, UNMODIFIED):
+`put file (output) edit ('|',a,'|',b,'|',c,'|',d,'|',e,'|') (a,2(2(p'$zz,zzz,zz9v.99',a),p'$zzz,zz9.v99',a));` inside `display: procedure(a,b,c,d,e);` with `(a,b,c,d,e) fixed decimal(10,2)`.
+
+HOP-1 PRE-AUDIT (first-hand): the authentic `golden/first/LOAN2/LOAN2.REL` display body
+`0674–0732` ALREADY pins the refused shape (see §2). HOP-2 DECODE (first-hand,
+`build/p3-15/fmt.py` + `fmt-out.txt` + `tables.py`): the T3 format record at
+`data@0015..0046` (50 B) is FULLY decoded with ZERO unknown bytes and fits the existing
+laws [C090]/[C361]/[C362] VERBATIM — see §2 row 3. The refusal's reason clause ("no
+object puts a formal between a file EDIT attach and ?EDTOV") is FALSE-AS-WRITTEN against
+the authentic corpus — it is MY completeness guard, not a DR fact; a DATED correction is
+owed at C373 wording (the code text stays VERBATIM this hop; only the ledger prose is
+corrected).
+
+### 2. EXISTING DR evidence (ZERO oracle this subround so far; goldens untouched)
+
+| Witness | Shape | DR bytes (first-hand) | Reading |
+|---|---|---|---|
+| authentic LOAN2.REL display body `0674–0732` | `put file(output) edit` of FIVE `dec(10,2)` FORMALS + six pipe literals, nested rep format | attach `21 +RELOC common0 / 11 52 06 / 01 +RELOC to code@0732 / CD ?SIOOP / 21 15 00 RELOC to data@0015 / CD ?EDITF`; then SIX literal chains `21 EC 01 / 3E 01 / CD ?SLCTS / CD ?EDTOV` alternating with FIVE formal chains `2A 42 03+2i / 3E 0A / CD ?DLDOP / 3E 0D / 06 02 / CD ?QDCOP / CD ?EDTOV` between `?EDITF` and the terminal `CD ?QIOOP@0730` | DR DOES put a DEC formal between a file EDIT attach and ?EDTOV; the formal chain is the armed P3-13 deref `LHLD / MVI A,p / ?DLDOP` prep plus the SAME `p+3 / s / ?QDCOP / ?EDTOV` tail the variable route uses. |
+| authentic LOAN2.REL format tables (hop-2 `build/p3-15/fmt-out.txt`) | prescan DATA region `0000..0073` | T1 `80 00 0C FF 03 FF 81` (line-115 family); T2 `80 00 03 FF 02 04 00 05 39 39 2F 39 39 81` = `(a,p'99/99')`; **T3 `data@0015..0046` (50 B) = `80 00 03 FF 80 02 80 02 02 0A 02 0F 24 5A 5A 2C 5A 5A 5A 2C 5A 5A 39 56 2E 39 39 03 FF 81 02 08 02 0C 24 5A 5A 5A 2C 5A 5A 39 2E 56 39 39 03 FF 81 81 81`** = the line-147 format list; literal cell `data@01EC = 7C` SINGLE, shared by all six chains; descriptor cells `data@0342..034B` have NO static bytes (runtime block-copy) | every byte fits [C090]/[C361]/[C362]: `a` record = `03 FF`; picture record `02 b1 b2 len` + text, b1 = count{9,Z,$} − 1 iff leading `$`, b2 = count{9,Z} after the LAST `V` (`9V.99` → 02; `9.V99` → 02, the dot BEFORE the V does NOT count); rep group = `80 n … 81`; table closes `81`. NO unknown byte. |
+| `golden/probe55/P086K/P086K.REL` | DEC VARIABLE item on the file EDIT route (armed, registered) | chain heads `?SIOOP@0020 / ?EDITF@0026 / ?DLDOP@002E / ?QDCOP@0035 / ?EDTOV@0038 / ?QIOOP@003B`; table `80 00 00 05 01 81 80 00 00 05 01 81`; data `50 01 00` then runtime cells | the variable prep is `LXI H,*A(cell)`; the guard text cites P086K 0028-0039 as the `MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s / ?QDCOP / ?EDTOV` law. The ONLY difference vs the formal route is the PREP instruction. |
+| `golden/e52p13/E52ZF` 00ED–00F2 + NG39 | deref DEC formal read (console skip-list route, armed at P3-13 [C371]) | `LHLD desc / MVI A,0A / ?DLDOP` then the same width/scale tail | the ITEM LOWERING at `ocaml/lib/codegen.ml` ~13020 ALREADY emits exactly the display-body chain for `Vdec` + `st.deref` members; ONLY `authorize_file_edit_item` (codegen.ml ~12533) refuses. |
+| `golden/e52p3d/E52PP` | rep-group + `a` record + pipe literal on the FILE route | data@0000 `80 00 80 02 03 FF 81 81 7C`; heads `?SIOOP@0010 / ?EDITF@0016 / ?SLCTS@001E / ?EDTOV@0021 / ?QIOOP@0024` | `a` is the A edit-mode format element (record `03 FF`, NO declaration needed); the `'|'` literal rides `LXI H,*A(lit) / MVI A,01 / ?SLCTS / ?EDTOV`. |
+| E52XA/XG goldens (`golden/e52p11/`) | attach behind `open file(pf) print;` in MAIN | `21 +RELOC common0 / 11 52 06 / 01 +RELOC cont / CD ?SIOOP …` | GOLDEN-PROVEN probe-open geometry; probes MUST `dcl pf file;` (hop-2 accepted: an internal ENTRY name would resolve the common reference differently). |
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-A (formal-item law)**: on the file EDIT route a deref'd scalar `fixed dec(p,s)`
+  formal emits EXACTLY `LHLD <desc cell> / MVI A,p / CALL ?DLDOP / MVI A,p+3 / MVI B,s /
+  CALL ?QDCOP / CALL ?EDTOV` — the prep is the ONLY difference from the armed variable
+  route (P086K); the descriptor cells are the callee's runtime block-copy targets (NO
+  static bytes). FALSIFIED by any DR refusal of E521B/C or any byte difference in the
+  chain.
+- **H-B (literal chains ride unchanged)**: `'|'` items keep the armed PIlit chain
+  `LXI H,*A(lit cell) / MVI A,01 / ?SLCTS / ?EDTOV`, ONE shared literal cell per distinct
+  literal ([C090] reconfirmed on the authentic display body: six chains, one cell).
+  FALSIFIED by any chain or cell-count difference.
+- **H-C (decoded picture record)**: the probes' format tables equal the DECODED bytes —
+  A/B: `80 00 03 FF 02 08 02 0C 24 5A 5A 5A 2C 5A 5A 39 2E 56 39 39 81` (21 B; b1 = 08 =
+  $1+Z5+9 3 − 1, b2 = 02 from the `99` after the V, len = 0C); C: the T3 50-byte record
+  VERBATIM (§2 row 2); D: `80 00 03 FF 81` (6 B). FALSIFIED by ANY format-table byte
+  difference — the decode came from the golden bytes and the pre-existing laws, NEVER
+  from a fit.
+- **H-D (nested rep groups)**: `2(2(pic,a),pic,a)`-style nesting rides the armed P3-4
+  REPSPEC/[C362] law (`80 n … 81` per level, inner before outer `81`). FALSIFIED by any
+  record-byte difference in E521C's table vs the T3 clone.
+- **H-E (boundary)**: a deref'd FIXED BIN formal as a file EDIT item (E521D) is
+  UNMEASURED by this panel's arm; MY side KEEPS the BY-NAME refusal whatever DR does (the
+  arm is scoped to `Vdec` ONLY). DR's verdict is recorded honestly either way.
+
+### 4. Probes E521A..E521D (`probes/E521{A..D}.PLI`; CRLF + bare `^Z` + ≤71 cols + ONE dcl per line + first-line label + `procedure(x,y);` headers per the hop-1 probe law + a continuation statement after EVERY put) — predictions from the DECODED laws (NEVER fit):
+
+| Probe | Shape | Predicted DR bytes at the statement (law-derived) | My side TODAY (sanity, `b88e7b02…`) |
+|---|---|---|---|
+| E521A CONTROL (non-formal DEC item) | main `dcl pf file; open file(pf) print; call show(v,w);` two `dec(10,2)` autos as actuals; callee `show: procedure(x,y);` LOCAL `dcl z fixed dec(10,2);` body `put file(pf) edit('\|',z,'\|')(a,p'$zzz,zz9.v99');` | table 21 B as in H-C; attach `21 r(common0) / 11 52 06 / 01 r(cont) / CD ?SIOOP / 21 r(table) / CD ?EDITF`; chains literal `21 r(lit) / 3E 01 / CD ?SLCTS / CD ?EDTOV`, z `21 r(z-cell) / 3E 0A / CD ?DLDOP / 3E 0D / 06 02 / CD ?QDCOP / CD ?EDTOV`, literal again, `CD ?QIOOP`; call + callee block-copy prologue ride [C371]/[C094] arity-2 variable-actual geometry | expect rc=0 (all classes armed today) |
+| E521B FORMAL (the target class) | same main/callee spine; body item is the FORMAL `x`: `put file(pf) edit('\|',x)(a,p'$zzz,zz9.v99');` | IDENTICAL to A EXCEPT the formal prep: `2A r(desc cell) / 3E 0A / CD ?DLDOP` + the same tail (H-A); desc cells have NO static bytes | rc=2 at the guard, `the FORMAL X`, NO `.REL` |
+| E521C FULL MIRROR | arity-5 callee `procedure(a,b,c,d,e)`, five `dec(10,2)` formals; body = the LOAN2 147–150 statement VERBATIM on `pf`: 11 items `'\|',a,'\|',b,'\|',c,'\|',d,'\|',e,'\|'`, format `(a,2(2(p'$zz,zzz,zz9v.99',a),p'$zzz,zz9.v99',a))` | T3 clone VERBATIM (H-C/H-D); 6 literal chains + 5 formal chains alternating exactly as the authentic body; single shared `7C` cell; `?QIOOP` terminator | rc=2 at `the FORMAL A`, NO `.REL` |
+| E521D BOUNDARY | same spine; callee `procedure(n,m)` `fixed bin` formals; body `put file(pf) edit(n)(a);` | table `80 00 03 FF 81`; fixed-bin FORMAL item class UNMEASURED — verdict recorded honestly | rc=2 at the guard (`the FORMAL N`), refusal KEPT regardless of DR |
+
+Whole-file sizes are adjudicated by `cmp`, never by arithmetic (P3-13/14 lesson kept).
+NOTE (design correction, recorded not silent): hop 2 pinned A's literal prediction as
+"(20 B)"; the decode law gives the byte sequence above which is 21 bytes — the SEQUENCE
+is what is predicted (b1/b2/len law), the count in the hop-2 note was my own arithmetic
+slip; `cmp` adjudicates. A's data list keeps the pinned THREE items against TWO format
+elements — the authentic display body itself carries 11 items against a 13-element format
+list and DR compiled it, so item/format count is NOT a compile-time gate; the count
+asymmetry A-vs-B is intentional per the pinned design and the DR verdict is recorded.
+
+### 5. Campaign + arm contract
+
+ONE grouped run `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900
+python3 oracle/batch.py E521A E521B E521C E521D --tag e52p15 --switches '$L$D'`, rc
+DIRECT (NEVER pipeline-tail); read EVERY `.PRN`; decode accepted `.REL`s into
+`build/p3-15/`; goldens + batch `summary.txt` + transcripts committed VERBATIM BEFORE any
+`ocaml/` byte; honest verdicts (DR-accepted / dr-refuses / my-gap), NEVER invent a golden.
+
+ARM (after evidence, ONLY for classes MEASURED accepted+byte-exact): ONE guard clause in
+`authorize_file_edit_item` (`ocaml/lib/codegen.ml` ~12533) — in the `PIvar` branch admit a
+`st.deref` member iff its `vk_of` is `Vdec _`; EVERYTHING else keeps the VERBATIM
+BY-NAME refusal (message text untouched, so the PU1-class marker substrings and the
+line-N clause survive). No emitter bytes change (lowering is armed since P3-13). Build
+rc=0; histogram codegen 68 / total 124 == baseline (fresh `--build-dir`); whole-file `cmp`
+of every accepted probe FRESH POSITIONAL; sweep — COUNT MOVES WITH INVENTORY, FAILS 0
+binding; markers (CRLF + bare `^Z`); DEC regressions 64/0; divcheck 9/9; **FULL GATE
+BEFORE CLOSE** (only the gate runs the negative panel) → `build/gate-e52p15-reg.log`.
+Registration from **1300/187** (accepted-and-byte-exact ONLY, `--update-inventory`, `git
+diff --cached --stat`, config NEVER staged); census OWN path (counts 15/0/26/0, LOAN2 msg
+MOVES VERBATIM, NOTHING fixed); **C373 written from MEASURED BYTES ONLY BEFORE ANY
+`spec/COVERAGE.tsv` touch**, including the DATED correction of the guard-reason clause
+(False-as-written vs the authentic corpus — recorded in the ledger, code text kept);
+coverage: adjudicate FIRST-HAND against the actual `FILE.PUT_EDIT_*`/`FILE.PUT_*` row
+family — EXTEND where the row law fits, else justified NEW row with SAME-change
+`spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; 15 columns from the FIRST
+NON-COMMENT row; `manual_ref` `pNN[:§X.Y][=phrase]` or starting `NONE:`); `coverage_check`
++ prose rc=0; FULL gate rc=0 DIRECT; RESULTS §P3-15 + PLAN §5 progress row INSIDE the
+table **anchored by LINE NUMBER with the 7-unescaped-pipes check** + §P3-15 **CLOSED**.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the arm lands byte-exact, LOAN2 moves PAST line 147. The next refusal is NOT predicted
+— the hop-2 orientation decode touched T4 (`0047..0073`, the line-199/212-family tables)
+for orientation ONLY. Record the ACTUAL verbatim diagnostic; if LOAN2 unexpectedly emits
+a complete `.REL`, go STRAIGHT to whole-file parity against `golden/first/LOAN2/LOAN2.REL`
+(sha `712cfcb2…`, NEVER re-derived) and report the first genuine difference. LOAN2 stays
+UNMODIFIED (sha `7be23ba3…`).
+
+### 7. Framing binding on C373 wording
+
+C373 is BYTE-TIER ONLY — every statement derives from MEASURED BYTES (authentic goldens +
+this campaign), never from runtime behaviour or PLILIB. The claim may say the OBJECT
+shows the `LHLD`-prep chain between attach and ?EDTOV for a DEC formal; it may NOT claim
+what ?EDITF/?EDTOV DO at runtime beyond recorded bytes. The guard-reason clause
+correction is DATED and worded as a correction of MY completeness-guard prose (a compiler
+internal), not of any DR claim. The FIXED-BIN formal boundary (H-E) stays an open
+`my-gap`/unmeasured route unless E521D measures otherwise; floats, based and pointer
+formals keep refusing BY NAME.

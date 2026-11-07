@@ -1,0 +1,21 @@
+E521D: procedure options(main);
+   /* E2E-52/P3-15 probe D (PLAN H-E boundary): the */
+   /* file EDIT item is a deref'd FIXED BIN formal; */
+   /* class UNMEASURED - my refusal stays BY-NAME */
+   /* whatever the oracle says. */
+   dcl pf file;
+   dcl v fixed bin;
+   dcl w fixed bin;
+
+   open file(pf) print;
+   call bnd(v,w);
+   put skip list(v);
+
+bnd: procedure(n,m);
+   dcl n fixed bin;
+   dcl m fixed bin;
+   put file(pf) edit(n)(a);
+   n = 3;
+   end bnd;
+end E521D;
+

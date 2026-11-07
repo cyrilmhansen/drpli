@@ -1,0 +1,21 @@
+E521B: procedure options(main);
+   /* E2E-52/P3-15 probe B (PLAN H-A): the TARGET */
+   /* class - file EDIT item is a deref'd FIXED */
+   /* DEC FORMAL; LHLD prep at the descriptor cell */
+   /* written by the block-copy prologue. */
+   dcl pf file;
+   dcl v fixed dec(10,2);
+   dcl w fixed dec(10,2);
+
+   open file(pf) print;
+   call show(v,w);
+   put skip list(v);
+
+show: procedure(x,y);
+   dcl x fixed dec(10,2);
+   dcl y fixed dec(10,2);
+   put file(pf) edit('|',x)(a,p'$zzz,zz9.v99');
+   put skip list(x);
+   end show;
+end E521B;
+

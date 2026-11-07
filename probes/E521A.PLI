@@ -1,0 +1,21 @@
+E521A: procedure options(main);
+   /* E2E-52/P3-15 probe A (PLAN H-B/H-C control): */
+   /* file EDIT whose DEC item is a callee-LOCAL; */
+   /* all classes armed TODAY. Formal twin is B. */
+   dcl pf file;
+   dcl v fixed dec(10,2);
+   dcl w fixed dec(10,2);
+
+   open file(pf) print;
+   call show(v,w);
+   put skip list(v);
+
+show: procedure(x,y);
+   dcl x fixed dec(10,2);
+   dcl y fixed dec(10,2);
+   dcl z fixed dec(10,2);
+   put file(pf) edit('|',z,'|')(a,p'$zzz,zz9.v99');
+   put skip list(z);
+   end show;
+end E521A;
+

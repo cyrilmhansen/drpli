@@ -1,0 +1,29 @@
+E521C: procedure options(main);
+   /* E2E-52/P3-15 probe C (PLAN H-A/H-C/H-D): the */
+   /* LOAN2 147-150 display statement VERBATIM on */
+   /* a named print-opened file: 11 items, FIVE */
+   /* DEC formal chains, nested rep groups. */
+   dcl pf file;
+   dcl v1 fixed dec(10,2);
+   dcl v2 fixed dec(10,2);
+   dcl v3 fixed dec(10,2);
+   dcl v4 fixed dec(10,2);
+   dcl v5 fixed dec(10,2);
+
+   open file(pf) print;
+   call display(v1,v2,v3,v4,v5);
+   put skip list(v1);
+
+display: procedure(a,b,c,d,e);
+   dcl a fixed dec(10,2);
+   dcl b fixed dec(10,2);
+   dcl c fixed dec(10,2);
+   dcl d fixed dec(10,2);
+   dcl e fixed dec(10,2);
+   put file(pf) edit('|',a,'|',b,'|',c,'|',d,'|',e,'|')
+      (a,2(2(p'$zz,zzz,zz9v.99',a),
+      p'$zzz,zz9.v99',a));
+   put skip list(a);
+   end display;
+end E521C;
+
