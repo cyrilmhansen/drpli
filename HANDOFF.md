@@ -1670,22 +1670,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 518
-checkpoint-id: g518-39c8cca5e341
-checkpoint-kind: auto
+checkpoint-generation: 519
+checkpoint-id: g519-f0937f2c4e7b
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4893, session 01a1b608-7d06-76f6-9177-fd674f73531d)
-checkpointed: 2026-11-07T13:07:23.978Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~2370, session 01a1b608-7d06-76f6-9177-fd674f73531d)
+checkpointed: 2026-11-07T13:08:12.378Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 2c42d391c42671021cbf8583a8954b5f1494878bb47f2bbbbdb3b8af299fcd77
-source-handoff: 9235b9cf11b35b0bb860e6a5a3988dd222120e39c11e92fb3c3412a9321f1ffb
+source-handoff: 846c992f18848c177d71a623705fd640c04f1b516440c379f1a42bfd18ed940e
 source-learnings: f25bcde1c715212b11d2f734540af4e3305ad0c27000e8c4701a59460b64ed96
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b608-7d06-76f6-9177-fd674f73531d
+readiness-at: 2026-11-07T13:08:12.404Z
+readiness-checkpoint: g519-f0937f2c4e7b
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: P3-17 CLOSED (f2c91c32); marathon slice budget EXHAUSTED 8/8 — STOP. LOAN2 next blocker VERBATIM (never fix): `codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser cells, or with a format-table group that does not start at data 0, is an unmeasured .REL record order [E2E-52/P3-2 measures P086K only: tables at data 0000, NO static cells]` (NO line clause). Successor: present this + the PROPOSAL (LEARNINGS § hop-5 tail) to the operator; NO P3-18 without a decision.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2358,5 +2361,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-17 hop 5 tail (LAST slice 8/8): coverage IO.PUT_EDIT EXACT:45->47 + col11 E523A,E523B (39 names) + DATED col4/col13 -> coverage_check+prose rc=0 -> FULL gate rc=0 DIRECT build/gate-e52p17-reg.log (expect 1309/0,190/190,9/9,145 rows SUPPORTED 95,census 15/0/26/0,prose 5) -> RESULTS §P3-17 + PLAN §5 row LINE-anchored with 7-unescaped-pipes assert RUN IN CODE + §P3-17 CLOSED -> commit guard blocks VERBATIM -> STOP (budget EXHAUSTED), report LOAN2 record-order blocker VERBATIM never fix, NO P3-18 without operator decision. BINDING: PROGRESS.md ## Next action + LEARNINGS.md § "P3-17 hop 5 IN FLIGHT". Binary MUST be b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f == tree; goldens never re-derived; POSITIONAL pli80c.exe IN OUT no -o; opam env every shell; rc DIRECT; never glue rm; never parallelize dependent bash; byte-tier; build/ git-IGNORED never git add -f; config NEVER staged; no push.
+P3-17 CLOSED (f2c91c32); marathon slice budget EXHAUSTED 8/8 — STOP. LOAN2 next blocker VERBATIM (never fix): `codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser cells, or with a format-table group that does not start at data 0, is an unmeasured .REL record order [E2E-52/P3-2 measures P086K only: tables at data 0000, NO static cells]` (NO line clause). Successor: present this + the PROPOSAL (LEARNINGS § hop-5 tail) to the operator; NO P3-18 without a decision.
 <!-- guard:end checkpoint -->
