@@ -1827,3 +1827,101 @@ claimed exact anywhere in this subround.
   `ocaml/` byte**, reading `artefacts/LOAN2.PLI` lines 155-165 FIRST-HAND before anything else —
   `call current_year(IP - YIN);` remains a PROPOSAL until measured. GOLDENS ARE EVIDENCE, NEVER
   RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
+
+# E2E-52/P3-16 RESULTS — DEC ADD/SUB expression actuals against a FIXED DECIMAL formal ride the
+[C370]-window law EXACTLY as the product does: L1 alignment is measured IN the actual context and
+DATED-EXTENDED to ADD by a byte-identical `?DADOP` twin whose whole `.REL` differs from its `?DSUOP`
+sibling in EXACTLY FIVE file bytes; the LOAN2:160 no-window block is the general law, not an
+exception; window direction comes from SCALES ONLY; and DR ACCEPTS the nested actual `a - b * c`
+(measured, honestly NOT armed) — campaign e52p16 5 ok/5, ZERO §4 sequence misses — CLOSED
+(2026-11-07, hop 6)
+
+Pre-registered in PLAN §P3-16 (`dfba24a4`) BEFORE the first oracle call and BEFORE any `ocaml/`
+byte — §1 blocker VERBATIM Line-160, §2 witnesses (authentic LOAN2 `0738-0752` no-shift block
+decoded hop-1), §3 hypotheses H-A..H-E with falsifiers, §4 per-probe byte predictions, §5
+arm/validate/register contract, §6 never-predict, §7 framing; ZERO-oracle sanity: all five probes
+rc=2 at the guard at lines 11/12/10/11/13 (VERBATIM text). Campaign `e52p16` rc=0 **5 ok / 5**
+(`91b10c25`): every `.PRN` `NO ERROR(S)` in BOTH passes (5/5 re-read at claim time); goldens +
+`summary.txt` + transcripts committed VERBATIM before any `ocaml/` byte. Arm `85bc0463` = guard
+widening `Ast.Ebinary (Ast.(Mul | Add | Sub), l, r)` over the SAME deliberately NON-recursive
+helper renamed `dec_arith_operand` (a recursive test would have silently armed the DR-accepted
+nested shape E522E without a my-side witness); refusal text kept VERBATIM for everything else;
+ZERO bind/emitter change (bind audit CLOSED hop 2: `decact` is shape-agnostic). Armed binary sha256
+`215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175` deterministic (default `_build`
+== fresh `_build-p316`, ZERO `Error` lines per the hop-4 stale-exe lesson); histogram codegen 68 /
+total 124 == baseline EXACTLY; whole-file `cmp` E522A/B/C/D 4/4 rc=0 FRESH POSITIONAL at the arm
+(`build/p3-16/arm-out/`), re-held at validation (`build/p3-16/arm-out2/`) and AGAIN at claim time
+(`build/p3-16/claim-out/`); E522E rc=2 NO `.REL` refusal ends `Line 13`; sweep 181/0 PRE → **185/0**
+POST-registration (count-moves-with-inventory law HIT); markers 15/15 incl E522E (CRLF + bare-`^Z`);
+DEC regressions 64/0; divcheck 9/9. Registration `7fd4cdfd`: SPECIMENS +4 A..D with measured-byte
+comments; E522E into REJECTS + NEG_META as honest **my-gap** — golden KEPT, UNCLAIMED;
+`--update-inventory` **1307/189 EXACT** (COMPUTED 1303+4 / 188+1 HIT, every diff line inspected);
+census OWN path rc=0 counts **15/0/26/0**, LOAN2 message MOVED VERBATIM 160 → **177**, NOTHING
+fixed. Claim **C374** `85500489` written from MEASURED BYTES ONLY and committed BEFORE any
+`spec/COVERAGE.tsv` touch (ledger ENDS **C374**, 197 headers; every cited byte, span and record
+re-verified FIRST-HAND at claim time with `build/p3-13/p13dump.py` + `tools/reldump.py`, including
+two DATED working-note corrections — the hop-3 decode's `DATA 0014` for A was the temp CELL value,
+the DEF-DATA-SIZE record field is **001C**; and the §4 block labels `22/32/27 B` were composed-op
+labels, raw inclusive spans are A 27 B, B/C 37 B, D 32 B, E 48 B — the pre-registered BYTE
+SEQUENCES all HIT); coverage EXTEND row `PROC.CALL_DEC_ACTUALS` `0e20023f` EXACT:8→**12**, IDS line
+UNCHANGED (extension, not a new row), `coverage_check` rc=0 **145 rows 0/0 SUPPORTED 95**, prose
+rc=0; FULL gate rc=0 DIRECT `build/gate-e52p16-reg.log` — **1307/0, 189/189 (E522E NEG-OK VERBATIM),
+9/9, 145 rows, census 15/0/26/0, prose 5** — every pre-registered number HIT. All rc DIRECT;
+goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; config NEVER staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E522A E522B E522C E522D E522E --tag e52p16
+--switches '$L$D'` rc=0 → **5 ok / 5** (`golden/e52p16/summary.txt`: every probe `PRN=True
+REL=True`). Decodes FIRST-HAND into `build/p3-16/e52p16-decode.txt`; hop-5 re-verification corrected
+that file's A `DATA` label (see header). Unlike P3-15, the oracle ACCEPTED every probe including
+the boundary; the only refusals in this panel are MINE (E522E, H-E).
+
+## 2. Measured table (4/4 whole-file cmp rc=0 on armed binary sha256 `215c4503…`, re-held three
+times — arm-out, arm-out2, claim-out; sizes/CODE/DATA/sha12 re-read FIRST-HAND from the KEPT
+goldens at this close; DEF fields re-read from raw records via `tools/reldump.py`)
+
+| Probe | Shape | Verdict | Size | CODE | DATA | Measured law (bytes in [C374]) | golden sha12 |
+|---|---|---|---|---|---|---|---|
+| E522A CONTROL | `q(a - b)`, a,b dec(10,2), formal dec(10,2) — LOAN2:160 arithmetic | EXACT, §4 sequence HIT | 384 B | `006A` | `001C` | actual block `0006-0020` (27 raw B) ZERO shifts, opcode stream VERBATIM the authentic LOAN2 `0738-0752`; static vector cell `data@0012` inline `14 00` → 6 B temp; return store `21 0C 00/3E 0A/?DSTOP@002D` | `94c819283a5c` |
+| E522B SUB differing scales | `q(a - yi)`, a dec(10,2), yi dec(4,3), formal dec(10,2) | EXACT, §4 HIT — **H-B/H-C** | 384 B | `0074` | `0019` | `3E 01/?QDDSL` (slot `0011`) BETWEEN the pushes — LEFT pushed first, push precisions `0A`/`04`; `?DSUOP` slot `001B`; L5 window `3E 01/?QDDSR` slot `0020`; store `21 11 00/3E 0A/?DSTOP` slot `0029` | `70346e5b3f36` |
+| E522C ADD twin | `q(a + yi)`, same declarations | EXACT, §4 HIT — **H-D** | 384 B | `0074` | `0019` | whole FILES differ from B in EXACTLY 5 bytes: 0-based 6/19/28 (packed PROG-NAME/EXTDEF/DEF-PUBLIC) + 112/113 (`SU`→`AD` chain-name record `?DSUOP`→`?DADOP`); CODE/RELOC/DATA BYTE-IDENTICAL — L1/L5 measured FOR ADD, DATED extends [C086] subtract-only pinning | `bc3594318a45` |
+| E522D window-only | `q(m - n)`, m dec(10,0), n dec(8,0), formal dec(7,2) | EXACT, §4 HIT — **H-C/H-A2** | 384 B | `006F` | `0017` | equal operand scales → NO alignment; `?DSUOP` slot `0017`; UP window `3E 02/?QDDSL` slot `001C` — direction from SCALES ONLY; store `3E 07/?DSTOP` — DSTOP A = pf 7 BELOW both operand precisions | `11096ee57fa4` |
+| E522E BOUNDARY nested | `q(a - b * c)`, a dec(10,2), b dec(4,3), c dec(10,2), formal dec(10,2) | DR **ACCEPTED**; mine **my-gap** — NOT armed | 512 B | `007F` | `001F` | three pushes ONE temp `data@0017`: outer align `3E 03/?QDDSL` slot `0011`; b `?DLDOP@0019` (3E 04), c `?DLDOP@0021`; `?DMUOP@0024` NO inner window; `?DSUOP@0027`; `3E 03/?QDDSR@002C`; `3E 0A/?DSTOP@0034`; mine refuses BY NAME rc=2 `Line 13`, golden KEPT UNCLAIMED | `a129de8df6fe` |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; ZERO misses)
+
+- **H-A CONFIRMED** — equal-scale Sub actual = the no-window block; `E522A 0006-0020` is the
+  authentic LOAN2 `0738-0752` pattern VERBATIM (27 raw B, both pushes `3E 0A`, zero QDDS*).
+- **H-A2 CONFIRMED** — D/E push `MVI A` bytes carry OPERATOR precisions while `?DSTOP` A carries
+  the FORMAL precision, even when pf < both (D: `3E 07` vs operands `0A`/`08`).
+- **H-B CONFIRMED** — L1 alignment measured in the ACTUAL context: `?QDDSL` BETWEEN the two
+  pushes, shorter-scale LEFT pushed FIRST (L7), amount = |2−3| = 1, never a precision.
+- **H-C CONFIRMED** — L5 consumer window generalises Mul→Add/Sub (B/C down-1 after the op; D UP-2,
+  direction from SCALES ONLY).
+- **H-D CONFIRMED** — the ADD twin is byte-identical to the SUB twin except the two chain-name
+  bytes; whole files differ in EXACTLY FIVE bytes (three name records + the two `SU`/`AD` bytes) —
+  the strongest possible witness that DR consults NO operand-class table here; [C086] L1's
+  "both directions proven for SUBTRACT, not inherited from ADD" pinning DATED-EXTENDED to ADD.
+- **H-E MEASURED — DR ACCEPTS the nested compound, my guard REFUSES**: honest my-gap recorded at
+  [C374], golden KEPT UNCLAIMED, NON-recursive helper deliberately keeps the shape armed OFF.
+
+## 4. LOAN2 — ADVANCED and recorded, NEVER fixed
+
+LOAN2 UNMODIFIED sha256 `7be23ba3…`; rc=2, NO `.REL`. The Line-160 DEC-Sub-actual blocker is
+CLOSED by this slice (E522A is that arithmetic replicated); the ACTUAL next blocker re-measured
+VERBATIM: `codegen: PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary has no byte-exact
+DR witness [TBD] (line 177)` — recorded, NEVER fixed by P3-16; the P3-15 KEPT golden
+`golden/e52p15/E521D` (accepted fixed-bin EDIT witness) is the P3-17 pre-audit anchor. EXPR1 GET-21
+/ EXPR2 FLOAT-35 unchanged; LOAN2 NOT claimed exact.
+
+## 5. What P3-16 does NOT say (byte tier only)
+
+- BYTE TIER: no `e52p16` object linked or run under cpmsim; no `spec/RUNTIME.txt` row from this
+  claim; byte parity is not a semantics claim.
+- **Perimeter KEPT**: div actuals, suffix/deref operands, NESTED compounds (`E522E`), external and
+  recursive callees, array-named and attribute formals keep their VERBATIM Line-N `[TBD]` refusals;
+  the arm widened the guard CLASS only — zero new emitter bytes, the Add/Sub actuals route through
+  the [C371]-armed `dec_push`/`dec_actual_mat` chain verbatim.
+- GOLDENS NEVER re-derived; `build/` evidence stays git-IGNORED and is quoted into commits (hop-5
+  tool note); the E522E golden is claimed by NOTHING.
