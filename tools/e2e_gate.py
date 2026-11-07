@@ -2620,6 +2620,51 @@ SPECIMENS.update({
     "NG39":  ("probes/NG39.PLI",  "golden/negpanel1/NG39/NG39.REL"),
 })
 
+# [E2E-52/P3-14] E520A..E520D -- SHADOWED-BUILTIN CALL-statement panel (campaign e52p14
+# 1 ok/5 at 1afc3bd3 + corrective e52p14b 3 ok/4 at 9ece9a69; PLAN §P3-14 H-1..H-4 ALL
+# CONFIRMED, every `.PRN' NO ERROR(S) in BOTH passes).  The CALL arm parses its target
+# as a PLAIN identifier + suffix chain, never consulting `builtins' (65da9bd1); all four
+# whole-file cmps rc=0 FRESH POSITIONAL on binary b88e7b02... (build/p3-14b/arm-out/).
+#   E520A 256 B; CODE 0032 (50 B).  NON-SHADOW CONTROL: forward arity-0 EMPTY-PAREN
+#             `call foo();' = bare 3 B `CD 00 00' at 0006-0008, operand slot 0007 a zero
+#             word carrying the ADDRESS/chain record (addr:[0007], linker fills the callee
+#             entry); NO descriptor, NO `LXI H' -- [C124] arity-0 law holds on the empty-
+#             paren spelling.  Put-skip tail 0009-0022 (`LXI D,0252 / LXI B,0025 / ?SYSPR
+#             @000F / MVI A,01 / ?SKPOP@0014 / LHLD i / MVI A,09 / ?QICOP / ?PNVOP /
+#             ?QIOOP'), continuation `JMP 002F', callee foo 0028-002E (`LXI H,0001 /
+#             SHLD i / RET'), `?STOPX' @002F.
+#   E520B 256 B; CODE 0032.  SHADOW `call summary();' (LOAN2:121 shape): the FILE differs
+#             from E520A at EXACTLY 3 bytes (`cmp -l': offsets 7/20/29 one-based, values
+#             141->241, 6->12, 145->245 octal -- re-run this session), ALL inside the two
+#             PACKED program-name records (the A->B char flip and its 6-bit-packing
+#             carry); CODE and DATA are byte-IDENTICAL -- the shadowed spelling lowers
+#             EXACTLY like the control ([C123]: internal procedure names never appear in
+#             the object).  H-2 honest near-miss: the §4 prediction said ONE name byte;
+#             the packed record spreads it over THREE file bytes (kept VERBATIM in
+#             RESULTS §P3-14).
+#   E520C 384 B; CODE 0051 (81 B).  TWO shadow sites (LOAN2 121/135): FIRST operand slot
+#             0007 is the zero word; the CHAIN record rides the LAST site -- addr:[0026],
+#             its operand an inline RELOC -> code@0007 (the previous site's operand), so
+#             the linker fills both from the callee entry -- authentic LOAN2 direction
+#             (head 066F -> 0621, both @0733) reconfirmed on the shadow spelling [C123].
+#             Second CALL `CD 07 00' @0025 = CHAIN-ADDR; second put-skip tail 0028-0041
+#             replicates verbatim (`?SYSPR@002E ?SKPOP@0033 ?QICOP@003B ?PNVOP ?QIOOP');
+#             callee 0047-004D, `?STOPX' @004E.
+#   E520D 256 B; CODE 003E (62 B).  SHADOW `call summary(i);' arity 1 -- NO builtin
+#             dispatch at the call: main `LXI H,*A(desc 0002) @0006 / CALL @0009' with the
+#             chain-head ADDRESS record addr:[000A]; the descriptor cell is STATIC -- data
+#             reloc `2 -> 0' (inline DATA RELOC to i's OWN cell, the [C093] by-reference
+#             law on the shadowed name).  Callee entry 002B: peeled arity-1 prologue
+#             `5E 23 56 EB / SHLD 0004' then body `LHLD 0004 / MVI M,02 / INX H / MVI M,00
+#             / RET' (x = 2).  EXACTLY the already-armed t14h/[C094] topology -- this
+#             probe needed NO new codegen route; the whole gap was the parser capture.
+SPECIMENS.update({
+    "E520A": ("probes/E520A.PLI", "golden/e52p14b/E520A/E520A.REL"),
+    "E520B": ("probes/E520B.PLI", "golden/e52p14b/E520B/E520B.REL"),
+    "E520C": ("probes/E520C.PLI", "golden/e52p14b/E520C/E520C.REL"),
+    "E520D": ("probes/E520D.PLI", "golden/e52p14/E520D/E520D.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -5474,6 +5519,16 @@ REJECTS.update({
                "PUT FILE(PF) has no byte-exact DR witness [TBD] (line 8)"),
     "E52XK": (open("probes/E52XK.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "PUT FILE(PF) has no byte-exact DR witness [TBD] (line 9)"),
+    # [E2E-52/P3-14] E520E -- MEASURED dr-refuse (corrective campaign e52p14b 3 ok/4 at
+    # 9ece9a69): the BARE STATEMENT `summary();' -- shadowed internal procedure called
+    # WITHOUT the CALL keyword.  `SYNTAX ?' at line 14 in PASS 1 AND PASS 2, 1 ERROR(S)
+    # each, NO .REL (golden/e52p14b/E520E/E520E.PRN kept VERBATIM).  The header is the
+    # clean `procedure;' spelling so the verdict is UNCONFOUNDED (campaign-1's line-12
+    # error was MY `procedure();' header defect, retired at PLAN §P3-14 §4b).  The
+    # CALL-arm fix stays scoped: the bare-statement arm KEEPS its builtin capture and my
+    # BY-NAME [TBD] refusal AGREES with DR (WL/SF/SG precedent).
+    "E520E": (open("probes/E520E.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "CALL target is not a simple procedure name"),
 })
 NEG_META["E52SF"] = ("dr-refuses",
     "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
@@ -5517,6 +5572,20 @@ NEG_META["E52WL"] = ("dr-refuses",
     "a4c0e235ed4bb81fe284... this hop under the gate's CRLF+bare-^Z materialization (an LF-only "
     "compile shifts the reported line 12 -> 6 -- the hop-2 marker lesson re-confirmed), never "
     "assumed.")
+
+NEG_META["E520E"] = ("dr-refuses",
+    "DR REFUSES it -- `SYNTAX ?' at the bare statement `summary();' (line 14) in BOTH "
+    "passes, `1 ERROR(S) IN PASS 1' and `1 ERROR(S) IN PASS 2', NO .REL (golden/e52p14b/"
+    "E520E/E520E.PRN kept VERBATIM; corrective campaign e52p14b 3 ok/4 measured at "
+    "9ece9a69; [C372]).  A procedure statement needs the CALL keyword; the header is the "
+    "clean `procedure;' spelling so the verdict is UNCONFOUNDED -- campaign 1's line-12 "
+    "error was MY probe header `procedure();', kept VERBATIM at PLAN §P3-14 §4b (NEW "
+    "PROBE LAW: zero-oracle sanity cannot catch DR-only header syntax).  Mine refuses the "
+    "bare-statement route BY NAME (`CALL target is not a simple procedure name [TBD]') "
+    "because `primary' keeps the builtin capture there -- and DR agrees the statement "
+    "form does not exist.  Marker RE-MEASURED rc=2 on binary b88e7b02... this session "
+    "under the gate's CRLF+bare-^Z materialization, never invented; NO golden invented "
+    "for a refused form.")
 
 # [E2E-52/P3-11] E52XJ -- MEASURED my-gap on the FILE-PUT route (precedent E52SE above).
 NEG_META["E52XJ"] = ("my-gap",

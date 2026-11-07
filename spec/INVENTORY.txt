@@ -705,6 +705,11 @@ E51I	specimen	probes/E51I.PLI	golden/e51p1/E51I/E51I.REL
 E51J	specimen	probes/E51J.PLI	golden/e51p1/E51J/E51J.REL
 E51K	specimen	probes/E51K.PLI	golden/e51p1/E51K/E51K.REL
 E51L	specimen	probes/E51L.PLI	golden/e51p1/E51L/E51L.REL
+E520A	specimen	probes/E520A.PLI	golden/e52p14b/E520A/E520A.REL
+E520B	specimen	probes/E520B.PLI	golden/e52p14b/E520B/E520B.REL
+E520C	specimen	probes/E520C.PLI	golden/e52p14b/E520C/E520C.REL
+E520D	specimen	probes/E520D.PLI	golden/e52p14/E520D/E520D.REL
+E520E	refusal	E520E: procedure options(main);\n   /* E2E-52/P3-14 probe E (PLAN P3-14 H-5): BOUNDARY,\n      bare STATEMENT form of the shadowed name with\n      EMPTY PARENS and NO CALL keyword. DR acceptance\n      is UNMEASURED (PL/I procedure statements carry\n      CALL); my parser KEEPS the builtin capture here\n      by design. If DR refuses, the [TBD] refusal\n      stays BY NAME; if DR accepts, the bytes\n      CORRECTED e52p14b: header procedure; so the\n      line-12 verdict is UNCONFOUNDED (PLAN P3-14 S4b).\n      adjudicate against the CALL form. */\n   dcl i fixed bin;\n\n   summary();\n   put skip list(i);\n\nsummary: procedure;\n   i = 1;\n   end summary;\nend E520E;\n	DR REFUSES it -- `SYNTAX ?' at the bare statement `summary();' (line 14) in BOTH passes, `1 ERROR(S) IN PASS 1' and `1 ERROR(S) IN PASS 2', NO .REL (golden/e52p14b/E520E/E520E.PRN kept VERBATIM; corrective campaign e52p14b 3 ok/4 measured at 9ece9a69; [C372]).  A procedure statement needs the CALL keyword; the header is the clean `procedure;' spelling so the verdict is UNCONFOUNDED -- campaign 1's line-12 error was MY probe header `procedure();', kept VERBATIM at PLAN §P3-14 §4b (NEW PROBE LAW: zero-oracle sanity cannot catch DR-only header syntax).  Mine refuses the bare-statement route BY NAME (`CALL target is not a simple procedure name [TBD]') because `primary' keeps the builtin capture there -- and DR agrees the statement form does not exist.  Marker RE-MEASURED rc=2 on binary b88e7b02... this session under the gate's CRLF+bare-^Z materialization, never invented; NO golden invented for a refused form.
 E52A	specimen	probes/E52A.PLI	golden/e52p1/E52A/E52A.REL
 E52B	specimen	probes/E52B.PLI	golden/e52p1/E52B/E52B.REL
 E52C	specimen	probes/E52C.PLI	golden/e52p1/E52C/E52C.REL

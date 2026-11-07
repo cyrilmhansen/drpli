@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "f32dcbab57240ad0a1057aa85fa9baa3",
+ "binary_md5": "872f81dd46e33dc8b79db77bdbb8a2bf",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,16 +15,19 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-06T21:06:41",
+ "generated": "2026-11-07T04:42:52",
  "git_dirty_paths": [
   "M handoff.config.json",
-  " M spec/census/corpus-census.json",
+  " M spec/INVENTORY.txt",
+  " M tools/e2e_gate.py",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-p312hist/",
   "?? ocaml/_build-p313arm/",
   "?? ocaml/_build-p313arm2/",
   "?? ocaml/_build-p313arm3/",
+  "?? ocaml/_build-p314/",
+  "?? ocaml/_build-p314b/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
   "?? ocaml/build-e52p10-hop3rem-build.log",
@@ -37,10 +40,12 @@
   "?? ocaml/build-e52p9-arm6.log",
   "?? ocaml/build-e52p9-arm7.log",
   "?? ocaml/build-h12verify.log",
+  "?? ocaml/build-p314b.log",
   "?? ocaml/build-p37.log",
-  "?? ocaml/build-warn-e52p6.log"
+  "?? ocaml/build-warn-e52p6.log",
+  "?? ocaml/scratch-p314/"
  ],
- "git_head": "601e20e108e8fcaaefdd98693c98d76398dd8f40",
+ "git_head": "65da9bd13e488fcb8f5674fc8f6ae6d73b78d604",
  "rows": [
   {
    "dir_present": true,
@@ -418,7 +423,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` / `CALL id(args)` / bare `id;` have a DR lowering samp",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE(OUTPUT) EDIT of the FORMAL A has no byte-exact DR witness [TBD] (line 147) -- the file EDIT route is lowered f",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
