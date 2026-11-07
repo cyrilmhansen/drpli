@@ -1667,3 +1667,163 @@ skipping 132/135 (already-armed routes) and 160. The Line-121/135 blocker class 
   diagnosis; **P3-15 proceeds ONLY evidence-first with pre-registration before any oracle call or
   `ocaml/` byte**. GOLDENS ARE EVIDENCE, NEVER RE-DERIVED; the operator's `handoff.config.json`
   was NEVER staged; no push.
+
+# E2E-52/P3-15 RESULTS — a file EDIT item against a dereferenced FIXED DECIMAL FORMAL differs
+from the same item against a plain DEC variable ONLY in its three-byte prep instruction (`LHLD
+d` vs `LXI H,*A(c)`); the remaining fifteen chain bytes are byte-identical, and the authentic
+LOAN2 display body already pinned the shape before any probe existed — campaign e52p15 4 ok/4,
+the refusal's "no object puts a formal…" reason clause DATED FALSE-AS-WRITTEN at C373 — CLOSED
+(2026-11-07, hop 7)
+
+Pre-registered in PLAN §P3-15 (`bbb916b6`, 2026-11-07 06:36:06) BEFORE the first oracle call and
+BEFORE any `ocaml/` byte — after a hop-1 ZERO-oracle pre-audit that discovered the authentic
+`golden/first/LOAN2/LOAN2.REL` display body `0674-0732` ALREADY pins the refused formal chain, and
+a hop-2 first-hand decode (`build/p3-15/fmt.py` + `fmt-out.txt` + `tables.py`) that decoded the
+50-byte T3 format record with ZERO unknown bytes using ONLY the pre-existing [C090]/[C361]/[C362]
+laws. Campaign `e52p15` rc=0 **4 ok / 4** (`43298b74`): all four `.PRN` `NO ERROR(S)` in BOTH
+passes; goldens + `summary.txt` + transcripts committed VERBATIM before any `ocaml/` byte. Arm
+`95f1bbf7` = ONE clause in `authorize_file_edit_item` (`ocaml/lib/codegen.ml` ~12533): in the
+`PIvar` branch, a `st.deref` member is admitted iff `vk_of st nm` is `Vdec _`; EVERYTHING else
+keeps the VERBATIM `no_witness` refusal text (marker substrings survive); zero emitter bytes
+changed — the lowering is the P3-13 deref-DEC chain verbatim. Armed binary sha256
+`02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb` (deterministic: default
+`_build` == fresh `_build-p315`; histogram codegen 68 / total 124 == baseline EXACTLY);
+registration `12f92978` (SPECIMENS +3 E521A/B/C with measured-byte comments, E521D into REJECTS +
+NEG_META as honest **my-gap** — DR ACCEPTED but deliberately NOT armed; inventory 1300/187 →
+**1303/188**, every diff line inspected, config NEVER staged; census OWN path counts **15/0/26/0**
+UNCHANGED, LOAN2 message MOVED VERBATIM 147 → 160, NOTHING fixed); claim **C373** `5d316a36`
+written from MEASURED BYTES ONLY and committed BEFORE any `spec/COVERAGE.tsv` touch (ledger ENDS
+**C373**, 196 headers; every cited byte re-verified FIRST-HAND at claim time with
+`build/p3-13/p13dump.py` on the KEPT goldens, including a DATED opcode-exact anchor correction of
+this slice's own hop-5 citations — authentic formal chain starts `2A 42 03` at **069E** and the
+literal chain at **0693**, not the shifted `06A1`/`069B` hop 5 quoted; cited BYTES unchanged);
+coverage EXTEND row 66 `IO.PUT_EDIT` `85c711a2` (below); **gate-found repair `99ea48ce`** (the
+E521D prose correction `785c9997` had not re-snapshotted the INVENTORY → gate ABORTED rc=2 "1
+entry SUBSTITUTED" — a count cannot see a substitution; NEW TOOL LAW accepted: any edit to a
+REJECTS/NEG panel refusal PROSE REQUIRES `--update-inventory` + commit IN THE SAME change); FULL
+gate rc=0 DIRECT `build/gate-e52p15-reg.log` — **1303/0, 188/188, 9/9, 145 rows 0/0 SUPPORTED 95,
+census 15/0/26/0, prose 5** — every pre-registered number HIT. All rc captured DIRECTLY (never
+through a trailing pipeline); goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths;
+`handoff.config.json` NEVER staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py
+E521A E521B E521C E521D --tag e52p15 --switches '$L$D'` rc=0 → **4 ok / 4**
+(`golden/e52p15/summary.txt`: every probe `PRN=True REL=True`). Read EVERY `.PRN` first-hand: all
+four `NO ERROR(S)` in BOTH passes. Decoded every accepted `.REL` FIRST-HAND into
+`build/p3-15/e52p15-decode.txt` before any verdict; goldens KEPT VERBATIM and NEVER re-derived.
+Note the honest inversion versus P3-14: here the oracle ACCEPTED all four probes INCLUDING the
+boundary probe — the refusals in this panel are MINE (H-E), not DR's.
+
+## 2. Measured table (3/3 whole-file cmp rc=0 on armed binary sha256 `02ea809e…`; re-held THREE
+times — `build/p3-15/arm-out/` at the arm, `build/p3-15/claim-out/` at C373, and FRESH
+`build/p3-15/close-out/` at this close; sizes/sha12 re-read FIRST-HAND from the KEPT goldens at
+this close; the FULL gate byte panel 1303/0 re-ran every row against the goldens as final
+verification)
+
+| Probe | Shape | Verdict | Size | CODE | DATA | Measured law (bytes in [C373]) | golden sha12 |
+|---|---|---|---|---|---|---|---|
+| E521A CONTROL | callee-LOCAL `z` DEC item in `put file(pf) edit('\|',z,'\|')(a,p'$zzz,zz9.v99');` | EXACT, §4 HIT | 640 B | `00B8` | `0026` (raw image ends `0025`) | variable chain `21 2A 00` = `LXI H,*A(z cell 002A)` at `0071-0082` + tail `3E 0A/?DLDOP@0077/3E 0D/06 02/?QDCOP@007E/?EDTOV@0081`; two literal chains `21 15 00/3E 01/?SLCTS/?EDTOV` on ONE shared `7C` cell at `data@0015`; 21 B table at `data@0000` = the hop-2 decode VERBATIM; static desc vector `0022/24 → 0016/1C`; callee prologue `11 26 00/0E 04/…` | `2fffd14ec85c` |
+| E521B TARGET CLASS | the deref'd `dec(10,2)` FORMAL `x` as the item (LOAN2:147 class) | EXACT, §4 HIT — **H-A** | 640 B | `00AD` | `0026` | formal chain at the SAME `0071-0082`: `2A 26 00` = `LHLD desc cell 0026` (cell carries NO static bytes — the block-copy entry prologue writes it at runtime) then the IDENTICAL remaining FIFTEEN bytes vs A; the prep instruction is the ONLY difference on the whole item route | `f239e43e145a` |
+| E521C FULL MIRROR | LOAN2 147-150 statement VERBATIM on a named print-opened file: 11 items, 5 formal + 6 literal chains, nested rep format | EXACT, §4 HIT — **H-C/H-D** | 1024 B | `012C` | `005B` | 50 B table `data@0000-0031` BYTE-IDENTICAL to LOAN2's own T3 at `data@0015-0046` (direct diff), nested `80 02 80 02` wrapper included; shared `7C`@`0032` across six literal chains; five formal chains stride-2 from desc `005B`; arity-5 prologue `11 5B 00/0E 0A`; static vector `0051..5A → 33/39/3F/45/4B` | `1820c21e6a50` |
+| E521D BOUNDARY | deref'd FIXED BIN formal `n` as the item | DR **ACCEPTED** (4 ok/4); mine **my-gap** — NOT armed | 512 B | `007D` | `0005` | single witness: chain opcode-exact `005F-006D` = `2A 0D 00 LHLD desc / 5E 23 56 EB (pointer peel) / 3E 09 / CD ?QICOP@0069 / CD ?EDTOV@006C`, table `80 00 03 FF 81` at `data@0000`; PLAN §5 admitted ONLY `Vdec`, so mine KEEPS refusing BY NAME (`FORMAL N … (line 17)`, rc=2 re-measured CRLF+bare-`^Z`); golden KEPT, claimed by NOTHING | `edca27a01a50` |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; every MISS recorded verbatim)
+
+- **H-A CONFIRMED (prep-only law)** — E521B vs E521A: identical 18-byte item span `0071-0082`,
+  the THREE-byte prep differs (`2A 26 00` LHLD-desc vs `21 2A 00` LXI H,*A-cell), the remaining
+  FIFTEEN bytes identical; matches the authentic LOAN2 display body chain (`2A 42 03`@`069E` +
+  same tail). Descriptor cells have NO static bytes — runtime block-copy targets; NEVER
+  statically initialise them.
+- **H-B CONFIRMED** — repeated `'|'` items share ONE `7C` cell (2 chains in A/B at `data@0015`,
+  6 chains in C at `data@0032`); the armed PIlit chain rode unchanged.
+- **H-C CONFIRMED — predicted-before-measured HIT** — the 21-byte E521A/B table was written into
+  PLAN §4 at pre-registration (`bbb916b6` 06:36:06) BEFORE the campaign commit (`43298b74`
+  06:40:37) and measured byte-for-byte identical; the E521C 50 B table equals LOAN2's T3 record
+  byte-for-byte (b1 = count{9,Z,$} − 1 iff leading `$`, b2 = count{9,Z} after the LAST `V` with
+  the dot-before-V NOT counting, per the hop-2 decode — NEVER a fit).
+- **H-D CONFIRMED** — nested rep groups `2(2(pic,a),pic,a)` ride the armed P3-4 REPSPEC/[C362]
+  law: wrapper `80 02 80 02` at `data@0004-0007`, inner before outer `81`.
+- **H-E MEASURED, kept honest** — DR ACCEPTS the deref'd fixed-bin formal item (single witness,
+  `005F-006D` above). The arm is scoped to `Vdec` ONLY (do-not-generalise, P3-10 WF/WG law), so
+  E521D is an open **my-gap** on a verdict DR has told us; recorded as measured evidence for a
+  future slice, NO equivalence claimed.
+- **ZERO §4 misses.** The only arithmetic slip this slice — hop-2's "(20 B)" label on the 21-byte
+  A/B table (the byte SEQUENCE was predicted from the law; the count was my slip) — is recorded
+  in PLAN §4 as a design note, and `cmp` adjudicated the bytes.
+
+## 4. DATED correction — a refusal-reason clause was FALSE-AS-WRITTEN
+
+Until this slice `authorize_file_edit_item` justified its deref-formal refusal with "no object
+puts a formal between a file EDIT attach and `?EDTOV`". FALSE as written against the corpus:
+`golden/first/LOAN2/LOAN2.REL` itself puts the `dec(10,2)` formals `a`..`e` between the attach
+(`LXI B` operand at `0688` → `code@0732`, `CALL ?SIOOP` head `068B`) and the item tails'
+`?EDTOV` heads (`06AE` and successors). It was always MY completeness guard, never a measured DR
+fact; the wording survives VERBATIM only as a retired code comment (PROTOCOL #2) and the ledger
+carries the correction DATED in C373. A second DATED correction inside C373 fixed this slice's
+own hop-5 citation anchors (opcode-exact `069E`/`0693`, previously quoted shifted at
+`06A1`/`069B`; bytes unchanged).
+
+## 5. Arm, validation, registration, coverage
+
+Arm `95f1bbf7` (`ocaml/lib/codegen.ml` ONE clause): admits ONLY `Vdec _` for a deref'd `PIvar`
+item on the file EDIT route; the `no_witness` refusal text for EVERY other class is UNTOUCHED, so
+the marker substrings and line-N clauses survive and the guard stays REACHABLE (re-measured live
+on E521D at three hops). No emitter bytes: the lowering shipped at P3-13 [C371].
+
+Validation: whole-file cmp A/B/C **3/3 rc=0** FRESH POSITIONAL at `arm-out/`, `claim-out/` AND
+`close-out/`; E521D rc=2 BY NAME re-measured under the gate's CRLF+bare-`^Z` materialization
+(line 17); histogram codegen 68 / total 124 == baseline; sweep **178/0 → 181/0** post-registration
+— count moves with INVENTORY rows exactly, FAILS 0 binding; markers **14/14** plus the E521D
+marker re-measured; DEC regressions **64/0**; divcheck **9/9**; **FULL gate BEFORE close**: rc=0
+DIRECT → `build/gate-e52p15-reg.log` **1303/0, 188/188, 9/9, 145 rows 0/0 SUPPORTED 95, census
+15/0/26/0, prose 5** — every pre-registered number hit; ONLY the gate runs the negative panel.
+
+Registration `12f92978`: `--update-inventory` 1300/187 → **1303/188** (+3 specimens, +1 refusal).
+**CONTRACT SLIP KEPT VERBATIM:** the hop-4 predecessor expected **1303/187**, forgetting that an
+E521D-type my-gap REJECTS row MOVES the refusal count too (187 → 188); the lesson accepted —
+COMPUTE inventory expectations from panel deltas, never quote them. The gate-found repair
+`99ea48ce` added the second NEW TOOL LAW: editing a panel refusal's PROSE (the `785c9997`
+0060-006C → 005F-006D correction) REQUIRES `--update-inventory` + commit in the SAME change — the
+identity check is byte-level and ABORTS rc=2 on a SUBSTITUTED entry that a count cannot see.
+COVERAGE: adjudicated FIRST-HAND — row 66 `IO.PUT_EDIT` law FITS (the file EDIT item route), so
+EXTENDED `EXACT:42 → 45` (+E521A/B/C) with a DATED SUPERSEDED clause retiring the now-false
+"DEC FORMAL (deref) items" refusal phrase and E521D kept as BY-NAME my-gap prose; NO new row, IDS
+set unchanged (NEVER `coverage_gen.py`); provenance +[C373]; `coverage_check` rc=0 **145 rows 0/0
+SUPPORTED 95**, prose rc=0.
+
+## 6. LOAN2 — ADVANCED and recorded, NEVER fixed
+
+With the deref-Vdec admission, `artefacts/LOAN2.PLI` UNMODIFIED (sha `7be23ba3…` re-verified)
+lowers PAST Lines 147-150 and dies at the ACTUAL next blocker — rc=2, NO `.REL`, VERBATIM
+(re-measured POSITIONAL FRESH on `02ea809e…` this hop):
+
+`codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an
+automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression
+decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 160)`
+
+Line 160 is the hop-3 reconnaissance candidate area — recorded here as the MEASURED arrival, not
+a prediction; PLAN §6 never-predict HELD (the hop-2 note that line 160 might be `call
+current_year(IP - YIN);` was a PROPOSAL and no slice byte was written against it). The slice
+moved 121/135 → 147 → **160**. EXPR1 (GET 21) and EXPR2 (FLOAT 35) UNCHANGED. LOAN2 is NOT
+claimed exact anywhere in this subround.
+
+## 7. What P3-15 does NOT say (byte tier only)
+
+- **Byte tier only**: nothing from e52p15 was linked or run; no statement here asserts what
+  `?EDITF`/`?EDTOV`/`?QDCOP` DO at runtime beyond the retained `.REL` records; PLILIB UNEXAMINED;
+  no `spec/RUNTIME.txt` row comes from this contract. Byte parity is not a semantics claim.
+- **Perimeter KEPT**: ONLY the dereferenced FIXED DECIMAL scalar formal is admitted on the file
+  EDIT item route; the DR-ACCEPTED fixed-bin class (E521D), float/based/pointer/string/array
+  formals and every inner-repetition-item shape keep their existing BY-NAME `[TBD]` refusals with
+  marker substrings intact. The arm adds NO emitter bytes.
+- **Single-witness discipline**: E521D's accepted fixed-bin shape is recorded as measured
+  evidence for a future slice; it is claimed by NOTHING here.
+- **The guard's retired reason clause** survives only as a code comment; the ledger correction is
+  DATED (C373), the code text was never silently rewritten.
+- LOAN2 is NEVER claimed exact; the Line-160 blocker is the ACTUAL recorded refusal text, not a
+  diagnosis; **P3-16 proceeds ONLY evidence-first with pre-registration before any oracle call or
+  `ocaml/` byte**, reading `artefacts/LOAN2.PLI` lines 155-165 FIRST-HAND before anything else —
+  `call current_year(IP - YIN);` remains a PROPOSAL until measured. GOLDENS ARE EVIDENCE, NEVER
+  RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
