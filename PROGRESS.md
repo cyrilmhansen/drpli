@@ -44,17 +44,15 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-52/P3-19 hop 1 **LANDED** — FULL POOL DECODE FIRST-HAND: caret-decode + literal-merge + ONE unattributed residue; PROBE + PRE-REG + IMPLEMENT OWED — read `LEARNINGS.md` § "P3-19 hop 1" SUCCESSOR CONTRACT FIRST — BINDING; chain 01a1b554 AT CAP 12/12, successor closes via handoff_finalize)
+## Next action (E2E-52/P3-19 hop 2 **PRE-REGISTRATION LANDED** — campaign OWED; read `LEARNINGS.md` § "P3-19 hop 2" SUCCESSOR CONTRACT FIRST — BINDING; chain 01a1b554 renewal-state 12/12 NOT reset despite operator brief, renewal refused, successor closes via handoff_finalize until operator resets the chain)
 
-**DONE hop 1 (session 01a1b6ff):** recovery verified (HEAD `fe487953`, build rc=0, armed `f93b86ea…` == tree). difflib census of the two pool streams from `00B1`: EXACTLY 15 REPLACE runs + 1 tail residue, everything else EQUAL through `02BC`/`02D4`. **Law candidates (measured, PROPOSED):** (1) DR decodes `^x` control escapes (`^i`→`09`, `^z`→`1A`; manual 1049-1056: next char masked to low 5 bits) — mine emits raw `5E 69`/`5E 7A` at all 15 sites (`lexer.ml:53` NOTE [PROBE 3] is the deliberate carry); (2) DR folds each ADJACENT literal run of a PUT list into ONE pool cell (`1A`+`09 09`+SUMMARY text = one 32-B cell at `00B1`). **Residue NEVER attributed:** window `0x15C-0x16D`, golden `…10 00 00` vs mine `…01 00×8 01` around the IDENTICAL `00 12 00` marker — context `fi = 1 + ir/1200; ci = 1.00; put skip(2) list('^i^iStarting Month ')`; NEVER fix by prediction. +24 B delta EXACTLY accounted. Dumps+map scripts KEPT `build/p3-19/` (ignored). Predecessor readings `05 69`/`01 09` FALSIFIED first-hand (real `5E 69`/`1A 09`); `E524*`/`e52p19` still unused.
+**DONE hop 2:** recovery verified (HEAD `e2c02ee5`, g536 blocks present, armed `f93b86ea…` == tree). DATED first-hand corrections: the bit-2563 agreement covers only ~320 B (DATA precedes CODE); CODE streams DIFFER 1749/2032 bytes — `code@001A` G `01` M `02`, `code@0025` G `27` M `29` (literal lengths), golden relocs BOTH `data 0xb1` and `0xb2` ⇒ hop-1 MERGE law **FALSIFIED**, new **H-B' per-literal SEPARATE cells** (PROPOSED, E524A confirms); caret-decode H-A stands (mine raw `5E`, golden `1A 09 09`); residue `0x15C-0x16D` OPEN (golden two 8-byte words vs my one unscaled; candidates in PLAN §3, NEVER predict). Probes `probes/E524{A,B,C}.PLI` + PLAN §P3-19 §1–§5 PRE-REGISTERED and committed BEFORE any oracle/`ocaml/lib` byte; sanity ALL rc=0 on `f93b86ea…` (A 384 B, B 768 B, C 512 B; B v1 probe defect `%replace true` lexer refusal KEPT as provenance).
 
-**HOP 1 SESSION CLOSED AT CONTEXT FLOOR (renewal cap 12/12 reached — no oracle campaign was opened; probes remain UNRUN and §P3-19 UNPRE-REGISTERED in PLAN.md; hop 2 starts at step (1) below, nothing else).**
+**EXECUTE NOW (hop 3):** (1) `PLI_SRC=probes timeout 900 python3 oracle/batch.py E524A E524B E524C --tag e52p19 --switches '$L$D'` rc DIRECT; EVERY `.PRN` both passes; commit `golden/e52p19/` VERBATIM BEFORE any `ocaml/lib/` byte. (2) Decode first-hand into `build/p3-19/`; adjudicate H-A/H-B'/H-C exactly per PLAN §3–§4. (3) Implement measured shapes ONLY (lexer `^x = c & 1F` decode at literal assembly; pool demand LOCKSTEP `pool_bytes` ~580/`dec_pool_bytes` ~1255/prescan ~15341/15361; C152 fires ⇒ STOP+record, NEVER adjust `base`; residue fixed ONLY if E524B pins it). (4) Tail (fingerprint fresh `--build-dir` grep `Error`, hist 68/124, markers argv, DEC 64/0, divcheck 9/9, sweep FAILS 0) → FRESH POSITIONAL LOAN2 whole-file `cmp` vs `712cfcb2…` = the ONLY finale → REAL `--update-inventory` (+3 expected) → census OWN path → **C377 measured-bytes-only BEFORE ANY COVERAGE touch** → coverage FIRST-HAND → FULL gate rc=0 `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape `\|`) + §P3-19 CLOSED. New blocker ⇒ VERBATIM never fix.
 
-**EXECUTE NOW (hop 2), EXACTLY per LEARNINGS § P3-19 hop 1 contract:** (1) PRE-REGISTER `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-19 §1–§5 (blocker VERBATIM byte map; H-A caret-decode law; H-B merge law; residue as OPEN question with candidate readings listed but NOT predicted; falsifiers) + probes `E524A` (line-41 class: `%replace clear by '^z'` + `put list(clear,'^i^iTXT')`), `E524B` (residue class: `fixed dec(4,3)` get + `1 + v/1200` + `c = 1.00` for `dec(15,14)` + following `put skip(2) list('^i^i…')`), `E524C` control twin (`put skip(2) list('plain')`, no carets) + LEARNINGS by EXPLICIT paths, COMMIT BEFORE any oracle call or `ocaml/lib/` byte (PROTOCOL #1). (2) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E524A E524B E524C --tag e52p19 --switches '$L$D'` rc DIRECT; read EVERY `.PRN` both passes; decode goldens FIRST-HAND into `build/p3-19/`; goldens committed VERBATIM BEFORE any `ocaml/` byte. (3) Implement ONLY measured shapes (caret decode at literal-assembly; merge of adjacent pool literals; residue fix ONLY if the probe pins it — else record VERBATIM and keep); prescan demand widths must shrink with decode (sites ~580/1255/15341/15361); C152 invariant fires ⇒ STOP, record, never adjust `base`. (4) Tail: build rc=0 grep `Error` + fingerprint fresh `--build-dir` == default; histogram 68/124; markers argv (16/16 + any new REJECTS); DEC 64/0; divcheck 9/9; sweep FAILS 0 (legacy falsifier) → FRESH POSITIONAL LOAN2 → whole-file `cmp` vs `golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…` **is** the verdict → register (REAL `--update-inventory`, expect 1309+N if probes registered; census OWN path, counts may move from 15/1/25/0) → **C377 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row line-anchored after 109 (7-unescaped-pipes assert RUN IN CODE, escape raw `\|`) + §P3-19 **CLOSED** → durables; cmp rc=0 = P3 FINALE; else new blocker VERBATIM never fix. **Then CLOSE the marathon: session is at renewal cap — finish with `handoff_finalize`, do NOT call handoff_renew.**
+**STATE:** ledger ENDS **C376** (199 headers); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p18-reg.log`; armed binary `f93b86ea…` == tree (ZERO `ocaml/` change); goldens KEPT NEVER re-derived; LOAN2 rc=0 7808 B DIFFERS my-gap UNCLAIMED; standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` + `ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no push); renewal-state NOT reset (operator brief vs file discrepancy recorded) — chain 12/12.
 
-**STATE:** ledger ENDS **C376** (199 headers); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p18-reg.log` (census 15/1/25/0); armed binary `f93b86ea…` == tree; goldens KEPT NEVER re-derived; LOAN2 rc=0 7808 B DIFFERS my-gap UNCLAIMED (cmp byte 324); standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` + `ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no push); chain 01a1b554 renewal 12/12 = CAP.
-
-SUPERSEDED: ## Next action (E2E-52/P3-18 **CLOSED** `95ba769c` — hop 6 LANDED: COVERAGE + FULL GATE rc=0 + RESULTS/PLAN CLOSE; **P3-19 LAST slice OWED — POOL LITERAL ENCODING**; read `LEARNINGS.md` § "P3-18 hop 6" SUCCESSOR CONTRACT steps (1)–(4) FIRST — BINDING)
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-19 hop 1 **LANDED** SUPERSEDED: ## Next action (E2E-52/P3-18 **CLOSED** `95ba769c` — hop 6 LANDED: COVERAGE + FULL GATE rc=0 + RESULTS/PLAN CLOSE; **P3-19 LAST slice OWED — POOL LITERAL ENCODING**; read `LEARNINGS.md` § "P3-18 hop 6" SUCCESSOR CONTRACT steps (1)–(4) FIRST — BINDING)
 
 **DONE hop 6 (committed):** guard g534 VERBATIM `6574181f`; coverage two rows adjudicated FIRST-HAND `76c3a99c` (`IO.PUT_EDIT` col4 dated C376 sentence, EXACT:47 UNCHANGED; `STOR.STATIC_MEMBER_INITIAL` adjudication stands; coverage_check+prose rc=0); FULL gate rc=0 DIRECT `build/gate-e52p18-reg.log` — 1309/0, 190/190, 9/9, 145 rows SUPPORTED 95, census **15/1/25/0**, prose 5 — every number HIT; RESULTS §P3-18 + PLAN §5 row 109 finalised (7-pipe assert HIT) + §P3-18 **CLOSED** `95ba769c`. P3-19 pre-audit STARTED zero-oracle: `E524*`/`e52p19` VERIFIED unused; byte map `00B1+` FIRST-HAND — DR `01 09 09` vs mine `05 69 05 69` recurring at each DEC/pool literal site (DR data max `02BC`/DEF `035A`, mine `02D4`/`0372`); my pool helpers located (`codegen.ml` `pool_bytes` ~580, `dec_pool_bytes` ~1255 + users 1288/1303/1327, `bcd_pack` 5677/5692, prescan 15341/15361) but the `05 69`-pair site is NOT yet attributed — NEVER act on the carried reading.
 
@@ -3042,17 +3040,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 535
-checkpoint-id: g535-25f96cdb7cb0
-checkpoint-kind: manual
+checkpoint-generation: 538
+checkpoint-id: g538-0bb9718bd3b4
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-07T17:11:34.990Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-07T18:39:00.994Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 553b5fd76c137b0fd9007942cc612010bc787b72bac1a2bf4c4f20536e9f6569
+source-progress: b0242c0f182246226c0f02d7fe951fe84e3f547c71bf6545a8efef88c11811c3
 source-handoff: 2b23d202a92d9ba97716395ac90e8b821a2df6b8245b6e201762170cea585318
-source-learnings: 3e2f7436adafd0321d990214739953c5cc53c347eb50d9a722c611ca118a8970
+source-learnings: 0a21bfe22035f8bd8e25aea1935a8366c2c4e9b2e0029518f92e75d8134633bb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `): finish decode FIRST-HAND (extend map to `0x2BC`, tie sites to LOAN2 literals, grep [C319]/[C320]/[C368]/[C371] pool laws FIRST) → probes ONLY if discriminating (ONE campaign `E524A..`/`e52p19`, PRE-REGISTER PLAN §P3-19 BEFORE any oracle/`ocaml/lib/` byte, goldens VERBATIM first, arm measured only, NEVER fix by prediction) → tail+register (REAL `--update-inventory` moves 1309/190 IF probes; census may move 15/1/25/0) → C377 measured-bytes-only BEFORE COVERAGE → gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe, escape `\|`) + CLOSED; whole-file cmp vs `712cfcb2…` is the ONLY finale; new blocker ⇒ VERBATIM never fix. Ledger ENDS **C376** (199 headers); inventory **1309/190**; coverage **145/95 EXACT:47**; goldens KEPT NEVER re-derived; chain 01a1b554 renewal 11/12 used, cap 12 — ONE renewal remains.
 
@@ -3729,9 +3727,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b6ec-1555-7577-b10f-a8ae26d1dd41
-readiness-at: 2026-11-07T17:11:35.020Z
-readiness-checkpoint: g535-25f96cdb7cb0
 <!-- guard:end checkpoint -->
 
 ## Blockers

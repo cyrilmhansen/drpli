@@ -1,0 +1,14 @@
+E524C: procedure options(main);
+   /* E2E-52/P3-19 probe C (PLAN control):    */
+   /* no carets, no DEC arithmetic - plain    */
+   /* put skip(2) LIST literals only; pins    */
+   /* that skip counts and plain cells alone   */
+   /* are already byte-exact (H-A falsifier). */
+   dcl output file;
+   dcl a fixed binary;
+   a = 7;
+   put skip(2) list('plain one');
+   put list('plain two');
+   put skip(2) list(a);
+end E524C;
+

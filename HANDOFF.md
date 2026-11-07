@@ -1678,25 +1678,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 535
-checkpoint-id: g535-25f96cdb7cb0
-checkpoint-kind: manual
+checkpoint-generation: 538
+checkpoint-id: g538-0bb9718bd3b4
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~10014, session 01a1b6ec-1555-7577-b10f-a8ae26d1dd41)
-checkpointed: 2026-11-07T17:11:34.990Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3833, session 01a1b72e-30bd-77ff-99cf-94ae63847b91)
+checkpointed: 2026-11-07T18:39:00.994Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 553b5fd76c137b0fd9007942cc612010bc787b72bac1a2bf4c4f20536e9f6569
+source-progress: b0242c0f182246226c0f02d7fe951fe84e3f547c71bf6545a8efef88c11811c3
 source-handoff: 2b23d202a92d9ba97716395ac90e8b821a2df6b8245b6e201762170cea585318
-source-learnings: 3e2f7436adafd0321d990214739953c5cc53c347eb50d9a722c611ca118a8970
+source-learnings: 0a21bfe22035f8bd8e25aea1935a8366c2c4e9b2e0029518f92e75d8134633bb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b6ec-1555-7577-b10f-a8ae26d1dd41
-readiness-at: 2026-11-07T17:11:35.020Z
-readiness-checkpoint: g535-25f96cdb7cb0
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -2379,5 +2376,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-18 hop 6 FULLY LANDED and CLOSED (commits: guard 6574181f, coverage 76c3a99c, RESULTS+PLAN close 95ba769c, durables 566f123f). FULL gate rc=0 build/gate-e52p18-reg.log: 1309/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 15/1/25/0, prose 5 — every number HIT. Ledger ENDS C376 (199 headers); inventory 1309/190; coverage 145/95 EXACT:47; armed binary f93b86eaa5d3282b7b6ee0a501c6d405a350af4c0edc053836722dfeb15ace5f == tree; goldens NEVER touched; LOAN2 rc=0 7808B DIFFERS my-gap UNCLAIMED (cmp byte 324); config NEVER staged; no push. SUCCESSOR (P3-19 LAST slice, chain 01a1b554 renewal 12/12 = CAP — successor closes via handoff_finalize): execute PROGRESS.md ## Next action + LEARNINGS § "P3-18 hop 6" SUCCESSOR CONTRACT VERBATIM: (1) finish FIRST-HAND pool decode — byte map 00B1+ shows DR `01 09 09` vs mine `05 69 05 69` recurring at pool-literal sites (align from 00B8 ~30B; DR max 02BC/DEF 035A vs mine 02D4/0372; dumps build/p3-18/p5-{mine,golden}-rel-dump.txt); tie each site to a LOAN2.PLI literal; grep CLAIMS pool laws [C319][C320][C368][C371] FIRST; the 05 69 site is UNATTRIBUTED — NEVER fix by prediction; my pool helpers: codegen.ml ~580 pool_bytes, ~1255 dec_pool_bytes + users 1288/1303/1327, bcd_pack 5677/5692, prescan 15341/15361. (2) E524*/e52p19 VERIFIED unused; probes ONLY if genuinely discriminating — ONE campaign, PRE-REGISTER PLAN §P3-19 §1–§5 + LEARNINGS by EXPLICIT paths BEFORE any oracle call or ocaml/lib byte, goldens VERBATIM first. (3) tail (fingerprint fresh --build-dir ZERO Error, hist 68/124, markers ARGV-driven, DEC 64/0, divcheck 9/9, sweep FAILS 0) → REAL --update-inventory (moves ONLY if probes) → census OWN path (may move from 15/1/25/0) → C377 measured-bytes-only BEFORE any spec/COVERAGE.tsv touch → coverage → FULL gate rc=0 DIRECT build/gate-e52p19-reg.log. (4) RESULTS §P3-19 + PLAN §5 row line-anchored after 109 (7-unescaped-pipes assert RUN IN CODE, escape raw \|) + §P3-19 CLOSED; whole-file cmp vs golden sha 712cfcb2… is the ONLY finale; new blocker ⇒ record VERBATIM never fix. POSITIONAL pli80c.exe IN OUT NO -o; eval "$(opam env)" every shell; rc DIRECT; never glue rm; never parallelize dependent bash; byte-tier; build/ + ocaml/scratch-* NEVER staged.
+P3-19 hop 1 LANDED (commits 6efb37eb durables, e2c02ee5 close note): FULL first-hand pool decode done — EXACTLY three divergence classes in the pool: (1) caret-escape decode (DR ^i->09, ^z->1A per manual lines 1049-1056 low-5-bit mask; mine raw 5E 69/5E 7A at 15 sites, lexer.ml NOTE [PROBE 3]); (2) adjacent PUT-list literal MERGE into one pool cell (line-41 class: 1A+09 09+text = one 32B cell at 00B1); (3) residue 0x15C-0x16D golden 10 00 vs mine 01 00 UNATTRIBUTED (context ir/1200 + ci=1.00 + skip(2)) — NEVER fix by prediction. +24B delta exactly accounted. Predecessor readings 05 69/01 09 FALSIFIED first-hand. ZERO oracle run this session (context floor at cap); E524A..C probes remain PROPOSALS, PLAN section P3-19 NOT yet pre-registered. SUCCESSOR (chain must be reset by operator OR new session): execute PROGRESS.md Next action hop 2 VERBATIM — pre-register PLAN section P3-19 + probes + LEARNINGS by EXPLICIT paths BEFORE any oracle call or ocaml/lib byte; ONE campaign e52p19; goldens VERBATIM first; implement measured shapes only; tail -> inventory -> census -> C377 measured-bytes-only -> coverage -> FULL gate build/gate-e52p19-reg.log -> RESULTS+PLAN close; whole-file LOAN2 cmp vs 712cfcb2... is the ONLY finale; new blocker VERBATIM never fix. State: HEAD e2c02ee5, ledger C376, inventory 1309/190, coverage 145/95 EXACT:47, armed binary f93b86ea... == tree, goldens untouched, config never staged, no push.
 <!-- guard:end checkpoint -->

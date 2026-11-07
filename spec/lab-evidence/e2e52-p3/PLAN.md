@@ -2228,3 +2228,74 @@ already pins would violate the minimum-evidence rule.
    (LINE-anchored inside the table, 7-unescaped-pipes assert RUN IN CODE, escape raw
    `\|`) + §P3-18 **CLOSED**; then **P3-19** (last slice of the corrected budget) on the
    ACTUAL next blocker.
+
+## Subround P3-19 — POOL LITERAL CONTENT: caret-escape decoding `^x`; the hop-1 MERGE reading FALSIFIED at first pass by the CODE length operands; the DEC residue OPEN — PRE-REGISTERED 2026-11-08 (hop 2; session successor of 01a1b6ff; chain 01a1b554 renewal-state 12/12 NOT reset by operator despite brief — successor closes via handoff_finalize; baseline HEAD `e2c02ee5`, ledger ENDS C376, inventory 1309/190, coverage 145/95 EXACT:47, armed binary `f93b86ea…` == tree) — **OPEN (campaign owed)**
+
+### 1. Measured blocker (VERBATIM, re-held FIRST-HAND this hop)
+
+LOAN2 rc=0, 7808 B vs golden 7680 B; whole-file cmp first diff file byte 324.
+Pool DATA golden `00B1-02BC` (524 B) vs mine `00B1-02D4` (548 B), DEF-DATA-SIZE
+`035A` vs `0372`; 15 difflib REPLACE runs + residue window `0x15C-0x16D`
+(golden `00 12 00 | 00 00 00 00 00 00 00 10 00 00 00 00 00 00 00 00 01` vs mine
+`00 12 00 | 01 00 00 00 00 00 00 00 | 01`). **DATED CORRECTION to hop 1 (this
+session, first-hand robust parse of `build/p3-18/p5-{golden,mine}-rel-dump.txt`):
+the logical streams DO NOT agree through SET-LC data 00B1 in CODE — that bit-2563
+point is only ~320 B into the file (DATA precedes CODE). The CODE streams
+themselves differ (1749 of 2032 bytes): code@001A golden `01` vs mine `02`,
+code@0025 golden `27` vs mine `29` — literal LENGTH operands short by the caret
+excess; golden carries TWO data relocs, `data 0xb1` AND `data 0xb2`.**
+
+### 2. Existing DR evidence (ZERO oracle so far this subround; goldens untouched)
+
+`golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…` (oracle output); extracted/
+PL1-80_Language_Manual_Dec80.txt:1049-1056 caret rule (next char masked to low
+5 bits); [C371] DEC-literal law (pre-scaled cell, width `floor((pf+2)/2)`,
+BCD little-byte-order, e.g. 1.50@sf2 = `50 01 00 00 00`).
+
+### 3. Hypotheses (byte-exact; NEVER fit)
+
+- **H-A caret decode:** DR decodes `^x` at literal assembly (`^i`→`09`,
+  `^z`→`1A`, one byte per pair). FALSIFIER: any E524 golden DATA carrying `5E`.
+- **H-B' cell SEPARATION (replaces hop-1 merge law H-B):** each put-list
+  literal is its OWN pool cell — line-42 golden = 1-byte `1A` cell at `00B1` +
+  39-byte `09 09 + 37-char text` cell at `00B2` (predicted length operands
+  `01`/`27` MEASURED in golden code `001A`/`0025`); hop-1 ONE-merged-32B-cell
+  reading FALSIFIED at first pass by those operands + both relocs; E524A is
+  the confirming probe. FALSIFIER: E524A shows one cell/one length.
+- **H-C residue = OPEN question:** the window carries `00 12 00` (= 1200 in
+  LE BCD, both sides) plus golden words mine lacks; candidates: [C371]
+  pre-scaled `1`/`1.00` cells at the operation/target scales (13/14) vs my
+  unscaled cell; NEVER state the golden bytes as law before E524B measures.
+
+### 4. Probes (`probes/E524{A,B,C}.PLI`, CRLF + bare `^Z` + ≤71 col + one dcl
+per line + first-line label; continuation statement after puts)
+
+E524A line-42 class (`%replace clear by '^z'` + adjacent caret literal);
+E524B residue replica (`put '^i^i%Inflation     '`, `get list(ir)`,
+`fi = 1 + ir/1200`, `ci = 1.00`, `put skip(2) '^i^iStarting Month '`, plain
+literal tail); E524C control twin (no carets, no DEC arithmetic). SANITY this
+hop on `f93b86ea…`: ALL THREE rc=0 — A 384 B code=71 data=0, B 768 B code=183
+data=15, C 512 B code=94 data=2 (my cells carry RAW `5E 69` bytes — the very
+defect). E524B v1 (`%replace true by '1'b` + `if true then`) DIED on MY lexer
+refusal `%replace macro true used inside a literal or comment [TBD]` — probe
+DEFECT, KEPT as provenance, v2 drops the TRUE class (bit-literal `01` cell
+attribution stays OPEN). CAMPAIGN (successor runs): `PLI_SRC=probes timeout
+900 python3 oracle/batch.py E524A E524B E524C --tag e52p19 --switches '$L$D'`;
+read EVERY `.PRN` both passes; goldens VERBATIM into `golden/e52p19/` and
+committed BEFORE any `ocaml/lib/` byte; decode first-hand into `build/p3-19/`.
+
+### 5. Implementation + validation + registration contract (post-campaign)
+
+Implement ONLY measured shapes: caret decode at literal assembly
+(`lexer.ml:53` NOTE [PROBE 3] is the deliberate carry) + pool demand widths at
+`pool_bytes` ~580/`dec_pool_bytes` ~1255/prescan ~15341/15361 shrink in
+LOCKSTEP (C152 invariant fires ⇒ STOP, record, never adjust `base`); residue
+fix ONLY if E524B pins it. Tail: fingerprint fresh `--build-dir` + grep
+`Error`; histogram 68/124; markers argv; DEC 64/0; divcheck 9/9; sweep FAILS 0
+(legacy falsifier); FRESH POSITIONAL LOAN2; whole-file cmp vs `712cfcb2…` is
+the ONLY finale. Register: REAL `--update-inventory` (expect +3 specimens),
+census OWN path (counts may move from 15/1/25/0), **C377 measured-bytes-only
+BEFORE ANY `spec/COVERAGE.tsv` touch**, coverage FIRST-HAND, FULL gate rc=0
+DIRECT `build/gate-e52p19-reg.log`, RESULTS §P3-19 + PLAN §5 row after 109
+(7-unescaped-pipes assert RUN IN CODE, escape raw `\|`) + §P3-19 CLOSED; new
+blocker ⇒ VERBATIM, never fix.

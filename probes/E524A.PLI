@@ -1,0 +1,13 @@
+E524A: procedure options(main);
+   /* E2E-52/P3-19 probe A (PLAN H-A/H-B):    */
+   /* LOAN2 line-42 class: %replace of a name */
+   /* by '^z' plus an adjacent '^i^i' literal */
+   /* in ONE put list; measures escape decode  */
+   /* and per-literal pool cell geometry.      */
+   %replace
+      clear by '^z';
+   dcl output file;
+   put list(clear,'^i^iS U M M A R Y');
+   put skip list('^i^icannot write to');
+end E524A;
+

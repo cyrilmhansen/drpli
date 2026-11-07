@@ -1,0 +1,18 @@
+E524B: procedure options(main);
+   /* E2E-52/P3-19 probe B (PLAN residue):    */
+   /* replica of the LOAN2 retry context      */
+   /* between the two caret literals: the DEC */
+   /* division by the integer literal 1200    */
+   /* and the 1.00 store to fixed dec(15,14). */
+   dcl ir fixed decimal(4,2);
+   dcl fi fixed decimal(7,5);
+   dcl ci fixed decimal(15,14);
+   dcl output file;
+   put list('^i^i%Inflation     ');
+   get list(ir);
+   fi = 1 + ir/1200;
+   ci = 1.00;
+   put skip(2) list('^i^iStarting Month ');
+   put list('control literal');
+end E524B;
+
