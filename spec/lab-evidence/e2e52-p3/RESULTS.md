@@ -2137,3 +2137,84 @@ unchanged; LOAN2 NOT claimed exact and NEVER will be on this evidence.
   census row is DIFFERS, and the 128-B/336-bit excess is NOT explained — only measured.
 - GOLDENS NEVER re-derived; `build/` evidence stays git-IGNORED and is quoted into commits;
   `handoff.config.json` NEVER staged; all rc DIRECT; no push.
+
+# E2E-52/P3-19 RESULTS — the lowering-pool CONTENT blocker is CLOSED: DR decodes caret escape
+pairs to one byte (`code AND 1F`), every put-list literal rides its OWN pool cell, and an additive
+integer literal against a DIV compound aligns to the QUOTIENT descriptor — with the three laws
+armed on measured bytes ONLY, **`artefacts/LOAN2.PLI` is WHOLE-FILE BYTE-EXACT against the
+authentic DR object** (7680 B, `cmp` rc=0): the E2E-52/P3 campaign objective is met at byte tier —
+**CLOSED (hop 6, 2026-11-08; claim [C377] `a59e687c`; gate rc=0 `build/gate-e52p19-reg.log`)**
+
+Pre-registered at hop 2 (`23085c0f`: PLAN §P3-19 §1–§5 with H-A caret decode, H-B′ per-literal
+SEPARATE cells — the hop-1 merge reading FALSIFIED first-pass by the golden length operands
+`code@001A=01`/`code@0025=27` and the twin data relocs `0xb1`/`0xb2` — and H-C the open residue
+window `0x15C-0x16D`); ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E524A
+E524B E524C --tag e52p19 --switches '$L$D'` rc=0 **3 ok/3**, every `.PRN` `NO ERROR(S)` BOTH
+passes, goldens committed VERBATIM `7e8d577d` BEFORE any `ocaml/lib/` byte (A 384 B `37c9053b73c6`,
+B 768 B `c2276dfd7ae8`, C 512 B `3f490fffcd91`). Hops 3–4: ZERO-oracle first-hand decode
+(`build/p3-19/ADJUDICATION-decode-hop4.md`) — **H-A CONFIRMED, H-B′ CONFIRMED (merge FALSIFIED),
+H-C PINNED**; ZERO §4 misses. Arm (hop 5, `b78f00f6` + lexer edit landed `f34fd422`, BUILT hop 5):
+`lexer.ml scan_string` masks the character after a caret with `land 0x1f`; `dpartner` gains EXACTLY
+the Div-partner arm `Some (15, (dv_of st nop_cx e).sc)`; the prescan `pdec_operand_bytes` `prec`
+arm MIRRORS it over `pd_vars` (C152 lockstep never fired, `base` untouched); `dv_of` keeps
+`pv = None` for Div so N32_DIV_CHAINED stays refused. Armed binary sha256
+`baec1f826cd789dddd77a2f4438550598cb9f07f9d09669df4abfb10a74d58a9` == tree, deterministic across
+fresh `--build-dir _build-p319b` with ZERO `Error` lines; histogram codegen 68 / total 124 ==
+baseline; markers **16/16** (argv harness) incl N32 STILL refused; DEC 64/0; divcheck 9/9; sweep
+pre-reg 187/0 → post-reg **190/0 FAILS 0** (count-moves-with-inventory law HIT).
+
+## 1. Measured parity table (re-verified FIRST-HAND at this close from the KEPT goldens and a FRESH positional re-compile `build/p3-19/close-out/`)
+
+| Item | Measured | Authority |
+|---|---|---|
+| E524A | 384 B, CODE used 71 / DEF-CODE-SIZE `0047`, DATA used 33 / DEF-DATA-SIZE `0021`, COMMON `0028` OUTPUT; caret cells `1A` + `09 09 + 13 chars` + `09 09 + 15 chars`; THREE separate cells with own operand pairs `21 00 00 / 3E 01` @000F, `21 01 00 / 3E 0F` @0019, `21 10 00 / 3E 11` @0036 (relocs 0010/001B/0037); whole-file `cmp` rc=0 re-held at claim time AND at this close | `golden/e52p19/E524A/`, C377 |
+| E524B | 768 B, DEF-CODE-SIZE `00B2`, DEF-DATA-SIZE `0053`; `00 12 00` divisor 3 B own-digits `MVI A,04` at `data@0011-0013`; additive `1` QUOTIENT-aligned 8 B cell `00 00 00 00 00 00 10 00` = 10^13 at `data@0014-001B` pushed `3E 0F / ?DLDOP`; `3E 0B / ?QDDSL` (= 15−4), `?DDVOP` slot 82, `?DADOP` slot 93, `3E 08 / ?QDDSR` slot 98, `3E 07 / ?DSTOP` slot 106; `1.00` store role cell `00 00 00 00 00 00 00 01` = 10^14 at `001C-0023` → `?DSTOP` slot 122; post-pool variables `ir 0044 / fi 0047 / ci 004B`; P1/P3/P4 literals SEPARATE at 0000/0024/0035; `cmp` rc=0 claim time and at this close | `golden/e52p19/E524B/`, C377 |
+| E524C | 512 B control, CODE `005E`, DEF-DATA-SIZE `0014` (plain cells `plain one` 0000-0008 / `plain two` 0009-0011 each `MVI A,09`, `a` at 0012-0013 NO static bytes); already byte-exact UNARMED — proves the caret change touches NOTHING outside its class; `cmp` rc=0 claim time and at this close | `golden/e52p19/E524C/`, C377 |
+| **LOAN2 — P3 FINALE** | source UNMODIFIED sha256 `7be23ba3…` (last touched Phase 0), armed binary `baec1f82…`, POSITIONAL rc=0, `wrote … (7680 bytes, code=2464 data=91)` == golden DEF-CODE-SIZE `09A0` / `035A`; **WHOLE-FILE `cmp` rc=0** against the authentic `golden/first/LOAN2/LOAN2.REL` sha256 `712cfcb2…` — re-held FRESH POSITIONAL at claim time (`build/p3-19/hop6-claim-out/`) and AGAIN at this close (`build/p3-19/close-out/LOAN2.REL`); the [C376] byte-324 pool-content my-gap is CLOSED | C377; census `a87a8ed9` |
+| Census row | MOVED **DIFFERS→EXACT**, counts **16 EXACT / 0 DIFFERS / 25 REFUSED / 0 UNEXPECTED** (was 15/1/25/0); re-snapshot by the census's OWN `--check` path, NOTHING hand-edited; TSV companion `5f86de76` | `build/p3-19/census.log`; `a87a8ed9` |
+
+## 2. The three new DR laws (all measured, all in [C377])
+
+- **Caret decode:** `^x` in a quoted literal is ONE byte at assembly, `code AND 1F` (`^z`→`1A`,
+  `^i`→`09`); the falsifier — any `5E` in golden DATA — was re-scanned at claim time over ALL
+  THREE goldens: ZERO `5E` bytes. Manual 1044-1056 corroborates; the probe measures it.
+- **Per-literal SEPARATE cells:** distinct literals in one PUT list never merge; each rides its own
+  `LXI H,*D(cell) / MVI A,len`. The hop-1 merge reading is FALSIFIED exactly as pre-registered.
+- **Quotient alignment:** an INTEGER literal in the ADDITIVE role against a DIV-compound DEC
+  partner is pushed at `(p=15, s=quotient scale)` — NOT its own digit count — reconfirming
+  [C086 L3/L4/L8] and the [C371] cell-width law (`floor((15+2)/2)=8`); the LOAN2 residue window
+  `0x15C-0x16D` that [C376] left unanalysed is precisely `00 12 00 | 10^13 | 10^14`.
+
+## 3. Registration and claims
+
+REAL `--update-inventory`: **1309→1312 specimens, 190 refusals EXACT** (+3, never forced;
+`4747cbee`). Claim **C377 `a59e687c`** written measured-bytes-only BEFORE any `spec/COVERAGE.tsv`
+touch — every cited byte/span re-verified FIRST-HAND at claim time with `build/p3-13/p13dump.py
+rawcode/data/sizes` + `tools/reldump.py` (P3-16 law), the N32 refusal re-held rc=2 first-hand
+(PERIMETER: caret-before-quote/CR/LF/EOF UNMEASURED verbatim pass `[TBD]`; chained-division
+dividend precision stays unpinned; `^`-in-`%replace` beyond the 1-byte cell stays OPEN). Coverage
+EXTEND FIRST-HAND `ad7f06a2` (NEVER `coverage_gen.py`): `IO.PUT_LIST_FIXED` col4 dated
+caret+separate-cells sentence, col11 +E524A,E524B,E524C, `EXACT:71→74`; `STOR.DEC_SCALE_ASSIGN`
+col4 dated quotient-alignment sentence, col11 +E524B, `EXACT:10→11`; **`IO.PUT_EDIT` ADJUDICATED
+UNCHANGED** — the contract's `+E524A,B?` candidate was REJECTED against the row law: no E524 probe
+carries an `edit(…)(…)` statement. `coverage_check` rc=0 **145 rows, 0 errors, 0 warnings,
+SUPPORTED 95**; `file_prose_check` rc=0. FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` —
+**1312/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5** — every pre-registered
+number HIT (verified in the log at this close).
+
+## 4. LOAN2 — the campaign objective, CLOSED at byte tier
+
+Every progressive blocker of subrounds P3-1…P3-19 is now resolved: LOAN2 compiles rc=0 and its
+`.REL` is byte-for-byte the authentic DR object. This is a **my-gap CLOSED** classification
+([C376] measured it, [C377] claims the fix), at **BYTE TIER ONLY**.
+
+## 5. What P3-19 does NOT say (byte tier only)
+
+- BYTE TIER: no `e52p19` or LOAN2 object was linked or run under cpmsim; no `spec/RUNTIME.txt`
+  row comes from this slice; byte-exactness of the `.REL` is not a runtime-semantics claim.
+- The quotient-alignment law is measured for the DIV-compound ADDITIVE role ONLY; the quotient's
+  OWN precision stays UNPINNED (`dv_of` keeps `pv = None`, N32_DIV_CHAINED stays refused BY NAME,
+  marker re-held at claim time). `^`-before-quote/CR/LF/EOF stays UNMEASURED `[TBD]`.
+- EXPR1 (GET line 21) and EXPR2 (FLOAT line 35) are UNCHANGED. Goldens NEVER re-derived;
+  `golden/e52p19/*/dir.txt` leftovers stay untracked; `build/` evidence stays git-IGNORED and is
+  quoted into commits; `handoff.config.json` NEVER staged; all rc DIRECT; no push.
