@@ -1666,22 +1666,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 512
-checkpoint-id: g512-40c624763f7e
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4896, session 01a1b5d8-0d11-76f6-9177-fd5eeeede9b1)
-checkpointed: 2026-11-07T12:15:52.138Z
+checkpoint-generation: 513
+checkpoint-id: g513-fbddd465b087
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-3099, session 01a1b5d8-0d11-76f6-9177-fd5eeeede9b1)
+checkpointed: 2026-11-07T12:18:28.354Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f98c3acb06ead3e7b7cd3a401aa775d3df562641da3314528973fa9623114685
-source-handoff: b12ef0d0ff4fcda82e84d22238762e917c5bf4e8b399151d415473e83fd8b200
-source-learnings: 72e9aedae256edc70f346553dc2e105cf41f375c57614727445529d0f9992116
+source-progress: 9e4c8ae1e5fa9626d470fb70fb33cdfd16622e5a1a600086d2683309de41bffa
+source-handoff: 8b0dba65744afae86df253bc218923c93bba2667e069765c134611350b7fa904
+source-learnings: f0f2e194012cf859309ab9252326445a25adcdec9df65080948eaca1394bf0f2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b5d8-0d11-76f6-9177-fd5eeeede9b1
+readiness-at: 2026-11-07T12:18:28.379Z
+readiness-checkpoint: g513-fbddd465b087
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2342,5 +2345,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-17 hop 2: read LEARNINGS § "P3-17 hop 1 IN FLIGHT" (binding, zero-oracle pre-audit DONE: authentic LOAN2.REL 076A-0804 decoded, fixed-bin VARIABLE edit item = LHLD *D / 3E 09 / ?QICOP / ?EDTOV, lowering already armed, guard is the only blocker). Execute PROGRESS.md Next action steps (2)-(7): pre-register PLAN §P3-17 + probes E523A/B/C + §4 predictions committed by explicit paths BEFORE any oracle/ocaml byte; sanity rc=2; ONE campaign e52p17; goldens VERBATIM; arm ONE clause (| Vint -> () non-deref branch of authorize_file_edit_item ~codegen.ml 12541) iff A+B accepted byte-exact; deref-Vint stays refused; full validation tail incl. gate -> build/gate-e52p17-reg.log; LOAN2 never fix; register from 1307/189 COMPUTED; C375 before COVERAGE; IO.PUT_EDIT EXACT:45 adjudication; RESULTS+PLAN §5+CLOSED; then STOP, no P3-18. Baseline: HEAD b1ee927a+, binary 215c4503…==tree, ledger C374, fresh chain.
+P3-17 hop 4 LANDED: registration rows committed `a4ea5e69` (SPECIMENS +2 E523A/E523B with measured-byte comments; E523C → REJECTS + NEG_META my-gap golden KEPT UNCLAIMED, NOTHING armed on C's authority; py_compile rc=0) + durables `c6be2f50`. Claim-time parity re-held FRESH POSITIONAL build/p3-17/hop4-out/: A cmp rc=0 (512 B), B cmp rc=0 (896 B), C rc=2 NO .REL refusal VERBATIM ending `line 8`. TWO DATED first-hand corrections for C375 (P3-16 lesson again): E523B cy ENTRY = code@0040 NOT 004A (CHAIN-ADDR head slot 001F→LC 0040; peel 5E 23 56 EB + 22 52 00 = 0040-0046; 004A is the yp SHLD 22 54 00→data@0054; the 4A 00 word at data@0050 is the [C371] static-vector RELOC→data@004A), and picture $$$,$$$,$$9V.99 = 15 B at data@0017-0025 NOT 0016-0024. All other hop-3 bytes CONFIRMED first-hand. INVENTORY deliberately NOT regenerated — 1307/189 STALE-PENDING, expect 1309/190 from the REAL --update-inventory output, never force. NEXT (hop 5, BINDING = LEARNINGS § "P3-17 hop 4 REGISTRATION EDIT LANDED" steps (1)-(8)): build (binary MUST be b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f == tree) → --update-inventory + commit → sweep expect 187/0 → markers 16/16 incl E523C → census OWN path 15/0/26/0 msg MOVES VERBATIM nothing fixed → C375 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch (corrected spans) → row 66 IO.PUT_EDIT EXACT:45 first-hand adjudication expect 47 (never coverage_gen.py) → coverage_check+prose rc=0 → FULL gate rc=0 DIRECT → build/gate-e52p17-reg.log → RESULTS §P3-17 + PLAN §5 row line-anchored with 7-unescaped-pipes assert RUN IN CODE + §P3-17 CLOSED → then STOP, budget EXHAUSTED 8/8, report LOAN2 next blocker VERBATIM never fix, NO P3-18 without operator decision. Goldens never re-derived; POSITIONAL pli80c.exe IN OUT no -o; opam env every shell; rc DIRECT; never glue rm; never parallelize dependent bash; byte-tier; build/ git-IGNORED never git add -f; config NEVER staged; no push.
 <!-- guard:end checkpoint -->
