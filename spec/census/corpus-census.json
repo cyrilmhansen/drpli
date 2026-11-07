@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "872f81dd46e33dc8b79db77bdbb8a2bf",
+ "binary_md5": "2fb53eb839a823f6415e084af54efe6a",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,9 +15,10 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-07T04:42:52",
+ "generated": "2026-11-07T06:55:24",
  "git_dirty_paths": [
   "M handoff.config.json",
+  " M ocaml/lib/codegen.ml",
   " M spec/INVENTORY.txt",
   " M tools/e2e_gate.py",
   "?? ocaml/_build-e52p10/",
@@ -28,6 +29,7 @@
   "?? ocaml/_build-p313arm3/",
   "?? ocaml/_build-p314/",
   "?? ocaml/_build-p314b/",
+  "?? ocaml/_build-p315/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
   "?? ocaml/build-e52p10-hop3rem-build.log",
@@ -45,7 +47,7 @@
   "?? ocaml/build-warn-e52p6.log",
   "?? ocaml/scratch-p314/"
  ],
- "git_head": "65da9bd13e488fcb8f5674fc8f6ae6d73b78d604",
+ "git_head": "955743a8f1da3783c8cb72303966c4aef71781ec",
  "rows": [
   {
    "dir_present": true,
@@ -423,7 +425,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE(OUTPUT) EDIT of the FORMAL A has no byte-exact DR witness [TBD] (line 147) -- the file EDIT route is lowered f",
+   "msg": "Fatal error: exception Failure(\"codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- ",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,

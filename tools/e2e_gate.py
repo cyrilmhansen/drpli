@@ -2665,6 +2665,52 @@ SPECIMENS.update({
     "E520D": ("probes/E520D.PLI", "golden/e52p14/E520D/E520D.REL"),
 })
 
+# [E2E-52/P3-15] E521A..E521C -- FILE-EDIT-OF-A-FORMAL panel (campaign e52p15 4 ok/4 at
+# 43298b74; PLAN §P3-15 H-A/H-B/H-C/H-D CONFIRMED, every `.PRN' NO ERROR(S) in BOTH
+# passes).  The guard `authorize_file_edit_item' now admits a deref'd PIvar iff its
+# binding is Vdec (this hop's ONE clause); the item lowering is the [E2E-52/P3-13]
+# deref-Vdec chain verbatim.  All three whole-file cmps rc=0 FRESH POSITIONAL on binary
+# 02ea809e... (build/p3-15/arm-out/).
+#   E521A 640 B; CODE 00B8 (184 B), DATA 0026 (38 B).  CONTROL: file EDIT whose DEC item
+#             is a callee-LOCAL z -- variable chain `21 2A 00 / 3E 0A / ?DLDOP@0077 /
+#             3E 0D / 06 02 / ?QDCOP / ?EDTOV@0081' (LXI H,*A(z cell 002A), P086K prep);
+#             literal `|' chains `21 15 00 / 3E 01 / ?SLCTS@006C / ?EDTOV@006F' x2 riding
+#             the ONE shared `7C' cell at data@0015 (H-B); 21 B format table at data@0000
+#             = `80 00 03 FF 02 08 02 0C 24 5A 5A 5A 2C 5A 5A 39 2E 56 39 39 81' -- the
+#             hop-2 decode VERBATIM, predicted-before-measured and HIT (H-C); attach
+#             `21+RELOC common0 / 11 52 06 / 01 91 00 RELOC->code@0091 / ?SIOOP@005E /
+#             21+RELOC data@0000 / ?EDITF@0064'; static desc vector 0022/0024 ->
+#             0016/001C; callee prologue `11 26 00 / 0E 04 / 7E 23 12 13 / 0D / C2 4C 00'
+#             (2 formal cells, 4 B copied each).
+#   E521B 640 B; CODE 00AD (173 B), DATA 0026.  THE TARGET CLASS (H-A): the EDIT item is
+#             the deref'd FIXED DEC formal x -- chain at 0070-0081 `2A 26 00 / 3E 0A /
+#             CD ?DLDOP@0077 / 3E 0D / 06 02 / CD ?QDCOP / CD ?EDTOV@0081': LHLD of the
+#             DESCRIPTOR cell 0026 (which carries NO static bytes -- the block-copy
+#             prologue writes it at runtime) instead of the variable route's LXI H,*A;
+#             EVERY other byte of A's chain is unchanged -- the prep instruction is the
+#             ONLY difference, exactly as the authentic LOAN2 display body 0674-0732
+#             compares to P086K.  Same 21 B table, same shared 7C, same attach geometry
+#             (LXI B operand carries code@0086, the ?QIOOP@0084 lands immediately after
+#             the single ?EDTOV).
+#   E521C 1024 B; CODE 012C (300 B), DATA 005B (91 B).  The LOAN2 147-150 display
+#             statement VERBATIM on a named print-opened file: 11 items, FIVE formal
+#             chains `2A 5B/5D/5F/61/63 00 / 3E 0A / ?DLDOP / 3E 0D / 06 02 / ?QDCOP /
+#             ?EDTOV' (desc cells stride 2) alternating with SIX literal `|' chains
+#             `21 32 00 / 3E 01 / ?SLCTS / ?EDTOV' on the ONE shared 7C at 0032; the 50 B
+#             family table at data@0000..0031 is the T3 decode byte-for-byte (H-C) --
+#             nested reps `80 02 80 02' (H-D, [C362]), pic1 `02 0A 02 0F' +
+#             `$ZZ,ZZZ,ZZ9V.99', pic2 `02 08 02 0C' + `$ZZZ,ZZ9.V99' (dot-before-V does
+#             NOT count), three `03 FF' element records, `81 81' terminators; arity-5
+#             copy prologue `11 5B 00 / 0E 0A' (10 B); static desc vector 0051..005A ->
+#             0033/39/3F/45/4B ([C371] law, stride-6 temps).
+#   E521D is NOT here -- DR ACCEPTED the fixed-bin formal item but it is a SINGLE
+#   witness: registered below as an honest my-gap, the class stays refused BY NAME.
+SPECIMENS.update({
+    "E521A": ("probes/E521A.PLI", "golden/e52p15/E521A/E521A.REL"),
+    "E521B": ("probes/E521B.PLI", "golden/e52p15/E521B/E521B.REL"),
+    "E521C": ("probes/E521C.PLI", "golden/e52p15/E521C/E521C.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -5529,6 +5575,15 @@ REJECTS.update({
     # BY-NAME [TBD] refusal AGREES with DR (WL/SF/SG precedent).
     "E520E": (open("probes/E520E.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "CALL target is not a simple procedure name"),
+    # [E2E-52/P3-15] E521D -- MEASURED my-gap row, golden KEPT (XJ/XK/E52SE precedent,
+    # NOT dr-refuses): campaign e52p15 measured DR ACCEPTING the deref'd FIXED BIN
+    # formal as a file EDIT item (`.PRN' NO ERROR(S) BOTH passes, 512 B .REL) but PLAN
+    # §P3-15 §5 kept the class OUTSIDE the arm -- SINGLE witness, do-not-generalise
+    # (P3-10 WF/WG law).  The marker is MY refusal substring RE-MEASURED rc=2 on armed
+    # binary 02ea809e... under the gate's CRLF+bare-^Z materialization (line 17), never
+    # invented.
+    "E521D": (open("probes/E521D.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(PF) EDIT of the FORMAL N has no byte-exact DR witness [TBD] (line 17)"),
 })
 NEG_META["E52SF"] = ("dr-refuses",
     "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
@@ -5617,6 +5672,23 @@ NEG_META["E52XK"] = ("my-gap",
     "so the named PUT on it refuses BY NAME -- INPUT-direction named PUTs stayed outside the "
     "arm per PLAN §5; `my-gap' row, golden KEPT, claimed by NOTHING here.  Marker RE-MEASURED "
     "rc=2 on binary 25c57e27696421e929b8... this hop (line 9), never assumed.")
+
+# [E2E-52/P3-15] E521D -- MEASURED my-gap on the FILE-EDIT-of-a-formal route (precedent
+# E52XJ/E52XK above): accepted single witness, deliberately NOT armed.
+NEG_META["E521D"] = ("my-gap",
+    "DR COMPILES IT (golden/e52p15/E521D/E521D.REL, 512 B whole-file: `NO ERROR(S)' in BOTH "
+    "passes; campaign e52p15 4 ok/4 measured at 43298b74; [C373] H-E) -- the file EDIT item "
+    "is the deref'd FIXED BIN formal n: chain at 0060-006C `2A 0D 00 LHLD desc / 5E 23 56 EB "
+    "(deref-to-value, the P063B read) / 3E 09 width / CD ?QICOP@0069 / CD ?EDTOV@006C', "
+    "attach `?SIOOP@0057 / ?EDITF@005D', table `80 00 03 FF 81' at data@0000, callee "
+    "prologue `11 0D 00 / 0E 04'.  This is a SINGLE witness of a class the P3-15 arm "
+    "contract never claimed: PLAN §P3-15 §5 admitted ONLY the Vdec deref binding, so mine "
+    "KEEPS refusing the fixed-bin formal BY NAME (`PUT FILE(PF) EDIT of the FORMAL N has "
+    "no byte-exact DR witness [TBD]') -- a `my-gap' row on a verdict DR has now told us, "
+    "the D golden is claimed by NOTHING here until the class gets its own panel "
+    "(do-not-generalise, P3-10 WF/WG law).  Marker RE-MEASURED rc=2 on armed binary "
+    "02ea809e... this hop under the gate's CRLF+bare-^Z materialization (line 17), never "
+    "assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
