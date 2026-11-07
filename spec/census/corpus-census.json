@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "893205d7c9c1e82ff993c9c9ce99471c",
+ "binary_md5": "693b43f02a829d7d079ee5c6797b86ea",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,11 +15,9 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-07T08:43:31",
+ "generated": "2026-11-07T13:25:36",
  "git_dirty_paths": [
   "M handoff.config.json",
-  " M spec/INVENTORY.txt",
-  " M tools/e2e_gate.py",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-p312hist/",
@@ -30,6 +28,7 @@
   "?? ocaml/_build-p314b/",
   "?? ocaml/_build-p315/",
   "?? ocaml/_build-p316/",
+  "?? ocaml/_build-p317/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
   "?? ocaml/build-e52p10-hop3rem-build.log",
@@ -47,7 +46,7 @@
   "?? ocaml/build-warn-e52p6.log",
   "?? ocaml/scratch-p314/"
  ],
- "git_head": "20652872306c40b9dae5582894e6291d49696998",
+ "git_head": "4b67ed486a045bcef43e57e5269d0aa78f683f30",
  "rows": [
   {
    "dir_present": true,
@@ -425,7 +424,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary has no byte-exact DR witness [TBD] (line 177) -- the file EDI",
+   "msg": "Fatal error: exception Failure(\"codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser cells, or with a format-table group that doe",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
