@@ -1652,25 +1652,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 483
-checkpoint-id: g483-1e5d028586db
+checkpoint-generation: 484
+checkpoint-id: g484-339f75650429
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~1184, session 01a1b43b-ce61-71e7-84a1-50e549adf32f)
-checkpointed: 2026-11-07T04:49:48.937Z
+status: checkpoint (guard level 2, remaining ~8367, session 01a1b457-e631-71e7-84a1-50e984d0fafb)
+checkpointed: 2026-11-07T05:10:20.505Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 38ca496ba093856e0117dc15040df9bf2dfa6a935f307e2e1da38319388706b3
+source-progress: 6773ee0de906e3446c172d5e39eea41eeac87b75f1bca2497771b230388247f1
 source-handoff: f2fb46a3aaaf2a0109ec98b6b4a169cf485081aaadf08f62f6e67a0cb4133efb
-source-learnings: 4a9ecb8862f0a0d18af7ad4f5d19edbecba8fa80d12a06885046a58f62ecabfb
+source-learnings: 0978b11121276f0b0775e06b1548e4bf9ddde42219d1b507b43067d1a94ecc62
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b43b-ce61-71e7-84a1-50e549adf32f
-readiness-at: 2026-11-07T04:49:48.961Z
-readiness-checkpoint: g483-1e5d028586db
+readiness-by: session:01a1b457-e631-71e7-84a1-50e984d0fafb
+readiness-at: 2026-11-07T05:10:20.531Z
+readiness-checkpoint: g484-339f75650429
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2325,5 +2325,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-14 CLOSED (a72fd2e3: gate rc=0 build/gate-e52p14-reg.log every number hit; RESULTS §P3-14; PLAN §5 row + CLOSED). P3-15 hop 1 ZERO-oracle PRE-AUDIT LANDED (f0d12528): authentic LOAN2.REL display body 0674-0732 pins the refused FORMAL file-EDIT shape (LHLD desc cell/3E 0A/?DLDOP/3E 0D/06 02/?QDCOP/?EDTOV x5; P086K shows only the PREP instruction differs from the armed variable route); guard reason clause false-as-written vs corpus (correction owed at C373). Execute LEARNINGS § "P3-15 hop 1" SUCCESSOR CONTRACT steps (1)-(5) EXACTLY: decode the $-picture format record at data@0015.. FIRST-HAND into build/p3-15/ BEFORE writing §4 predictions (never fit); pre-register PLAN §P3-15 H-A..H-D + probes E521A..D (CRLF+bare-^Z, <=71 cols, ONE dcl/line, headers procedure;/procedure(x,y);, arity>=2 fixed dec(10,2) block-copy callee, open file (output) print;, continuation statement after every put, non-formal control twin) + LEARNINGS by EXPLICIT paths BEFORE any oracle call or ocaml/ byte; ONE campaign --tag e52p15 rc DIRECT; goldens VERBATIM first; arm measured shapes ONLY (authorize_file_edit_item deref-RTdec-formal admission; all else keeps VERBATIM BY-NAME refusal; histogram 68/124); FULL GATE BEFORE CLOSE -> build/gate-e52p15-reg.log (expect 1300/0 baseline + whatever registration moves); LOAN2 UNMODIFIED -> ACTUAL blocker VERBATIM NEVER fix; register from 1300/187; C373 measured-bytes-only BEFORE ANY COVERAGE touch; PLAN §5 row INSIDE table anchored by LINE NUMBER with 7-unescaped-pipe check (NEW lesson: escape raw | in table prose); marathon through P3-19 (slice 6 of <=8). Binary b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2 == tree; ledger ENDS C372 (195 headers); coverage 145/95; goldens NEVER re-derived; config NEVER staged; POSITIONAL pli80c NO -o; eval "$(opam env)" every shell; rc DIRECT; never glue rm; never parallelize dependent bash; no push; byte-tier; chain 01a1b2d5 4/12 cap 12.
+P3-15 hop 2 LANDED (96f7a85d): T3@data@0015..0046 (50 B line-147 display format record) decoded FIRST-HAND via NEW build/p3-15/fmt.py + tables.py (fmt-out.txt kept); ZERO unknown bytes — every record fits [C090]/[C361]/[C362] verbatim (pic1 02 0A 02 0F $ZZ,ZZZ,ZZ9V.99 = 11-1/99-after-last-V; pic2 02 08 02 0C $ZZZ,ZZ9.V99 — dot BEFORE V not counted); literal cell data@01EC=7C single shared; formal descriptor cells data@0342..034B have NO static bytes (runtime block-copy — NEVER statically init). ALL format-record classes AND the LHLD item chain (codegen.ml ~13020, armed E52ZF [C371]) are ALREADY ARMED — the ONLY blocker is authorize_file_edit_item PIvar st.deref BY-NAME; expected arm = ONE guard clause admitting deref iff vk_of = Vdec, everything else VERBATIM BY-NAME refusal; refusal reason clause "no object puts a formal…" is FALSE-AS-WRITTEN vs authentic LOAN2 — DATED correction owed at C373. EXECUTE NOW `LEARNINGS.md` § "P3-15 hop 2" SUCCESSOR CONTRACT steps (1)-(5) EXACTLY: PLAN §P3-15 (H-A..H-E; §4 predictions from DECODED laws NEVER fit) + probes E521A..D (designs PINNED in LEARNINGS § hop 2: CRLF+bare-^Z, ≤71 cols, ONE dcl/line, header procedure(x,y);, dcl pf file; + open file(pf) print; golden-proven E52XA/XG geometry, continuation after every put, arity≥2 fixed dec(10,2) block-copy callee; A=non-formal control rc=0 expected, B=formal target class, C=full 5-formal mirror, D=fixed-bin-formal boundary KEEP BY-NAME regardless) + ZERO-oracle sanity on b88e7b02… POSITIONAL FRESH build/p3-15/sanity/ + COMMIT PLAN+probes+LEARNINGS+durables BY EXPLICIT PATHS BEFORE ANY ORACLE CALL OR ocaml/ byte; THEN ONE campaign e52p15 rc DIRECT, goldens VERBATIM first, arm measured ONLY, histogram 68/124, cmp FRESH POSITIONAL, sweep count-moves-with-inventory FAILS 0, markers, DEC 64/0, divcheck 9/9, FULL GATE BEFORE CLOSE → build/gate-e52p15-reg.log; LOAN2 UNMODIFIED → ACTUAL blocker VERBATIM NEVER fix; register from 1300/187; census 15/0/26/0; C373 measured-bytes-only BEFORE ANY COVERAGE touch; coverage EXTEND-or-justified-NEW + SAME-change IDS (NEVER coverage_gen.py; 15 cols; manual_ref pNN[:§X.Y][=phrase]|NONE:); RESULTS §P3-15 + PLAN §5 row INSIDE table anchored by LINE NUMBER + 7-unescaped-pipes check + CLOSED; P3-16 ACTUAL blocker; marathon through P3-19 (slice 6 of ≤8). Binary b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2 == tree; ledger ENDS C372 (195 headers); inventory 1300/187; coverage 145/95; last gate rc=0 build/gate-e52p14-reg.log; E521*/e52p15 UNUSED; LOAN2 sha 7be23ba3… rc=2 line-147; goldens NEVER re-derived; config NEVER staged; POSITIONAL pli80c NO -o; eval "$(opam env)" every shell; rc DIRECT; never glue rm; never parallelize dependent bash; no push; byte-tier; chain 01a1b2d5 5/12 cap 12. Commit guard blocks VERBATIM on recovery.
 <!-- guard:end checkpoint -->

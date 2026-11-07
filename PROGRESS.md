@@ -2933,17 +2933,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 483
-checkpoint-id: g483-1e5d028586db
+checkpoint-generation: 484
+checkpoint-id: g484-339f75650429
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-07T04:49:48.937Z
+guard-level: 2
+checkpointed: 2026-11-07T05:10:20.505Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 38ca496ba093856e0117dc15040df9bf2dfa6a935f307e2e1da38319388706b3
+source-progress: 6773ee0de906e3446c172d5e39eea41eeac87b75f1bca2497771b230388247f1
 source-handoff: f2fb46a3aaaf2a0109ec98b6b4a169cf485081aaadf08f62f6e67a0cb4133efb
-source-learnings: 4a9ecb8862f0a0d18af7ad4f5d19edbecba8fa80d12a06885046a58f62ecabfb
+source-learnings: 0978b11121276f0b0775e06b1548e4bf9ddde42219d1b507b43067d1a94ecc62
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (8a)-(8c),(9)):** FULL gate rc=0 DIRECT → `build/gate-e52p14-reg.log` (expect 1300/0, 187/187, 9/9, **145 rows**, census 15/0/26/0, prose 5 — ONLY the gate runs the negative panel); RESULTS §P3-14 (parity table + E520E row; H-2 near-miss VERBATIM; probe-defect + `e52p14b` provenance; LOAN2 **121→147** never-fix; byte-tier); PLAN §5 row INSIDE the table anchored by LINE NUMBER + §P3-14 **CLOSED**; then **P3-15** on the ACTUAL line-147 blocker `PUT FILE(OUTPUT) EDIT of the FORMAL A` (ZERO-oracle pre-audit of LOAN2.REL `053F-0542` + `E52PF` precedents BEFORE any probe; verify `E521*`/`e52p15` unused; pre-register PLAN+probes+LEARNINGS by EXPLICIT paths before any oracle call or `ocaml/` byte; never-predict), marathon through P3-19 (slice 5 of ≤8). Ledger ENDS **C372** (195 headers); inventory **1300/187**; coverage **145/95**; last full gate rc=0 `build/gate-e52p13-reg.log` (P3-14 gate OWED); LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO `.REL`; all inherited constraints VERBATIM (goldens NEVER re-derived, POSITIONAL FRESH paths, `eval "$(opam env)"` every shell, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier, never parallelize dependent bash calls); durables `64696068` + this block; chain 01a1b2d5 renewal 4/12 scheduled, cap 12.**
 
@@ -3592,9 +3592,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b43b-ce61-71e7-84a1-50e549adf32f
-readiness-at: 2026-11-07T04:49:48.961Z
-readiness-checkpoint: g483-1e5d028586db
+readiness-by: session:01a1b457-e631-71e7-84a1-50e984d0fafb
+readiness-at: 2026-11-07T05:10:20.531Z
+readiness-checkpoint: g484-339f75650429
 <!-- guard:end checkpoint -->
 
 ## Blockers
