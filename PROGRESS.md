@@ -42,7 +42,17 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-14 hop 3 — ARM + VALIDATION + REGISTRATION LANDED `65da9bd1`/`9a31509c`; C372 → COVERAGE → GATE → CLOSE OWED; read `LEARNINGS.md` § "P3-14 hop 3" SUCCESSOR CONTRACT FIRST)
+## Next action (E2E-52/P3-14 hop 4 — (6) C372 `5aae7109` + (7) NEW coverage row `f2513593` LANDED; GATE → RESULTS → PLAN §5 → CLOSED OWED; read `LEARNINGS.md` § "P3-14 hop 4" FIRST)
+
+**EXECUTE NOW (successor) — P3-14 CLOSE-OUT ONLY, then P3-15 (slice 5 of ≤8; marathon through P3-19):**
+(8a) FULL gate rc=0 **DIRECT, synchronous, redirected, NEVER pipeline-tail** → `python3 tools/e2e_gate.py > build/gate-e52p14-reg.log 2>&1; echo RC=$?` from the repo root, expect **1300/0 byte panel, 187/187 negatives, 9/9 divergences, coverage 145 rows 0/0 SUPPORTED 95, census 15/0/26/0, prose 5**. Nothing in `ocaml/` changed since the hop-3 sweep 178/0, so no re-sweep is owed unless the tree moves. ONLY the gate runs the negative panel (hop-11/12 lesson).
+(8b) RESULTS **§P3-14** in `spec/lab-evidence/e2e52-p3/RESULTS.md`: parity table for the 4 accepted probes (sizes 256/256/384/256, code 50/50/81/62, data 0/0/0/2, `cmp` rc=0) + the `E520E` dr-refuses row; **H-2 packed-name-record 3-byte near-miss kept VERBATIM** (predicted one char byte, measured 3 file bytes at 0-based 6/19/28 inside PROG-NAME/EXTDEF/DEF-PUBLIC, CODE+DATA identical); probe-defect + corrective-campaign `e52p14b` provenance (PLAN §4b); LOAN2 **121→147 VERBATIM never-fix**; byte-tier-only NOT-say.
+(8c) PLAN §5 progress row **INSIDE the table** immediately after the P3-13 row — anchor by LINE NUMBER (`grep -n` the §5 table, hop-12 lesson) — and change the `## …§P3-14` heading to **CLOSED**; `python3 tools/file_prose_check.py` rc=0; commit explicit paths, ALWAYS `git diff --cached --stat`, `handoff.config.json` NEVER staged.
+(9) **P3-15** on the ACTUAL line-147 blocker `codegen: PUT FILE(OUTPUT) EDIT of the FORMAL A has no byte-exact DR witness [TBD] (line 147)` = `put file (output) edit ('|',a,…) (…,p'$zz,zzz,zz9v.99',a);` in `display`: evidence-first, **ZERO-oracle pre-audit** of `golden/first/LOAN2/LOAN2.REL` `053F-0542` (the DEC-variable EDIT route) and the `E52PF` picture/REPSPEC precedents **BEFORE any probe**; verify probe names + tag unused (`grep -n "E521" spec/INVENTORY.txt`, tag `e52p15`); pre-register PLAN §P3-15 + probes + LEARNINGS § by EXPLICIT paths BEFORE any oracle call or `ocaml/` byte; NEVER predict the next blocker.
+
+**STATE at this checkpoint:** HEAD = `f2513593` + this durables commit; armed binary sha256 `b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2` == tree (build rc=0 re-held this session); ledger ENDS **C372** (195 headers, prose clean); coverage **145 rows 0/0 SUPPORTED 95** (`PROC.CALL_TARGET_DESIGNATOR` NEW row + IDS line, row 85 `PROC.CALL_COPYIN` left UNBUMPED by adjudication); inventory **1300/187**; census 15/0/26/0 with the LOAN2 line-147 msg VERBATIM, source sha `7be23ba3…` UNMODIFIED; sweep post-reg 178/0, markers 14/14, DEC 64/0, divcheck 9/9; cmp 4/4 rc=0 re-held FRESH POSITIONAL `build/p3-14c/arm-out/`; LAST full gate rc=0 still `build/gate-e52p13-reg.log` (**the P3-14 gate is OWED**); goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; never glue `rm`; POSITIONAL FRESH paths (`pli80c IN.PLI OUT.REL` — NO `-o`); `eval "$(opam env)"` every shell; never parallelize dependent bash calls; chain `01a1b2d5` renewal 3/12 used, cap 12.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-14 hop 3 — ARM + VALIDATION + REGISTRATION LANDED `65da9bd1`/`9a31509c`; C372 → COVERAGE → GATE → CLOSE OWED; read `LEARNINGS.md` § "P3-14 hop 3" SUCCESSOR CONTRACT FIRST)
 
 **EXECUTE NOW (successor): complete P3-14 per `LEARNINGS.md` § "P3-14 hop 3" steps (6)–(9) EXACTLY: C372 measured-bytes-only BEFORE ANY COVERAGE touch (bullets: shadow-name CALL-statement law = plain-designator target reaches [C123]/[C124] unchanged; E520D static own-cell descriptor on the shadow; packed-name-record 3-byte law; bare-stmt dr-refuses boundary; BY-NAME perimeter); coverage EXTEND `PROC.CALL_COPYIN` (row 85) preferred — adjudicate whether E520A..D fit the row's law before bumping EXACT counts, else justified NEW row with SAME-change COVERAGE-IDS line (NEVER coverage_gen.py; 15 cols FIRST NON-COMMENT row; delimiter tab; manual_ref `pNN[:§X.Y][=phrase]`|`NONE:`); coverage_check + prose rc=0 (expect 144 rows unchanged if extension; SUPPORTED 94); FULL gate rc=0 DIRECT → build/gate-e52p14-reg.log (expect 1300/0, 187/187, 9/9, census 15/0/26/0, prose 5) — ONLY the gate runs the negative panel; sweep AGAIN post-registration (expect 178/0 — E520A..D are E52-prefixed inventory rows; FAILS 0 binding); RESULTS §P3-14 (parity table; H-2 packed-name-record 3-byte near-miss VERBATIM; probe-defect + e52p14b corrective-campaign provenance; LOAN2 121→147 VERBATIM never-fix; byte-tier) + PLAN §5 row INSIDE the table anchored by LINE NUMBER (hop-12 lesson) + §P3-14 CLOSED; then P3-15 on the ACTUAL line-147 blocker (`PUT FILE(OUTPUT) EDIT of the FORMAL A` — evidence-first, ZERO oracle pre-audit of LOAN2.REL 053F-0542/E52PF precedents BEFORE any probe; NEVER fix in P3-14); marathon through P3-19 (slice 4 of ≤8).
 
@@ -2911,17 +2921,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 476
-checkpoint-id: g476-8c78d5990df6
+checkpoint-generation: 478
+checkpoint-id: g478-d5591fcf66c6
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T03:47:45.752Z
+checkpointed: 2026-11-07T04:17:37.421Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7f3149e93a8e350a54f9705903cab62996a4d0b6a7e442e3ee8dce678c262f8e
+source-progress: bc15f0797e79de0c77dc084e23201501bf07e43d4aadfac18ba2be5d5b8d41f7
 source-handoff: 006877e48f496a69ca9057ef9cd18ebcbdef416904fdcdb90b8d3a6fdd087dee
-source-learnings: 20c0089ae4d48e234dc58c4029f3cfbc3d72efd9f7e6dd187392302506dceb7e
+source-learnings: e6cdfec6d43c5417bc836e6aceacc895f22d02a261dc49c04ed30ab58405fb9e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
 
@@ -3556,9 +3566,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b407-18bf-71e7-84a1-50ddb212a1d9
-readiness-at: 2026-11-07T03:48:18.124Z
-readiness-checkpoint: g476-8c78d5990df6
 <!-- guard:end checkpoint -->
 
 ## Blockers
