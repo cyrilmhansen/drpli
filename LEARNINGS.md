@@ -8558,3 +8558,67 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   145/95; LAST gate rc=0 `build/gate-e52p15-reg.log`; chain 10/12 cap 12; renewal was
   NOT authorized this session (stale checkpoint at the request) — successor `/handoff
   verify` + refresh first.
+
+## P3-16 hop 5 VALIDATION-TAIL + REGISTRATION LANDED 7fd4cdfd — 1307/189 EXACT, sweep 185/0, markers 15/15; C374 → COVERAGE → GATE → CLOSE OWED (session 01a1b4e5, chain 01a1b2d5 renewal 11/12; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — validation tail (ALL rc DIRECT, logs in ignored `build/p3-16/`):** guard g498
+  blocks committed VERBATIM `20652872`; fingerprint `215c4503…` RE-HELD default == fresh
+  `--build-dir _build-p316` (deterministic, ZERO Error lines per the stale-exe lesson);
+  histogram codegen 68/total 124 == baseline EXACTLY; cmp E522A/B/C/D whole-file 4/4 rc=0
+  FRESH POSITIONAL `build/p3-16/arm-out2/`; E522E rc=2 NO `.REL` refusal ends `Line 13`;
+  sweep 181/0 PRE → **185/0** POST (count-moves-with-inventory law HIT); markers 14/14 then
+  post-reg **15/15 MARKER_FAILS 0** incl E522E; DEC 64/0; divcheck 9/9.
+- **ACCEPTED — first-hand byte re-verification vs KEPT goldens (for C374):** A
+  DEF-DATA-SIZE **001C** (decode `DATA 0014` = temp-operand value, NOT the size — corrected);
+  A block 0006-0020 `21 00 00/3E 0A/?DLDOP@000C / 21 06 00/3E 0A/?DLDOP@0014 / ?DSUOP@0017 /
+  21 14 00/3E 0A/?DSTOP@001F` ZERO shifts; SET-LC data 0012 RELOC→0014 vector cell; result
+  store `21 0C 00/3E 0A/?DSTOP@002D`. B block spans 0006-002C (36 raw bytes; hop-3 `32 B` was
+  a composed-op label): `3E 01/?QDDSL` CD@0010 BETWEEN pushes, right push `3E 04`,
+  `?DSUOP` CD@001B, `3E 01/?QDDSR` CD@0020, DSTOP temp data 0011 `3E 0A`. **B/C differ in
+  EXACTLY 5 file bytes 6/19/28 (packed PROG-NAME/EXTDEF/DEF-PUBLIC) + 112/113
+  (`?DSUOP`→`?DADOP` chain-name record); CODE stream, RELOCs and DATA BYTE-IDENTICAL** —
+  strongest possible H-D twin witness. D: `?DSUOP` CD@0016, `3E 02/?QDDSL` CD@001B UP d=02,
+  DSTOP `3E 07` pf<both precisions scales-only, DEF-DATA-SIZE 0017. E 512 B DATA 001F:
+  `?DLDOP@000C / 3E 03/?QDDSL@0011 / ?DLDOP@0019(3E 04) / ?DLDOP@0021 / ?DMUOP@0024 /
+  ?DSUOP@0027 / 3E 03/?QDDSR@002C` three-push ONE-temp, inner Mul NO window.
+- **ACCEPTED — REGISTRATION `7fd4cdfd`:** SPECIMENS +4 A..D measured-byte comments; E522E →
+  REJECTS honest my-gap (marker = full refusal clause incl `Line 13`, substring verified
+  unused pre-registration) + NEG_META `DR COMPILES IT` golden KEPT UNCLAIMED;
+  `--update-inventory` **1307/189 EXACT** (COMPUTED 1303+4/188+1 HIT; +5 lines inspected);
+  census OWN path rc=0 counts 15/0/26/0 UNCHANGED, LOAN2 msg MOVED VERBATIM to
+  `PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary has no byte-exact DR witness
+  [TBD] (line 177) -- …`, NOTHING fixed; file-prose 5 clean (runs inside --update-inventory).
+- **TOOL NOTE (accepted):** `build/` is git-IGNORED and NEVER tracked
+  (`git ls-files build/p3-16` EMPTY) — evidence logs live ignored and are QUOTED into
+  commit messages; a `git add build/…` silently no-ops with a gitignore warning — ALWAYS
+  re-check `git status --porcelain` staged set after adds.
+- **STILL OWED (successor; chain cap note below) EXACT ORDER:** (1) **C374
+  measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** — bullets: 22 B no-shift
+  control == authentic 0738-0752; L1 alignment MEASURED in ACTUAL context + FOR ADD (DATED
+  extends [C086] R705/707/715 subtract-only); L5 window generalises Mul→Add/Sub (B/C 36 B
+  composed, D 27 B window-only UP d=02 DSTOP A=07 scales-only); B/C 5-byte name-only file
+  identity; E522E nested DR-ACCEPTED three-push/one-temp inner-Mul-NO-window NOT armed;
+  BY-NAME perimeter (div/suffix/deref/nested/literal-inside-binary keep refusing); byte-tier
+  NOT-say. (2) coverage EXTEND `PROC.CALL_DEC_ACTUALS` EXACT 8→12 (read row FIRST-HAND,
+  probes +E522A..D, IDS UNCHANGED — extension not new row; NEVER coverage_gen.py);
+  coverage_check + prose rc=0. (3) FULL gate rc=0 DIRECT → `build/gate-e52p16-reg.log`
+  (expect 1307/0, 189/189, 9/9, 145 rows 0/0 SUPPORTED 95, census 15/0/26/0, prose 5).
+  (4) RESULTS §P3-16 (parity A-D 384 B CODE 006A/0074/0074/006F DATA 001C/0019/0019/0017,
+  E 512 CODE 007F; ZERO §4 misses; H-E accepted-unarmed; LOAN2 160→177 VERBATIM never-fix;
+  stale-exe + gitignore lessons) + PLAN §5 row INSIDE table anchored by LINE NUMBER (7
+  unescaped pipes, escape raw `|`) + §P3-16 **CLOSED**; commit explicit paths. (5) THEN
+  P3-17 on ACTUAL Line-177 (fixed-bin EDIT; `golden/e52p15/E521D` is the KEPT accepted-
+  unarmed witness; ZERO-oracle pre-audit FIRST; verify E523*/e52p17 unused; pre-register
+  BEFORE any oracle/`ocaml/` byte; slice 8 of ≤8 = LAST of marathon).
+- **CHAIN STATE:** this renewal notice showed 11/12 consumed of cap 12 for chain
+  01a1b2d5. If renewal is refused at this session's request the successor must continue
+  anyway; a session entering at 12/12 closes via `handoff_finalize` (NEVER renew) and a new
+  chain needs the operator to archive+reset ignored `.pi-guard/renewal-state.json`.
+- **STATE:** HEAD = this session's durables commit; armed binary
+  `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175` == tree; ledger ENDS
+  **C373** (C374 owed); inventory **1307/189**; coverage **145/95**; LAST gate rc=0
+  `build/gate-e52p15-reg.log` (P3-16 gate OWED); goldens `golden/e52p16/` + `golden/e52p15/`
+  KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` Line-177 VERBATIM NEVER fix;
+  EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"`
+  every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier;
+  config NEVER staged; no push.
