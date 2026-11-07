@@ -3230,6 +3230,41 @@ let match_get_list_var (s : Ast.stmt) =
       names [] items
   | _ -> None
 
+(* [E2E-53/P1] console GET SKIP family: `get skip;', `get skip(<const>);',
+   `get skip list(<names>);'.  The parser prepends the control item to the LIST
+   items (parser.ml ~1184/1197: `ctl_items @ trail …'), so `get skip;' arrives
+   as kind List_ with items = [Pi_ctl ("SKIP", None)].  Admitted shapes and
+   their MEASURED witnesses (all first-hand, spec/lab-evidence/e2e53/PLAN.md
+   §P1.2 + golden/e53p1): bare 17 B attach+`MVI A,01/?SKPOP/?QIOOP' (EXPR1
+   004A-005A, REPORT 0065, E525A/E525B); `skip(2)' = the same with `MVI A,02'
+   (DEPREC 0414, E525B); `skip list(<fixed bin>)/<varying>' = the 17-B prefix +
+   the ordinary [R903]/[X201] item chains (COPYLPT 0089/012D, E525C/E525D).
+   REFUSED here, falling to the E2E-3e catch BY NAME: a NON-Enumber count
+   (`get skip(n);' — the PUT expression law SK3/SK4 is PUT evidence, GET has NO
+   witness), a MULTI control item (only the leading SKIP is measured; DR order
+   for `skip page …' unsampled), any non-Eident item, stream/ON options, and the
+   FILE route (`get file(f) skip' has no object).  Empty item list after the
+   SKIP is ACCEPTED — that is the bare form (E525A). *)
+let match_get_skip (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sget { stream = None; on_opts = []; kind = Ast.List_;
+               items = Ast.Pi_ctl ("SKIP", cnt) :: rest } ->
+      let c =
+        match cnt with
+        | None -> Some "1"              (* bare SKIP = 1 [EXPR1/REPORT MVI A,01] *)
+        | Some { Ast.e = Ast.Enumber c; _ } -> Some c
+        | Some _ -> None                (* variable/expression count: unmeasured on GET *)
+      in
+      let rec names acc = function
+        | [] -> Some (List.rev acc)
+        | Ast.Pi_data { Ast.e = Ast.Eident n; _ } :: tl -> names (n :: acc) tl
+        | _ -> None
+      in
+      (match c, names [] rest with
+       | Some c', Some ns -> Some (c', ns)
+       | _ -> None)
+  | _ -> None
+
 (* [E2E-41/P1b] `get file(f) list(i)'.  The parser puts the FILE option in `on_opts'
    because the grammar really is a stream-options list (P0 section 2(b)), so this is
    pattern matching on that accident, NOT a belief that FILE is an ON unit: the
@@ -11028,11 +11063,23 @@ statement form IS implemented; this expression form is not.)")
      CHAR VAR(cap)  : LXI H,var ; MVI B,cap ; ?SSVFS   [X201/X202]
 *)
 
-(* THE one GET item chain: LXI B,<continuation> ; CALL <attach> ; per item
+(* THE one GET item chain: LXI B,<continuation> ; CALL <attach> ; [optional
+   statement-level SKIP: MVI A,count / CALL ?SKPOP] ; per item
    ?GNVOP/JP/<conversion> ; ?QIOOP, then the continuation triple.  Shared by the
    console and the named-file form so the item lowering cannot drift between them
-   [C202: one authority, two callers]. *)
-let lower_get_body st (attach : string) (items : Ast.name list) =
+   [C202: one authority, two callers].
+   [E2E-53/P1] `~skipn' is the GET statement-level SKIP count, measured by the
+   KEPT goldens: `skipn >= 0` emits EXACTLY `MVI A,n / CALL ?SKPOP` between the
+   attach and the items — the bare form `MVI A,01` is pinned FOUR times
+   independently (EXPR1 004A-005A, REPORT 0065-0075, COPYLPT 0089/012D) and
+   `get skip(2);` by DEPREC 0414-0424 (`MVI A,02`).  The continuation word
+   `LXI B,<cont>` still targets the NEXT STATEMENT in both the no-item (EXPR1
+   cont 005B == after the ?QIOOP) and the item (COPYLPT cont 00A6/014C) shapes,
+   so the patch law is untouched.  `skipn = -1` is the pre-P1 no-skip behaviour;
+   the FILE route never passes a count (GET FILE SKIP has no DR witness —
+   OUT of P1).  NOT the PUT SKIP count: the PUT expression route
+   (`emit_skip_count`/SK3-SK4) is PUT evidence and was NOT borrowed. *)
+let lower_get_body st ?(skipn = -1) (attach : string) (items : Ast.name list) =
   if
     List.exists
       (fun n -> List.mem (String.lowercase_ascii n.Ast.orig) st.deref)
@@ -11042,6 +11089,11 @@ let lower_get_body st (attach : string) (items : Ast.name list) =
   let bslot = st.lc in
   d st 0; d st 0;
   call_ext st attach;
+  (if skipn >= 0 then begin
+     (* [E2E-53/P1] EXPR1/REPORT/COPYLPT: bare count 01; DEPREC:95 at 041D: count 02.
+        The byte sits BETWEEN attach and ?SKPOP; nothing else. *)
+     d st op_mvi_a; d st skipn; call_ext st "?SKPOP"
+   end);
   List.iter
     (fun n ->
       call_ext st "?GNVOP";
@@ -11111,6 +11163,19 @@ let lower_get_body st (attach : string) (items : Ast.name list) =
 let lower_get st (items : Ast.name list) =
   d st op_lxi_d; d st 0x90; d st 0x02;   (* LXI D,0290 input desc *)
   lower_get_body st "?SYSIN" items
+
+(* [E2E-53/P1] the console GET SKIP: the SAME LXI D,0290 attach as `lower_get'
+   (both measured ?SYSIN attach — EXPR1 slot 0051, corrected from the carried
+   ?SIOOP quotation; see LEARNINGS § P1), plus the statement-level skip between
+   the attach and the items.  NOT the console PUT shape: PUT uses 0252/?SYSPR
+   and was never consulted.  Counts outside the MVI range keep the same refusal
+   law as the PUT literal arm. *)
+let lower_get_skip st (cnt : string) (items : Ast.name list) =
+  let n = parse_int_const cnt in
+  if n <= 0 || n > 255 then
+    failwith "codegen: GET skip count out of MVI range [TBD]";
+  d st op_lxi_d; d st 0x90; d st 0x02;   (* LXI D,0290 input desc [EXPR1 004A] *)
+  lower_get_body st ~skipn:n "?SYSIN" items
 (* [E2E-41/P1b] the same skeleton with a NAMED FILE attached.  P081Q (golden/probe50)
    and P072H (golden/probe40) are byte-exact witnesses; their GET is the console GET
    with two changes and nothing else:
@@ -14032,6 +14097,11 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                  (line %d)" s.Ast.spos.Source.line)))
   | Ast.Sget _ ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (* [E2E-53/P1] the console SKIP family FIRST: match_get_list_var refuses
+         every leading-Pi_ctl list, so no accepted LIST shape changes meaning. *)
+      (match match_get_skip s with
+       | Some (cnt, nm) -> lower_get_skip st cnt nm
+       | None ->
       (match match_get_list_var s with
        | Some nm -> lower_get st nm
        | None ->
@@ -14054,6 +14124,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                (Printf.sprintf
                   "codegen: GET form not in E2E-3e subset [TBD] \
                    (line %d)" s.Ast.spos.Source.line))
+      )
   | Ast.Sdowhile { cond; body } ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (* while(...) conditions arrive Econd-wrapped (IF conds don't) *)
