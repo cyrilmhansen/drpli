@@ -2711,6 +2711,54 @@ SPECIMENS.update({
     "E521C": ("probes/E521C.PLI", "golden/e52p15/E521C/E521C.REL"),
 })
 
+# [E2E-52/P3-16] E522A..E522D -- DEC-SUB/ADD-expression-actual panel (campaign e52p16
+# 5 ok/5 at 91b10c25; PLAN §P3-16 H-A/H-B/H-C/H-D CONFIRMED with ZERO §4 misses, every
+# `.PRN' NO ERROR(S) in BOTH passes).  The guard `dec_actual_mat' now admits
+# Ebinary(Mul|Add|Sub) under the SAME NON-recursive operand test (helper RENAMED
+# dec_product_operand -> dec_arith_operand, body UNCHANGED); the emission chain is the
+# [E2E-52/P3-13] Mul route verbatim -- ZERO bind/emitter change.  All four whole-file
+# cmps rc=0 FRESH POSITIONAL on binary 215c4503... (build/p3-16/arm-out/ and arm-out2/).
+#   E522A 384 B; CODE 006A, DEF-DATA-SIZE 001C.  EQUAL-SCALE CONTROL (H-A): actual a-b,
+#             both dec(10,2), against a fixed dec(10,2) formal -- 22 B block 0006-0020
+#             `LXI H,*A(a data 0000)/3E 0A/?DLDOP@000C / LXI H,*A(b data 0006)/3E 0A/
+#             ?DLDOP@0014 / ?DSUOP@0017 / LXI H,*A(temp data 0014)/3E 0A/?DSTOP@001F':
+#             NO shift window anywhere, the authentic LOAN2 summary body 0738-0752
+#             geometry replicated byte-for-byte in kind.  Static vector cell data@0012
+#             carries RELOC -> temp 0014 (LINK-SET-LC data 0012); call `LXI H,*A(0012)/
+#             CALL slot 0024' (CHAIN-ADDR 0025 fills the entry LC); result store 0027-002E
+#             `LXI H,*A(p data 000C)/3E 0A/?DSTOP@002D'.
+#   E522B 384 B; CODE 0074, DEF-DATA-SIZE 0019.  DIFFERING SCALES (H-B + H-C): actual
+#             a dec(10,2) - yi dec(4,3) vs a dec(10,2) formal: LEFT pushed first (`LXI
+#             H,*A(a)/3E 0A/?DLDOP@000C'), then `3E 01 / CALL ?QDDSL' (CD 0010, chain
+#             0011-0012) aligns the left operand UP between the pushes; right push carries
+#             operand precision `3E 04'; `?DSUOP' (CD 001B, chain 001C) is followed by
+#             `3E 01 / CALL ?QDDSR' (CD 0020, chain 0021) -- the L5 result window
+#             GENERALISES from Mul to Sub; closes `LXI H,*A(temp data 0011)/3E 0A/
+#             ?DSTOP' (CD 0029).
+#   E522C 384 B; CODE 0074, DEF-DATA-SIZE 0019.  THE ADD TWIN (H-D): the file differs from
+#             E522B in EXACTLY 5 bytes -- the packed program-name records (file bytes
+#             6/19/28) and the chain-extension name bytes `?DSUOP' -> `?DADOP' (file 112/
+#             113).  EVERY CODE byte, EVERY RELOC and EVERY DATA byte are identical:
+#             Add == Sub geometry.  L1 alignment is now MEASURED FOR ADD in the DEC-actual
+#             context ([C086] R705/R707/R715 pinned subtract only -- DATED extension at
+#             [C374]).
+#   E522D 384 B; CODE 006F, DEF-DATA-SIZE 0017.  WINDOW-ONLY (H-C/H-A2): m-n, both SCALE 0,
+#             vs a fixed dec(7,2) formal -- NO alignment window between the pushes (operand
+#             precisions `3E 0A' then `3E 08' at 0009/0011); after `?DSUOP' (CD 0016, chain
+#             0017) comes `3E 02 / CALL ?QDDSL' (CD 001B, chain 001C) UP d=02 from SCALES
+#             ONLY, then `LXI H,*A(temp data 0011)/3E 07/?DSTOP' -- the DSTOP precision is
+#             the FORMAL's 07, below BOTH operand precisions ([C371] ZB scales-only law
+#             reconfirmed on Sub).
+#   E522E is NOT here -- DR ACCEPTED the nested a-b*c actual (512 B, CODE 007F) but PLAN
+#   §P3-16 §5 kept the nested class OUTSIDE the arm (the operand test is deliberately
+#   NON-recursive): registered below as an honest my-gap, refused BY NAME.
+SPECIMENS.update({
+    "E522A": ("probes/E522A.PLI", "golden/e52p16/E522A/E522A.REL"),
+    "E522B": ("probes/E522B.PLI", "golden/e52p16/E522B/E522B.REL"),
+    "E522C": ("probes/E522C.PLI", "golden/e52p16/E522C/E522C.REL"),
+    "E522D": ("probes/E522D.PLI", "golden/e52p16/E522D/E522D.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -5584,6 +5632,16 @@ REJECTS.update({
     # invented.
     "E521D": (open("probes/E521D.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "PUT FILE(PF) EDIT of the FORMAL N has no byte-exact DR witness [TBD] (line 17)"),
+    # [E2E-52/P3-16] E522E -- MEASURED my-gap row, golden KEPT (E521D/XJ/XK precedent,
+    # NOT dr-refuses): campaign e52p16 measured DR ACCEPTING the NESTED compound actual
+    # `a - b*c' against a fixed dec formal (`.PRN' NO ERROR(S) BOTH passes, 512 B .REL,
+    # three pushes/ONE temp, the inner Mul carrying NO window), but PLAN §P3-16 §5 kept
+    # the nested class OUTSIDE the arm: `dec_arith_operand' is deliberately NON-recursive
+    # and a recursive test would silently arm this shape.  The marker is MY refusal
+    # substring RE-MEASURED rc=2 on armed binary 215c4503... under the gate's CRLF+bare-^Z
+    # materialization (Line 13), never invented.
+    "E522E": (open("probes/E522E.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 13)"),
 })
 NEG_META["E52SF"] = ("dr-refuses",
     "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
@@ -5689,6 +5747,26 @@ NEG_META["E521D"] = ("my-gap",
     "(do-not-generalise, P3-10 WF/WG law).  Marker RE-MEASURED rc=2 on armed binary "
     "02ea809e... this hop under the gate's CRLF+bare-^Z materialization (line 17), never "
     "assumed.")
+
+# [E2E-52/P3-16] E522E -- MEASURED my-gap on the DEC-expression-actual route (precedent
+# E521D above): DR accepts the NESTED Sub-of-Mul actual; the arm contract kept nesting
+# outside and the operand test stays NON-recursive until the class gets its own panel.
+NEG_META["E522E"] = ("my-gap",
+    "DR COMPILES IT (golden/e52p16/E522E/E522E.REL, 512 B whole-file: `NO ERROR(S)' in BOTH "
+    "passes; campaign e52p16 5 ok/5 measured at 91b10c25; [C374] H-E) -- the actual is the "
+    "NESTED compound `a - b*c' against a fixed dec(10,2) formal and DR lowers ONE "
+    "three-push/one-temp block: `LXI H,*A(a)/3E 0A/?DLDOP@000C / 3E 03/?QDDSL@0011 / LXI "
+    "H,*A(b)/3E 04/?DLDOP@0019 / LXI H,*A(c)/3E 0A/?DLDOP@0021 / ?DMUOP@0024 / ?DSUOP@0027 "
+    "/ 3E 03/?QDDSR@002C / LXI H,*A(temp)/3E 0A/?DSTOP' -- NO intermediate temp for the "
+    "product (its scale 5 equals the enclosing context scale, so the inner Mul emits NO "
+    "window: the L5 enclosing add/sub law), the OUTER subtract aligns the left operand up "
+    "2->3 and "
+    "the window 5->2 DOWN 3 rides before the single DSTOP; CODE 007F, DEF-DATA-SIZE 001F. "
+    " Mine KEEPS refusing BY NAME: PLAN §P3-16 §5 kept `dec_arith_operand' NON-recursive "
+    "on purpose (a recursive test would silently arm this class without its own panel), so "
+    "this is a `my-gap' row and the golden is claimed by NOTHING here (do-not-generalise, "
+    "P3-10 WF/WG law).  Marker RE-MEASURED rc=2 on armed binary 215c4503... under the "
+    "gate's CRLF+bare-^Z materialization (refusal text ends `Line 13'), never assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
