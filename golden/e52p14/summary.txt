@@ -1,0 +1,5 @@
+E520A	diag	PRN=True REL=False
+E520B	diag	PRN=True REL=False
+E520C	diag	PRN=True REL=False
+E520D	ok	PRN=True REL=True
+E520E	diag	PRN=True REL=False
