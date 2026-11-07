@@ -17,7 +17,7 @@ DIOCOPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED w
 DIORAND	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED whose operand is not a bare pointer name [TBD] (no DR sample: every accepted probe is based(<name>) -- P063B, P06
 DTEST	ok	True	True	EXACT	384			
 ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR objects (
-EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: GET form not in E2E-3e subset [TBD] (line 21)")
+EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: FLOAT expression shape builtin is unsampled [TBD] (line 29)")
 EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: FLOAT expression shape builtin is unsampled [TBD] (line 35)")
 FDTEST	ok	True	True	EXACT	384			
 FFACT	ok	True	True	EXACT	512			
