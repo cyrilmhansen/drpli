@@ -44,13 +44,13 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-52/P3-19 hop 5 **ARM + PARITY 3/3 + LOAN2 WHOLE-FILE BYTE-EXACT (P3 FINALE, MEASURED NOT YET CLAIMED) + TAIL + REGISTER 1312/190 + CENSUS 16/0/25/0 LANDED — C377 → COVERAGE → GATE → CLOSE OWED** — read `LEARNINGS.md` § "P3-19 hop 5 LANDED" SUCCESSOR CONTRACT FIRST — BINDING; P3-19 is the LAST budgeted slice — after CLOSE, STOP and report the finale to the operator) — IN FLIGHT)
+## Next action (E2E-52/P3-19 hop 6 **C377 + COVERAGE LANDED — GATE → RESULTS/PLAN CLOSE → STOP+REPORT OWED (LAST budgeted slice)** — read `LEARNINGS.md` § "P3-19 hop 6 IN FLIGHT" SUCCESSOR CONTRACT FIRST — BINDING) — IN FLIGHT
 
-**DONE hop 5:** EDITS 2/3+3/3 VERBATIM (`b78f00f6`, codegen.ml: `let rec dpartner ... and dv_of` group + Div arm `Some (15, (dv_of st nop_cx e).sc)` + prescan `prec` mirror; C152 never fired); lexer EDIT 1/3 now BUILT; build rc=0 ZERO `Error`; **armed binary `baec1f826cd789dddd77a2f4438550598cb9f07f9d09669df4abfb10a74d58a9`** deterministic (default == fresh `_build-p319b`); hist 68/124; markers 16/16 (N32_DIV_CHAINED STILL refused); DEC 64/0; divcheck 9/9; parity cmp 3/3 rc=0 `build/p3-19/hop5-out/`; **LOAN2 UNMODIFIED (`7be23ba3…`) rc=0 7680 B WHOLE-FILE cmp rc=0 vs `712cfcb2…`**; registration `4747cbee` (+3 SPECIMENS measured bytes, REAL `--update-inventory` **1312/190**, sweep 187→**190/0**); census `a87a8ed9` **16/0/25/0** LOAN2 DIFFERS→EXACT.
+**DONE hop 6 (this session, renewals 2/12):** recovery verified (HEAD `0c6af779`; build rc=0 ZERO `Error` `build/p3-19/build-hop6.log`; binary `baec1f82…` == tree); CLAIM-TIME cmps 4/4 rc=0 FRESH POSITIONAL `build/p3-19/hop6-claim-out/` (E524A 384/E524B 768/E524C 512 + **LOAN2 UNMODIFIED `7be23ba3…` rc=0 7680 B WHOLE-FILE cmp rc=0 vs `712cfcb2…`**); N32_DIV_CHAINED refusal re-held FIRST-HAND rc=2; every cited byte re-verified first-hand (p13dump sizes/rawcode/data + reldump DEF records + `.PRN` NO ERROR x2 re-counted); **C377 `a59e687c` BEFORE ANY `spec/COVERAGE.tsv` touch** (caret land-1F one-byte law, per-literal SEPARATE cells, quotient alignment (15,s_q) + [C086 L3/L4/L8]/[C371] reconfirmed, LOAN2 my-gap CLOSED perimeter + [TBD]s; 200 headers; prose rc=0); coverage EXTEND `ad7f06a2` `IO.PUT_LIST_FIXED` EXACT:71→**74** +E524A,B,C, `STOR.DEC_SCALE_ASSIGN` EXACT:10→**11** +E524B, col15 +[C377] both; `IO.PUT_EDIT` ADJUDICATED UNCHANGED (E524 probes carry NO EDIT statement); coverage_check rc=0 145 rows SUPPORTED 95; prose rc=0.
 
-**EXECUTE NOW (hop 6 = CLOSE-OUT):** LEARNINGS § hop 5 contract steps (1)–(7): recover + re-hold FRESH positional cmps (claim-time) → **C377 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** (caret law / separate-cells law / quotient-alignment law / LOAN2 finale my-gap-closed; ledger ENDS C376) → coverage FIRST-HAND (NEVER coverage_gen.py; 15 cols; coverage_check+prose rc=0) → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` (expect 1312/0, 190/190, 9/9, census **16/0/25/0**, prose 5) → RESULTS §P3-19 + PLAN §5 row after 109 (LINE-anchored, 7-pipe assert RUN IN CODE, escape `\|`) + §P3-19 **CLOSED** → **STOP, report to operator, open NOTHING new**.
+**EXECUTE NOW (hop 6 remainder — CLOSE-OUT):** (1) FULL gate rc=0 DIRECT `python3 tools/e2e_gate.py > build/gate-e52p19-reg.log 2>&1; echo RC=$?` (expect 1312/0, 190/190, 9/9, 145 rows SUPPORTED 95, census **16/0/25/0**, prose 5). (2) RESULTS §P3-19 in `spec/lab-evidence/e2e52-p3/RESULTS.md` (parity table 3 probes + LOAN2 finale row, sizes/cmp re-read FIRST-HAND at close; H-A/H-B'/H-C CONFIRMED, merge FALSIFIED; ZERO §4 misses; byte-tier) + PLAN §5 row INSIDE table anchored by LINE NUMBER after 109 (`grep -n` the §5 table) with the **7-unescaped-pipes assert RUN IN CODE** (escape raw `|` as `\|`) + `## Subround P3-19` heading **CLOSED**; `file_prose_check` rc=0; commit explicit paths. (3) Commit refreshed guard blocks VERBATIM. (4) **STOP — LAST budgeted slice: report the LOAN2 finale (whole-file byte-exact, NOW CLAIMED by C377) to the operator; open NOTHING new.**
 
-**STATE:** ledger ENDS **C376**; inventory **1312/190**; coverage **145/95 EXACT:47** (until hop-6 adjudication); LAST gate rc=0 `build/gate-e52p18-reg.log`; armed binary `baec1f82…` == tree; goldens `golden/e52p19/` KEPT VERBATIM NEVER re-derived (`dir.txt` leftovers NEVER staged); LOAN2 byte-exact MEASURED, UNCLAIMED; standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/scratch-*`+`ocaml/_build-*` NEVER staged; `handoff.config.json` NEVER staged; no push).
+**STATE:** ledger ENDS **C377** (200 headers); inventory **1312/190**; coverage **145/95** (IO.PUT_LIST_FIXED EXACT:74, STOR.DEC_SCALE_ASSIGN EXACT:11, IO.PUT_EDIT EXACT:47 unchanged); LAST gate rc=0 `build/gate-e52p18-reg.log` (P3-19 gate OWED); armed binary `baec1f82…` == tree; goldens `golden/e52p19/` KEPT VERBATIM NEVER re-derived (`dir.txt` leftovers NEVER staged); LOAN2 byte-exact MEASURED **AND CLAIMED at C377** (byte tier); standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/scratch-*`+`ocaml/_build-*` NEVER staged; `handoff.config.json` NEVER staged; no push); chain renewals 2/12 used, cap 12.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-19 hop 4 **ALL THREE VERDICTS LANDED FIRST-HAND — H-A/H-B′/H-C all CONFIRMED; code audit DONE; IMPLEMENTATION OWED (hop 5)** — read `LEARNINGS.md` § "P3-19 hop 4" SUCCESSOR CONTRACT FIRST — BINDING; FRESH chain 0/12 VERIFIED at session start; renew via handoff_renew at safe boundaries) — IN FLIGHT)
 
@@ -3068,7 +3068,7 @@ checkpoint-generation: 545
 checkpoint-id: g545-464c291a6eeb
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-07T21:00:52.784Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -3753,6 +3753,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b7bc-23d4-766e-b428-4a6fb0a54eba
+readiness-at: 2026-11-07T21:01:25.653Z
+readiness-checkpoint: g545-464c291a6eeb
 <!-- guard:end checkpoint -->
 
 ## Blockers
