@@ -9626,3 +9626,121 @@ classified `unmeasured` rather than `dr-refuses`.
   — recorded, NOT fixed by this slice; LOAN2 is NOT claimed exact. EXPR1 (GET line 21)
   and EXPR2 (FLOAT line 35) are UNCHANGED. Provenance: [C080] [C093] [C094] [C123]
   [C124] [C371].
+
+## C373 — A file EDIT item against a dereferenced FIXED DECIMAL FORMAL differs from the same item against a plain DEC variable ONLY in its three-byte prep instruction: the formal rides `LHLD d` where `d` is the two-byte descriptor cell the callee's block-copy entry prologue writes at run time (the cell carries NO static bytes in the object), and the variable rides `LXI H,*A(c)` at the actual's own cell; the remaining fifteen bytes of the chain are then byte-identical — `3E 0A / CALL ?DLDOP / 3E 0D / 06 02 / CALL ?QDCOP / CALL ?EDTOV` (precision, then `MVI A,0D / MVI B,width`, then the two link chains) — and this is the authentic LOAN2 `display` geometry itself; repeated `'|'` literal items share ONE one-byte `7C` data cell; the format table is emitted per the [C090][C361][C362] pool-record laws byte-for-byte (a probe table measured IDENTICAL to LOAN2's own 50-byte T3 record, nested `80 02 80 02` wrapper included); a dereferenced FIXED BIN formal in the same position is DR-ACCEPTED (single witness, deliberately NOT armed); and the pre-existing refusal-reason clause `no object puts a formal between a file EDIT attach and ?EDTOV` is DATED hereby FALSE-AS-WRITTEN against the corpus (E2E-52/P3-15; MEASURED — `E521A`/`E521B`/`E521C` whole-file `cmp` rc=0 against `golden/e52p15/`, three whole-file witnesses, plus `E521D` as an honest my-gap: DR-ACCEPTED retained 512 B golden with `.PRN` `NO ERROR(S)` both passes but refused BY NAME by my compiler; goldens VERBATIM from campaign e52p15 `4 ok/4` (`43298b74`), pre-registration `bbb916b6` committed BEFORE the campaign with the E521A/B 21-byte table bytes pinned in `spec/lab-evidence/e2e52-p3/PLAN.md` §4 line 1722; every cited byte and every `.REL` record re-verified FIRST-HAND against the retained goldens at claim time with `build/p3-13/p13dump.py`, never fitted; the three accepted objects re-reproduced byte-exactly by the armed compiler at claim time, `cmp` 3/3 rc=0 on FRESH positional paths `build/p3-15/claim-out/`)
+
+* **Measured — the prep-only law, twin probes (`E521B` target class vs `E521A`
+  control, both 640 B files, CODE max `00B8` vs `00AD`, identical 26-byte initialized
+  DATA image).** `E521B` puts the dereferenced formal `x` (declared
+  `dcl x fixed dec(10,2);` of internal procedure `show(x,y)`) into
+  `put file(pf) edit('|',x)(a,p'$zzz,zz9.v99');` behind
+  `open file(pf) print;`. Its formal item is code `0071-0082` (18 bytes):
+  `2A 26 00` = `LHLD data@0026` (operand relocation `0072 → data@0026`), then
+  `3E 0A`, `CD 00 00` (EXT chain head `?DLDOP@0077`), `3E 0D`, `06 02`,
+  `CD 00 00` (`?QDCOP@007E`), `CD 00 00` (`?EDTOV@0081`). The descriptor cell
+  `data@0026-0027` carries NO static bytes: the raw DATA image ends at `0025`
+  and the cell is written at RUN time by the callee's block-copy entry prologue
+  at `0047` = `11 26 00 / 0E 04 / 7E 23 12 13 / 0D / C2 4C 00` — `LXI D,data@0026 /
+  MVI C,4` then the `MOV A,M / INX H / STAX D / INX D / DCR C / JNZ` loop, copying
+  the caller's four descriptor bytes (two 2-byte formal descriptors) verbatim,
+  the [C094]-family entry copy. `E521A` is the SAME probe with the item as the
+  callee-LOCAL `z`: its item chain at the SAME addresses `0071-0082` is
+  `21 2A 00` = `LXI H,*A(data@002A)` (operand relocation `0072 → data@002A`,
+  the variable's own cell) followed by the IDENTICAL remaining fifteen bytes.
+  The ONLY difference on the whole item route is the three-byte prep instruction.
+
+* **Measured — the authentic corpus object shows the SAME formal chain
+  (`golden/first/LOAN2/LOAN2.REL`, `display` body, re-read FIRST-HAND at claim
+  time).** The display statement's first formal item is code `069E-06AE`:
+  `2A 42 03` = `LHLD data@0342` (operand relocation `069F → data@0342`, the
+  P3-13 formal block at 0342..034B), `3E 0A`, `CD 00 00` (`?DLDOP` head `06A4`),
+  `3E 0D`, `06 02`, `CD 00 00` (`?QDCOP` head `06AB`), `CD 00 00` (`?EDTOV`
+  head `06AE`) — the same eighteen-byte law as `E521B` with the LOAN2 formal
+  cell; its `'|'` literal item precedes it at `0693-069D` = `21 EC 01 / 3E 01 /
+  CD 00 00 (?SLCTS head 0699) / CD 00 00 (?EDTOV head 069C)`; the format-table
+  load `21 15 00` (operand relocation `068E → data@0015`, the 50-byte T3 record)
+  sits immediately before the `?EDITF` chain head `0691`, behind the attach
+  whose continuation is the `LXI B` operand at `0688` `32 07` with code
+  relocation `0688 → code@0732`. DATED anchor correction of this session's own
+  re-verification pass: the predecessor hop-5 note cited the authentic formal
+  opcode `2A 42 03` at `06A1` and the literal chain at `069B`; those were
+  shifted (operand/tail) anchors — the opcode-exact starts are `069E` and
+  `0693`, recorded here as re-measured; the cited BYTES are unchanged.
+
+* **Measured — the format tables and the shared literal cell.** `E521A` and
+  `E521B` carry byte-IDENTICAL 21-byte format records at `data@0000-0014` =
+  `80 00 03 FF 02 08 02 0C 24 5A 5A 5A 2C 5A 5A 39 2E 56 39 39 81` and a ONE-byte
+  shared cell `7C` (the ASCII of the repeated `'|'` item) at `data@0015`; the
+  item descriptor region `0016-0021` has NO static bytes (runtime-written) while
+  the caller-side static vector at `0022-0025` holds the inline address constants
+  `16 00 1C 00` with data relocations `0022 → data@0016` and `0024 → data@001C`,
+  exactly the P3-13 static-vector law. These 21 bytes were written into PLAN §4
+  at pre-registration (`bbb916b6`, 2026-11-07 06:36:06) BEFORE the campaign
+  commit `43298b74` (06:40:37) and measured byte-for-byte identical — a HIT,
+  never a fit. `E521C` (the LOAN2 `display` statement reproduced VERBATIM on a
+  named print-opened file, 1024 B, CODE max `012C`, DATA max `005B`) carries a
+  50-byte table at `data@0000-0031` that is BYTE-IDENTICAL to LOAN2's own T3
+  record at `golden/first/LOAN2/LOAN2.REL data@0015-0046` (re-diffed first-hand
+  at claim time: `80 00 03 FF 80 02 80 02 02 0A 02 0F 24 5A 5A 2C 5A 5A 5A 2C
+  5A 5A 39 56 2E 39 39 03 FF 81 02 08 02 0C 24 5A 5A 5A 2C 5A 5A 39 2E 56 39 39
+  03 FF 81 81`), including the nested rep-group wrapper `80 02 80 02` at
+  `data@0004-0007` — the [C362] recursion law reconfirmed inside a probe whose
+  whole file now compiles byte-exact — and the picture records of [C361]
+  concatenated per [C090]. Its shared `7C` cell sits at `data@0032`; the five
+  formal descriptor cells begin at `data@005B` (NO static bytes, written by the
+  arity-5 entry prologue `11 5B 00 / 0E 0A / 7E 23 12 13 / 0D / C2 4C 00` at
+  `0047`); the static vector at `0051-005A` holds `33 00 39 00 3F 00 45 00 4B 00`
+  with data relocations `0051→data@0033, 0053→0039, 0055→003F, 0057→0045,
+  0059→004B`; its first formal chain (code `0071-0082`) is
+  `2A 5B 00` + the same fifteen-byte tail, the five chains striding the two-byte
+  descriptor cells exactly as in LOAN2.
+
+* **Measured — the fixed-binary boundary is OPEN at DR and CLOSED here by
+  choice (`E521D`, honest my-gap).** `put file(pf) edit(n)(a);` with `n` a
+  dereferenced `fixed bin` formal is DR-ACCEPTED: retained 512 B golden
+  `golden/e52p15/E521D/E521D.REL`, `.PRN` `NO ERROR(S) IN PASS 1` and
+  `NO ERROR(S) IN PASS 2`, item chain code `005F-006D` = `2A 0D 00` (`LHLD
+  data@000D`, the runtime-written descriptor cell, again NO static bytes),
+  `5E 23 56 EB` (the [C094]/[C358] pointer-peel `MOV E,M / INX H / MOV D,M /
+  XCHG`), `3E 09`, `CD 00 00` (`?QICOP` head `0069`), `CD 00 00` (`?EDTOV` head
+  `006C`). This is a SINGLE witness for the fixed-bin class and the
+  do-not-generalise law (P3-10 `WF`/`WG`) applies: the armed change admits ONLY
+  the `fixed dec` class; `E521D` still fails in my compiler with the VERBATIM
+  BY-NAME refusal `codegen: PUT FILE(PF) EDIT of the FORMAL N has no byte-exact
+  DR witness [TBD] (line 17)` (rc=2, re-measured at claim time on the armed
+  binary, CRLF + bare-`^Z` marker materialization, line 17). The shape is
+  recorded here as measured evidence for a future slice; NO claim of
+  equivalence is made for it.
+
+* **DATED correction — a refusal-reason clause was FALSE-AS-WRITTEN.** Until
+  this slice the `authorize_file_edit_item` guard justified its deref-formal
+  refusal with the clause "no object puts a formal between a file EDIT attach
+  and `?EDTOV`". That sentence is FALSE as written against the corpus:
+  `golden/first/LOAN2/LOAN2.REL` itself puts the fixed-dec formals `a`..`e`
+  between the attach (`LXI B` operand at `0688` → `code@0732`, `CALL ?SIOOP`
+  head `068B`) and the item tails' `?EDTOV` heads (`06AE` and successors) — see
+  the second bullet. It was always MY completeness guard, never a measured DR
+  fact; the wording survives VERBATIM only as a retired code comment (PROTOCOL
+  #2), and the armed admission replaces it for the measured `fixed dec` class
+  while every other class keeps its BY-NAME refusal.
+
+* **Perimeter — what stays refused BY NAME (my gaps, never DR rules).** Only
+  the dereferenced FIXED DECIMAL scalar formal is admitted on the file EDIT
+  item route (`vk_of st nm = Vdec _` inside the `st.deref` branch); the
+  DR-ACCEPTED fixed-bin class of `E521D`, float, based and pointer formals,
+  string formals, array formals and every inner-repetition-item shape keep
+  their existing BY-NAME `[TBD]` refusals with their marker substrings intact.
+  The lowering itself is NOT new: the admitted class routes through the
+  already-armed P3-13 deref-DEC chain verbatim; the arm admits the CLASS, it
+  adds no emitter bytes.
+
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no
+  `e52p15` object was linked or run under cpmsim; NOTHING here asserts runtime
+  behaviour beyond what the retained `.REL` records show, and no
+  `spec/RUNTIME.txt` row comes from this claim. LOAN2 itself still refuses
+  (rc=2, NO `.REL`, source UNMODIFIED sha256 `7be23ba3…`): its blocker MOVED
+  VERBATIM past Line-147 to `codegen: non-variable argument against a FIXED
+  DECIMAL formal is unproven [TBD] (… Line 160)` — recorded, NOT fixed by this
+  slice; LOAN2 is NOT claimed exact. EXPR1 (GET line 21) and EXPR2 (FLOAT line
+  35) are UNCHANGED. Provenance: [C090] [C094] [C358] [C361] [C362] [C371]
+  [C372].
