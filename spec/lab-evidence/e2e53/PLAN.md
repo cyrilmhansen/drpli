@@ -70,7 +70,7 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
 
 | Slice | Feature family | New exact specimens | Corpus programs advanced | Newly EXACT programs | Claims | Gate |
 |---|---|---|---|---|---|---|
-| (P1 in flight) | GET SKIP family | 0 | 0 | 0 | - | - |
+| P1 **CLOSED** | GET SKIP family (console) | +4 (E525A-D, whole-file cmp rc=0) | 0 (blockers moved VERBATIM past GET lines in EXPR1/REPORT/DEPREC/COPYLPT, never fixed) | 0 | C378 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p1-reg.log (1316/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5) |
 
 ## 5. Standing constraints (carry into every slice)
 
@@ -92,7 +92,7 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
 - Renewal: only at safe boundaries (never mid-oracle/mid-git); never touch renewal-state;
   close the chain at cap via `handoff_finalize`.
 
-## P1 — GET SKIP family (PRE-REGISTERED 2026-11-08, session 01a1b818, BEFORE any oracle call or `ocaml/lib/` byte)
+## P1 — GET SKIP family — **CLOSED** (2026-11-08 hop 3; results `RESULTS.md` §P1; claim [C378]; gate rc=0 `build/gate-e53p1-reg.log`) — originally PRE-REGISTERED 2026-11-08, session 01a1b818, BEFORE any oracle call or `ocaml/lib/` byte
 
 ### P1.1 Blocker VERBATIM (re-measured FRESH POSITIONAL on `baec1f82…`, ignored `build/e53p1/sanity/`)
 
