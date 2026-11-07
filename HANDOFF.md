@@ -1662,25 +1662,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 504
-checkpoint-id: g504-9277c011dad1
+checkpoint-generation: 507
+checkpoint-id: g507-19c20607b171
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1320, session 01a1b504-afec-71e7-84a1-510417f5cf52)
-checkpointed: 2026-11-07T08:27:31.099Z
+status: checkpoint (guard level 4, remaining ~-328, session 01a1b554-3a3a-76f6-9177-fd53d6b299ae)
+checkpointed: 2026-11-07T09:55:23.471Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: af3d40ae0ad62e9a106015aeece61305c1333db033c54168409bcd85169270c9
+source-progress: d62e16bfc40dda12a4cacba03c1e7e803b5200ce1b306e9b6a8ef1603f5cc765
 source-handoff: ef8dfbda934f193ac8c2ce43fc1d11fc876bfdd13d3d7bf01e12f41f05fc6fc9
-source-learnings: a9675d7dfecfd6795ac7d448f95e2f2764e675c2b0ac3a5bc32212f6e2651405
+source-learnings: c2238c193182941c059a89637ccd14ff88b8d5ff4a97d81f1083d3767b8113d8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b504-afec-71e7-84a1-510417f5cf52
-readiness-at: 2026-11-07T08:27:31.124Z
-readiness-checkpoint: g504-9277c011dad1
+readiness-by: session:01a1b554-3a3a-76f6-9177-fd53d6b299ae
+readiness-at: 2026-11-07T09:55:23.509Z
+readiness-checkpoint: g507-19c20607b171
 ### Last verified state
-guard level 4; checkpoint requested (finalize: P3-16 CLOSED (hop 6, session 01a1b504, chain 01a1b2d5 AT CAP 12/12 — no renewal). Landed this session: C374 85500489 measured-bytes-only BEFORE COVERAGE (first-hand byte re-verification incl B/C 5-file-byte name-only identity + DATED corrections DEF-DATA-SIZE 001C and raw spans 27/37/32/48B); coverage EXTEND PROC.CALL_DEC_ACTUALS 0e20023f EXACT 8->12 IDS unchanged, coverage_check rc=0 145/0/0 SUPPORTED 95; claim-time cmp 4/4 rc=0 fresh build/p3-16/claim-out/ on armed 215c4503; E522E rc=2 Line 13 my-gap; FULL gate rc=0 DIRECT build/gate-e52p16-reg.log — 1307/0, 189/189, 9/9, 145 rows, census 15/0/26/0, prose 5, EVERY number HIT; RESULTS §P3-16 + PLAN §5 row + CLOSED 2a9215dd; durables d978cb23 + HANDOFF 0a-marathon-18 98684815. SUCCESSOR (BINDING, LEARNINGS § "P3-16 hop 6" STILL OWED): P3-17 LAST slice (8 of 8) — Line-177 fixed-bin EDIT: ZERO-oracle pre-audit of LOAN2.PLI:177 (a fixed-bin VARIABLE — E521D FORMAL witness is the anchor, audit PREP, never predict); verify E523*/e52p17 unused; pre-register PLAN+probes+LEARNINGS by explicit paths BEFORE any oracle/ocaml byte; ONE campaign; goldens VERBATIM; arm measured shapes only; FULL gate before close -> build/gate-e52p17-reg.log; register from 1307/189 COMPUTED; C375 measured-bytes-only before COVERAGE; adjudicate EXTEND IO.PUT_EDIT EXACT:45; RESULTS+PLAN §5 (7-pipe)+CLOSED; then STOP — budget exhausted, no P3-18 without operator decision. Chain capped: this session closes via handoff_finalize; new chain needs operator archive+reset of ignored .pi-guard/renewal-state.json. Goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT no -o; opam env every shell; byte-tier.)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2341,5 +2341,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-16 CLOSED (hop 6, session 01a1b504, chain 01a1b2d5 AT CAP 12/12 — no renewal). Landed this session: C374 85500489 measured-bytes-only BEFORE COVERAGE (first-hand byte re-verification incl B/C 5-file-byte name-only identity + DATED corrections DEF-DATA-SIZE 001C and raw spans 27/37/32/48B); coverage EXTEND PROC.CALL_DEC_ACTUALS 0e20023f EXACT 8->12 IDS unchanged, coverage_check rc=0 145/0/0 SUPPORTED 95; claim-time cmp 4/4 rc=0 fresh build/p3-16/claim-out/ on armed 215c4503; E522E rc=2 Line 13 my-gap; FULL gate rc=0 DIRECT build/gate-e52p16-reg.log — 1307/0, 189/189, 9/9, 145 rows, census 15/0/26/0, prose 5, EVERY number HIT; RESULTS §P3-16 + PLAN §5 row + CLOSED 2a9215dd; durables d978cb23 + HANDOFF 0a-marathon-18 98684815. SUCCESSOR (BINDING, LEARNINGS § "P3-16 hop 6" STILL OWED): P3-17 LAST slice (8 of 8) — Line-177 fixed-bin EDIT: ZERO-oracle pre-audit of LOAN2.PLI:177 (a fixed-bin VARIABLE — E521D FORMAL witness is the anchor, audit PREP, never predict); verify E523*/e52p17 unused; pre-register PLAN+probes+LEARNINGS by explicit paths BEFORE any oracle/ocaml byte; ONE campaign; goldens VERBATIM; arm measured shapes only; FULL gate before close -> build/gate-e52p17-reg.log; register from 1307/189 COMPUTED; C375 measured-bytes-only before COVERAGE; adjudicate EXTEND IO.PUT_EDIT EXACT:45; RESULTS+PLAN §5 (7-pipe)+CLOSED; then STOP — budget exhausted, no P3-18 without operator decision. Chain capped: this session closes via handoff_finalize; new chain needs operator archive+reset of ignored .pi-guard/renewal-state.json. Goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT no -o; opam env every shell; byte-tier.
+P3-17 hop 2: read LEARNINGS § "P3-17 hop 1 IN FLIGHT" (binding, zero-oracle pre-audit DONE: authentic LOAN2.REL 076A-0804 decoded, fixed-bin VARIABLE edit item = LHLD *D / 3E 09 / ?QICOP / ?EDTOV, lowering already armed, guard is the only blocker). Execute PROGRESS.md Next action steps (2)-(7): pre-register PLAN §P3-17 + probes E523A/B/C + §4 predictions committed by explicit paths BEFORE any oracle/ocaml byte; sanity rc=2; ONE campaign e52p17; goldens VERBATIM; arm ONE clause (| Vint -> () non-deref branch of authorize_file_edit_item ~codegen.ml 12541) iff A+B accepted byte-exact; deref-Vint stays refused; full validation tail incl. gate -> build/gate-e52p17-reg.log; LOAN2 never fix; register from 1307/189 COMPUTED; C375 before COVERAGE; IO.PUT_EDIT EXACT:45 adjudication; RESULTS+PLAN §5+CLOSED; then STOP, no P3-18. Baseline: HEAD b1ee927a+, binary 215c4503…==tree, ledger C374, fresh chain.
 <!-- guard:end checkpoint -->
