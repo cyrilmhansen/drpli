@@ -2044,3 +2044,96 @@ P3-18 without a new operator decision.**
   (panel-proven by the console twins E46L3, E52PW/PX/PY/PZ/PA).
 - GOLDENS NEVER re-derived; `build/` evidence stays git-IGNORED and is quoted into commits; the
   E523C golden is claimed by NOTHING; LOAN2 stays UNMODIFIED with its blocker recorded VERBATIM.
+
+# E2E-52/P3-18 RESULTS — the DATA allocation-order law is REAL and implemented: pre-scan (FIFO)
+EDIT format tables own data@0000, the STATIC initialiser cells sit ABOVE them, the COMMON group's
+records are emitted BETWEEN the table region and the statics, and the lowering pool follows — with
+the law landed, LOAN2 compiles rc=0 for the FIRST time and my record stream is bit-for-bit
+IDENTICAL to the authentic golden's through `SET-LC data 00B1` (bit 2563); the first divergence is
+the lowering-pool CONTENT at data 00B1 — ZERO-PROBE slice, whole-file cmp FAILS (my-gap recorded
+VERBATIM, NEVER fixed), LOAN2 UNCLAIMED — CLOSED (2026-11-08, hop 6; slice 9 of the corrected
+operator budget; P3-19 owns the pool-content divergence)
+
+Pre-registered in PLAN §P3-18 §1–§5 (commit `d95b8e7b`) BEFORE any `ocaml/lib/` byte — §1 the
+record-order `[TBD]` blocker VERBATIM, §2 the authentic-golden evidence with H-A (global address
+sort) and H-B (statics first) FALSIFIED by byte citations, §3 the
+`[prealloc EDIT tables][static cells][lowering pool][automatics]` law as PROPOSED with falsifiers,
+§4 the NO-PROBE decision (the authentic `golden/first/LOAN2/LOAN2.REL` already measures the class;
+`E524*`/tag `e52p19` verified unused), §5 the validation/registration contract. ZERO-oracle hops
+1–3: the 1871-distinct-golden order sweep (26 both-sides-of-COMMON goldens, every pre-COMMON data
+region ONE region at data@0000, ZERO cross-boundary inversions; DIOCALLS/MPMCALLA/B prove DR's DATA
+stream is allocation/PHASE-driven, not globally address-sorted) and the bind/pool self-audit
+(throwaway untracked `ocaml/scratch-p318` exe — my table bytes and FIFO order were ALREADY
+identical to the golden's; ONLY the two phases were transposed, 162+15=177 both sides).
+
+## 1. Arm and validation (implementation `0e2581b7`, `ocaml/lib/codegen.ml` ONLY)
+
+`prealloc_fmt_tables` now returns the FIFO table addresses; `st` starts `pool=[]`, `pool_next=0`;
+static cells are appended SHIFTED by `tables_total`; `st.stat_addrs` is shifted by the same amount
+(single reader `addr_of_raw`, audited first-hand in hop 3); the emission partition tests the PHASE
+(`List.mem addr fmt_blocks`) instead of the old index window; the P3-2 `[TBD]` refusal is DELETED;
+`base`/`data_size` UNCHANGED (the C152 assertion `st.pool_next <> st.base` is itself the proof that
+the prescan demand already includes the table bytes — **it did NOT fire**). Legacy falsifier
+PASSED: sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` rc=0 FAILS 0
+(`build/p3-18/sweep-hop4.log`) and the SAN2 control probe stayed byte-identical; the hop-4
+zero-oracle sanity showed a STATIC array can never reach `sy_addrs`/`sy_cells` (refused in `bind.ml`
+[C159]) and static-head members are caught by the `collect_statics` catch-all. Armed binary sha256
+`f93b86eaa5d3282b7b6ee0a501c6d405a350af4c0edc053836722dfeb15ace5f` == tree, deterministic across
+fresh `--build-dir _build-p318b`, ZERO `Error` lines; histogram codegen 68 / total 124 == baseline;
+markers **16/16** (the harness takes the 16 names as argv — an empty-argv run prints
+`MARKER_FAILS: 0` over ZERO markers and is NOT a pass); DEC 64/0; divcheck 9/9.
+
+## 2. Measured table (re-verified FIRST-HAND at this close from the KEPT evidence)
+
+| Item | Measured | Authority |
+|---|---|---|
+| Golden prelude law | eight EDIT tables contiguous `data@0000-00A1` (162 B; SET-LC records at data `0, 7, 21, 71, 114, 121, 152, 157` = the eight EDIT statements of `artefacts/LOAN2.PLI` in source order) → `LINK-DEF-COMMON-SIZE abs 0028 OUTPUT` / `LINK-SEL-COMMON OUTPUT` / `SET-LC common 0` + 40 COMMON bytes (`common 0023-0027 = 55 54 50 55 54` = `UTPUT`) → `SET-LC data 00A2` + the 15-byte static cell of `name character(14) varying static initial('$con')` (`artefacts/LOAN2.PLI:39`, the ONLY `static` in the source): `04 24 63 6f 6e 20 20 20 20 20 20 20 20 20 20` → `SET-LC data 00B1` + the lowering pool ascending → `DEF-DATA-SIZE abs 035A` | `build/p3-18/p5-golden-rel-dump.txt` (`tools/reldump.py` on `golden/first/LOAN2/LOAN2.REL`, sha256 `712cfcb2…` KEPT, NEVER re-derived); C376 |
+| Stream agreement | my armed record stream is IDENTICAL record-for-record from `PROG-NAME` through the `LINK-SET-LC data 00B1` record ending at **bit 2563** (head-235-lines `cmp`: line 1 header only, path label); `cmp` first whole-file difference byte **324** (1-based; offset `0x0143`, bit 2588), verified this close: both files read `… 6f 37 08 04 02 01 00 80 40 20 10 08 04 12 eb 10` through `0x0142`, mine continues `02 f1 ea 5d 66 00 5e …`, golden `00 d4 ba c8 00 12 09 29 88 …` | `build/p3-18/p5-out/LOAN2.REL` sha256 `d3606963…` (7808 B) vs KEPT golden |
+| First divergence | first lowering-pool DATA record @2588: mine `DATA data 00B1 0x5e / DATA 00B2 0x7a / SET-LC data 00B3` vs DR `DATA data 00B1 0x1a / SET-LC data 00B2 / 00B2=0x09, 00B3=0x09, 00B4=0x53 …` — pool **CONTENT**, NOT order; the allocation-order law is NOT falsified by it | dumps above; C376 |
+| Tail records | mine `DEF-DATA-SIZE abs 0372` (24 B more DATA) / `DEF-CODE-SIZE code 09A5` (5 B more CODE) vs golden `035A` / `09A0`; bits consumed 61599 vs 61263 (+336); file sizes 7808 = 61×128 vs 7680 = 60×128 — the 128-B file jump is arithmetic once the +336 bits cross a block | dump headers + reldump; C376 |
+| LOAN2 compile | rc=0 for the FIRST time — `wrote build/p3-18/p5-out/LOAN2.REL (7808 bytes, code=2469 data=91)` POSITIONAL (`pli80c.exe IN OUT`, NO `-o`) on UNMODIFIED source sha256 `7be23ba3…` | `build/p3-18/p5-loan2.log` |
+| Census row | MOVED **REFUSED→DIFFERS** `{mine_bytes 7808, dr_bytes 7680, differing_bytes 7361, first_diff 323 (0-based == cmp byte 324 1-based), rel_bytes 7680, sha_ok true, dr_verdict ok}`; counts **15 EXACT / 1 DIFFERS / 25 REFUSED / 0 UNEXPECTED** (was 15/0/26/0); `cmp -l` over the golden's 7680 bytes this close: 7233 differing beyond the EOF notice — recorded, not reconciled against the census counter | `build/p3-18/census-hop5.log`; `ed5455c6` |
+
+## 3. Registration and claims
+
+Inventory `--update-inventory` rewrote `spec/INVENTORY.txt` with ZERO diff — **1309/190 unchanged**,
+the honest no-op of a ZERO-PROBE slice. Claim **C376** `f6def98e` written measured-bytes-only
+BEFORE any `spec/COVERAGE.tsv` touch (ledger ENDS **C376**, 199 headers), with a DATED refinement of
+this chain's own note kept traceable: hop 4 recorded the stream agreement as "through data 0015";
+the claim-time re-measurement shows it extends through the ENTIRE table prelude, COMMON block and
+static cells — through `SET-LC data 00B1` (bit 2563) — and the divergence begins at the first
+lowering-pool byte (the hop-4 dumps were re-verified record-body-identical to the p5 dumps; only
+the header path label differs). Coverage adjudicated FIRST-HAND on BOTH named rows: `IO.PUT_EDIT`
+col4 gains a dated `[E2E-52/P3-18]` sentence — C376 CONFIRMS the [E2E-52/P3-2] record-order law with
+an authentic golden carrying BOTH classes (tables-before-COMMON-before-statics-before-pool is a
+prealloc-pass property, not a P086K artifact) — with `EXACT:47` and col11 UNCHANGED (no new
+registered specimen; LOAN2 stays UNCLAIMED) and `[C376]` provenance; `STOR.STATIC_MEMBER_INITIAL`
+gains an explicit ADJUDICATION sentence — C376 introduces NO new cell layout (the LOAN2 `name` cell
+re-measures the [C319] law EXACTLY and is program-level, not a member) so the row's
+REFUSED/NONE/NONE STANDS — `coverage_check` rc=0 **145 rows, 0 errors, 0 warnings, SUPPORTED 95**,
+`file_prose_check` rc=0 (5 files), commit `76c3a99c`. FULL gate rc=0 DIRECT
+`build/gate-e52p18-reg.log` — **1309/0, 190/190, 9/9, 145 rows SUPPORTED 95, census
+15/1/25/0, prose 5** — every pre-registered number HIT.
+
+## 4. LOAN2 — blocker ADVANCED PAST the record order, recorded, NEVER fixed
+
+The record-order `[TBD]` refusal is GONE — with the law implemented LOAN2 compiles and emits a
+`.REL` for the first time. The ACTUAL blocker is now the **lowering-pool CONTENT at data 00B1+**:
+whole-file `cmp` FAILS at byte 324 (verified above); classified **my-gap**; recorded VERBATIM with
+the byte windows; NOTHING was fixed beyond the pre-registered arm — the never-predict law HELD and
+P3-19 (LAST slice of the corrected budget) owns the pool-content divergence with a bit-level decode
+of both streams first (`tools/reldump.py` is byte-normalised and was NOT enough to see byte 324 —
+the hop-4 tooling guess was already falsified on that point). EXPR1 GET-21 / EXPR2 FLOAT-35
+unchanged; LOAN2 NOT claimed exact and NEVER will be on this evidence.
+
+## 5. What P3-18 does NOT say (byte tier only)
+
+- BYTE TIER: no object linked or run under cpmsim; no `spec/RUNTIME.txt` row; the agreement of
+  record streams through bit 2563 is a BYTES fact, not a semantics claim.
+- C376 asserts the measured layout/record-order law ONLY: it says NOTHING about lowering-pool
+  CONTENT or record bit-packing (unanalysed, `[TBD]`), and does NOT generalise to programs whose
+  prealloc pass produces no tables (that shape remains [C114]/P086K [E2E-52/P3-2] evidence).
+- The law is recorded from the authentic golden + probe corpus; LOAN2 itself is UNCLAIMED, the
+  census row is DIFFERS, and the 128-B/336-bit excess is NOT explained — only measured.
+- GOLDENS NEVER re-derived; `build/` evidence stays git-IGNORED and is quoted into commits;
+  `handoff.config.json` NEVER staged; all rc DIRECT; no push.
