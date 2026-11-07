@@ -12543,10 +12543,27 @@ let authorize_file_edit_item st (fu : string) (ln : int) (it : pitem) =
   | PIvar n ->
       let nm = String.lowercase_ascii n.Ast.orig in
       if List.mem nm st.deref then
-        no_witness
-          (Printf.sprintf "the FORMAL %s" (String.uppercase_ascii n.Ast.orig))
-          "a procedure formal is read through its pointer cell on the console route, and no \
-           object puts a formal between a file EDIT attach and ?EDTOV"
+        (* [E2E-52/P3-15 arm] E521B/E521C (golden/e52p15) MEASURE the deref'd FIXED DECIMAL
+           formal as a file EDIT item: LHLD <desc cell> / MVI A,pf / ?DLDOP / MVI A,pf+3 /
+           MVI B,sf / ?QDCOP / ?EDTOV (E521B 0070-0084; five identical chains in the
+           authentic LOAN2 display body 0674-0732) -- the variable route's chain with ONLY
+           the prep instruction changed (P086K pins the variable prep). The lowering above
+           already emits that chain verbatim ([E2E-52/P3-13] deref-Vdec arm); this clause
+           merely admits it through the guard. EVERY other deref'd formal class keeps the
+           VERBATIM refusal below: E521D measured that DR ACCEPTS a fixed-bin deref'd
+           formal item (LHLD / 5E 23 56 EB / ?QICOP / ?EDTOV) but that is a SINGLE witness
+           -- do-not-generalise (P3-10 WF/WG law) -- it stays an honest my-gap golden and
+           refuses BY NAME here, never fitted. NOTE (ledger C373 records this dated
+           correction): the refusal reason below, "no object puts a formal between a file
+           EDIT attach and ?EDTOV", was FALSE-AS-WRITTEN once E521B landed -- my
+           completeness guard, not a DR fact; the text is kept verbatim per PROTOCOL #2. *)
+        (match vk_of st nm with
+         | Vdec _ -> ()
+         | _ ->
+             no_witness
+               (Printf.sprintf "the FORMAL %s" (String.uppercase_ascii n.Ast.orig))
+               "a procedure formal is read through its pointer cell on the console route, and no \
+                object puts a formal between a file EDIT attach and ?EDTOV")
       else (
         match vk_of st n.Ast.orig with
         | Vdec _ -> ()    (* P086K 0028-0039, P086J 0025-0036 -- the SAME prep both routes *)
