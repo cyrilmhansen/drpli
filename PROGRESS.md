@@ -2911,17 +2911,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 473
-checkpoint-id: g473-b23c139d9d52
+checkpoint-generation: 476
+checkpoint-id: g476-8c78d5990df6
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T03:21:13.226Z
+checkpointed: 2026-11-07T03:47:45.752Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f4c672228d27661ce51061e884b71c09bf95b90e9287b3913d402774745b80a1
-source-handoff: 9120650afdc6bec007692fbbe8bce31d1d041a7ec773e0c8f4c42b21ca3e89f1
-source-learnings: 2c4981b82c0ca79626e1614c7162bb6fbbe80641ad2d299729621aea955386f2
+source-progress: 7f3149e93a8e350a54f9705903cab62996a4d0b6a7e442e3ee8dce678c262f8e
+source-handoff: 006877e48f496a69ca9057ef9cd18ebcbdef416904fdcdb90b8d3a6fdd087dee
+source-learnings: 20c0089ae4d48e234dc58c4029f3cfbc3d72efd9f7e6dd187392302506dceb7e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (5),(6) EXACTLY — contract = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" (pre-registered 6-probe panel E52ZA..ZF with byte predictions + falsifiers): write PLAN §P3-13 + probes, commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; then campaign e52p13, goldens VERBATIM first, arm ONLY inside `formal_is_dec` (BY-NAME refusals kept, histogram 68), validation (68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl honest N33→NG18 retirement iff cmp rc=0 golden KEPT, DEC regressions 64/0, divcheck 9/9), register from 1288/188, C371 measured-bytes-only BEFORE COVERAGE + dated C093 correction, gate rc=0 DIRECT `build/gate-e52p13-reg.log`, RESULTS §P3-13 + CLOSED; marathon through P3-19. Armed binary `6a4c6c1154a0acd8403b…` == tree; ALL inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, `git diff --cached --stat`, config NEVER staged, no push, rc DIRECT, never glue `rm`, byte-tier only); commit guard g452+ blocks VERBATIM on recovery.**
 
@@ -3556,9 +3556,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b3e9-5432-71e7-84a1-50d9b52e53a0
-readiness-at: 2026-11-07T03:21:49.794Z
-readiness-checkpoint: g473-b23c139d9d52
 <!-- guard:end checkpoint -->
 
 ## Blockers
