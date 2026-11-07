@@ -1678,22 +1678,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 538
-checkpoint-id: g538-0bb9718bd3b4
-checkpoint-kind: auto
+checkpoint-generation: 539
+checkpoint-id: g539-9c091600596c
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3833, session 01a1b72e-30bd-77ff-99cf-94ae63847b91)
-checkpointed: 2026-11-07T18:39:00.994Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~849, session 01a1b72e-30bd-77ff-99cf-94ae63847b91)
+checkpointed: 2026-11-07T18:39:52.899Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b0242c0f182246226c0f02d7fe951fe84e3f547c71bf6545a8efef88c11811c3
+source-progress: 0634a616f365ead316bba72e93735a0cb1807b17ceaf636ea11e71891a77c754
 source-handoff: 2b23d202a92d9ba97716395ac90e8b821a2df6b8245b6e201762170cea585318
 source-learnings: 0a21bfe22035f8bd8e25aea1935a8366c2c4e9b2e0029518f92e75d8134633bb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b72e-30bd-77ff-99cf-94ae63847b91
+readiness-at: 2026-11-07T18:39:52.928Z
+readiness-checkpoint: g539-9c091600596c
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: P3-19 hop 2 LANDED (commit 23085c0f): PLAN §P3-19 §1–§5 + probes E524A/B/C pre-registered and committed BEFORE any oracle call or ocaml/lib byte; sanity all rc=0 on armed f93b86ea tree (A 384B B 768B C 512B). First-hand DATED corrections: CODE streams differ 1749/2032 (code@001A G01 M02, code@0025 G27 M29; golden relocs data 0xb1 AND 0xb2) => hop-1 merge law FALSIFIED, H-B' separate per-literal cells PROPOSED; H-A caret decode stands; residue 0x15C-0x16D OPEN, never predict. ZERO oracle run; goldens untouched; ledger C376; inventory 1309/190; coverage 145/95 EXACT:47; config not staged; no push. SUCCESSOR (hop 3): execute PROGRESS.md Next action VERBATIM — ONE campaign e52p19, goldens VERBATIM first, implement measured shapes only (lexer caret decode + pool demand lockstep; C152 fires => STOP record), tail, LOAN2 whole-file cmp vs 712cfcb2 is the ONLY finale, register +3 inventory, census, C377 measured-bytes-only before COVERAGE, gate build/gate-e52p19-reg.log, RESULTS+PLAN §5 row after 109, CLOSED. Renewal NOT available: renewal-state.json still shows chain 01a1b554 at 12/12 despite operator brief claiming reset — discrepancy recorded; close via handoff_finalize; new chain needs operator archive+reset of .pi-guard/renewal-state.json.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2376,5 +2379,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-19 hop 1 LANDED (commits 6efb37eb durables, e2c02ee5 close note): FULL first-hand pool decode done — EXACTLY three divergence classes in the pool: (1) caret-escape decode (DR ^i->09, ^z->1A per manual lines 1049-1056 low-5-bit mask; mine raw 5E 69/5E 7A at 15 sites, lexer.ml NOTE [PROBE 3]); (2) adjacent PUT-list literal MERGE into one pool cell (line-41 class: 1A+09 09+text = one 32B cell at 00B1); (3) residue 0x15C-0x16D golden 10 00 vs mine 01 00 UNATTRIBUTED (context ir/1200 + ci=1.00 + skip(2)) — NEVER fix by prediction. +24B delta exactly accounted. Predecessor readings 05 69/01 09 FALSIFIED first-hand. ZERO oracle run this session (context floor at cap); E524A..C probes remain PROPOSALS, PLAN section P3-19 NOT yet pre-registered. SUCCESSOR (chain must be reset by operator OR new session): execute PROGRESS.md Next action hop 2 VERBATIM — pre-register PLAN section P3-19 + probes + LEARNINGS by EXPLICIT paths BEFORE any oracle call or ocaml/lib byte; ONE campaign e52p19; goldens VERBATIM first; implement measured shapes only; tail -> inventory -> census -> C377 measured-bytes-only -> coverage -> FULL gate build/gate-e52p19-reg.log -> RESULTS+PLAN close; whole-file LOAN2 cmp vs 712cfcb2... is the ONLY finale; new blocker VERBATIM never fix. State: HEAD e2c02ee5, ledger C376, inventory 1309/190, coverage 145/95 EXACT:47, armed binary f93b86ea... == tree, goldens untouched, config never staged, no push.
+P3-19 hop 2 LANDED (commit 23085c0f): PLAN §P3-19 §1–§5 + probes E524A/B/C pre-registered and committed BEFORE any oracle call or ocaml/lib byte; sanity all rc=0 on armed f93b86ea tree (A 384B B 768B C 512B). First-hand DATED corrections: CODE streams differ 1749/2032 (code@001A G01 M02, code@0025 G27 M29; golden relocs data 0xb1 AND 0xb2) => hop-1 merge law FALSIFIED, H-B' separate per-literal cells PROPOSED; H-A caret decode stands; residue 0x15C-0x16D OPEN, never predict. ZERO oracle run; goldens untouched; ledger C376; inventory 1309/190; coverage 145/95 EXACT:47; config not staged; no push. SUCCESSOR (hop 3): execute PROGRESS.md Next action VERBATIM — ONE campaign e52p19, goldens VERBATIM first, implement measured shapes only (lexer caret decode + pool demand lockstep; C152 fires => STOP record), tail, LOAN2 whole-file cmp vs 712cfcb2 is the ONLY finale, register +3 inventory, census, C377 measured-bytes-only before COVERAGE, gate build/gate-e52p19-reg.log, RESULTS+PLAN §5 row after 109, CLOSED. Renewal NOT available: renewal-state.json still shows chain 01a1b554 at 12/12 despite operator brief claiming reset — discrepancy recorded; close via handoff_finalize; new chain needs operator archive+reset of .pi-guard/renewal-state.json.
 <!-- guard:end checkpoint -->
