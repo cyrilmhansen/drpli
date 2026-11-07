@@ -1,0 +1,9 @@
+E526D: procedure options(main);
+   /* [E2E-53/P2] H-D: stride-1 VARIABLE subscript STORE.  */
+   /* Falsifier: DR refusal or a byte store other than the     */
+   /* computed-address tail adapted to one byte [C159].        */
+   dcl a(4) fixed bin(7);
+   dcl i fixed;
+   a(i) = 4;
+end E526D;
+

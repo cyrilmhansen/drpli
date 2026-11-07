@@ -1,0 +1,11 @@
+E526E: procedure options(main);
+   /* [E2E-53/P2] H-E: stride-3 CHARACTER(3) array, CONSTANT  */
+   /* subscript store (literal shorter than extent: the        */
+   /* measured V106 len<cap class) and element PUT read.       */
+   /* Falsifier: DR refusal, or SMCCM/SLCTS shapes other than  */
+   /* the scalar laws of [C321]/[C322].                        */
+   dcl d(3) char(3);
+   d(1) = 'AB';
+   put list(d(2));
+end E526E;
+

@@ -1,0 +1,11 @@
+E526F: procedure options(main);
+   /* [E2E-53/P2] H-F: stride-3 VARIABLE subscript STORE.      */
+   /* Tests whether the OPTIMIST stride-9 IM22N ladder         */
+   /* (LXI DE,0009 / CALL ?IM22N) generalises to stride 3.     */
+   /* Falsifier: DR refusal, DAD H, or a ladder that deviates  */
+   /* from that byte sequence with operand 0003.               */
+   dcl d(3) char(3);
+   dcl i fixed;
+   d(i) = 'AB';
+end E526F;
+

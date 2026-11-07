@@ -1,0 +1,10 @@
+E526C: procedure options(main);
+   /* [E2E-53/P2] H-C: stride-1 VARIABLE subscript read.   */
+   /* lb=1 so the ladder takes the bias form (bias = -1).      */
+   /* Falsifier: DR refusal, DAD H doubling, or a sequence     */
+   /* other than LXI/PUSH/LHLD/LXI DE,01/CALL ?IM22N/POP/DAD.  */
+   dcl a(4) fixed bin(7);
+   dcl i fixed;
+   put list(a(i));
+end E526C;
+

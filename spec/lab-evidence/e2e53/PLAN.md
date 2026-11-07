@@ -187,3 +187,123 @@ every cited byte first-hand — P3-16 lesson); coverage adjudicated FIRST-HAND (
 `IO.GET_LIST` row 64 EXTEND; NEVER `coverage_gen.py`); FULL gate rc=0 DIRECT
 `build/gate-e53p1-reg.log`; RESULTS.md §P1 in this directory + PLAN §4 dashboard row + §P1
 CLOSED; then re-rank the matrix and open P2 (B1 non-2-byte arrays).
+
+## P2 — non-2-byte array elements, B1 family — PRE-REGISTERED 2026-11-08, session successor of 01a1b83e (chain 4/12), BEFORE any oracle call or `ocaml/lib/` byte
+
+### P2.1 Blocker VERBATIM (re-held FRESH POSITIONAL on `8e51c261…`, ignored `build/e53p2/pre-audit/`)
+
+The four B1 corpus users refuse at bind sizing (`Bind.layout`, `ocaml/lib/bind.ml` ~1046-1051),
+with `elem_sz = bytes_of rt` from the ONE sizing law already measured for scalars ([C159] re-
+derivation note at `bind.ml:148-166`: `RTbin p -> (p+8)/8`, `RTchar(n,fix) -> n`,
+`RTchar(n,vary) -> 1+n`, `RTentry/RTlabel -> 0`):
+
+```
+DEPREC    rc=2  codegen: [TBD] array of 0-byte elements [C159] (…)  — schedule (0:3) entry variable
+MPMCALLA  rc=2  codegen: [TBD] array of 0-byte elements [C159] (…)  — localstk (0:255) entry (fixed) variable
+LABELS    rc=2  codegen: [TBD] array of 0-byte elements [C159] (…)  — (x, y, z(3)) label
+OPTIMIST  rc=2  codegen: [TBD] array of 9-byte elements [C159] (…)  — negative (1:nwords) character(8) varying static initial
+```
+
+The classes split THREE ways (pre-audit `LEARNINGS.md` § "P2 B1 arrays"): (a) entry/label arrays
+are 2-byte cells whose VALUES are CHAIN-ADDR operands / PCHL computed jumps (value class, refused
+BY NAME here — row `TRAN.COMPUTED_GOTO` REFUSED, negative N6 must survive); (b) OPTIMIST is a
+STATIC char-VARYING array (`?CXVVM` descriptor + A3 string builtins, refused BY NAME); (c) plain
+FIXED automatic arrays with stride 1 (`fixed bin(1..7)`) or odd stride (`char(n>1)`) — the class
+this slice measures.
+
+### P2.2 UNARMED sanity audit (FRESH this session, `build/e53p2/sanity/`, binary `8e51c261…`)
+
+Scalar machinery the candidate array shapes would ride on:
+
+| probe | shape | rc | outcome VERBATIM |
+|---|---|---|---|
+| SNS1 | `dcl b fixed bin(7); b = 5; put list(b);` | 0 | 256 B (C079 LDA/STA ladder + QICOP item proven) |
+| SNS2 | `dcl s char(3); s = 'AB'; put list(s);` | 0 | 256 B (V106 `?SMCCM` len<cap store + `?SLCTS` proven) |
+| SNS3 | `dcl c char(1); c = 'X';` (len==cap) | 2 | `codegen: fixed store len==cap MOV B/A unproven [TBD]` — the char(1) SCALAR store itself is unproven; char(1)-element stores are therefore OUT of any arm this slice |
+| SNS4 | legacy `dcl a(3) fixed; a(2)=7; put list(a(i));` | 0 | 256 B — the accepted 2-byte array control (legacy falsifier) |
+| SNX1-5 | `fixed bin(7)` / `char(1)` arrays (const + var subscripts, load + store) | 2 | `array of 1-byte elements [C159]` — all five die at bind.ml ~1047, NOT in codegen: bind sizing is the only obstacle for these shapes so far |
+| SNX6-7 | `char(3)` arrays const + var store | 2 | `array of 3-byte elements [C159]` — same bind site |
+| SNX8-10 | SINGLE-element arrays `dcl a(1) fixed bin(7)/fixed` and `a(1) = 3` | 2 | **crash, not refusal**: `Fatal error: exception File "lib/codegen.ml", line 10047, characters 2-7: Pattern matching failed` — `arrays :=` runs only when `nelem > 1`, so `a(1)` never registers and the Esuffix LHS falls off `lower_assign`'s match. Classified **my-gap** (crash where a `[TBD]` refusal is required, the [C160] discipline). **RECORDED, NOT FIXED this slice** — no E526 probe exercises `nelem = 1`; the fix is a separate pre-registered change. |
+
+The seven final probes `probes/E526A..G` themselves were sanity-run UNARMED
+(`build/e53p2/sanity2/`): every one dies at the bind guard (`1-byte`/`3-byte elements
+[C159]`) exactly like SNX1-7 — the front end accepts the syntax; only sizing refuses.
+
+### P2.3 Arms and falsifiers (probes `probes/E526A..G`, tag `e53p2`, ids VERIFIED unused)
+
+Predictions ride ONLY on already-measured laws; each is falsifiable by the campaign bytes:
+
+- **H-A (stride-1 const stores)** E526A: `a(1)=3` (offset 0) and `a(3)=5` (offset≠0). Predicted
+  from [C159]'s split: offset 0 the scalar-store family adapted to 1 byte (STA per [C079]'s
+  1-byte store law) or the `LXI H,*D / MVI M` general form; offset≠0 `MVI M`-style byte store at
+  the folded displacement. FALSIFIER: DR refusal, any 2-byte-shaped store (SHLD/hi-lo pair) for a
+  1-byte cell, or an address ladder where a folded operand appears.
+- **H-B (stride-1 const read)** E526B: `b = a(2)` and `put list(a(1))`. Predicted: direct folded
+  `LDA`-class load ([C079] `LDA abs` + the sign-extend ladder) with no runtime address arithmetic,
+  mirroring [C159]'s `LHLD A+off`. FALSIFIER: refusal, a computed-address ladder for a constant
+  subscript, or a load sequence not decomposing to known C079 bytes.
+- **H-C (stride-1 var subscript READ, bias≠0)** E526C: ladder predicted as the OPTIMIST-pre-audit
+  general form with `LXI DE,0001 / CALL ?IM22N` replacing `DAD H`, inside
+  `LXI H,*D(base-lb) / PUSH H / … / POP D / DAD D`. FALSIFIER: refusal, plain `DAD H` kept, a
+  different multiplier byte, or a structurally different ladder.
+- **H-D (stride-1 var subscript STORE)** E526D: same ladder + the measured byte-store tail.
+  FALSIFIER: refusal or a tail that stores two bytes.
+- **H-E (stride-3 char(3) const store + element PUT)** E526E: literal store predicted on the
+  [C321]/V106 `?SMCCM` route with the ELEMENT address as destination (pool cell + `3E cap / 06 len`);
+  the `put` read on `?SLCTS` with `MVI A,03`. FALSIFIER: refusal, any other copy routine, or
+  inline byte stores where SMCCM is predicted (or vice versa).
+- **H-F (stride-3 var subscript store)** E526F: OPTIMIST IM22N ladder with `LXI DE,0003` + the
+  SMCCM tail. FALSIFIER: any deviation from the byte sequence already decoded from
+  `golden/first8080u/OPTIMIST/OPTIMIST.REL` except the DE operand.
+- **H-G (stride-1 var subscript, bias-0 form, `lb=0`)** E526G: predicted the VB1 7-byte form with
+  the multiply substituted: `LHLD i / LXI DE,0001 / CALL ?IM22N / LXI D,*D(base) / DAD D` shape
+  family — the bias-0 ladder has NEVER been measured at stride≠2. FALSIFIER: refusal or the
+  bias-form appearing (then the arm keeps refusing bias-0 at stride≠2).
+
+EXPLICITLY OUT of P2 arms (stay refusing BY NAME through the existing guards): the entry/label
+VALUE class (CHAIN-ADDR operands, computed goto/PCHL; `TRAN.COMPUTED_GOTO` row REFUSED and
+negative N6 survive untouched); OPTIMIST's static-varying descriptor class (`?CXVVM` + A3 string
+builtins, plus the separate `STATIC array … [C159/AB5]` refusal); `char(1)` element stores
+(scalar class itself unproven, SNS3); DECIMAL/FLOAT/BIT arrays and precisions beyond 15 (DR
+`NOT IMP` per [C079]); multi-dimensional arrays; the `nelem = 1` crash (recorded my-gap above,
+never probed here); runtime-variable bounds. If DR refuses a probe, that is recorded
+`dr-refuses` and NOTHING is armed on its authority.
+
+### P2.4 Arm plan (executed only after goldens decode first-hand)
+
+Three candidate edits, each armed ONLY for the exact strides/forms the campaign pins, all other
+shapes keep the existing `[TBD]`:
+1. `bind.ml` ~1046: allow `elem_sz` values MEASURED by the campaign for non-STATIC automatic
+   FIXED arrays (the refusal text stays for every unmeasured size; the catch for `elem_sz = 0`
+   entry/label and static-varying stays).
+2. `codegen.ml dyn_addr` (~1093): stride ladder generalization — measured strides take
+   `LXI DE,<stride> / CALL ?IM22N` in place of `DAD H`, ONLY in the (bias≠0 | bias=0) forms the
+   goldens pin; unmeasured stride/form combinations keep refusing.
+3. `codegen.ml` constant-subscript element load/store consumers (read ~4561, store ~10834): arm
+   the measured byte shapes for the pinned strides only; the four [C159] 2-byte store forms
+   untouched (legacy falsifier: SNS4 + the whole sweep must stay byte-identical).
+No source-name special cases; unmeasured shapes must refuse loudly, never silently take a
+2-byte path.
+
+### P2.5 Validation / registration contract
+
+Fingerprint determinism (default == fresh `--build-dir`, grep `Error`, ZERO allowed); histogram
+baseline codegen 68 / total 124 (re-count from the fresh log, never carry); sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` **FAILS 0** (count COMPUTED from the
+panel delta vs the 194/0 registered baseline, never hard-carried); markers argv-driven, the 16
+from P1 plus any new negatives — `N6` (computed goto), `N45_GETSUB`, `E46K15` MUST survive; DEC
+64/0; divcheck 9/9; probe parity FRESH POSITIONAL whole-file `cmp` vs `golden/e53p2/`; corpus
+reruns UNMODIFIED — DEPREC/LABELS/MPMCALLA/OPTIMIST/EXPR1/REPORT/COPYLPT — blockers recorded
+VERBATIM, NOTHING fixed (the four B1 blockers must NOT move from `0-byte`/`9-byte [C159]` since
+their classes stay refused: if any moves, the arm leaked and gets reverted, not celebrated);
+REAL `--update-inventory` adjudicated by its OWN output (baseline **1316/190**, +7 expected if
+all probes accepted); census OWN path `python3 tools/corpus_census.py --check
+spec/census/corpus-census.json` (expect counts UNCHANGED 16/0/25/0 — the arm touches no corpus
+class; adjudicate from OWN output, never force); **C379+ measured-bytes-only BEFORE ANY
+`spec/COVERAGE.tsv` touch** (reproduce every cited byte first-hand — the P3-16 lesson); coverage
+FIRST-HAND (candidate: EXTEND row 7 `AGG.ARRAY_1D_FIXED` with a DATED stride-generalization
+clause, or a NEW `AGG.ARRAY_1D_STRIDED` row + explicit `spec/COVERAGE-IDS.txt` entry — decided
+by what the goldens pin, NEVER `coverage_gen.py`); FULL compile-tier gate rc=0 DIRECT
+`build/gate-e53p2-reg.log`; `spec/lab-evidence/e2e53/RESULTS.md` §P2 + PLAN §4 dashboard row +
+§P2 CLOSED. Goldens committed VERBATIM before any arm byte; `handoff.config.json` never staged;
+no push.

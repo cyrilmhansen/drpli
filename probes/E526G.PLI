@@ -1,0 +1,11 @@
+E526G: procedure options(main);
+   /* [E2E-53/P2] H-G: stride-1 VARIABLE subscript read on an  */
+   /* lb=0 array -- the OTHER measured ladder form (bias 0,    */
+   /* VB1: 7 bytes, base added from DE after the multiply).    */
+   /* Falsifier: DR refusal or any sequence other than the     */
+   /* bias-0 form adapted from [C159]/VB1 with ?IM22N.         */
+   dcl a(0:3) fixed bin(7);
+   dcl i fixed;
+   put list(a(i));
+end E526G;
+

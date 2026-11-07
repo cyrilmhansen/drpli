@@ -1,0 +1,10 @@
+E526A: procedure options(main);
+   /* [E2E-53/P2] H-A: stride-1 fixed bin(7) array, CONSTANT   */
+   /* subscripts: offset-0 and offset-nonzero literal stores.  */
+   /* Falsifier: DR refusal, or a store shape not reducible to */
+   /* the [C159] laws adapted to one-byte cells.               */
+   dcl a(4) fixed bin(7);
+   a(1) = 3;
+   a(3) = 5;
+end E526A;
+

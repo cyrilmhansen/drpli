@@ -50,7 +50,56 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-53/P2 B1 arrays — ZERO-ORACLE PRE-AUDIT LANDED; SCOPE DECISION + PRE-REGISTRATION OWED — BINDING; full findings LEARNINGS.md sec "P2 B1 arrays — ZERO-ORACLE PRE-AUDIT IN FLIGHT")
+## Next action (E2E-53/P2 B1 arrays — SANITY + SCOPE + PRE-REGISTRATION LANDED; CAMPAIGN e53p2 OWED — BINDING; full contract LEARNINGS.md sec "SANITY AUDIT + SCOPE ADJUDICATION + PRE-REGISTRATION LANDED")
+
+**DONE this hop (session successor of 01a1b83e, chain 4/12, ZERO oracle, ZERO `ocaml/lib/` byte):**
+recovery verified FIRST-HAND (HEAD 982c1c2d→ad9dd50a guard blocks committed VERBATIM d52a214f;
+build rc=0 ZERO Error; binary 8e51c261… == tree). UNARMED sanity audit `build/e53p2/sanity/`:
+SNS1 bin(7) scalar rc=0; SNS2 char(3) len<cap store+PUT rc=0; SNS4 legacy 2-byte array rc=0;
+SNS3 char(1) len==cap store rc=2 `fixed store len==cap MOV B/A unproven [TBD]` (scalar class
+itself unproven — char(1)-element stores OUT); SNX1-7 stride-1/3 arrays ALL die ONLY at bind.ml
+~1047 `array of {1,3}-byte elements [C159]`. NEW my-gap crash RECORDED VERBATIM NEVER FIXED:
+SNX8/9/10 single-element arrays `dcl a(1) …; a(1)=3;` CRASH `lib/codegen.ml line 10047 Pattern
+matching failed` (nelem=1 never registers in st.arrays; guarded Esuffix arm falls off;
+warnings 8+11 confirm the trailing `_` is compiler-unused) — separate pre-registered fix owed,
+NOT this slice. SCOPE ADJUDICATED = predecessor proposal: arm bind sizing + dyn_addr ladder +
+const-subscript load/store ONLY in campaign-pinned forms; entry/label VALUE class (CHAIN-ADDR/
+PCHL; TRAN.COMPUTED_GOTO REFUSED, N6 survives), static-varying descriptor class (?CXVVM+A3 +
+STATIC-array refusal) and char(1) stores stay refused BY NAME; HONEST Goal-A note: the arm
+clears NONE of the four B1 corpus blockers (0-byte entry/label + 9-byte static-varying) — P2
+payoff is Goal-B coverage only.
+
+**EXECUTE NEXT (successor, EXACT order):** (4) ONE campaign `PLI_SRC=probes timeout 900 python3
+oracle/batch.py E526A E526B E526C E526D E526E E526F E526G --tag e53p2 --switches '$L$D'` rc
+DIRECT; EVERY `.PRN` NO ERROR(S) BOTH passes; commit `golden/e53p2/` VERBATIM (NEVER `dir.txt`)
+BEFORE any arm byte. (5) decode FIRST-HAND (`build/p3-13/p13dump.py` explicit HEX ranges into
+`build/e53p2/decode/`; ext/addr slots HEX; CALL slot = opcode+1); adjudicate H-A..H-G per PLAN
+§P2.3; arm measured ONLY per PLAN §P2.4 (bind sizing; dyn_addr stride×bias forms pinned;
+const-subscript shapes pinned; 2-byte [C159] forms untouched); parity FRESH POSITIONAL whole-file
+cmp; corpus reruns DEPREC/LABELS/MPMCALLA/OPTIMIST/EXPR1/REPORT/COPYLPT UNMODIFIED — the four B1
+blockers MUST NOT move off `0-byte`/`9-byte [C159]` (a move = leaked arm, REVERT not celebrate).
+(6) tail (fingerprint fresh `--build-dir` grep Error; hist 68/124 COMPUTED; sweep FAILS 0 count
+COMPUTED vs 194/0+7; markers argv incl 16 P1 markers + N6/N45_GETSUB/E46K15; DEC 64/0; divcheck
+9/9) → REAL `--update-inventory` OWN output (baseline 1316/190, +7 expected, never force) →
+census OWN path (`python3 tools/corpus_census.py --check spec/census/corpus-census.json`, expect
+16/0/25/0) → **C379 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage
+FIRST-HAND (row 7 `AGG.ARRAY_1D_FIXED` EXTEND vs NEW `AGG.ARRAY_1D_STRIDED` + explicit
+`spec/COVERAGE-IDS.txt`; NEVER coverage_gen.py) → FULL gate rc=0 DIRECT
+`build/gate-e53p2-reg.log` → RESULTS §P2 + PLAN §4 row (7-pipe assert RUN IN CODE) + §P2 CLOSED →
+durables + guard blocks VERBATIM.
+
+**STATE:** ledger ENDS C378 (201 headers); inventory 1316/190; coverage 145/95 (row 64 EXACT:28);
+LAST gate rc=0 `build/gate-e53p1-reg.log`; census 16/0/25/0; armed binary 8e51c261… == tree;
+goldens `golden/e53p1/`+`golden/first*/` KEPT VERBATIM NEVER re-derived (`dir.txt` NEVER staged);
+probes `probes/E526A..G` + PLAN §P2 PRE-REGISTERED this hop (commit below) — sanity2 7/7 rc=2 at
+bind guard, zero `.REL`, ids VERIFIED unused; corpus blockers VERBATIM never fix; standing
+constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam
+env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier;
+`build/`+`ocaml/_build-*`+`ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no
+push); chain renewals 4/12 used, cap 12; stray root `S2..S5.PLI`/`.log` pre-existing debris,
+untouched.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-53/P2 B1 arrays — ZERO-ORACLE PRE-AUDIT LANDED; SCOPE DECISION + PRE-REGISTRATION OWED — BINDING; full findings LEARNINGS.md sec "P2 B1 arrays — ZERO-ORACLE PRE-AUDIT IN FLIGHT")
 
 **DONE this hop (session 01a1b83e, chain 3/12, ZERO oracle, ZERO ocaml/lib byte):** recovery verified
 (HEAD 982c1c2d, checkpoint current, build rc=0, binary 8e51c261… == tree). All four B1 blockers re-held

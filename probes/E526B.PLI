@@ -1,0 +1,11 @@
+E526B: procedure options(main);
+   /* [E2E-53/P2] H-B: stride-1 constant-subscript READS:  */
+   /* element into a fixed scalar, and element as PUT item.    */
+   /* Falsifier: DR refusal, or a load that is not the direct  */
+   /* folded-address form of [C159] (offset folded, no ladder).*/
+   dcl a(4) fixed bin(7);
+   dcl b fixed;
+   b = a(2);
+   put list(a(1));
+end E526B;
+
