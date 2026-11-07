@@ -50,48 +50,44 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-53/P1 hop 3 — TAIL ALL HIT + REGISTER + C378 LANDED; COVERAGE→GATE→RESULTS/PLAN→CLOSE OWED — BINDING)
+## Next action (E2E-53/P1 **CLOSED** at `670b7379` — hop 3 completed TAIL→REGISTER→C378→COVERAGE→GATE→RESULTS/PLAN; **P2 = B1 non-2-byte arrays OWED, PRE-REGISTER FIRST** — BINDING)
 
-**DONE hop 3 (session 01a1b82b, chain 2/12, ZERO new oracle — campaign ran pre-registered in hop 2):**
-guard g554 blocks committed VERBATIM `82bd89de`; build rc=0 ZERO `Error`, armed fingerprint
-`8e51c261…` re-verified deterministic (fresh `_build-e53p1h3`); tail ALL HIT: sweep 190/0 FAILS 0
-pre-reg (contract's 187 was STALE — honest measured value recorded), post-reg **194/0**, markers
-**16/16**, DEC **64/0**, divcheck **9/9**, parity re-held cmp **4/4 rc=0** `build/e53p1/claim-out/`;
-REGISTER `1212bb25` (SPECIMENS +4 measured-byte comments — first draft mislabeled GNVOP/QCIOP
-slots, CAUGHT and re-derived from raw hex before commit; REAL `--update-inventory` OWN output
-**1316/190** exactly +4 rows; census OWN path `--check spec/census/corpus-census.json` rc=0 counts
-UNCHANGED **16/0/25/0**); **C378 `3b904631` BEFORE ANY COVERAGE contact** (17-B console GET SKIP
-prefix law `?SYSIN`-attach + skip-list 11-B fixed-bin / 14-B varying tails, corpus anchors EXPR1
-004A-005A / DEPREC 0414 / COPYLPT 0090-009E re-verified FIRST-HAND at claim time, perimeter
-re-measured `build/e53p1/perim/`); ledger **201 headers ENDS C378**; prose rc=0; LEARNINGS hop-3
-section appended.
+**DONE hop 3 (session 01a1b82b, chain 2/12, ZERO new oracle):** g554 blocks VERBATIM `82bd89de`;
+build rc=0 ZERO Error, binary `8e51c261…` deterministic; tail ALL HIT (sweep 190/0 pre-reg —
+contract's 187 STALE, COMPUTE from panel deltas — post-reg **194/0**, markers 16/16, DEC 64/0,
+divcheck 9/9, parity cmp 4/4 rc=0 claim-out); REGISTER `1212bb25` REAL inventory **1316/190** +4
+rows only, census OWN path (`corpus_census.py --check spec/census/corpus-census.json`) UNCHANGED
+16/0/25/0; **C378 `3b904631` BEFORE COVERAGE** (measured-bytes-only, perimeter first-hand
+`build/e53p1/perim/`); coverage `5c8d89c1` row 64 `IO.GET_LIST` EXACT:24→**28** +E525A..D +DATED
+col04/col13 + col15 `[C378]`, coverage_check 145 rows 0/0 SUPPORTED 95; FULL gate **rc=0 DIRECT**
+`build/gate-e53p1-reg.log` — 1316/0, 190/190, 9/9, census 16/0/25/0, prose 5 — EVERY number HIT;
+CLOSE `670b7379` RESULTS.md §P1 + PLAN §4 row + §P1 CLOSED; prose rc=0; durables this commit.
 
-**EXECUTE NEXT (successor, EXACT order):** (1) coverage row 64 `IO.GET_LIST` FIRST-HAND EXTEND:
-col09 `EXACT:24`→**`EXACT:28`**, col11 append `,E525A,E525B,E525C,E525D` (panel keys verified via
-`load_panel` semantics — all four are INVENTORY specimens NOW), DATED col04 sentence (console GET
-SKIP 17-B prefix + skip-list tails, attach `?SYSIN`) + col13 clause, col15 append `[C378]`; NEVER
-`coverage_gen.py`; `python3 tools/coverage_check.py` expect **145 rows 0/0 SUPPORTED 95** +
-`file_prose_check` rc=0; commit explicit path. (2) re-sweep full panel expect **194/0** already
-held; **FULL gate rc=0 DIRECT** `python3 tools/e2e_gate.py > build/gate-e53p1-reg.log 2>&1; echo
-RC=$?` (expect **1316**/0, **190/190**, 9/9, 145 rows SUPPORTED 95, census **16/0/25/0**, prose 5).
-(3) CREATE `spec/lab-evidence/e2e53/RESULTS.md` §P1 (parity 4/4 table, H-A..H-D CONFIRMED, dated
-`?SYSIN` correction, corpus blocker moves VERBATIM, zero §4 misses, byte-tier) + PLAN §4 dashboard
-row (P1: +4 specimens, corpus newly-EXACT 0, claims C378) + §P1 heading **CLOSED**; prose rc=0;
-commit. (4) Update PROGRESS/LEARNINGS, commit refreshed guard blocks VERBATIM, renew at safe
-boundary (chain 2/12, cap 12). (5) OPEN **P2 = B1 non-2-byte arrays**: verify ids `E526*`/tag
-`e53p2` UNUSED; PRE-REGISTER PLAN §P2 + probes + LEARNINGS by EXPLICIT paths BEFORE any oracle
-call or `ocaml/lib/` byte (PROTOCOL #1).
+**EXECUTE NEXT (successor): open P2 = B1 non-2-byte arrays (4 corpus users, PLAN §3).** (1) ZERO-oracle
+pre-audit: census/INVENTORY names of the 4 array users; locate my 2-byte-array lowering in
+`ocaml/lib/{bind,codegen}.ml` + grep CLAIMS for existing array-cell laws ([C159]/[C371] family) FIRST;
+DECODE any authentic goldens that already pin non-2-byte array DATA cells + addressing — probes ONLY
+if genuinely discriminating. (2) VERIFY ids `E526*` + tag `e53p2` UNUSED (`grep -rn E526 tools spec
+probes golden oracle; grep -rn e53p2 .`). (3) PRE-REGISTER PLAN §P2 (blocker VERBATIM, H-arms +
+falsifiers, validation contract) + probes (CRLF + bare ^Z) + LEARNINGS by EXPLICIT paths, COMMITTED
+BEFORE any oracle call or `ocaml/lib/` byte (PROTOCOL #1). (4) ONE campaign `PLI_SRC=probes timeout
+900 python3 oracle/batch.py E526A … --tag e53p2 --switches '$L$D'`; EVERY `.PRN` NO ERROR(S) both
+passes; goldens VERBATIM first. (5) Decode first-hand (`p13dump` needs explicit ranges; ext slots are
+HEX); arm measured shapes ONLY; keep catch refusals for unmeasured forms; parity whole-file cmp;
+rerun corpus users UNMODIFIED, blockers VERBATIM never fix. (6) Tail (fingerprint fresh --build-dir +
+grep Error; hist 68/124; markers argv incl any new; DEC 64/0; divcheck 9/9; sweep FAILS 0, count
+COMPUTED from panel delta) → REAL --update-inventory (OWN output) → census OWN path → **C379+
+measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch** → coverage FIRST-HAND (NEVER coverage_gen.py)
+→ FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` → RESULTS §P2 + PLAN §4 row (7 pipes) + §P2 CLOSED.
 
-**STATE:** HEAD = this commit; ledger ENDS **C378** (201 headers); inventory **1316/190**; coverage
-**145/95** (row 64 `IO.GET_LIST` STILL EXACT:24 — EXTEND owed); LAST full gate rc=0
-`build/gate-e52p19-reg.log` (e53p1 gate OWED); armed binary `8e51c261…` == tree; goldens
-`golden/e53p1/` KEPT VERBATIM NEVER re-derived (`dir.txt` NEVER staged); corpus blockers of
-EXPR1/REPORT/DEPREC/COPYLPT recorded VERBATIM in hop-2 commit `53dd4a9f` message +
-`build/e53p1/corpus-out/`, NEVER fix; standing constraints per PROTOCOL Part 2 anchor
-(POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue
-`rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/_build-*`+`ocaml/scratch-*`
-NEVER staged; `handoff.config.json` NEVER staged; no push); chain renewals 2/12 used, cap 12;
-stray root `S2..S5.PL I`/`.log` = pre-existing untracked debris, untouched.
+**STATE:** ledger ENDS **C378** (201 headers); inventory **1316/190**; coverage **145/95** (row 64
+EXACT:28); LAST gate rc=0 `build/gate-e53p1-reg.log`; armed binary `8e51c261…` == tree; goldens
+`golden/e53p1/` KEPT VERBATIM NEVER re-derived (`dir.txt` NEVER staged); corpus EXPR1/REPORT/DEPREC/
+COPYLPT blockers recorded VERBATIM, NEVER fix; standing constraints per PROTOCOL Part 2 anchor
+(POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`;
+never parallelize dependent bash; byte-tier; `build/`+`ocaml/_build-*`+`ocaml/scratch-*` NEVER staged;
+`handoff.config.json` NEVER staged; no push); chain renewals 2/12 used, cap 12; stray root
+`S2..S5.PLI`/`.log` pre-existing untracked debris, untouched.
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P1 — ARM LANDED + PARITY 4/4; TAIL→REGISTER→C378→COVERAGE→GATE→CLOSE OWED — BINDING)
 
@@ -3249,17 +3245,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 554
-checkpoint-id: g554-38fa3f434ad2
-checkpoint-kind: manual
+checkpoint-generation: 555
+checkpoint-id: g555-36a4c4400b55
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-07T22:39:52.125Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-07T22:59:39.829Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b4f32bb672d4cc5b9a46ea8dd8cc300fc1695c71015e4ebf595c4773ecee59a0
+source-progress: 2125a08db6015bd25b0166768bdaf31bffc15b4878351046bed9f183c52b36f4
 source-handoff: b63564b4dd4239cebe806a9b71caa2b88a2af4d6594b27206bef4f09a561fd71
-source-learnings: 91f3e70973ea3b8bc3db1ed4558e3923709898fadfe82fd0910069e79b2df63b
+source-learnings: f5f1850528caeb04a3c2c8683fb64c0f7c9c0096b5140716f80cbb28bb903108
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` E2E-53/P1 steps (1)–(5)): PRE-REGISTER PLAN §P1 + `probes/E525A..D` (CRLF + bare `^Z`; ids VERIFIED unused) committed by EXPLICIT paths BEFORE any oracle call/`ocaml/lib/` byte → ONE campaign tag `e53p1` → goldens VERBATIM → decode/adjudicate (NEVER reuse PUT SKIP bytes by analogy) → arm measured ONLY, keep the GET catch refusal for unmeasured forms → whole-file parity + rerun EXPR1/REPORT/DEPREC/COPYLPT UNMODIFIED (new blockers VERBATIM) → tail → REAL `--update-inventory` → census OWN path → **C378+ measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (NEVER `coverage_gen.py`) → FULL gate rc=0 DIRECT `build/gate-e53p1-reg.log` → RESULTS §P1 + PLAN §4 row + CLOSED → re-rank, open P2. Ledger ENDS **C377**; inventory **1312/190**; coverage **145/95**; LAST gate rc=0 `build/gate-e52p19-reg.log`; armed binary `baec1f82…` == tree; goldens KEPT NEVER re-derived; `handoff.config.json` NEVER staged; no push; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/scratch-*` NEVER staged; chain renewals 0/12 used, cap 12.
 0a-marathon-28. **P3-19 hop 3 LANDED — CAMPAIGN e52p19 3/3 DR-ACCEPTED, GOLDENS COMMITTED VERBATIM `7e8d577d` BEFORE ANY `ocaml/lib/` BYTE; DECODE/ADJUDICATION/ARM/TAIL/REGISTER/CLOSE OWED (session 01a1b78a operator-launched; chain 01a1b554 renewal-state VERIFIED STILL 12/12 CAP NOT reset — renewal NOT attempted, close via handoff_finalize; oracle ran ONCE pre-registered; ZERO `ocaml/` byte; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; byte-tier):** recovery verified FIRST-HAND (HEAD `1cddd051`; g539-9c091600596c CURRENT — all five source hashes replayed with the guard's EXACT-STRING strip law [does NOT consume the post-END newline; a newline-eating regex gives a FALSE stale on PROGRESS.md]; operator `handoff.config.json` edit [cap 12, window 145000] already hashed into g539 `43186947…`, NEVER staged; build rc=0 ZERO `Error`; armed `f93b86ea…` == tree == fresh `--build-p319/default/bin/pli80c.exe` — dated tool note: dune `--build-dir` nests `default/`). CAMPAIGN `PLI_SRC=probes timeout 900 python3 oracle/batch.py E524A E524B E524C --tag e52p19 --switches '$L$D'` rc=0 **3 ok/3**, EVERY `.PRN` `NO ERROR(S)` both passes; golden sizes A 384 B sha12 `37c9053b73c6`, B 768 B `c2276dfd7ae8`, C 512 B `3f490fffcd91` — ALL EQUAL my unarmed sanity sizes ⇒ verdict rides on pool-CONTENT decode, not size. SUCCESSOR (BINDING = `LEARNINGS.md` § "P3-19 hop 3" SUCCESSOR CONTRACT steps (1)–(6) + PROGRESS.md `## Next action`): decode goldens FIRST-HAND `build/p3-19/` (p13dump `build/p3-13/p13dump.py` modes rawcode|code|data|chains|sizes; reldump line form `@ <bit> <KIND> <seg?> <addr> <val>`, use `t.index('DATA')`) → adjudicate H-A caret-decode (falsifier: any `5E` in golden DATA) / H-B' per-literal SEPARATE cells vs merge / H-C residue ONLY if E524B pins else VERBATIM never fit → implement measured shapes ONLY (`lexer.ml:53 NOTE [PROBE 3]` caret carry; demand LOCKSTEP `pool_bytes` ~580/`dec_pool_bytes` ~1255/prescan ~15341/15361; C152 fires ⇒ STOP+record, NEVER adjust `base`) → probe parity FRESH POSITIONAL cmp vs `golden/e52p19/` → LOAN2 UNMODIFIED sha `7be23ba3…` whole-file `cmp` vs `712cfcb2…` = ONLY finale → tail (fingerprint fresh `--build-dir` grep `Error`; hist 68/124; markers argv; DEC 64/0; divcheck 9/9; sweep FAILS 0) → REAL `--update-inventory` (+3 expected, never force) → census OWN path (may move 15/1/25/0) → **C377 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (NEVER coverage_gen.py) → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape raw `\|`) + §P3-19 **CLOSED**; new blocker ⇒ VERBATIM never fix. Ledger ENDS **C376** (199 headers, ZERO new claim this hop); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p18-reg.log`; goldens KEPT NEVER re-derived; LOAN2 rc=0 7808 B DIFFERS my-gap UNCLAIMED (cmp byte 324); chain 01a1b554 12/12 CAP NOT reset — hop 4 = fresh operator-launched session, closes via handoff_finalize.
@@ -3939,9 +3935,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b818-71e0-7516-b7cf-3ade5ae2bb35
-readiness-at: 2026-11-07T22:39:52.170Z
-readiness-checkpoint: g554-38fa3f434ad2
 <!-- guard:end checkpoint -->
 
 ## Blockers
