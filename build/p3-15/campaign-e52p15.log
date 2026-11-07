@@ -1,0 +1,6 @@
+== batch ['E521A', 'E521B', 'E521C', 'E521D']
+   E521A: {'status': 'ok', 'outputs': {'PRN': True, 'REL': True}}
+   E521B: {'status': 'ok', 'outputs': {'PRN': True, 'REL': True}}
+   E521C: {'status': 'ok', 'outputs': {'PRN': True, 'REL': True}}
+   E521D: {'status': 'ok', 'outputs': {'PRN': True, 'REL': True}}
+summary: 4 ok / 4 -> /home/john/projects/sushiworks/pli80/golden/e52p15
