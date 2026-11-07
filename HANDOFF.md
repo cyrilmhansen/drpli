@@ -1662,22 +1662,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 503
-checkpoint-id: g503-b34cadfdb97b
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3335, session 01a1b504-afec-71e7-84a1-510417f5cf52)
-checkpointed: 2026-11-07T08:26:11.383Z
+checkpoint-generation: 504
+checkpoint-id: g504-9277c011dad1
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1320, session 01a1b504-afec-71e7-84a1-510417f5cf52)
+checkpointed: 2026-11-07T08:27:31.099Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 53c2c2e3de77b4f9ff645f4cef2c6df9a434a200337f5192507446e82a4f67dc
-source-handoff: a5854c0d6aac74da83f8f0b3018c49e83f86fb2bb0efcd99affbeacec42aa01f
+source-progress: af3d40ae0ad62e9a106015aeece61305c1333db033c54168409bcd85169270c9
+source-handoff: ef8dfbda934f193ac8c2ce43fc1d11fc876bfdd13d3d7bf01e12f41f05fc6fc9
 source-learnings: a9675d7dfecfd6795ac7d448f95e2f2764e675c2b0ac3a5bc32212f6e2651405
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b504-afec-71e7-84a1-510417f5cf52
+readiness-at: 2026-11-07T08:27:31.124Z
+readiness-checkpoint: g504-9277c011dad1
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: P3-16 CLOSED (hop 6, session 01a1b504, chain 01a1b2d5 AT CAP 12/12 — no renewal). Landed this session: C374 85500489 measured-bytes-only BEFORE COVERAGE (first-hand byte re-verification incl B/C 5-file-byte name-only identity + DATED corrections DEF-DATA-SIZE 001C and raw spans 27/37/32/48B); coverage EXTEND PROC.CALL_DEC_ACTUALS 0e20023f EXACT 8->12 IDS unchanged, coverage_check rc=0 145/0/0 SUPPORTED 95; claim-time cmp 4/4 rc=0 fresh build/p3-16/claim-out/ on armed 215c4503; E522E rc=2 Line 13 my-gap; FULL gate rc=0 DIRECT build/gate-e52p16-reg.log — 1307/0, 189/189, 9/9, 145 rows, census 15/0/26/0, prose 5, EVERY number HIT; RESULTS §P3-16 + PLAN §5 row + CLOSED 2a9215dd; durables d978cb23 + HANDOFF 0a-marathon-18 98684815. SUCCESSOR (BINDING, LEARNINGS § "P3-16 hop 6" STILL OWED): P3-17 LAST slice (8 of 8) — Line-177 fixed-bin EDIT: ZERO-oracle pre-audit of LOAN2.PLI:177 (a fixed-bin VARIABLE — E521D FORMAL witness is the anchor, audit PREP, never predict); verify E523*/e52p17 unused; pre-register PLAN+probes+LEARNINGS by explicit paths BEFORE any oracle/ocaml byte; ONE campaign; goldens VERBATIM; arm measured shapes only; FULL gate before close -> build/gate-e52p17-reg.log; register from 1307/189 COMPUTED; C375 measured-bytes-only before COVERAGE; adjudicate EXTEND IO.PUT_EDIT EXACT:45; RESULTS+PLAN §5 (7-pipe)+CLOSED; then STOP — budget exhausted, no P3-18 without operator decision. Chain capped: this session closes via handoff_finalize; new chain needs operator archive+reset of ignored .pi-guard/renewal-state.json. Goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT no -o; opam env every shell; byte-tier.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2338,5 +2341,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-16 hop 5 LANDED (session 01a1b4e5, chain 01a1b2d5 renewal 11/12): validation tail + REGISTRATION `7fd4cdfd` inventory 1307/189 EXACT; sweep 185/0 markers 15/15 DEC 64/0 divcheck 9/9 histogram 68/124 fingerprint 215c4503 default==fresh _build-p316; census LOAN2 msg MOVED VERBATIM Line-177 NOTHING fixed; durables `68bdef52`. SUCCESSOR (BINDING = LEARNINGS § "P3-16 hop 5" STILL OWED): (1) C374 measured-bytes-only BEFORE ANY COVERAGE touch (bullets there; A DATA-SIZE 001C correction; B/C 5-file-byte name-only identity 6/19/28+112/113 = H-D witness; L1 FOR ADD dated-extends [C086]; L5 Mul->Add/Sub; D window-only UP d=02 DSTOP A=07; E522E accepted-UNARMED; BY-NAME perimeter; byte-tier). (2) coverage EXTEND PROC.CALL_DEC_ACTUALS EXACT 8->12 IDS unchanged NEVER coverage_gen.py; coverage_check+prose rc=0. (3) FULL gate rc=0 DIRECT -> build/gate-e52p16-reg.log expect 1307/0, 189/189, 9/9, 145 rows SUPPORTED 95, census 15/0/26/0, prose 5. (4) RESULTS §P3-16 + PLAN §5 row INSIDE table LINE-ANCHORED 7-pipes + CLOSED. (5) P3-17 Line-177 fixed-bin EDIT ZERO-oracle pre-audit (E521D golden KEPT witness; verify E523*/e52p17 unused; pre-register BEFORE oracle/ocaml byte; slice 8 of <=8 LAST). Goldens golden/e52p16/+e52p15/ NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT NO -o; opam env every shell; never glue rm; never parallelize dependent bash; build/ git-IGNORED never git add -f; chain 11/12 used cap 12 — 12/12 successor closes via handoff_finalize.
+P3-16 CLOSED (hop 6, session 01a1b504, chain 01a1b2d5 AT CAP 12/12 — no renewal). Landed this session: C374 85500489 measured-bytes-only BEFORE COVERAGE (first-hand byte re-verification incl B/C 5-file-byte name-only identity + DATED corrections DEF-DATA-SIZE 001C and raw spans 27/37/32/48B); coverage EXTEND PROC.CALL_DEC_ACTUALS 0e20023f EXACT 8->12 IDS unchanged, coverage_check rc=0 145/0/0 SUPPORTED 95; claim-time cmp 4/4 rc=0 fresh build/p3-16/claim-out/ on armed 215c4503; E522E rc=2 Line 13 my-gap; FULL gate rc=0 DIRECT build/gate-e52p16-reg.log — 1307/0, 189/189, 9/9, 145 rows, census 15/0/26/0, prose 5, EVERY number HIT; RESULTS §P3-16 + PLAN §5 row + CLOSED 2a9215dd; durables d978cb23 + HANDOFF 0a-marathon-18 98684815. SUCCESSOR (BINDING, LEARNINGS § "P3-16 hop 6" STILL OWED): P3-17 LAST slice (8 of 8) — Line-177 fixed-bin EDIT: ZERO-oracle pre-audit of LOAN2.PLI:177 (a fixed-bin VARIABLE — E521D FORMAL witness is the anchor, audit PREP, never predict); verify E523*/e52p17 unused; pre-register PLAN+probes+LEARNINGS by explicit paths BEFORE any oracle/ocaml byte; ONE campaign; goldens VERBATIM; arm measured shapes only; FULL gate before close -> build/gate-e52p17-reg.log; register from 1307/189 COMPUTED; C375 measured-bytes-only before COVERAGE; adjudicate EXTEND IO.PUT_EDIT EXACT:45; RESULTS+PLAN §5 (7-pipe)+CLOSED; then STOP — budget exhausted, no P3-18 without operator decision. Chain capped: this session closes via handoff_finalize; new chain needs operator archive+reset of ignored .pi-guard/renewal-state.json. Goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; POSITIONAL pli80c.exe IN OUT no -o; opam env every shell; byte-tier.
 <!-- guard:end checkpoint -->

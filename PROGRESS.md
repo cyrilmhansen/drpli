@@ -2960,16 +2960,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 503
-checkpoint-id: g503-b34cadfdb97b
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 504
+checkpoint-id: g504-9277c011dad1
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-07T08:26:11.383Z
+checkpointed: 2026-11-07T08:27:31.099Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 53c2c2e3de77b4f9ff645f4cef2c6df9a434a200337f5192507446e82a4f67dc
-source-handoff: a5854c0d6aac74da83f8f0b3018c49e83f86fb2bb0efcd99affbeacec42aa01f
+source-progress: af3d40ae0ad62e9a106015aeece61305c1333db033c54168409bcd85169270c9
+source-handoff: ef8dfbda934f193ac8c2ce43fc1d11fc876bfdd13d3d7bf01e12f41f05fc6fc9
 source-learnings: a9675d7dfecfd6795ac7d448f95e2f2764e675c2b0ac3a5bc32212f6e2651405
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` P3-16 hop 2: verify `E522*`/`e52p16` UNUSED; PLAN §P3-16 §1-§7 (OPEN question: does Sub at DIFFERING scales emit the [C370] window — NEVER fit) + probes pre-registered + committed EXPLICIT paths BEFORE any oracle/`ocaml/` byte; ZERO-oracle sanity (`pli80c.exe` POSITIONAL FRESH — no-.exe gives rc=127 trap); ONE campaign e52p16; goldens VERBATIM first; arm measured ONLY; FULL validation + gate BEFORE close → `build/gate-e52p16-reg.log`; register from **1303/188** (COMPUTE panel-delta expectations; REJECTS prose edits need SAME-change `--update-inventory`); C374 measured-bytes-only BEFORE COVERAGE; RESULTS+PLAN §5 (line-anchored, 7-pipe, escape raw `|`)+CLOSED; marathon through P3-19 (slice 7 of ≤8). Ledger ENDS **C373**; inventory **1303/188**; coverage **145/95** IO.PUT_EDIT EXACT:45; LAST gate rc=0 `build/gate-e52p15-reg.log` EVERY number hit; armed binary `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb` == tree; goldens `golden/e52p15/` KEPT NEVER re-derived; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO `.REL` Line-160 VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` no `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; no push; byte-tier; chain 01a1b2d5 10/12 used after renewal, cap 12.**
@@ -3625,6 +3625,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b504-afec-71e7-84a1-510417f5cf52
+readiness-at: 2026-11-07T08:27:31.124Z
+readiness-checkpoint: g504-9277c011dad1
 <!-- guard:end checkpoint -->
 
 ## Blockers
