@@ -725,6 +725,10 @@ E523C	refusal	E523C: procedure options(main);\n   /* E2E-52/P3-17 probe C (PLAN 
 E524A	specimen	probes/E524A.PLI	golden/e52p19/E524A/E524A.REL
 E524B	specimen	probes/E524B.PLI	golden/e52p19/E524B/E524B.REL
 E524C	specimen	probes/E524C.PLI	golden/e52p19/E524C/E524C.REL
+E525A	specimen	probes/E525A.PLI	golden/e53p1/E525A/E525A.REL
+E525B	specimen	probes/E525B.PLI	golden/e53p1/E525B/E525B.REL
+E525C	specimen	probes/E525C.PLI	golden/e53p1/E525C/E525C.REL
+E525D	specimen	probes/E525D.PLI	golden/e53p1/E525D/E525D.REL
 E52A	specimen	probes/E52A.PLI	golden/e52p1/E52A/E52A.REL
 E52B	specimen	probes/E52B.PLI	golden/e52p1/E52B/E52B.REL
 E52C	specimen	probes/E52C.PLI	golden/e52p1/E52C/E52C.REL

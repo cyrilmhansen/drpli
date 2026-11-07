@@ -2849,6 +2849,58 @@ SPECIMENS.update({
 #   DECLARATION itself, so the EDIT guard is unreachable: registered below as an honest
 #   my-gap with its golden KEPT UNCLAIMED (E522E precedent), and NOTHING is armed on its
 #   authority.
+# [E2E-53/P1] E525A..E525D -- CONSOLE GET SKIP panel (campaign e53p1 4 ok/4, EVERY
+# .PRN `NO ERROR(S)' BOTH passes; goldens VERBATIM at be66e654 BEFORE any ocaml/lib
+# byte; decoded FIRST-HAND into build/e53p1/decode/ with p13dump rawcode/code/chains/
+# sizes + tools/reldump.py; whole-file cmp 4/4 rc=0 FRESH POSITIONAL build/e53p1/
+# arm-out/ on armed binary 8e51c261...).
+#   The console GET SKIP law these pin (NEVER derived from PUT SKIP bytes by analogy --
+#   the attach word and routine set are GET-witnessed only):
+#     LXI D,0290 / LXI B,<code@cont of the NEXT statement> / CALL ?SYSIN /
+#     MVI A,<n> / CALL ?SKPOP / CALL ?QIOOP                       -- 17 B skip prefix
+#   The attach is ?SYSIN (slot 000D), NOT ?SIOOP -- dated correction of the carried
+#   campaign-open contract text; the 17-B geometry itself stands.
+#   E525A 128 B; CODE 001A, DEF-DATA-SIZE abs 0000, DATA used 0.  `get skip;' bare form
+#   = n 01: raw code 0000 `01 00 02' (LXI B,0002 CALL ?START chain head slot 0004 ->
+#   LC 0006) then the 17-B prefix at 0006-0016 (`11 90 02' LXI D,0290; `01 17 00' LXI
+#   B,code@0017 RELOC 000A; CALL slot 000D ?SYSIN; `3E 01'; CALL slot 0012 ?SKPOP; CALL
+#   slot 0015 ?QIOOP) then CALL slot 0018 ?STOPX LC 001A.  Continuation word targets the
+#   ?STOPX CALL opcode at 0017 = next statement.  EXACTS authentic EXPR1 004A-005A and
+#   REPORT 0065 shapes byte for byte in isolation.
+#   E525B 128 B; CODE 001A, DATA abs 0000.  `get skip(2);' -- the ONLY difference from
+#   A is the count byte: 000F `3E 02' MVI A,02; same 17-B geometry.  Confirms the
+#   constant-count operand rides into the ?SKPOP A-register argument verbatim (matches
+#   context-rich DEPREC code 0414 `MVI A,02').
+#   (p13dump prints ext/addr/reloc addresses as PLAIN HEX; a CALL at opcode address X
+#   has its chain-EXT operand slot at X+1.)
+#   E525C 256 B; CODE 0026, DEF-DATA-SIZE abs 0002 (n's 2-byte cell at data@0000).
+#   `dcl n fixed binary; get skip list(n);' = 17-B skip prefix (n=01) at 0006-0016
+#   (continuation `01 23 00', operand 000A-000B RELOC -> code@0023), then the console
+#   GET LIST fixed-bin item TAIL 0014-001F (11 B): 0014 `CD 00 00' CALL ?GNVOP slot
+#   0015; 0017 `F2 20 00' JP code@0020 (operand 0018-0019, reldump SET-LC 0018 then
+#   RELOC code 0x20 -- status/endfile skip target = the statement close); 001A `CD 00
+#   00' CALL ?QCIOP slot 001B; 001D `22 00 00' SHLD operand 001E-001F RELOC ->
+#   data@0000 (n).  Close: 0020 `CD 00 00' CALL ?QIOOP slot 0021; then 0023 `CD 00 00'
+#   CALL ?STOPX slot 0024, CODE size 0026.  This EXACTS the COPYLPT:23 0089 shape in
+#   isolation.
+#   E525D 256 B; CODE 0028, DEF-DATA-SIZE abs 000B (s's varying descriptor cell at
+#   data@0000).  `dcl s character(10) varying; get skip list(s);' = same 17-B prefix
+#   (n=01, continuation RELOC 000A -> code@0025), then the varying item tail 0014-0021
+#   (raw line 0010 = `01 CD 00 00 F2 22 00 21 00 00 06 0A CD 00 00 CD 00 00 CD'): 0014
+#   `CD 00 00' CALL ?GNVOP slot 0015; 0017 `F2 22 00' JP code@0022 (operand 0018-0019,
+#   reldump SET-LC 001A + RELOC code 0x22); 001A `21 00 00' LXI H,data@0000 (operand
+#   001B-001C, RELOC bit @823 -> the 11-B descriptor cell); 001D `06 0A' MVI B,0A
+#   (declared length); 001F `CD 00 00' CALL ?SSVFS slot 0020; close 0022 `CD 00 00'
+#   CALL ?QIOOP slot 0023; then 0025 `CD 00 00' CALL ?STOPX slot 0026, CODE size 0028.
+#   Tail = GNVOP + JP + LXI H + MVI B,0A + SSVFS, then QIOOP close -- COPYLPT:36 012D
+#   varying-item shape isolated.  H-A/H-B/H-C/H-D all CONFIRMED first-hand.
+SPECIMENS.update({
+    "E525A": ("probes/E525A.PLI", "golden/e53p1/E525A/E525A.REL"),
+    "E525B": ("probes/E525B.PLI", "golden/e53p1/E525B/E525B.REL"),
+    "E525C": ("probes/E525C.PLI", "golden/e53p1/E525C/E525C.REL"),
+    "E525D": ("probes/E525D.PLI", "golden/e53p1/E525D/E525D.REL"),
+})
+
 SPECIMENS.update({
     "E524A": ("probes/E524A.PLI", "golden/e52p19/E524A/E524A.REL"),
     "E524B": ("probes/E524B.PLI", "golden/e52p19/E524B/E524B.REL"),
