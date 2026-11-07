@@ -1505,3 +1505,165 @@ UNCHANGED. LOAN2 is NOT claimed exact anywhere in this subround.
   diagnosis; **P3-14 proceeds ONLY evidence-first with pre-registration before any oracle call or
   `ocaml/` byte**. GOLDENS ARE EVIDENCE, NEVER RE-DERIVED; the operator's `handoff.config.json`
   was NEVER staged; no push.
+
+# E2E-52/P3-14 RESULTS — a CALL target is a PLAIN procedure DESIGNATOR, never a keyword-table
+lookup: builtin-shadowed calls ride the armed [C123]/[C124] lowering byte-exactly; arity-0 empty
+parens is the bare `CD 00 00` chain slot with NO descriptor; the multi-site chain rides the LAST
+site and links BACKWARD (campaigns e52p14 + corrective e52p14b) — CLOSED (2026-11-07, hop 5)
+
+Pre-registered in PLAN §P3-14 (hop 1 WHY anatomy with ZERO oracle — `parser.ml` `builtins`
+contains `"SUMMARY"`, `primary` captures any builtin key followed by `(` into `Ebuilt`, and the
+`Sprocedure_stmt` classifier accepts ONLY `Eident`/`Esuffix` heads, so the Line-121 blocker was
+PURELY frontend capture while non-shadow `call foo();` arity-0 single/two-site already compiled
+rc=0; hop 2: H-1..H-5 + probes `probes/E520{A..E}.PLI` + ZERO-oracle sanity committed `9d4c3a75`
+BEFORE the first oracle call and BEFORE any `ocaml/` byte). Campaign 1 `e52p14` rc=0 **1 ok / 5**:
+E520D **ACCEPTED** (H-4 confirmed), while E520A/B/C/E died on a **probe defect that was MINE**: the
+zero-formal headers were spelled `procedure();` and DR PL/I-80 rejects empty-paren headers
+(`SYNTAX ?` at the HEADER lines, the CALL-site lines clean) — recorded as a DATED ADDENDUM PLAN §4b
+`a4d10f1a`, campaign-1 goldens KEPT UNTOUCHED as the record (precedent e52p3d, e42p0b/c); NEW PROBE
+LAW accepted: DR headers are `procedure;` / `procedure(x);` NEVER `procedure();`, and zero-oracle
+sanity CANNOT catch DR-only syntax because my parser accepts both. Corrective campaign `e52p14b`
+rc=0 **3 ok / 4**, goldens + `summary.txt` + transcripts VERBATIM `9ece9a69` committed BEFORE any
+`ocaml/` byte: E520A/B/C ACCEPTED `NO ERROR(S)` in BOTH passes; **E520E `dr-refuses`** — `SYNTAX ?`
+line 14 in BOTH passes, `1 ERROR(S)` each, header-clean and therefore UNCONFOUNDED (the pre-
+registered confounder clause adjudicated). Arm `65da9bd1` (parser.ml ONLY: the CALL arm parses its
+target as a PLAIN identifier + `suffix_chain`, NEVER consulting `builtins`; expression `primary`,
+bare-statement arm and the codegen guard all UNCHANGED — E520E MEASURED DR refusing bare
+`summary();`, so the BY-NAME boundary is honest); armed binary sha256
+`b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2` (deterministic: default
+`_build` == fresh `_build-p314b`; histogram codegen 68 / total 124 == baseline EXACTLY);
+registration `9a31509c` (SPECIMENS +4 E520A..D with measured-byte comments, E520E into REJECTS +
+NEG_META as `dr-refuses` with the VERBATIM both-pass diagnostic; inventory 1296/186 → **1300/187**
+EXACT, every diff line inspected, config NEVER staged; census OWN path counts **15/0/26/0**
+UNCHANGED, LOAN2 message MOVED VERBATIM 121 → 147, NOTHING fixed); claim **C372** `5aae7109`
+written from MEASURED BYTES ONLY and committed BEFORE any `spec/COVERAGE.tsv` touch (ledger ENDS
+**C372**, 195 headers, every cited byte re-verified FIRST-HAND at claim time with the NEW
+item→file-byte-span dumper `build/p3-14c/items.py`); NEW row `PROC.CALL_TARGET_DESIGNATOR` +
+SAME-change `spec/COVERAGE-IDS.txt` line `f2513593` after adjudicating row 85 FIRST-HAND (below);
+FULL gate rc=0 DIRECT `build/gate-e52p14-reg.log` — **1300/0, 187/187, 9/9, 145 rows 0/0 SUPPORTED
+95, census 15/0/26/0, prose 5** — every pre-registered number HIT. All rc captured DIRECTLY (never
+through a trailing pipeline); goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths;
+`handoff.config.json` NEVER staged; no push.
+
+## 1. Campaigns (oracle, TWO grouped batches; corrective provenance recorded)
+
+1. `PLI_SRC=probes timeout 900 python3 oracle/batch.py E520A E520B E520C E520D E520E --tag e52p14
+--switches '$L$D'` rc=0 → **1 ok / 5** (`golden/e52p14/summary.txt`: E520D `PRN=True REL=True`;
+A/B/C/E `PRN=True REL=False`). Read EVERY `.PRN` first-hand: A/B/C/E `SYNTAX ?` fired on the
+`procedure();` HEADER lines (13/14/17/15), the CALL-site lines carried NO error — a defect in MY
+probes, not a DR verdict on H-1/H-2/H-3/H-5 (D's header was `procedure(x);` so it was unaffected).
+E520D decoded into `build/p3-14/` before any verdict.
+2. Corrective `PLI_SRC=probes timeout 900 python3 oracle/batch.py E520A E520B E520C E520E --tag
+e52p14b --switches '$L$D'` (identical statements, header fixed to `procedure;`) rc=0 → **3 ok / 4**
+(`golden/e52p14b/summary.txt`: A/B/C `PRN=True REL=True`; E `PRN=True REL=False`). E520E's line-14
+`SYNTAX ?` in BOTH passes is now UNCONFOUNDED — header-clean.
+
+## 2. Measured table (4/4 whole-file cmp rc=0 on armed binary sha256 `b88e7b02…`, FRESH POSITIONAL
+`build/p3-14c/arm-out/`, re-held at hop 4; sizes and sha12 re-read FIRST-HAND from the KEPT goldens
+at this close; the FULL gate byte panel 1300/0 re-ran all four rows against the goldens as the final
+close verification)
+
+| Probe | Shape | Verdict | Size | CODE | DATA | Measured law (bytes in [C372]) | golden sha12 |
+|---|---|---|---|---|---|---|---|
+| E520A control | non-shadow `call foo();` arity-0 forward, ONE site | EXACT, §4 HIT | 256 B | `0032` | `0000` | bare 3 B `CD 00 00` at 0006; operand word 0007 = `00 00` = chain slot, `slot 0007 -> LC code@0028` (entry after the `JMP`); NO descriptor, NO `LXI H`; `DEF-DATA-SIZE abs 2` | `55e23ece18b2` |
+| E520B shadow | `call summary();` arity-0, ONE site (LOAN2:121 shape) | EXACT, §4 HIT (byte-count near-miss below) | 256 B | `0032` | `0000` | vs E520A EXACTLY three differing bytes, 0-based 6/19/28, ALL inside the packed PROG-NAME / EXTDEF / DEF-PUBLIC records; CODE and DATA byte-identical — DR never consults a keyword table for a CALL target; internal names anonymous in the object | `5172deebb7f5` |
+| E520C shadow, 2 sites | two `call summary();` (mirrors LOAN2 121/135) | EXACT, §4 HIT | 384 B | `0051` | `0000` | chain rides the LAST site: `CHAIN-ADDR val=('code',38)` = slot 0026 head, inline `RELOC -> code 0007` at `code@0026` links BACK to the first operand word (`00 00` terminator); entry LC `0047` filled into EVERY slot; authentic LOAN2 twin re-walked first-hand: head 066F → 0621, both fill LC `0733` | `e38c1508074c` |
+| E520D shadow w/ actual | `call summary(i);` arity-1, equal-(p,s) DEC variable | EXACT, §4 HIT (campaign 1) | 256 B | `003E` | `0002` (max `0004`) | STATIC own-cell descriptor `SET-LC data@2` + inline `RELOC -> data 0000`; caller `21 02 00 / CD 00 00`, `0007→data@0002`, `CHAIN-ADDR val=('code',10)` → `slot 000A -> LC code@002B`; callee `[C094]` peeled prologue `5E 23 56 EB / SHLD 0004` + deref store; NO builtin dispatch | `25472a488470` |
+| E520E boundary | bare `summary();` — NO `CALL` keyword | **dr-refuses** | — | — | — | `SYNTAX ?` line 14 in BOTH passes, `1 ERROR(S)` each, header-clean ⇒ UNCONFOUNDED; NO `.REL` KEPT as `golden/e52p14b/E520E/E520E.PRN` VERBATIM; MY BY-NAME refusal (`line 14`) AGREES with the measured verdict | — |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; every MISS kept verbatim)
+
+- **H-1 CONFIRMED** — the shadowed `call summary();` lowers EXACTLY as the non-shadow control
+  (CODE + DATA identical between E520A/B). **H-3 CONFIRMED** — two-site chain on the shadowed
+  spelling is the [C123] geometry VERBATIM (LAST-site head, backward link, entry filled into
+  every slot). **H-4 CONFIRMED at campaign 1** — the with-actual shadow rides the existing
+  [C093]/[C094] variable-actual route once the target PARSES as a name. **H-5 MEASURED:** DR
+  REFUSES the bare statement form — the bare-statement arm's `Ebuilt` capture and the BY-NAME
+  [TBD] refusal stay honest, now with oracle evidence rather than caution.
+- **H-2 NEAR-MISS KEPT VERBATIM:** the pre-registered prediction said E520B would differ from
+  E520A in "the single character `A`→`B` in the PROG-NAME / EXTNAME records"; the measurement is
+  **THREE differing file bytes** (0-based 6, 19, 28) because the six-bit name packing carries the
+  changed character across byte boundaries into the packed-remainder and adjacent record fields.
+  The SUBSTANCE held (difference confined to name-encoding records; CODE+DATA identical; no shadow
+  leakage) but the byte count was wrong — recorded, not smoothed over.
+- **Probe-defect honesty:** campaign 1's A/B/C/E `SYNTAX ?` verdicts were MY defective headers, not
+  DR data points; the dated §4b addendum + kept campaign-1 goldens preserve that provenance and
+  the corrective `e52p14b` run is the admissible evidence (H-1/H-2/H-3/H-5 adjudicated ONLY from it).
+
+## 4. Arm, validation, registration, coverage
+
+Arm `65da9bd1` (`ocaml/lib/parser.ml` ONLY): the CALL-statement arm parses its target as a PLAIN
+identifier + `suffix_chain`, never consulting `builtins`; the `Sprocedure_stmt` classifier, the
+expression `primary` builtin capture and the bare-statement arm are UNCHANGED, so the guard
+`CALL target is not a simple procedure name` remains REACHABLE (its text survives VERBATIM) and the
+MEASURED-dr-refuses bare route stays refused BY NAME. WHY the parser and not a widened classifier —
+pre-registered and executed: the classifier cannot distinguish `CALL x;` from bare `x;`, so
+admitting `Ebuilt` heads there would have silently armed the (now measured DR-refusing) H-5 route.
+
+Validation: whole-file cmp E520A/B/C vs `golden/e52p14b/` + E520D vs `golden/e52p14/E520D` **4/4 rc=0**
+FRESH POSITIONAL `build/p3-14c/arm-out/` (re-held at hop 4); histogram codegen 68 / total 124 ==
+baseline; sweep `E46N E46K E51 E52 P086 R10` **174/0 pre-registration → 178/0 post-registration** —
+count moves with INVENTORY rows exactly as predicted, FAILS 0 binding; markers **14/14** plus the
+E520E marker RE-MEASURED rc=2 under gate CRLF+bare-`^Z`; DEC regressions **64/0**; divcheck **9/9**;
+**FULL gate BEFORE close** (hop-11/12 lesson binding): rc=0 DIRECT → `build/gate-e52p14-reg.log`
+**1300/0, 187/187, 9/9, 145 rows 0/0 SUPPORTED 95, census 15/0/26/0, prose 5** — every pre-registered
+number hit; ONLY the gate runs the negative panel.
+
+Registration `9a31509c`: `--update-inventory` 1296/186 → **1300/187** (+4 specimens, +1 rejection
+exactly); census OWN path rc=0, counts UNCHANGED **15/0/26/0**, LOAN2 message MOVED VERBATIM,
+NOTHING fixed. COVERAGE: row 85 `PROC.CALL_COPYIN` (EXACT:40) read FIRST-HAND and adjudicated
+**UNBUMPED** — its law is the actuals COPY-IN ladder + descriptor chain-load for calls WITH
+actuals; E520A/B/C carry NO actuals (zero ladder, zero descriptor) and E520D's finding is about the
+TARGET being a designator — the panel establishes a NEW contract, so per the schema law "add a row
+when a CONTRACT is established" the NEW row `PROC.CALL_TARGET_DESIGNATOR` (S, dr ACCEPTS, mine
+SUPPORTED, EXACT:4, probes E520A..D, corpus LOAN2, BY-NAME boundary incl. E520E, MEASURED,
+`[C372] [C123] [C124] [C093] [C094]`) shipped with its `spec/COVERAGE-IDS.txt` line in the SAME
+change `f2513593` (NEVER `coverage_gen.py`; 15 cols from the FIRST NON-COMMENT row; `manual_ref`
+`NONE:` form); `coverage_check` rc=0 **145 rows 0/0 SUPPORTED 95**, prose rc=0.
+
+TOOL LAWS accepted this subround: (i) `pli80c` is POSITIONAL (`pli80c IN.PLI OUT.REL`) — an `-o`
+invocation produced FALSE rc=2 `usage:` failures that looked like compile refusals; suspect the
+harness first (same family as the hop-3 parallel-`mkdir` race). (ii) The disassembler's `?START`
+label on a DATA address is an ANNOTATION ARTIFACT of merging code EXT slots with data addresses —
+cite raw reloc records only. (iii) `build/p3-14c/items.py` maps record items → file-byte spans and
+is the tool for attributing a `cmp -l` offset to the record that produced it.
+
+## 5. LOAN2 — ADVANCED and recorded, NEVER fixed
+
+With the parser arm, `artefacts/LOAN2.PLI` UNMODIFIED (sha `7be23ba3…` re-verified at this close)
+lowers PAST Lines 121 AND 135 (both `call summary();` sites) and dies at the ACTUAL next blocker —
+rc=2, NO `.REL`, VERBATIM (re-measured POSITIONAL FRESH on `b88e7b02…` at this close):
+
+`codegen: PUT FILE(OUTPUT) EDIT of the FORMAL A has no byte-exact DR witness [TBD] (line 147 -- the
+file EDIT route is lowered for the item classes its objects pin: the DEC variable of
+golden/probe55/P086K and the string literal of LOAN2's own golden (115: MVI A,01/?SLCTS/?EDTOV at
+053F-0542; 199: six literal chains against one format record).  A list is refused as a WHOLE, item
+by item, before the attach is emitted.  a procedure formal is read through its pointer cell on the
+console route, and no object puts a formal between a file EDIT attach and ?EDTOV")`
+
+Line 147 = `put file (output) edit ('|',a,...) (...,p'$zz,zzz,zz9v.99',a);` in `display` — an EDIT
+of the FORMAL `a` on the FILE route. **Never-predict HELD:** the hop-1 reconnaissance candidate
+(line 160 `call current_year(IP - YIN);` DEC-SUB actual) did NOT fire — the slice moved 121 → 147,
+skipping 132/135 (already-armed routes) and 160. The Line-121/135 blocker class is CLOSED. EXPR1
+(GET 21) and EXPR2 (FLOAT 35) UNCHANGED. LOAN2 is NOT claimed exact anywhere in this subround.
+
+## 6. What P3-14 does NOT say (byte tier only)
+
+- **Byte tier only**: nothing from e52p14/e52p14b was linked or run; the chain-fill statement is
+  the [C123] RECORDED law (what the `.REL` pins + what the authentic object's slot values show),
+  not a linker-behaviour claim; PLILIB UNEXAMINED; no `spec/RUNTIME.txt` row comes from this
+  contract. Byte parity is not a semantics claim.
+- **Perimeter KEPT**: expression-position builtin capture UNTOUCHED (`summary()` as a BUILT-IN
+  FUNCTION still parses as `Ebuilt`); the bare-statement CALL route stays refused BY NAME (now
+  with measured DR-refusal support); external/recursive/DEC-formal guards unchanged; NO name-based
+  special-casing — the arm knows nothing about "summary" or any builtin.
+- **One accepted probe per shape, no generalisation**: arity-0 with actuals of OTHER classes,
+  suffix targets on shadowed names and builtin-as-target with heterogeneous actuals are UNMEASURED
+  and keep the guard.
+- **Probe-defect provenance is part of the record**: campaign-1 goldens/transcripts are KEPT as
+  evidence of the defect and are NEVER re-derived; only `e52p14b` (and campaign-1's E520D) feed
+  [C372].
+- LOAN2 is NEVER claimed exact; the Line-147 blocker is the ACTUAL recorded refusal text, not a
+  diagnosis; **P3-15 proceeds ONLY evidence-first with pre-registration before any oracle call or
+  `ocaml/` byte**. GOLDENS ARE EVIDENCE, NEVER RE-DERIVED; the operator's `handoff.config.json`
+  was NEVER staged; no push.
