@@ -8885,3 +8885,43 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   LAST gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfb…` == tree; goldens KEPT NEVER re-derived;
   LOAN2 sha `7be23ba3…` rc=2 NO `.REL`; `handoff.config.json` NEVER staged; no push; chain 01a1b554
   renewal 7/12 used, cap 12.
+
+## E2E-52/P3-18 hop 3 — ZERO-ORACLE CODE RECON LANDED; PRE-REGISTRATION + IMPLEMENTATION OWED (2026-11-08, session 01a1b6a5, chain 01a1b554 renewal 8/12; ZERO oracle; ZERO `ocaml/` byte; goldens untouched; scratch never staged)
+
+- **ACCEPTED — recovery verified first-hand:** HEAD `721099a9`; `dune build` rc=0 with ZERO
+  `Error` (`build/p3-18/build-hop3.log`); binary sha256
+  `b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f` == tree; working tree
+  clean except the operator `handoff.config.json` (NEVER staged) and ignored scratch/build dirs.
+  `E524*` and tag `e52p18` VERIFIED unused (`grep -rn` over `spec/`, `probes/`, `golden/`: only
+  LEARNINGS/HANDOFF/PROGRESS prose mentions).
+- **ACCEPTED — the static-address consumer surface is SMALLER than the hop-2 note feared:**
+  `st.stat_addrs` has exactly ONE reader, `addr_of_raw` (~`codegen.ml:908`), which returns the
+  static address WITHOUT `st.base` (comment: statics live BELOW the pool base). So one shift
+  covers `addr_of`, `LXI H,*D(cell)` and every code reference. `st.stat_total` is written at
+  ~15477 and read NOWHERE.
+- **PROPOSED (not adopted) — one consumer is still UNAUDITED:** static STRUCTURE
+  members/arrays (`st.members` ~253 from `Bind.bind_members`, the `[C371]` static-vector cells)
+  may carry bind-relative static offsets too. The successor must audit this BEFORE trusting the
+  shift — do NOT assume, do NOT infer from the hop-2 falsifier sentence.
+- **ACCEPTED — `base` needs NO change and the C152 invariant is the check:** `st.base =
+  statics.sy_total + pool_total` (~15472) and the demand/layout assertion
+  `if st.pool_next <> st.base` (~15675) already proves the prescan demand includes the EDIT
+  table bytes; moving the statics ABOVE the tables keeps the same total, so `base` and
+  `data_size` (~15681) stay put. If that assertion fires after the edit, STOP and record —
+  never adjust `base`.
+- **ACCEPTED — exact edit sites:** `prealloc_fmt_tables` 3161 (allocates via `pool_alloc` 530 in
+  FIFO/source order, returns the block count, drains through `st.fmtq`); `st` construction
+  ~15472; emission block `pool_sorted`/`blk_recs`/index-window partition/`tables_before_common`/
+  P3-2 `[TBD]` refusal/`data_seg`/`body` ~15735-15800. The P086K-measured rule to PRESERVE
+  verbatim in the new grouping is `[C152/C155] addr > 0 || i > 0` (one SET-LC per pool BLOCK;
+  a zero-length block still gets its own record).
+- **DECISION (proposed for the successor, NOT yet executed):** no oracle campaign is required
+  for the allocation-order law — the authentic golden already measures it; the plan §P3-18 text
+  must record H-A/H-B as FALSIFIED with the golden byte citations and the law as PROPOSED until
+  the whole-file LOAN2 `cmp` lands.
+- **STATE:** ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95
+  EXACT:47**; LAST gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfb…` == tree; goldens
+  KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` NEVER fix; config NEVER staged;
+  no push; chain 01a1b554 renewal 8/12 used, cap 12. **NEXT ACTION = PROGRESS.md `## Next
+  action` hop-4 contract (pre-register PLAN §P3-18 by EXPLICIT paths BEFORE any `ocaml/lib/`
+  byte, then implement, then LOAN2 verdict, then tail → C376 → coverage → gate → close → P3-19).**

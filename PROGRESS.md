@@ -42,7 +42,18 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-18 hop 2 — BIND/POOL SELF-AUDIT LANDED; THE BLOCKER IS ALLOCATION ORDER, NOT ONLY RECORD ORDER; IMPLEMENTATION OWED — read `LEARNINGS.md` § "P3-18 hop 2" — BINDING)
+## Next action (E2E-52/P3-18 hop 3 — ZERO-ORACLE CODE RECON LANDED, PLAN §P3-18 PRE-REGISTRATION STILL OWED, THEN IMPLEMENT — BINDING; read `LEARNINGS.md` § "P3-18 hop 3")
+
+**EXECUTE NOW (hop 4), in this order, NOTHING else first:**
+(1) **PRE-REGISTER `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-18** BEFORE any `ocaml/lib/` byte (PROTOCOL #1 — committed blob, not mtime): §1 the VERBATIM record-order `[TBD]` blocker; §2 the existing golden evidence (`golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…` decoded `build/p3-18/loan2-prelude.txt`: tables `data@0000-00A1` → COMMON `abs 0028` OUTPUT → STATIC `name` cell `00A2-00B0` → lowering `00B1+`, sums 177; H-A address-sort and H-B statics-first **FALSIFIED** with those byte citations); §3 the DATA-order law **as PROPOSED** — `[prealloc EDIT tables][static initialiser cells][lowering pool][automatics]` — with its falsifiers; §4 the decision **no oracle probe is needed for the law** (the authentic golden already measures it; the one genuinely open sub-question — whether COMMON follows the tables or the statics — is answered only if a later probe is pre-registered; `E524*`/tag `e52p18` VERIFIED unused this hop); §5 the validation/registration contract below. Commit PLAN.md + LEARNINGS.md by EXPLICIT paths.
+(2) **Implement** in `ocaml/lib/codegen.ml`: build `st` (~15472) with `pool = []`, `pool_next = 0`; call `prealloc_fmt_tables` (3161; allocates through `pool_alloc` in FIFO/source order and returns the block count); let `tables_total = st.pool_next`; then append the statics ABOVE the tables — `st.pool @ List.map (fun (a, bs) -> (a + tables_total, bs)) statics.sy_cells` — and set `st.pool_next <- tables_total + statics.sy_total`; shift `st.stat_addrs` by `tables_total` as well. `base` stays `statics.sy_total + pool_total` (the prescan demand already counts the table bytes — the C152 invariant `st.pool_next <> st.base` at ~15675 is the check that this is true; if it fires, STOP and record, never adjust `base`). Emission (~15735-15800): replace the index-window partition with a **PHASE** test `addr < tables_total`, emit header → tables (address-ascending = FIFO) → COMMON → every remaining block by ADDRESS order, keep the `[C152/C155]` rule `addr > 0 || i > 0` consistent with the new grouping, and DELETE the P3-2 `[TBD]` refusal.
+(3) **FALSIFIERS verified/unfinished (first-hand this hop).** `addr_of_raw` (~908) is the ONLY reader of `st.stat_addrs` and returns static addresses WITHOUT `st.base`, so step (2)'s shift covers it; `st.stat_total` has NO reader outside its initialisation. **STILL UNVERIFIED — audit before trusting, do NOT assume:** whether static STRUCTURE members/arrays (`st.members` ~253 / `Bind.bind_members`, the `[C371]` static-vector cells) carry bind-relative static addresses that also need `tables_total`. Legacy shape MUST stay byte-identical: `golden/probe55/P086K` + the 25 other both-sides-of-COMMON goldens must not move — the sweep is the falsifier.
+(4) **Verdict:** FRESH POSITIONAL LOAN2 compile (`pli80c.exe IN OUT`, NO `-o`) → rc=0 ⇒ FULL-FILE `cmp` vs `golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…` **is** the verdict (matching CODE alone is NOT completion); any NEW blocker ⇒ record VERBATIM, NEVER fix by prediction.
+(5) **Tail:** validation (fingerprint determinism fresh `--build-dir` + grep `Error`; histogram 68/124; `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers 16/16; DEC 64/0; divcheck 9/9) → register (REAL `--update-inventory`, `git diff --cached --stat`; census OWN path, LOAN2 msg MOVES VERBATIM or retires) → **C376 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage adjudication (`STOR.STATIC_MEMBER_INITIAL`, `IO.PUT_EDIT` read FIRST-HAND) → **FULL gate rc=0 DIRECT** `build/gate-e52p18-reg.log` → RESULTS §P3-18 + PLAN §5 row (LINE-anchored, 7-unescaped-pipes assert RUN IN CODE, escape raw `\|`) + §P3-18 **CLOSED** → **P3-19** (last slice of the corrected operator budget) on the ACTUAL next blocker.
+
+**STATE:** ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p17-reg.log`; binary `b744acfbea24…` == tree; goldens KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` NEVER fix; standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` + `ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no push); chain 01a1b554 renewal 8/12 used, cap 12.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-18 hop 2 — BIND/POOL SELF-AUDIT LANDED; THE BLOCKER IS ALLOCATION ORDER, NOT ONLY RECORD ORDER; IMPLEMENTATION OWED — read `LEARNINGS.md` § "P3-18 hop 2" — BINDING)
 
 **EXECUTE NOW (hop 3) — implement P3-18 per `LEARNINGS.md` § hop 2.** Verified this hop: HEAD `8cb923d7`; `dune build` rc=0 ZERO `Error`; binary `b744acfbea24…` == tree; **throwaway UNTRACKED** `ocaml/scratch-p318/{audit.ml,dune}` (never `git add`) measured MY side (`build/p3-18/bind-selfaudit.txt`): static `name` cell **data@0x0000** 15 B, my 8 prealloc tables **0x000F–0x00B0** (FIFO order/bytes IDENTICAL to the golden's `0x0000–0x00A1`); golden = tables 0x0000–00A1 → COMMON → static **0x00A2** → lowering **0x00B1+**; both sums = 177 = 0x00B1. **=> record order alone is NOT the fix: DR allocates the tables BELOW the static cells.** (1) PRE-REGISTER PLAN §P3-18 (this law + falsifiers; probes only if genuinely needed and `E524*`/`e52p18` verified unused) BEFORE any `ocaml/lib/` byte; commit explicit paths. (2) Implement: `prealloc_fmt_tables` on `pool=[]`,`pool_next=0`, then append `statics.sy_cells` shifted by `tables_total`, then `pool_next = tables_total + sy_total`; emit tables(FIFO) → COMMON → rest by ADDRESS order; DELETE the index-window partition + the P3-2 `[TBD]` refusal (`codegen.ml ~15749-15782`). **FALSIFIER: every consumer of a bind-relative static address (`st.stat_addrs`, `LXI H,*D(cell)`, `addr()`, members) must gain `tables_total` or references sit 15 B low.** (3) FRESH POSITIONAL LOAN2 → rc=0 ⇒ FULL-FILE `cmp` vs `712cfcb2…` is the verdict; new blocker ⇒ VERBATIM, never fix by prediction. (4) Validation tail (fingerprint determinism fresh `--build-dir`, grep `Error`; histogram 68/124; sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers 16/16; DEC 64/0; divcheck 9/9) → register (REAL `--update-inventory`; census OWN path, LOAN2 msg MOVES VERBATIM or retires) → **C376 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage (`STOR.STATIC_MEMBER_INITIAL`, `IO.PUT_EDIT` read FIRST-HAND) → FULL gate rc=0 DIRECT `build/gate-e52p18-reg.log` → RESULTS §P3-18 + PLAN §5 row (LINE-anchored, 7-unescaped-pipes assert RUN IN CODE, escape raw `\|`) + §P3-18 **CLOSED** → P3-19 (last slice per the corrected budget).
 
@@ -3005,15 +3016,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 524
-checkpoint-id: g524-a722836b773f
-checkpoint-kind: manual
+checkpoint-generation: 526
+checkpoint-id: g526-e7bd68160190
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T15:34:09.056Z
+checkpointed: 2026-11-07T16:04:31.728Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 6520150903f14bc988c69c0709cfe54bd147b5796af941187caedd7c41626baf
+source-progress: edcb7dcaa590ece7b508805ba7e3853d4352be5612c44bc07d02f85deecd72a2
 source-handoff: 24c269e9571aeb8bdfe3420e1c8cc9722a09d0e204cf865035af543e0ff06808
 source-learnings: 147ecd0a93a4347992b12e80a76e7aff74032a8e15edee9a51415563c059035b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -3682,9 +3693,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b687-5b96-7577-b10f-a89f2b65cfb3
-readiness-at: 2026-11-07T15:34:09.084Z
-readiness-checkpoint: g524-a722836b773f
 <!-- guard:end checkpoint -->
 
 ## Blockers
