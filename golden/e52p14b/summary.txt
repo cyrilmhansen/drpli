@@ -1,0 +1,4 @@
+E520A	ok	PRN=True REL=True
+E520B	ok	PRN=True REL=True
+E520C	ok	PRN=True REL=True
+E520E	diag	PRN=True REL=False
