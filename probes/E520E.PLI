@@ -1,0 +1,19 @@
+E520E: procedure options(main);
+   /* E2E-52/P3-14 probe E (PLAN P3-14 H-5): BOUNDARY,
+      bare STATEMENT form of the shadowed name with
+      EMPTY PARENS and NO CALL keyword. DR acceptance
+      is UNMEASURED (PL/I procedure statements carry
+      CALL); my parser KEEPS the builtin capture here
+      by design. If DR refuses, the [TBD] refusal
+      stays BY NAME; if DR accepts, the bytes
+      adjudicate against the CALL form. */
+   dcl i fixed bin;
+
+   summary();
+   put skip list(i);
+
+summary: procedure();
+   i = 1;
+   end summary;
+end E520E;
+

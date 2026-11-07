@@ -1,0 +1,18 @@
+E520B: procedure options(main);
+   /* E2E-52/P3-14 probe B (PLAN P3-14 H-1/H-2): SHADOW
+      name, arity-0 forward call with EMPTY PARENS,
+      single site (LOAN2:121 shape). Prediction (H-1):
+      DR lowers it EXACTLY like probe A; predicted .REL
+      differs from E520A ONLY in the program-name
+      record byte A->B (internal procedure names never
+      appear in the object [C123]). */
+   dcl i fixed bin;
+
+   call summary();
+   put skip list(i);
+
+summary: procedure();
+   i = 1;
+   end summary;
+end E520B;
+

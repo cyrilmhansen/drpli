@@ -1,0 +1,17 @@
+E520A: procedure options(main);
+   /* E2E-52/P3-14 probe A (PLAN P3-14 H-1/H-2):
+      NON-SHADOW CONTROL, arity-0 forward call spelled
+      with EMPTY PARENS, single site. Prediction: bare
+      3 B CALL, no descriptor, no LXI H [C124]; the
+      single site carries the chain record [C123];
+      the put continuation follows the call. */
+   dcl i fixed bin;
+
+   call foo();
+   put skip list(i);
+
+foo: procedure();
+   i = 1;
+   end foo;
+end E520A;
+

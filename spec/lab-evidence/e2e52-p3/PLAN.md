@@ -1500,3 +1500,152 @@ exists; every DECPOLY actual is a variable; `5.67` is only the R2038 SOURCE DEC-
 per NG18 raw DATA records re-read this chain — NOT 2 bytes (C093's 2-byte cells were the
 R2033 INT-literal BIN-formal route). The correction cites the re-verification evidence paths
 and is traceable, NEVER silent.
+
+## Subround P3-14 — CALL TARGETS SHADOWED BY A BUILTIN NAME: the CALL statement parses its target as a plain procedure designator, so `call <builtin-name>(...)` reaches the already-armed [C123]/[C124] call lowering (LOAN2:121 blocker) — PRE-REGISTERED 2026-11-07 (operator marathon brief; new chain 01a1b2d5; baseline HEAD `439add33`+guard `d26f0064`, ledger ENDS C371, inventory 1296/186, coverage 144/94)
+
+### 1. Measured blocker (VERBATIM) + the WHY anatomy (ZERO oracle, hop 1)
+
+`codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` /
+`CALL id(args)` / bare `id;` have a DR lowering sampled; line 121)` — re-measured THIS
+hop on the armed binary `6db44394db5f09ad82cdb8e05f8fc92b298f77305301870de09e2485764bdfd2`
+POSITIONAL FRESH (`build/p3-14-hop2/loan2.rel`): rc=2, NO `.REL`. The LOAN2 statement is
+line 121 `call summary();` (the second site is line 135).
+
+ROOT CAUSE (first-hand, accepted at hop 1): `parser.ml` `builtins` (~85-93) contains
+`"SUMMARY"`; `primary` (~223) converts ANY builtin key immediately followed by `(` into
+`Ebuilt(key, arglist)`; the `CALL` statement arm (~700) parses its target with `expr0`,
+so `call summary();` arrives at codegen `Sprocedure_stmt` as `target.e =
+Ebuilt("SUMMARY",[])`, and the classifier (~14695) accepts ONLY `Eident`/`Esuffix` heads
+— everything else wraps into `Esuffix(Ebuilt …)` whose head match fails and raises the
+BY-NAME refusal. The blocker is PURELY the capture: non-shadow `call foo();` arity-0
+forward single AND two-site variants ALREADY compile rc=0 on the armed binary (variant
+matrix t14e/t14f; [C123]/[C124] armed), and bare `call summary;` (no `(`) also rc=0
+(t14b). ZERO-oracle sanity of the five NEW probes on the armed binary (`build/p3-14-hop2/sanity/`,
+FRESH positional): E520A rc=0 (256 bytes, code=50 data=2); E520B rc=2 `(line 11)`;
+E520C rc=2 `(line 12)`; E520D rc=2 `(line 11)`; E520E rc=2 `(line 12)` — all refusal texts
+the VERBATIM guard above, NO `.REL`.
+
+### 2. EXISTING DR evidence (ZERO oracle this subround; goldens untouched)
+
+| Witness | Shape | DR bytes (first-hand) | Reading |
+|---|---|---|---|
+| authentic `golden/first/LOAN2/LOAN2.REL` summary chain (hop-1 chain walk, `build/e52p8/ondump2.full3` + own slot-walker `build/p3-14/`) | TWO `call summary();` sites (lines 121, 135), arity 0, name SHADOWS the builtin | head slot 066F (line-135, LAST site) with inline RELOC operand → slot 0621 (line-121, operand word = two zero DATA bytes); LINK-CHAIN-ADDRESS at 066F; the linker fills BOTH with code@0733 = summary entry | DR lowers a builtin-shadowed arity-0 CALL through the SAME [C123] site-to-site chain as any internal procedure. The object NEVER mentions the name `summary` (entry is anonymous). Zero-arg calls carry NO descriptor and NO `LXI H` — [C124] reconfirmed on the authentic object. |
+| [C123] E27A (registered) | three forward CALL sites WITH args | chain record targets the LAST site's operand; each later operand is an inline `RELOC(CODE, <immediately preceding site's operand address>)` | the multi-site law E520C tests on the shadowed spelling. |
+| [C124] E24J/E24A (registered) | zero-argument calls | bare 3-byte `CALL <entry>`; no descriptor, no storage between sites | the E520A/B shape; empty-parens arity-0 multi-site on a SHADOWED name is NEW probe territory (E27A had args; LOAN2 authentic is corpus-tier, not panel-tier). |
+| authentic LOAN2.REL `line()` chain (hop 1) | arity-0 NON-shadow, SEVEN sites | head 0945 ← 08E6 ← 0863 ← 0825 ← 0807 ← 078B ← 0662 → code@0948 | the 7-site chain already reproduces byte-exact in my object ([C123] armed at scale); E520C is the 2-site shadow panel twin. |
+| [C093]/[C094] family + my control t14h (this binary, `build/p3-14/t14h.REL`) | `call summary2(i);` non-shadow, equal-(p,s) DEC var actual | main `LXI H,*A(desc 0002) / CALL slot@000A head`; desc cell = inline DATA RELOC → i's own cell 0000; callee entry peeled `5E 23 56 EB / SHLD ptr(0004)`, formal store `LHLD 0004 / MVI M,02 / INX H / MVI M,00 / RET`; tail `CALL ?STOPX` | the E520D prediction (with-args shadow rides the EXISTING variable-actual route once the target parses as `Eident`). |
+| my controls on the armed binary (`build/p3-14/`) | t14e single site; t14f two sites (non-shadow) | t14e code 28 B: `LXI B,0200 / CD r(?START) / CD head-slot@0007 / … / JMP / body / CD r(?STOPX)`; t14f code 31 B: second `CD` operand = `07 00` inline RELOC → code@0007, LINK-CHAIN-ADDRESS addr:[000A] (LAST site) | exactly the [C123] two-site geometry; E520C predicts DR identical bytes for the shadowed spelling. |
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-1 (shadow-name CALL law)**: DR lowers `call <builtin-shadow>();` exactly as the
+  non-shadow arity-0 call: bare `CALL <slot>` (3 B), NO descriptor, NO `LXI H` [C124];
+  internal-proc entries are anonymous so the shadow has no object-level trace. FALSIFIED
+  if DR refuses E520B (honest `dr-refuses`, NO invented golden) or emits any different
+  shape at the call.
+- **H-2 (byte-identity with the control)**: `E520B.REL` differs from `E520A.REL` in
+  EXACTLY the program-name record bytes (the single character `A`→`B` in the PROG-NAME /
+  EXTNAME records; internal procedure names NEVER appear in the object). FALSIFIED by ANY
+  additional differing byte (e.g. the shadowed name leaking into an external definition).
+- **H-3 (multi-site chain on the shadow)**: E520C reproduces the [C123] site-to-site
+  geometry — chain record on the LAST site, later operand an inline RELOC against the
+  immediately preceding operand word, first operand two literal zero DATA bytes —
+  mirroring the authentic LOAN2 head 066F→0621 both→0733. FALSIFIED by per-site chain
+  records, by linking to the FIRST site's operand from a THIRD site style error, or by
+  any address difference.
+- **H-4 (with-args shadow)**: E520D `call summary(i);` lowers as the existing
+  equal-(p,s) DEC variable-actual route: static descriptor cell → the actual's OWN cell,
+  `LXI H,*A(desc) / CALL <chain head>`; callee arity-1 peeled copy then the formal's
+  deref store [C093]/[C094]. NO builtin dispatch. FALSIFIED by refusal, by a runtime-written
+  descriptor, or by a different prologue.
+- **H-5 (bare-statement boundary, UNMEASURED)**: E520E bare `summary();` (NO `CALL`
+  keyword) — DR acceptance is UNMEASURED. If DR refuses → honest `dr-refuses`, the parser
+  bare-statement arm KEEPS its `Ebuilt` capture and the BY-NAME [TBD] refusal stays. If DR
+  accepts → the bytes adjudicate against the CALL form and only THEN is extending the arm
+  to the bare-statement route a measured option. NEVER arm before evidence.
+
+### 4. Probes E520A..E520E (`probes/E520{A..E}.PLI`, CRLF + bare `^Z`, ≤71 cols, ONE dcl
+per line, uppercase label first line, continuation `put skip list(i);` after every call) —
+pre-registered predictions (NEVER fit):
+
+| Probe | Shape | Predicted DR bytes at the call site | My side TODAY (sanity, this binary) |
+|---|---|---|---|
+| E520A control | non-shadow `call foo();` arity-0 forward, ONE site | bare `CD <slot>` at the call (no descriptor, no LXI H); the single operand word is two zero DATA bytes carrying the LINK-CHAIN-ADDRESS (single site = degenerate [C123]); callee entry after the JMP, bare body + RET [C125]; tail `CD ?STOPX`. Control twin t14e geometry + the proven `put skip list` tail. | rc=0 — 256 B, code 0x32: `…CD head@0007… / 11 52 02 / 01 25 00 / CD ?SYSPR / 3E 01 / CD ?SKPOP / 2A r(i) / 3E 09 / CD ?QICOP / CD ?PNVOP / CD ?QIOOP / C3 tail / foo@0028: 21 01 00 / 22 r(i) / C9 / CD ?STOPX` |
+| E520B shadow | `call summary();` arity-0, ONE site (LOAN2:121 shape) | IDENTICAL statement bytes to E520A (H-1); whole-file difference vs E520A = the one program-name character ONLY (H-2) | rc=2 at the guard `(line 11)`, NO .REL |
+| E520C shadow 2 sites | two `call summary();` in main (mirrors LOAN2 121/135) | site 1 `CD` operand = zero word; site 2 `CD` operand = inline RELOC → site 1's operand address; LINK-CHAIN-ADDRESS on the LAST site operand; linker fills both with the entry LC (authentic LOAN2 twin law) | rc=2 `(line 12)` (FIRST refusal aborts), NO .REL |
+| E520D shadow w/ actual | `call summary(i);` arity-1, equal-(p,s) DEC var | `LXI H,*A(desc)` (inline RELOC → static descriptor cell) `CD <chain head>`; desc cell = inline DATA RELOC → i's own cell; callee peeled arity-1 prologue + deref formal store + RET (t14h control bytes) | rc=2 `(line 11)`, NO .REL |
+| E520E boundary | bare `summary();` NO CALL keyword | UNKNOWN by design (H-5): accept ⇒ bytes vs the CALL form; refuse ⇒ VERBATIM diagnostic, no .REL, KEPT | rc=2 `(line 12)`, NO .REL |
+
+Whole-file sizes are adjudicated by `cmp`, never by arithmetic (P3-13 lesson kept: sizes
+beyond the statement bytes are NOT pre-predicted). Primary discriminators: statement-byte
+identity A vs B (H-1/H-2), chain-record placement and operand values in C (H-3), descriptor
+staticness in D (H-4), the bare-form verdict itself in E (H-5).
+
+### 5. Campaign + arm contract
+
+ONE grouped run `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900
+python3 oracle/batch.py E520A E520B E520C E520D E520E --tag e52p14 --switches '$L$D'`,
+rc DIRECT (NEVER pipeline-tail); read EVERY `.PRN`; decode accepted `.REL`s into
+`build/p3-14-hop2/`; goldens + batch `summary.txt` + transcripts committed VERBATIM
+BEFORE any `ocaml/` byte; honest verdicts (DR-accepted / dr-refuses / my-gap), NEVER
+invent a golden.
+
+ARM (after evidence, ONLY if H-1/H-3/H-4 land accepted+byte-exact): the SMALLEST measured
+rule is the parser `CALL` arm (parser.ml ~700) — parse the target as a PLAIN identifier
++ `suffix_chain`, NEVER consulting `builtins`, then keep `Sprocedure_stmt { target; args =
+[] }` so the already-armed `Esuffix`-head classifier consumes it unchanged; expression
+position (`primary`) keeps its builtin capture UNTOUCHED. WHY the parser and NOT a widened
+codegen classifier: the classifier cannot distinguish the CALL statement from a bare
+statement (both arrive as `Sprocedure_stmt` with `args = []`), so accepting `Ebuilt` heads
+there would silently arm the UNMEASURED H-5 route; the parser-side fix keeps the bare
+`summary();` refusal honest BY NAME. The guard message stays REACHABLE (bare-statement
+route, non-name targets) and its text survives VERBATIM; first-hand check this hop: the
+only occurrences of `CALL target is not a simple procedure name` outside `ocaml/` are the
+census LOAN2 rows (which MOVE VERBATIM at registration, nothing fixed) — no negative-panel
+or marker row depends on it. `NULL`/prefix expression routes are NOT touched.
+
+Validation (hop 3+): build rc=0 DIRECT; warning histogram codegen 68 / total 124 ==
+baseline (fresh `--build-dir`); whole-file `cmp` of EVERY accepted probe on FRESH
+POSITIONAL paths; sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` —
+COUNT MOVES WITH INVENTORY rows, FAILS 0 binding; markers harness (CRLF + bare `^Z`)
+including every CALL/PUT marker substring; DEC regressions 64/0; divcheck 9/9; **FULL
+GATE BEFORE CLOSE** — hop-11/12 lesson binding: ONLY the gate runs the negative panel; a
+possible retirement fires ONLY iff the armed binary `cmp` rc=0 vs the KEPT golden (NEVER
+re-derived). LOAN2 UNMODIFIED POSITIONAL FRESH → record the ACTUAL next blocker VERBATIM
+(§6). Registration from **1296/186** (accepted-and-byte-exact only, `--update-inventory`,
+`git diff --cached --stat`, config NEVER staged); census OWN path (counts expect 15/0/26/0,
+LOAN2 msg MOVES VERBATIM, NOTHING fixed); claim **C372 written from MEASURED BYTES ONLY
+BEFORE any `spec/COVERAGE.tsv` touch**; coverage prefers EXTENDING an existing row — the
+CALL-statement family row `PROC.CALL_COPYIN` already states the CALL lowering law
+(SUPPORTED EXACT:40); if the evidence instead justifies a NEW row its
+`spec/COVERAGE-IDS.txt` line lands in the SAME change (NEVER `coverage_gen.py`; 15 columns
+from the FIRST NON-COMMENT row; `manual_ref` must match `pNN[:§X.Y][=phrase]` or start
+`NONE:`); `coverage_check` + prose rc=0; FULL gate rc=0 DIRECT →
+`build/gate-e52p14-reg.log`; RESULTS §P3-14 + PLAN §5 progress row (insert INSIDE the
+table after the P3-13 row — anchor by LINE NUMBER after editing, hop-12 lesson) + §P3-14
+**CLOSED**.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the fix lands byte-exact, LOAN2 moves PAST line 121. The next refusal is NOT predicted
+— per the hop-1 reconnaissance the remaining CALL sites are line 132 `call line();`
+(non-shadow arity-0, 7-site chain family — likely already armed), line 135 `call summary();`
+(second shadow site — this slice's own route) and line 160 `call current_year(IP - YIN);`
+(a DEC **SUB**-expression actual vs `dec(10,2)` formals — P3-13 armed ONLY `Mul`-of-two-
+plain-autos and literals, so the strongest `my-gap` candidate; STRONGEST ≠ PREDICTED).
+Record the ACTUAL verbatim diagnostic; if LOAN2 unexpectedly emits a complete `.REL`, go
+STRAIGHT to whole-file parity against `golden/first/LOAN2/LOAN2.REL` (sha `712cfcb2…`,
+NEVER re-derived) and report the first genuine difference. LOAN2 stays UNMODIFIED (sha
+`7be23ba3…`).
+
+### 7. Framing binding on C372 wording
+
+C372 is BYTE-TIER ONLY — every statement derives from MEASURED BYTES (authentic goldens +
+this campaign), never from runtime behaviour, PLILIB or evaluation-order claims. The claim
+wording must describe what the OBJECT shows (chain topology, absence of descriptor bytes,
+anonymity of internal entries), NOT what a linker or runtime "does" beyond filling recorded
+addresses (the chain-fill statement is the [C123] recorded law reconfirmed, panel-verified
+via E520C only if it lands). The bare-statement boundary (H-5) must be stated as a kept
+BY-NAME [TBD] refusal unless E520E measures DR acceptance. If E520B/C/D are DR-REFUSED,
+C372 does not exist for this subround — the honest verdict is a `dr-refuses` record with
+the VERBATIM diagnostic and NO arm.

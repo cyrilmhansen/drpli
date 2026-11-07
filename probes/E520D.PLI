@@ -1,0 +1,19 @@
+E520D: procedure options(main);
+   /* E2E-52/P3-14 probe D (PLAN P3-14 H-4): SHADOW
+      name WITH one variable actual, arity 1, equal
+      (p,s) DEC. Prediction: the variable passes its
+      OWN cell descriptor [C093] -- LXI H,*A(desc)
+      then CALL (chain head); callee arity-1 peeled
+      copy MOV E,M/INX H/MOV D,M/XCHG/SHLD <cell>
+      [C094]; NO builtin dispatch at the call. */
+   dcl i fixed;
+
+   call summary(i);
+   put skip list(i);
+
+summary: procedure(x);
+   dcl x fixed;
+   x = 2;
+   end summary;
+end E520D;
+

@@ -1,0 +1,21 @@
+E520C: procedure options(main);
+   /* E2E-52/P3-14 probe C (PLAN P3-14 H-3): SHADOW
+      name, TWO arity-0 empty-paren sites in main,
+      mirroring LOAN2 lines 121 and 135. Prediction
+      [C123]: the LAST site carries the chain record,
+      the later operand is an inline RELOC against the
+      PREVIOUS site operand word, the first operand is
+      two zero DATA bytes; authentic LOAN2 chain head
+      066F links 0621, both fill 0733. */
+   dcl i fixed bin;
+
+   call summary();
+   put skip list(i);
+   call summary();
+   put skip list(i);
+
+summary: procedure();
+   i = 1;
+   end summary;
+end E520C;
+
