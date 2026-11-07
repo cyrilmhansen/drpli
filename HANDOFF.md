@@ -1680,25 +1680,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 540
-checkpoint-id: g540-9d9cbb85615b
-checkpoint-kind: manual
+checkpoint-generation: 542
+checkpoint-id: g542-5cae6a593d90
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 2, remaining ~9801, session 01a1b78a-53dc-748c-96cc-864017bea5d9)
-checkpointed: 2026-11-07T19:59:14.863Z
+status: checkpoint (guard level 4, remaining ~3931, session 01a1b79e-d26a-766e-b428-4a6bc92eae7c)
+checkpointed: 2026-11-07T20:38:01.125Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c3dc332f301356296614bf13f0c6a87880e1ce74813bf96404d23f53660eda68
+source-progress: e4e1652effd25371a8d85e6f496317639bb8dac389b4357bc94fad2dc4f7c824
 source-handoff: d97b05876c76190815216b6212f2a45fd47de365bb177b54871fcaf104e8912f
-source-learnings: 9cfdcf198af0a4bf5963d7f0586d02a10872bd3754cfbdf8bed762020c484923
+source-learnings: d5df47f7f1610a3d0b3a2e90f2f9bc5d771bf22556e9efe7348c5e92d603aae6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b78a-53dc-748c-96cc-864017bea5d9
-readiness-at: 2026-11-07T19:59:14.894Z
-readiness-checkpoint: g540-9d9cbb85615b
+readiness-by: session:01a1b79e-d26a-766e-b428-4a6bc92eae7c
+readiness-at: 2026-11-07T20:38:12.008Z
+readiness-checkpoint: g542-5cae6a593d90
 ### Last verified state
-guard level 2; checkpoint requested (finalize: P3-19 hop 3 session close: campaign e52p19 LANDED 3/3 accepted, goldens VERBATIM 7e8d577d, durables 55a89f14; ZERO ocaml byte; hop 4 successor contract BINDING in LEARNINGS § P3-19 hop 3 + PROGRESS ## Next action (decode H-A/H-B'/H-C, implement measured-only, LOAN2 whole-file cmp finale, register/C377/coverage/gate/close). Chain 01a1b554 12/12 cap NOT reset.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
