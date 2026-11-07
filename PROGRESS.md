@@ -42,7 +42,13 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-17 hop 4 — REGISTRATION EDIT LANDED `a4ea5e69`; `--update-inventory` → sweep → markers → census → C375 → COVERAGE → GATE → CLOSE OWED; read `LEARNINGS.md` § "P3-17 hop 4 REGISTRATION EDIT LANDED" — BINDING, LAST slice of the marathon)
+## Next action (E2E-52/P3-17 hop 5 IN FLIGHT — INVENTORY 1309/190 `4b67ed48` + CENSUS `60423b32` + C375 `70c38b38` LANDED; COVERAGE → GATE → CLOSE OWED; read `LEARNINGS.md` § "P3-17 hop 5 IN FLIGHT" — BINDING, LAST slice of the marathon)
+
+**EXECUTE NOW (successor, hop 5 tail — finish P3-17 ONLY, then STOP):** (0) `cd ocaml && eval "$(opam env)" && dune build` rc=0 (grep log for `Error`); binary sha256 MUST be `b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f` == tree. (1) **coverage row `IO.PUT_EDIT`** (`spec/COVERAGE.tsv`, file line 66 / non-comment index 61, currently `SUPPORTED EXACT:45 INDEPENDENT:2`, col11 lists **37** probe names ending `E521A,E521B,E521C`) — FIRST-HAND adjudication already done by the successor of the PREDECESSOR contract: `E523A`/`E523B` are whole-file byte-exact FILE-EDIT specimens of THIS row's contract (format-table pool law + `?EDITF` + per-item `?EDTOV` + literal cell sharing + picture/rep-group records), so EXTEND `EXACT:45` → **`EXACT:47`** and append `,E523A,E523B` to col11 (37→39 names); add a DATED `[E2E-52/P3-17]` sentence to col4 (11 B `LHLD/MVI A,09/?QICOP/?EDTOV` fixed-bin VARIABLE item, scope-independent, shared `7C` cell, static-vector/`cy` entry `0040` geometry) and a DATED SUPERSEDED clause to col13 retiring the sentence that names DEC/FLOAT/member items as refusing — the DEC FORMAL deref is already retired by [C373], fixed-bin VARIABLE is now ARMED, while STATIC fixed-bin (`E523C`) and deref-Vint (`E521D`) stay BY-NAME my-gaps with NO row change. NEVER `coverage_gen.py`; 15 columns, tab-delimited; NO `spec/COVERAGE-IDS.txt` line needed (EXTENSION, not a NEW row; IDS lines are only for new rows). Then `python3 tools/coverage_check.py` rc=0 (expect **145 rows, 0 errors, 0 warnings, SUPPORTED 95**) + `python3 tools/file_prose_check.py` rc=0; commit `spec/COVERAGE.tsv` explicit path only. (2) **FULL gate rc=0 DIRECT** → `python3 tools/e2e_gate.py > build/gate-e52p17-reg.log 2>&1; echo RC=$?` expect **1309/0 byte panel, 190/190 negatives (E523C NEG-OK), 9/9 divergences, 145 rows SUPPORTED 95, census 15/0/26/0, prose 5**; only the gate runs the negative panel. (3) RESULTS **§P3-17** in `spec/lab-evidence/e2e52-p3/RESULTS.md` (parity table A 512 B CODE 0081 DATA 0019 / B 896 B CODE 00E6 DATA 0056 cmp rc=0 re-read FIRST-HAND from the KEPT goldens, C my-gap 512 B row, the DATED hop-3 label corrections VERBATIM, ZERO §4 misses, LOAN2 177→record-order VERBATIM never-fix, byte-tier) + PLAN §5 progress row INSIDE the table anchored by **LINE NUMBER** (`grep -n` the §5 table; last row P3-16 sits after line 106) with the **7-unescaped-pipes assert RUN IN CODE** (escape raw `\|`) + change the `## …§P3-17` heading to **CLOSED**; prose rc=0; commit explicit paths. (4) **STOP — marathon slice budget EXHAUSTED (8 of ≤8): report LOAN2's ACTUAL next blocker VERBATIM, NEVER fix; NO P3-18 without a new operator decision.**
+
+**STATE:** HEAD = C375 `70c38b38` + inventory `4b67ed48` + census `60423b32`; armed binary `b744acfb…` == tree; ledger ENDS **C375** (198 headers); inventory **1309/190 EXACT** (REAL `--update-inventory` output, never forced); sweep post-reg **187/0 FAILS 0** (`build/p3-17/sweep-postreg.log` — prediction HIT); markers **16/16 MARKER_FAILS 0** incl `E523C` (`build/p3-17/markers.log`); census counts **15/0/26/0 UNCHANGED** with the LOAN2 msg MOVED VERBATIM to the record-order text (NO `(line N)`), NOTHING fixed, `rel_bytes 7680` unchanged, binary_md5 `893205d7→693b43f0`; LOAN2 re-measured this hop rc=2 NO `.REL`, sha `7be23ba3…` UNMODIFIED; coverage **145/95 (EXACT:45 owed → 47)**; LAST gate rc=0 `build/gate-e52p16-reg.log` (P3-17 gate OWED); goldens `golden/e52p17/` KEPT NEVER re-derived; DEC 64/0 + divcheck 9/9 re-held hop 3; EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` git-IGNORED NEVER `git add -f`; config NEVER staged; no push; chain 01a1b554 renewal 4/12 used, cap 12.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-17 hop 4 — REGISTRATION EDIT LANDED `a4ea5e69`; `--update-inventory` → sweep → markers → census → C375 → COVERAGE → GATE → CLOSE OWED; read `LEARNINGS.md` § "P3-17 hop 4 REGISTRATION EDIT LANDED" — BINDING, LAST slice of the marathon)
 
 **EXECUTE NOW (successor, hop 5 — finish P3-17 ONLY, budget EXHAUSTED after it):** (0) `cd ocaml && eval "$(opam env)" && dune build` rc=0; binary sha256 MUST be `b744acfbea2489a4ecfd8121573635737e5a49f919d76f15fa6df176b66b1d1f` == tree. (1) `python3 tools/e2e_gate.py --update-inventory` (REAL output, NEVER force) → expect **1309/190** (hop 4 committed the SPECIMENS +2 / REJECTS +1 rows already; `git diff --cached --stat`, config NEVER staged); re-sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` expect **187/0 FAILS 0**; markers `python3 build/p3-12/markers.py` with **16** names (the 15 + `E523C`) expect **16/16**.
 
@@ -2973,13 +2979,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 513
-checkpoint-id: g513-fbddd465b087
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 514
+checkpoint-id: g514-d89254117447
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T12:18:28.354Z
+checkpointed: 2026-11-07T12:39:15.991Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 9e4c8ae1e5fa9626d470fb70fb33cdfd16622e5a1a600086d2683309de41bffa
 source-handoff: 8b0dba65744afae86df253bc218923c93bba2667e069765c134611350b7fa904
@@ -3638,9 +3644,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b5d8-0d11-76f6-9177-fd5eeeede9b1
-readiness-at: 2026-11-07T12:18:28.379Z
-readiness-checkpoint: g513-fbddd465b087
 <!-- guard:end checkpoint -->
 
 ## Blockers
