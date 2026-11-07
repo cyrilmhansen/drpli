@@ -1,0 +1,19 @@
+E522D: procedure options(main);
+   /* E2E-52/P3-16 probe D (PLAN P3-16 H-C): window-only
+      case -- operand scales EQUAL (0) and differ from
+      the formal scale 2; formal precision 7 below both
+      operand precisions. Prediction: 27 B, NO alignment,
+      UP window MVI A,02/?QDDSL, DSTOP A=07, 4 B temp. */
+   dcl m fixed dec(10,0);
+   dcl n fixed dec(8,0);
+   dcl p fixed dec(7,2);
+
+   p = q(m - n);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(7,2));
+      dcl x fixed dec(7,2);
+      return (x);
+      end q;
+end E522D;
+

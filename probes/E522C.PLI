@@ -1,0 +1,18 @@
+E522C: procedure options(main);
+   /* E2E-52/P3-16 probe C (PLAN P3-16 H-D): ADD twin of
+      probe B -- differing operand scales vs dec(10,2)
+      formal. Add alignment/window is UNMEASURED even in
+      the expression context; verdict recorded honestly. */
+   dcl a fixed dec(10,2);
+   dcl yi fixed dec(4,3);
+   dcl p fixed dec(10,2);
+
+   p = q(a + yi);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(10,2));
+      dcl x fixed dec(10,2);
+      return (x);
+      end q;
+end E522C;
+

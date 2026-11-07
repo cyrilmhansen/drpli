@@ -1299,7 +1299,7 @@ lists leave names UNDECLARED here — probe skeletons use one declaration per li
 | Probe | Store | Expected DR sequence at the store | My side TODAY |
 |---|---|---|---|
 | YA | a(9,2) = b(6,2) | `DLDOP(6,A=06) / LXI H,a / MVI A,09 / DSTOP` — NO helper | compiles (rc=0) |
-| YB | a(9,2) = b(9,0) | `DLDOP / MVI A,02 / ?QDDSR / LXI H,a / MVI A,09 / DSTOP` | rc=2 at the guard |
+| YB | a(9,2) = b(9,0) | `DLDOP / MVI A,02 / ?QDDSR / LXI H,a / MVI A,09 / DSTOP` | rc=2 at the guard, `Line 13` (sanity); refusal KEPT whatever DR does (H-E) |
 | YC | b(15,13) = a(6,2) | `DLDOP / MVI A,0B / ?QDDSL / LXI H,b / MVI A,0F / DSTOP` | rc=2 |
 | YD | inf(4,3) = ci(15,14) = LOAN2:111 verbatim shape | `DLDOP(A=0F) / MVI A,0B / ?QDDSR / LXI H,inf / MVI A,04 / DSTOP` | rc=2 |
 | YE | a(9,2) = c(9,0) (equal precision, Δp=0) | as YB | rc=2 |
@@ -1798,3 +1798,156 @@ correction is DATED and worded as a correction of MY completeness-guard prose (a
 internal), not of any DR claim. The FIXED-BIN formal boundary (H-E) stays an open
 `my-gap`/unmeasured route unless E521D measures otherwise; floats, based and pointer
 formals keep refusing BY NAME.
+
+## Subround P3-16 — DEC SUB/ADD EXPRESSION ACTUALS AGAINST A FIXED DECIMAL FORMAL: is the LOAN2:160 22 B no-window block the L1+L5 composition, or an exception? — PRE-REGISTERED 2026-11-07 (operator marathon brief; chain 01a1b2d5 renewal 10/12; baseline HEAD `a4b5536c` (durables `590e72e8` + guard `a4b5536c`), ledger ENDS C373, inventory 1303/188, coverage 145/95, armed binary `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb`) — **OPEN (hop 2)**
+
+### 1. Measured blocker (VERBATIM) + pre-audit (hops 1–2, ZERO oracle)
+
+HOP-2 RE-MEASURED this hop on the armed binary `02ea809e…`, POSITIONAL FRESH
+(`build/p3-16/recheck/`), LOAN2 sha `7be23ba3…` UNMODIFIED — rc=2, NO `.REL`:
+
+`codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 160)`
+
+The statement (source read FIRST-HAND hop 1): LOAN2:160 `call current_year(IP-YIN);`
+inside `summary: procedure;` (157–162), `IP`/`YIN` both `fixed decimal(10,2)` (lines
+29–30), callee `current_year: procedure(I); dcl … I fixed decimal(10,2);` (168–172) — a
+DEC **Sub** of two equal-scale plain autos against one SCALAR `RTdec(10,2)` formal. The
+guard (codegen.ml ~4839–4860) admits ONLY `Eident` variables, `Enumber` literals and
+`Ast.Ebinary (Ast.Mul, plain-dec-auto, plain-dec-auto)` [C371]; Add/Sub fall to the
+BY-NAME refusal. `dpush` ALREADY implements the armed Add/Sub chain (`?DADOP`/`?DSUOP`,
+codegen.ml ~6582–6599, laws [C086] L1/R705/R707/R715 + L5 consumer fix); the refusal is
+the ONLY blocker. BIND AUDIT (contract-mandated, first-hand this hop): `bind.ml` `dec_ok`
+(~2297–2321) is EXPRESSION-SHAPE-AGNOSTIC — it keys on callee class + scalar `RTdec`
+formal only, and the `temps` sizing (~2340–2362) already allocates the formal-width temp
+for ANY non-simple actual when `dec_ok`; **no bind change is needed or permitted.**
+
+### 2. EXISTING DR evidence (ZERO oracle this subround so far; goldens untouched)
+
+All re-verified FIRST-HAND this hop from the KEPT authentic golden (raw hex in
+`build/p3-16/loan2-summary-body.txt`), never re-derived:
+
+1. **THE witness — LOAN2.REL summary body `0733–0769`.** `21 BD 02 / 36 80`
+   (`end = true`); the **22 B Sub-actual block** `0738–0752` raw
+   `21 FA 02 3E 0A CD.. 21 F4 02 3E 0A CD.. CD.. 21 4E 03 3E 0A CD..` =
+   `LXI H,*A(02FA) / MVI A,0A / ?DLDOP / LXI H,*A(02F4) / MVI A,0A / ?DLDOP / ?DSUOP /
+   LXI H,*A(temp 034E) / MVI A,0A / ?DSTOP` — **NO shift of ANY kind** (operand scales
+   equal AND result scale = formal scale); left operand pushed FIRST; `?DSTOP A = 0A` =
+   FORMAL precision; then arity-1 actual setup `LXI H,*A(data@034C) / CD (chain slot
+   0757 → LC code@076A)`; DATA static `data@034C = 4E 03` with `RELOC data@034C →
+   data@034E` — the [C371] static descriptor-vector cell pointing at the 6 B expression
+   temp; callee entry `076A` peeled arity-1 prologue `5E 23 56 EB / SHLD 0354`; `YIN = IP`
+   (`0759–0766`), `RET` `0769`.
+2. **Equal-scale direct/computed Add/Sub witnesses in the SAME golden** — `0412–0422` and
+   `043D–044D` (`DLDOP 0A / DADOP / DLDOP 0A / DSTOP 0A`), `047E–048E` and `0491–04B4`
+   (two-op `DLDOP/DLDOP/DSUOP` then `DLDOP/DLDOP/DADOP/DSTOP`, precision bytes 0A
+   throughout, NO shifts). Equal scales, so NONE of these discriminates the differing-
+   scale behaviour.
+3. **[C370] (Add/Sub DIRECT STORE between scales)** pins the window ONLY between source
+   `?DLDOP` and the destination store for `x = y` assignments — NOT between an `?DSUOP`/
+   `?DADOP` and a CALL-actual temp store.
+4. **[C371]** pins the WINDOW (MVI A,d / ?QDDSL|?QDDSR) between `?DMUOP` and the temp
+   DSTOP ONLY for the **Mul** actual (ZA down d=03, ZB UP d=02) — Mul is exactly the
+   operator L1 EXEMPTS (L2: no operand alignment). Whether the window generalises to
+   Add/Sub actuals, and whether L1 operand alignment fires in the ACTUAL context, is
+   UNMEASURED. The generalisation is MY compiler's standing assumption (armed `dpush`
+   path); it is the primary hypothesis to falsify, never to fit.
+5. **[C086] expression-context laws L1/L5/L6/L7** (ledger): `+/-` align the SHORTER
+   operand UP to max(s) BETWEEN the pushes; equal scales emit nothing; both directions
+   proven for SUBTRACT (R705/R707/R715); the CONSUMER fixes the scale; push order right-
+   first iff right compound and left simple. Pinned in expression/store contexts — the
+   DEC-ACTUAL context is new ground (only Mul has been sampled there).
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-A (control, LOAN2 arithmetic replicated):** Sub of two equal-scale plain DEC autos
+  against a formal of the SAME scale emits the 22 B block VERBATIM: `push(l,pl) push(r,pr)
+  ?DSUOP push-temp(pf)`, NO shift anywhere, `?DSTOP A = pf`, static vector cell → formal-
+  width temp. FALSIFIER: ANY shift byte, a different op order, or a window with d = 0.
+- **H-A2:** `?DSTOP A` carries the FORMAL precision even when operand precisions differ
+  from it (the [C371] H-4 law re-tested on Sub). FALSIFIER: `MVI A` before `?DSTOP` is not
+  `pf`.
+- **H-B (L1 alignment in the ACTUAL context):** operands with s_l < s_r get the SHORTER
+  pushed up `MVI A,d / ?QDDSL` BETWEEN the two pushes (right operand, immediately before
+  the arith op); equal scales emit nothing. Direction and d from SCALES only. FALSIFIER:
+  no shift between pushes (actual context aligns differently or not at all), a shift on
+  the LEFT operand, or wrong d/direction.
+- **H-C (L5 window for Add/Sub actuals):** when result scale (max of operand scales per
+  L1) differs from the formal scale, the SAME window as Mul [C371] appears BETWEEN
+  `?DSUOP`/`?DADOP` and the temp store: `MVI A,|d| / ?QDDSL` (up) or `?QDDSR` (down);
+  both a pure-up and an aligned-plus-window shape are probed. FALSIFIER: missing window,
+  window BEFORE the arith op, or d/direction not equal to |max(s_l,s_r) − s_f|.
+- **H-D (Add twin):** everything above holds verbatim with `?DADOP`; R705/R707/R715 pinned
+  the +/- alignment for SUBTRACT only, so Add alignment/window behaviour is UNMEASURED
+  even in the expression context — this probe is genuinely open. FALSIFIER: any
+  asymmetry vs the Sub twin.
+- **H-E (boundary, honest perimeter):** a NESTED compound actual (Sub whose right operand
+  is itself a Mul product) has NO admission in the guard here (operands must be plain
+  autos); whatever DR does is recorded VERBATIM; the refusal is KEPT unless measurement
+  forces otherwise — no silent generalisation.
+
+### 4. Probes E522A..E522E (`probes/E522{A..E}.PLI`; CRLF + bare `^Z` + ≤71 cols + ONE dcl per line + first-line label + `procedure(x);` header per the hop-14 probe law + a continuation statement after every put) — predictions from the DECODED laws (NEVER fit). Shared spine: main calls `p = q(<actual>)`, `q: procedure(x) returns(fixed dec(pf,sf))` with body `return (x)` — the E52ZA/ZB byte-exact geometry [C371]; ONLY the actual block varies:
+
+| Probe | Actual shape | Predicted caller block (law-derived) | My side TODAY (sanity, `02ea809e…`) |
+|---|---|---|---|
+| E522A CONTROL Sub equal scales | `a - b`, a,b dec(10,2), formal dec(10,2) | **22 B**: `21 r(a) / 3E 0A / CD..DLDOP / 21 r(b) / 3E 0A / CD..DLDOP / CD..DSUOP / 21 r(temp) / 3E 0A / CD..DSTOP` — ZERO shifts (H-A); vector cell → 6 B temp (pf 10); left `a` pushed FIRST | rc=2 at the guard, VERBATIM text, `Line 11` (sanity measured); NO `.REL` |
+| E522B Sub differing operands | `a - yi`, a dec(10,2), yi dec(4,3), formal dec(10,2) | **32 B**: A's sequence PLUS `3E 01 / CD..QDDSL` between the TWO pushes — s_l 2 < s_r 3, so the SHORTER-SCALE LEFT `a` is aligned UP after its push, before the `yi` push (L1); result scale = max = 3 vs formal sf 2 → the L5 window `MVI A,01 / ?QDDSR` is ALSO expected between `?DSUOP` and the temp store (H-B + H-C composed); `?DSTOP A=0A`; push `MVI A` bytes carry operand precisions 0A/04 | rc=2 at the guard, `Line 12` (sanity); NO `.REL` |
+| E522C ADD differing operands | `a + yi`, same decls as B | identical 32 B geometry with `?DADOP` in place of `?DSUOP` (H-D; open: DR may align Add differently from Sub — R705/R707/R715 pinned BOTH directions for SUBTRACT only, never assumed) | rc=2 at the guard, `Line 10` (sanity); NO `.REL` |
+| E522D window-only differing formal | `m - n`, m,n dec(10,0), formal dec(7,2) | **27 B**: `21 r(m) / 3E 0A / CD.. / 21 r(n) / 3E 0A / CD.. / CD..DSUOP / 3E 02 / CD..QDDSL / 21 r(temp) / 3E 07 / CD..DSTOP` — equal operand scales → NO alignment; UP d=2 from scales ONLY while pf 7 < both operand precisions ([C371] ZB law re-tested on Sub, H-C); temp 4 B (floor((7+2)/2)) | rc=2 at the guard, `Line 11` (sanity); NO `.REL` |
+| E522E BOUNDARY nested | `a - b * c`, b dec(4,3), c dec(10,2) | expected (H-E): a NESTED product — my guard refuses BY NAME; DR verdict recorded honestly, NEVER fitted; if accepted, decode only, NO arm | rc=2 at the guard |
+
+Whole-file sizes are adjudicated by `cmp`, never by arithmetic (P3-13/14/15 lesson kept).
+The `MVI A,d` bytes above are SCALE DIFFERENCES computed from the declared (p,s) rows;
+d > 0 in EVERY shift-bearing probe; directions are stated per the L1/L5 wording.
+
+### 5. Campaign + arm contract
+
+ONE grouped run `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900
+python3 oracle/batch.py E522A E522B E522C E522D E522E --tag e52p16 --switches '$L$D'`,
+rc DIRECT (NEVER pipeline-tail); read EVERY `.PRN`; decode EVERY accepted `.REL`
+FIRST-HAND into `build/p3-16/`; goldens + batch `summary.txt` + transcripts committed
+VERBATIM BEFORE any `ocaml/` byte; honest verdicts (DR-accepted / dr-refuses / my-gap),
+NEVER invent a golden.
+
+ARM (after evidence, ONLY measured classes): ONE guard-pattern widening in the DEC-formal
+actual arm (`ocaml/lib/codegen.ml` ~4846): admit `Ast.Ebinary ((Ast.Add | Ast.Sub), l, r)`
+when BOTH operands pass `dec_product_operand` (plain non-deref DEC autos) — the SAME
+route as Mul through the ONE armed `!dec_actual_mat` slot; helper RENAMED
+`dec_product_operand` → `dec_arith_operand` (comment updated, law unchanged); nested
+compounds and everything else keep the VERBATIM BY-NAME refusal (marker substrings and
+the Line-N clause survive). NO bind change (audit §1). NO emitter bytes change (`dpush`
+Add/Sub + the [C370]/[C371] window are ALREADY armed and ride the measured evidence).
+Build rc=0; NEW fingerprint recorded; histogram codegen 68 / total 124 == baseline (fresh
+`--build-dir`); whole-file `cmp` of every accepted probe FRESH POSITIONAL; sweep — COUNT
+MOVES WITH INVENTORY, FAILS 0 binding; markers (CRLF + bare `^Z`) including the E522
+boundary re-measure; DEC regressions 64/0; divcheck 9/9; **FULL GATE BEFORE CLOSE**
+(only the gate runs the negative panel) → `build/gate-e52p16-reg.log`.
+Registration from **1303/188** — COMPUTE panel-delta expectations, never quote them:
+each accepted-and-byte-exact probe adds ONE SPECIMENS row (+k positives); each dr-refuses
+probe with retained `.PRN` goes to REJECTS (+r refusals) per the E520E precedent; any
+panel-PROSE edit needs the SAME-change `--update-inventory` (P3-15 gate-found law);
+`git diff --cached --stat`, config NEVER staged; census OWN path (expect counts 15/0/26/0,
+LOAN2 msg MOVES VERBATIM, NOTHING fixed); **C374 written from MEASURED BYTES ONLY BEFORE
+ANY `spec/COVERAGE.tsv` touch**; coverage: read `PROC.CALL_DEC_ACTUALS` FIRST-HAND —
+EXTEND iff its law fits the Sub/Add evidence (expected EXACT 8→8+k) + SAME-change IDS only
+if a NEW row is justified (NEVER `coverage_gen.py`; 15 cols from the FIRST NON-COMMENT
+row; `manual_ref` `pNN[:§X.Y][=phrase]` or `NONE:`); `coverage_check` + prose rc=0; FULL
+gate rc=0 DIRECT; RESULTS §P3-16 + PLAN §5 progress row INSIDE the table **anchored by
+LINE NUMBER with the 7-unescaped-pipes check** (escape raw `|`) + §P3-16 **CLOSED**.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the arm lands byte-exact, LOAN2 moves PAST line 160. The next refusal is NOT predicted
+— lines after 160 were NOT audited as candidates; record the ACTUAL verbatim diagnostic.
+If LOAN2 unexpectedly emits a complete `.REL`, go STRAIGHT to whole-file parity against
+`golden/first/LOAN2/LOAN2.REL` (sha `712cfcb2…`, NEVER re-derived) and report the first
+genuine difference. LOAN2 stays UNMODIFIED (sha `7be23ba3…`).
+
+### 7. Framing binding on C374 wording
+
+C374 is BYTE-TIER ONLY — every statement derives from MEASURED BYTES (authentic goldens +
+this campaign), never from runtime behaviour or PLILIB semantics. The claim may say the
+OBJECT shows pushes/ops/shifts in a byte order; it may NOT claim what `?DSUOP`/`?DADOP`/
+`?QDDSL` DO at run time beyond recorded bytes. If L1 or L5 fail to compose in the ACTUAL
+context, the ledger records the DIFFERENCE as a measured DR fact and the arm is narrowed
+to the measured shapes ONLY — never a fit. The nested-compound boundary (H-E) stays
+`my-gap`/unmeasured unless DR's own object decides otherwise.

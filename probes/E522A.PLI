@@ -1,0 +1,19 @@
+E522A: procedure options(main);
+   /* E2E-52/P3-16 probe A (PLAN P3-16 H-A/H-A2): CONTROL
+      Sub of two equal-scale dec(10,2) autos vs one
+      dec(10,2) formal -- LOAN2:160 arithmetic replicated.
+      Prediction: 22 B block, NO shift, DSTOP A=0A,
+      6 B temp, static vector cell, LHLD formal read. */
+   dcl a fixed dec(10,2);
+   dcl b fixed dec(10,2);
+   dcl p fixed dec(10,2);
+
+   p = q(a - b);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(10,2));
+      dcl x fixed dec(10,2);
+      return (x);
+      end q;
+end E522A;
+

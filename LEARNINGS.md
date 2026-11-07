@@ -8380,3 +8380,73 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   push; rc DIRECT; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell;
   never glue `rm`; never parallelize dependent bash; byte-tier; escape raw `|` in §5 (7-pipe);
   chain 01a1b2d5 renewal 9/12 used, cap 12.
+
+## P3-16 hop 2 PRE-REGISTRATION LANDED — PLAN §P3-16 + probes E522A..E committed BEFORE any oracle call/`ocaml/` byte; CAMPAIGN e52p16 OWED (session 01a1b4c9, chain 01a1b2d5 renewal 10/12; ZERO oracle; ZERO `ocaml/` byte; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — recovery + guard:** successor of `01a1b4b5` per checkpoint g494 (attested);
+  build rc=0, binary sha256 `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb`
+  == tree (re-held this session); guard g494 blocks committed VERBATIM `a4b5536c`; `E522`
+  names + tag `e52p16` verified UNUSED (INVENTORY/gate/golden/build all clean).
+- **ACCEPTED — witness re-held FIRST-HAND from the KEPT authentic golden** (`build/p3-16/
+  loan2-summary-body.txt`, `p13dump code2` + `chains` + `data` on `golden/first/LOAN2/
+  LOAN2.REL` sha `712cfcb2…` NEVER re-derived): summary body 0733–0769; 22 B Sub-actual
+  block 0738–0752 raw `21 FA 02 3E 0A CD.. 21 F4 02 3E 0A CD.. CD.. 21 4E 03 3E 0A CD..`
+  (`?DLDOP/?DLDOP/?DSUOP/?DSTOP`, NO shift); left operand IP(02FA) pushed FIRST; `?DSTOP
+  A=0A`; static vector cell `data@034C = 4E 03` RELOC→`034E` (6 B temp, no static bytes);
+  chain slot `0757 -> LC code@076A`; callee peeled `5E 23 56 EB / SHLD 0354`. Equal-scale
+  Add/Sub witnesses at 0412/043D/047E/0491–04B4 (all precisions 0A, NO shifts — do NOT
+  discriminate differing scales). **NEW §2 evidence this hop: the corpus contains NO
+  differing-scale Sub/Add ACTUAL block — H-B/H-C/H-D are genuinely open.**
+- **ACCEPTED — bind audit (contract-mandated):** `bind.ml` `dec_ok` (~2297) is expression-
+  shape-AGNOSTIC (callee class + scalar RTdec formal only); `temps` sizing (~2340) already
+  allocates the formal-width temp for ANY non-simple actual when `dec_ok` → **Sub/Add
+  actuals need NO bind change; the arm is codegen-guard-only** (the hop-1 open question is
+  CLOSED by direct code reading, not inference).
+- **ACCEPTED — zero-oracle sanity on `02ea809e…` (POSITIONAL FRESH `build/p3-16/sanity/`):**
+  E522A..E ALL rc=2 at the DEC-formal guard VERBATIM, NO `.REL`; measured lines A 11, B 12,
+  C 10, D 11, E 13; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 Line-160 VERBATIM re-held
+  (`build/p3-16/recheck/`), NEVER fixed.
+- **LANDED (pre-registration, this commit):** PLAN §P3-16 §1–§7 — H-A control 22 B no-shift;
+  H-A2 DSTOP A=pf; H-B L1 alignment between pushes in the ACTUAL context (UNMEASURED there);
+  H-C L5 window between DSUOP/DADOP and the temp DSTOP (generalising [C371] Mul-only window
+  — the primary falsification target, MY armed `dpush` assumes it); H-D Add twin (R705/707/
+  715 pinned both directions for SUBTRACT only); H-E nested-compound boundary, refusal KEPT;
+  §4 byte predictions (A 22 B; B **32 B** align+window composed; C twin 32 B; D **27 B**
+  window-only UP d=2 with pf 7 > both operand precisions reversed; E decode-only); §5 arm =
+  ONE guard-pattern widening `Ebinary ((Add|Sub), dec_arith_operand, dec_arith_operand)` via
+  the SAME `!dec_actual_mat` slot, helper renamed, VERBATIM BY-NAME otherwise, histogram
+  68/124, NO bind change, NO emitter change; register from **1303/188** COMPUTED from panel
+  deltas; C374 measured-bytes-only BEFORE COVERAGE; coverage EXTEND `PROC.CALL_DEC_ACTUALS`
+  iff law fits; §6 never-predict; §7 byte-tier framing. Probes `probes/E522{A..E}.PLI`
+  CRLF+bare-`^Z` verified (tails `0d0a1a`), ≤71 cols, `procedure(x);` header law.
+- **SUCCESSOR CONTRACT — P3-16 hop 3+ (CAMPAIGN onward), EXACT ORDER:** (1) if the
+  pre-registration commit (PLAN + probes + this § + durables) is not yet in HEAD, commit it
+  FIRST by EXPLICIT paths — binding. (2) ONE campaign `cd /home/john/projects/sushiworks/
+  pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py E522A E522B E522C E522D E522E
+  --tag e52p16 --switches '$L$D'` rc DIRECT; read EVERY `.PRN`; decode EVERY accepted `.REL`
+  FIRST-HAND into `build/p3-16/` (p13dump code2/chains/data; reldumps); goldens +
+  `summary.txt` + transcripts VERBATIM (layout precedent `golden/e52p15/`) BEFORE any
+  `ocaml/` byte; honest verdicts; NEVER invent a golden. (3) ARM per §5 ONLY the classes
+  MEASURED accepted+byte-exact (if B/C/D falsify the composition, narrow the arm to the
+  measured shapes and record the DR law VERBATIM — never fit); build rc=0; NEW fingerprint;
+  histogram 68/124 fresh `--build-dir`; whole-file cmp FRESH POSITIONAL; sweep count-moves-
+  with-inventory FAILS 0; markers incl honest boundary re-measure; DEC 64/0; divcheck 9/9.
+  (4) LOAN2 UNMODIFIED POSITIONAL FRESH → ACTUAL next blocker VERBATIM NEVER fix; full
+  `.REL` ⇒ straight whole-file parity vs `712cfcb2…` NEVER re-derived. (5) register from
+  **1303/188** (COMPUTE: +k SPECIMENS accepted, +r REJECTS dr-refuses; panel-prose edits
+  need SAME-change `--update-inventory`); census OWN path 15/0/26/0 expected, LOAN2 msg
+  MOVES VERBATIM. (6) **C374 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch**
+  (every byte first-hand from KEPT goldens; opcode-exact ranges; DATED corrections if any
+  §4 prediction missed — kept VERBATIM, never deleted). (7) coverage EXTEND
+  `PROC.CALL_DEC_ACTUALS` iff law fits (EXACT 8→8+k) else justified NEW row + SAME-change
+  IDS (NEVER coverage_gen.py; 15 cols FIRST NON-COMMENT row; manual_ref law);
+  coverage_check + prose rc=0. (8) FULL gate rc=0 DIRECT → `build/gate-e52p16-reg.log`
+  (ONLY the gate runs the negative panel). (9) RESULTS §P3-16 + PLAN §5 row INSIDE table
+  anchored by LINE NUMBER, 7-unescaped-pipes check, raw `|` escaped + §P3-16 **CLOSED**;
+  then P3-17 on the ACTUAL next blocker, marathon through P3-19 (slice 7 of ≤8).
+- **STATE at this checkpoint:** HEAD = pre-registration commit after this; ledger ENDS
+  **C373**; inventory **1303/188**; coverage **145/95**; LAST gate rc=0
+  `build/gate-e52p15-reg.log`; armed binary `02ea809e…` == tree; goldens NEVER re-derived;
+  LOAN2 sha `7be23ba3…` rc=2 Line-160 VERBATIM NEVER fix; config NEVER staged; no push; rc
+  DIRECT; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; never
+  glue `rm`; never parallelize dependent bash; byte-tier; chain 01a1b2d5 10/12 used, cap 12.

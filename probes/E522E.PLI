@@ -1,0 +1,21 @@
+E522E: procedure options(main);
+   /* E2E-52/P3-16 probe E (PLAN P3-16 H-E): BOUNDARY --
+      NESTED compound actual a - b * c. This compiler
+      refuses BY NAME (operands must be plain autos);
+      the DR verdict is recorded VERBATIM, never fitted,
+      and the refusal is KEPT unless measurement says
+      otherwise. */
+   dcl a fixed dec(10,2);
+   dcl b fixed dec(4,3);
+   dcl c fixed dec(10,2);
+   dcl p fixed dec(10,2);
+
+   p = q(a - b * c);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(10,2));
+      dcl x fixed dec(10,2);
+      return (x);
+      end q;
+end E522E;
+

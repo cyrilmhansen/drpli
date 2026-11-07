@@ -1,0 +1,20 @@
+E522B: procedure options(main);
+   /* E2E-52/P3-16 probe B (PLAN P3-16 H-B/H-C): Sub with
+      DIFFERING operand scales: left dec(10,2), right
+      dec(4,3), formal dec(10,2). Prediction: 32 B --
+      MVI A,01/QDDSL between the pushes (align shorter-
+      scale LEFT up) AND MVI A,01/QDDSR window between
+      ?DSUOP and the temp store. */
+   dcl a fixed dec(10,2);
+   dcl yi fixed dec(4,3);
+   dcl p fixed dec(10,2);
+
+   p = q(a - yi);
+   put skip list(p);
+
+   q: procedure(x) returns(fixed dec(10,2));
+      dcl x fixed dec(10,2);
+      return (x);
+      end q;
+end E522B;
+
