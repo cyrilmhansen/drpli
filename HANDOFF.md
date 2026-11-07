@@ -1680,25 +1680,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 542
-checkpoint-id: g542-5cae6a593d90
-checkpoint-kind: auto
+checkpoint-generation: 543
+checkpoint-id: g543-8653727ec0f9
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3931, session 01a1b79e-d26a-766e-b428-4a6bc92eae7c)
-checkpointed: 2026-11-07T20:38:01.125Z
+status: checkpoint (guard level 2, remaining ~7559, session 01a1b7bc-23d4-766e-b428-4a6fb0a54eba)
+checkpointed: 2026-11-07T21:00:07.005Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e4e1652effd25371a8d85e6f496317639bb8dac389b4357bc94fad2dc4f7c824
+source-progress: 0b7b444fea86382581b7c3dc00807b08c5edd96355b4e9eb0ef7fd9695202d40
 source-handoff: d97b05876c76190815216b6212f2a45fd47de365bb177b54871fcaf104e8912f
-source-learnings: d5df47f7f1610a3d0b3a2e90f2f9bc5d771bf22556e9efe7348c5e92d603aae6
+source-learnings: 7b742b06f791cef2e2d1ee5abd06fc185d6eacb1bf0128a2bf2e60b7f3c5f98a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b79e-d26a-766e-b428-4a6bc92eae7c
-readiness-at: 2026-11-07T20:38:12.008Z
-readiness-checkpoint: g542-5cae6a593d90
+readiness-by: session:01a1b7bc-23d4-766e-b428-4a6fb0a54eba
+readiness-at: 2026-11-07T21:00:07.046Z
+readiness-checkpoint: g543-8653727ec0f9
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (finalize: P3-19 hop 6 (CLOSE-OUT): apply LEARNINGS sec "P3-19 hop 5 LANDED" SUCCESSOR CONTRACT steps (1)-(7) VERBATIM: recover HEAD c33e3626+guard, binary baec1f82...==tree, re-hold FRESH positional cmps E524A/B/C + LOAN2 whole-file (claim-time); C377 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch (ledger ENDS C376); coverage FIRST-HAND; FULL gate rc=0 DIRECT build/gate-e52p19-reg.log (expect 1312/0,190/190,9/9,census 16/0/25/0,prose 5); RESULTS P3-19 + PLAN section 5 row after 109 (7-pipe assert RUN IN CODE, escape \|) + P3-19 CLOSED; then STOP - LAST budgeted slice, report LOAN2 finale to operator, open NOTHING new.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2383,5 +2383,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-19 hop 3 session close: campaign e52p19 LANDED 3/3 accepted, goldens VERBATIM 7e8d577d, durables 55a89f14; ZERO ocaml byte; hop 4 successor contract BINDING in LEARNINGS § P3-19 hop 3 + PROGRESS ## Next action (decode H-A/H-B'/H-C, implement measured-only, LOAN2 whole-file cmp finale, register/C377/coverage/gate/close). Chain 01a1b554 12/12 cap NOT reset.
+P3-19 hop 6 (CLOSE-OUT): apply LEARNINGS sec "P3-19 hop 5 LANDED" SUCCESSOR CONTRACT steps (1)-(7) VERBATIM: recover HEAD c33e3626+guard, binary baec1f82...==tree, re-hold FRESH positional cmps E524A/B/C + LOAN2 whole-file (claim-time); C377 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch (ledger ENDS C376); coverage FIRST-HAND; FULL gate rc=0 DIRECT build/gate-e52p19-reg.log (expect 1312/0,190/190,9/9,census 16/0/25/0,prose 5); RESULTS P3-19 + PLAN section 5 row after 109 (7-pipe assert RUN IN CODE, escape \|) + P3-19 CLOSED; then STOP - LAST budgeted slice, report LOAN2 finale to operator, open NOTHING new.
 <!-- guard:end checkpoint -->
