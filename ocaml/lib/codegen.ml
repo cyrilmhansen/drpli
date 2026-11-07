@@ -4613,10 +4613,14 @@ let rec lower_hl st (e : Ast.expr) =
                   cell BIND allocated in cs_copies [C358] -- codegen never
                   allocates it, only reads the recorded address. *)
                let copyin = ref (None : (int * int * int) option) in
-               (* [E2E-52/P3-13/C371] a DEC-expression product actual operand: a
-                  plain caller-declared DEC auto (NOT a deref'd formal). This is
-                  exactly the shape the E52Z panel measured. *)
-               let dec_product_operand st (e : Ast.expr) =
+               (* [E2E-52/P3-13/C371] a DEC expression actual operand: a plain
+                  caller-declared DEC auto (NOT a deref'd formal). This is
+                  exactly the shape the E52Z panel measured. DELIBERATELY
+                  NON-RECURSIVE [E2E-52/P3-16/C374]: E522E measured DR ACCEPTING
+                  a NESTED compound (a - b*c) but that class is NOT armed here
+                  -- a recursive test would silently arm the measured-accepted,
+                  never-reproduced boundary; it stays an honest my-gap. *)
+               let dec_arith_operand st (e : Ast.expr) =
                  match (unwrap_e e).Ast.e with
                  | Ast.Eident v ->
                      vk_is_dec st v
@@ -4843,15 +4847,22 @@ let rec lower_hl st (e : Ast.expr) =
                               descriptor is a STATIC reloc to a pre-scaled pool cell
                               of FORMAL width ([C084] packing, dec_pool below). *)
                            ()
-                       | Ast.Ebinary (Ast.Mul, l, r) when
-                           decact && dec_product_operand st l
-                           && dec_product_operand st r ->
+                       | Ast.Ebinary (Ast.(Mul | Add | Sub), l, r) when
+                           decact && dec_arith_operand st l
+                           && dec_arith_operand st r ->
                            (* [E2E-52/P3-13, C371] MEASURED product actual: E52ZA/ZB
                               and the authentic LOAN2 055D-05FA five-block site -- the
                               32 B product block with the [C370]-window shift between
                               the last arith op and the store, ?DSTOP A = FORMAL
                               precision, into a bind-allocated FORMAL-WIDTH temp
-                              (cs_dec/cs_temps). Add/sub/div, suffix, deref, EXTERNAL
+                              (cs_dec/cs_temps). [E2E-52/P3-16, C374] MEASURED Add/Sub
+                              actuals ride the SAME route: E522A equal scales = 22 B
+                              NO shift; E522B/C differing operands = L1 alignment
+                              MVI A,d/?QDDSL BETWEEN the pushes (left pushed first)
+                              PLUS the L5 window ?QDDSR between the arith op and the
+                              temp store; E522D equal operand scales vs differing
+                              formal = window only, direction from SCALES ONLY, DSTOP
+                              A = pf. Div, suffix, deref, NESTED compounds, EXTERNAL
                               and recursive callees stay refused BY NAME below. *)
                            ()
                        | _ ->

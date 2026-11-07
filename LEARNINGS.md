@@ -8513,3 +8513,48 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   `golden/e52p16/` KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 Line-160 VERBATIM
   NEVER fix; config NEVER staged; no push; rc DIRECT; POSITIONAL; opam env every shell;
   never glue `rm`; never parallelize dependent bash; byte-tier; chain 10/12 cap 12.
+
+## P3-16 hop 4 ARM LANDED — cmp 4/4 rc=0 + E522E boundary KEPT + LOAN2 ADVANCED VERBATIM to line 177; REGISTRATION → C374 → COVERAGE → GATE → CLOSE OWED (session 01a1b4c9, chain 01a1b2d5 renewal 10/12; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — ARM (first `ocaml/` byte AFTER goldens commit `91b10c25`):** `ocaml/lib/
+  codegen.ml` — guard admission widened `Ast.Ebinary (Ast.(Mul | Add | Sub), l, r) when
+  decact && dec_arith_operand st l && dec_arith_operand st r`; helper RENAMED
+  `dec_product_operand`→`dec_arith_operand` (body UNCHANGED, NON-recursive — nested stays
+  refused, comment records WHY: recursive test would silently arm E522E); refusal text
+  UNTOUCHED; ZERO bind/emitter changes. Build rc=0; NEW fingerprint sha256
+  `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175` (determinism re-check
+  fresh `--build-dir` OWED at validation). TOOL LESSON (accepted): a `dune build` after a
+  TYPE ERROR silently REUSES the stale exe — identical fingerprint is NOT proof of an
+  armed build; ALWAYS grep the build output for `Error` before recording a fingerprint.
+- **ACCEPTED — validation (partial, FRESH POSITIONAL `build/p3-16/arm-out/`):** cmp
+  E522A/B/C/D whole-file **4/4 rc=0** (384 B each); E522E rc=2 BY NAME `Line 13`
+  (boundary honest); LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO `.REL` — Line-160 blocker
+  **CLOSED**, ACTUAL next blocker VERBATIM: `codegen: PUT FILE(OUTPUT) EDIT of a variable
+  bound as fixed-binary has no byte-exact DR witness [TBD] (line 177)` — NEVER fixed;
+  P3-17 candidate = the E521D fixed-bin EDIT item class (measured-accepted, unarmed).
+- **STILL OWED (successor, EXACT ORDER):** (1) histogram codegen 68/total 124 == baseline
+  fresh `--build-dir`; sweep (count moves with INVENTORY, FAILS 0); markers (CRLF+bare-^Z)
+  incl E522E boundary re-measure; DEC 64/0; divcheck 9/9. (2) commit ARM (explicit paths
+  ocaml/lib/codegen.ml + this § + PROGRESS) — `git diff --cached --stat`, config NEVER
+  staged. (3) register from **1303/188** COMPUTE: +4 SPECIMENS A/B/C/D, E522E → REJECTS
+  honest my-gap golden KEPT UNCLAIMED (XJ/XK/E521D precedent) → expect **1307/189**,
+  adjudicate by REAL `--update-inventory` output NEVER force; census OWN path 15/0/26/0
+  LOAN2 msg MOVES VERBATIM to the Line-177 text. (4) **C374 measured-bytes-only BEFORE ANY
+  COVERAGE touch** — bullets: 22 B no-shift Sub control == authentic 0738-0752; L1
+  alignment MEASURED in the ACTUAL context + FOR ADD (DATED extension of [C086] R705/707/
+  715 which pinned subtract-only); L5 window generalises Mul→Add/Sub (32 B composed B/C;
+  27 B window-only D, UP d=02, DSTOP A=07 pf<operand precisions — scales-only law);
+  E522E nested DR-ACCEPTED three-push/one-temp (inner Mul NO window — L5 enclosing-+/-
+  reconfirmed in actual context) NOT armed; BY-NAME perimeter (div, suffix, deref, nested,
+  literal-inside-binary); byte-tier NOT-say. (5) coverage EXTEND `PROC.CALL_DEC_ACTUALS`
+  EXACT 8→12 (read row FIRST-HAND) + IDS unchanged; coverage_check+prose rc=0. (6) FULL
+  gate rc=0 DIRECT → `build/gate-e52p16-reg.log`. (7) RESULTS §P3-16 + PLAN §5 row INSIDE
+  table anchored by LINE NUMBER (7 unescaped pipes, escape raw `|`) + §P3-16 CLOSED; then
+  P3-17 on the ACTUAL line-177 blocker (evidence-first pre-registration; the E521D golden
+  is ALREADY the authentic-adjacent witness — pre-audit ZERO-oracle FIRST), marathon
+  through P3-19 (slice 7 of ≤8).
+- **STATE:** HEAD = arm commit after this; armed binary `215c4503…`; goldens
+  `golden/e52p16/` KEPT NEVER re-derived; ledger ENDS C373; inventory 1303/188; coverage
+  145/95; LAST gate rc=0 `build/gate-e52p15-reg.log`; chain 10/12 cap 12; renewal was
+  NOT authorized this session (stale checkpoint at the request) — successor `/handoff
+  verify` + refresh first.

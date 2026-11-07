@@ -42,11 +42,11 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-16 hop 3 CAMPAIGN e52p16 LANDED — 5 ok/5 DR-ACCEPTED, ZERO §4 misses; H-A/H-A2/H-B/H-C/H-D CONFIRMED, H-E MEASURED accepted-UNARMED; goldens committed VERBATIM; ARM + VALIDATION + REGISTRATION + C374 + COVERAGE + GATE + CLOSE OWED — read `LEARNINGS.md` § "P3-16 hop 3 CAMPAIGN e52p16 LANDED" SUCCESSOR CONTRACT FIRST, it is BINDING)
+## Next action (E2E-52/P3-16 hop 4 ARM LANDED — cmp 4/4 rc-0 + E522E boundary KEPT + LOAN2 advanced VERBATIM to Line-177; VALIDATION-TAIL + REGISTRATION + C374 + COVERAGE + GATE + CLOSE OWED — read `LEARNINGS.md` § "P3-16 hop 4 ARM LANDED" STILL-OWED FIRST, it is BINDING)
 
-**EXECUTE NOW (successor): P3-16 hop 4 ARM.** (1) ARM `ocaml/lib/codegen.ml` ~4846: widen Mul admission to `Ast.Ebinary ((Ast.Add | Ast.Sub), l, r)` with the SAME NON-RECURSIVE `dec_product_operand` both-sides test (RENAME helper `dec_arith_operand`, comment cites this campaign; NON-recursive KEEP = nested E522E stays refused BY NAME — recursive test would silently arm the unmeasured-at-arm boundary); refusal text UNTOUCHED; NO bind/emitter change. (2) build rc=0 + NEW sha256 + deterministic fresh `--build-dir` + histogram 68/124 + cmp A/B/C/D whole-file FRESH POSITIONAL `build/p3-16/arm-out/` + E rc=2 BY NAME + sweep count-moves-with-inventory FAILS 0 + markers + DEC 64/0 + divcheck 9/9. (3) LOAN2 UNMODIFIED → ACTUAL next blocker VERBATIM NEVER fix; full `.REL` ⇒ straight whole-file parity vs `712cfcb2...` NEVER re-derived. (4) register from 1303/188 COMPUTE (+4 SPECIMENS, E522E → REJECTS my-gap golden KEPT, expect 1307/189 — adjudicate by REAL `--update-inventory` output; panel-prose edits SAME-change re-snapshot); census 15/0/26/0 msg MOVES VERBATIM. (5) **C374 measured-bytes-only BEFORE ANY COVERAGE touch** (incl. DATED note: L1 alignment now measured for ADD and in the ACTUAL context — extends [C086]). (6) coverage EXTEND `PROC.CALL_DEC_ACTUALS` first-hand adjudication (expected EXACT 8→12) + IDS only if NEW row; NEVER coverage_gen.py. (7) FULL gate rc=0 DIRECT → `build/gate-e52p16-reg.log`; RESULTS §P3-16 + PLAN §5 row INSIDE table anchored by LINE NUMBER (7-pipe check, escape raw `|`) + §P3-16 CLOSED; then P3-17 ACTUAL blocker, marathon through P3-19 (slice 7 of <=8).
+**EXECUTE NOW (successor):** (0) `/handoff verify`; refresh+attest via `/handoff` + `/handoff ready` (renewal was NOT authorized last hop — stale checkpoint; fix staleness first). (1) validation tail: histogram 68/124 fresh `--build-dir`; sweep count-moves-with-inventory FAILS 0; markers incl E522E rc=2 Line-13; DEC 64/0; divcheck 9/9; fingerprint `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175` determinism re-check. (2) commit ARM if not in HEAD (ocaml/lib/codegen.ml explicit path ONLY + durables; `git diff --cached --stat`; config NEVER staged). (3) register from 1303/188 COMPUTE (+4 SPECIMENS A/B/C/D; E522E to REJECTS my-gap golden KEPT — expect 1307/189, adjudicate by REAL `--update-inventory` output); census OWN path 15/0/26/0 msg MOVES VERBATIM to Line-177 text NEVER fix. (4) **C374 measured-bytes-only BEFORE ANY COVERAGE touch** (bullets in LEARNINGS § hop 4: 22B control; L1 measured for ADD + ACTUAL context DATED-extends [C086]; L5 window Mul->Add/Sub; E522E nested accepted-UNARMED; BY-NAME perimeter; byte-tier). (5) coverage EXTEND `PROC.CALL_DEC_ACTUALS` EXACT 8->12 first-hand adjudication; NEVER coverage_gen.py; coverage_check+prose rc=0. (6) FULL gate rc=0 DIRECT -> `build/gate-e52p16-reg.log`. (7) RESULTS §P3-16 + PLAN §5 row INSIDE table anchored by LINE NUMBER (7-unescaped-pipes, escape raw `|`) + §P3-16 CLOSED. (8) P3-17 on ACTUAL Line-177 blocker `PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary ... (line 177)` — the E521D golden is the measured-accepted fixed-bin witness already in `golden/e52p15/`; ZERO-oracle pre-audit FIRST-HAND before probes; verify E523*/e52p17 unused; pre-register BEFORE any oracle/ocaml byte; marathon through P3-19 (slice 8 of <=8 — LAST).
 
-**STATE at this checkpoint:** HEAD = campaign-evidence commit (this); ledger ENDS **C373**; inventory **1303/188**; coverage **145/95**; LAST gate rc=0 `build/gate-e52p15-reg.log`; binary `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb` == tree (UNARMED Sub/Add); goldens `golden/e52p16/` 5/5 ACCEPTED `NO ERROR(S)` both passes KEPT VERBATIM NEVER re-derived; decodes `build/p3-16/e52p16-decode.txt` + `loan2-summary-body.txt`; pre-reg `dfba24a4` BEFORE campaign (binding order held); LOAN2 sha `7be23ba3...` rc=2 NO `.REL` Line-160 VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; config NEVER staged; no push; rc DIRECT; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; never glue `rm`; never parallelize dependent bash; byte-tier; escape raw `|` (7-pipe); chain 01a1b2d5 renewal 10/12 used, cap 12.
+**STATE:** HEAD = arm commit after this; armed binary `215c4503...` (build rc=0, cmp 4/384B FRESH `build/p3-16/arm-out/`); goldens `golden/e52p16/` KEPT NEVER re-derived (pre-reg `dfba24a4` -> campaign `91b10c25` -> arm order HELD); ledger ENDS **C373**; inventory **1303/188**; coverage **145/95**; LAST gate rc=0 `build/gate-e52p15-reg.log`; LOAN2 sha `7be23ba3...` rc=2 NO .REL Line-177 VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; config NEVER staged; no push; rc DIRECT; POSITIONAL `pli80c.exe IN OUT` NO `-o`; opam env every shell; never glue `rm`; never parallelize dependent bash; byte-tier; 7-pipe check; NEW LESSON: fingerprint unchanged after a TYPE-ERROR build = stale exe reused — grep build output for `Error` first; chain 01a1b2d5 10/12 used, cap 12.
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-15 hop 6 — ARM `95f1bbf7` + VALIDATION + REGISTRATION `12f92978` LANDED; DATED gate range-fix + durables commit, then C373 → COVERAGE → GATE → CLOSE → P3-16 OWED — read `LEARNINGS.md` § "P3-15 hop 5 PART LANDED" SUCCESSOR CONTRACT steps (1)–(6) FIRST, it is BINDING)
 
@@ -2952,17 +2952,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 494
-checkpoint-id: g494-c949e5134585
+checkpoint-generation: 496
+checkpoint-id: g496-005994916e75
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
+content-delta: new
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T06:54:34.267Z
+checkpointed: 2026-11-07T07:23:16.589Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1f8533c3b2e43d2b5682f17b813396af7e4b7a467d109ebe44a26856bc0344d4
+source-progress: 47f76f13931f9229170c297eac2df73f94a5e3590aae86609bd8a7cb44755fe4
 source-handoff: 344e88a7905babeffc9e3c4800f20f279c7a4ec209d6f0c5e8b9b6cfd3b88f79
-source-learnings: 00c1f3f1527f23a84c98856fe7612dbb326334c3ce0be348933386b1b2262f98
+source-learnings: a76bcba46314aff9ae82a08c1d92ca5a5e868276e3ad42d12551ad223a1dae77
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` P3-16 hop 2: verify `E522*`/`e52p16` UNUSED; PLAN §P3-16 §1-§7 (OPEN question: does Sub at DIFFERING scales emit the [C370] window — NEVER fit) + probes pre-registered + committed EXPLICIT paths BEFORE any oracle/`ocaml/` byte; ZERO-oracle sanity (`pli80c.exe` POSITIONAL FRESH — no-.exe gives rc=127 trap); ONE campaign e52p16; goldens VERBATIM first; arm measured ONLY; FULL validation + gate BEFORE close → `build/gate-e52p16-reg.log`; register from **1303/188** (COMPUTE panel-delta expectations; REJECTS prose edits need SAME-change `--update-inventory`); C374 measured-bytes-only BEFORE COVERAGE; RESULTS+PLAN §5 (line-anchored, 7-pipe, escape raw `|`)+CLOSED; marathon through P3-19 (slice 7 of ≤8). Ledger ENDS **C373**; inventory **1303/188**; coverage **145/95** IO.PUT_EDIT EXACT:45; LAST gate rc=0 `build/gate-e52p15-reg.log` EVERY number hit; armed binary `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb` == tree; goldens `golden/e52p15/` KEPT NEVER re-derived; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO `.REL` Line-160 VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` no `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; no push; byte-tier; chain 01a1b2d5 10/12 used after renewal, cap 12.**
 
@@ -3617,9 +3617,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b4b5-578e-71e7-84a1-50f921e72424
-readiness-at: 2026-11-07T06:54:34.296Z
-readiness-checkpoint: g494-c949e5134585
 <!-- guard:end checkpoint -->
 
 ## Blockers
