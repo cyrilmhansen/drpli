@@ -1680,13 +1680,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 543
-checkpoint-id: g543-8653727ec0f9
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~7559, session 01a1b7bc-23d4-766e-b428-4a6fb0a54eba)
-checkpointed: 2026-11-07T21:00:07.005Z
+checkpoint-generation: 545
+checkpoint-id: g545-464c291a6eeb
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4153, session 01a1b7bc-23d4-766e-b428-4a6fb0a54eba)
+checkpointed: 2026-11-07T21:00:52.784Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 0b7b444fea86382581b7c3dc00807b08c5edd96355b4e9eb0ef7fd9695202d40
 source-handoff: d97b05876c76190815216b6212f2a45fd47de365bb177b54871fcaf104e8912f
@@ -1694,11 +1694,8 @@ source-learnings: 7b742b06f791cef2e2d1ee5abd06fc185d6eacb1bf0128a2bf2e60b7f3c5f9
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b7bc-23d4-766e-b428-4a6fb0a54eba
-readiness-at: 2026-11-07T21:00:07.046Z
-readiness-checkpoint: g543-8653727ec0f9
 ### Last verified state
-guard level 2; checkpoint requested (finalize: P3-19 hop 6 (CLOSE-OUT): apply LEARNINGS sec "P3-19 hop 5 LANDED" SUCCESSOR CONTRACT steps (1)-(7) VERBATIM: recover HEAD c33e3626+guard, binary baec1f82...==tree, re-hold FRESH positional cmps E524A/B/C + LOAN2 whole-file (claim-time); C377 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch (ledger ENDS C376); coverage FIRST-HAND; FULL gate rc=0 DIRECT build/gate-e52p19-reg.log (expect 1312/0,190/190,9/9,census 16/0/25/0,prose 5); RESULTS P3-19 + PLAN section 5 row after 109 (7-pipe assert RUN IN CODE, escape \|) + P3-19 CLOSED; then STOP - LAST budgeted slice, report LOAN2 finale to operator, open NOTHING new.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
