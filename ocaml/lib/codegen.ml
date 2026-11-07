@@ -151,7 +151,12 @@ type st =
      sections, and the .REL carries plain Data-segment relocations for both.
      A static cell therefore has an ABSOLUTE data address (it sits below the
      pool base), while an automatic is still `declared offset + base', so
-     addr_of needs to know which table a name lives in. *)
+     addr_of needs to know which table a name lives in.
+     [DATED SUPERSESSION, E2E-52/P3-18, LOAN2.REL sha 712cfcb2…] the full order is
+     [prealloc EDIT tables][statics][lowering pool][automatics] -- C114's
+     "statics below the pool" stands (statics stay below the AUTOMATICS base and
+     outside prescan's pool demand), but the prealloc tables sit BELOW the static
+     cells; `stat_addrs' is shifted by the table total at construction. *)
   ; mutable stat_addrs : (string * int) list
   ; mutable stat_total : int
   ; mutable files : string list   (* [E2E-11 step 2] uppercased FILE names *)
@@ -3158,7 +3163,7 @@ let rec edit_stmts (ss : Ast.stmt list) : Ast.stmt list =
       | _ -> [])
     ss
 
-let prealloc_fmt_tables st (ss : Ast.stmt list) : int =
+let prealloc_fmt_tables st (ss : Ast.stmt list) : int list =
   st.fmtq
     <- List.map
          (fun s ->
@@ -3169,9 +3174,13 @@ let prealloc_fmt_tables st (ss : Ast.stmt list) : int =
                 | Some (_, _, specs) -> pool_alloc st (fmt_table_bytes specs)
                 | None -> assert false))
          (edit_stmts ss);
-  (* [E2E-52/P3-2] the caller needs to know how many pool blocks THIS pass created,
-     after the fact, because `st.fmtq' is drained by lowering.  One block per table. *)
-  List.length st.fmtq
+  (* [E2E-52/P3-18] the caller needs the pool-block ADDRESSES this pass created,
+     in ALLOCATION (FIFO/source) order -- a PHASE tag by provenance, not an index
+     window -- because `st.fmtq' is drained by lowering and the emission site must
+     identify the format-table group however the pool was seeded.  One block per
+     table; `pool_alloc' returns the block's address, so there is no second copy
+     of the arithmetic (C152/C179 discipline). *)
+  st.fmtq
 
 
 (* GET LIST (varying);) — single varying data item, default stream,
@@ -15468,9 +15477,14 @@ let emit_program (progname : string) (auto_bytes : int)
        addresses, which reuses the existing per-block SET-LC(data,addr)
        emission [G113] -- DR emits a SET-LC per data block, not one flat run,
        and E20B's .REL shows exactly that for a static cell followed by a
-       string literal. *)
-    { base = statics.sy_total + pool_total; items = []; pool = statics.sy_cells
-    ; pool_next = statics.sy_total; fmtq = []; dec_cells = []; lc = 0
+       string literal.
+       [E2E-52/P3-18] the seeding MOVED: the pool starts EMPTY so the prealloc
+       EDIT tables allocate from data 0 (LOAN2.REL evidence, see the prealloc
+       site below); the static cells and `stat_addrs' are shifted ABOVE the table
+       run right after prealloc.  With no EDIT tables `tables_total = 0' and this
+       is EXACTLY the old [statics][pool] seeding. *)
+    { base = statics.sy_total + pool_total; items = []; pool = []
+    ; pool_next = 0; fmtq = []; dec_cells = []; lc = 0
     ; a_zero = false; a_pending = 0
     ; de_val = None; de_wait = 0; de_bytes = []
     ; last_imm = None; lowered = 0; temps = 0
@@ -15498,8 +15512,30 @@ let emit_program (progname : string) (auto_bytes : int)
   in
   (* [E2E-8] DR allocates every PUT EDIT format table ahead of all other pool
      items [R1003/R1021/R1022], so the tables are reserved BEFORE any
-     statement lowers. *)
-  let n_fmt_blocks = prealloc_fmt_tables st stmts in
+     statement lowers.
+     [E2E-52/P3-18] ahead of ALL of them, static cells included: the authentic
+     golden `golden/first/LOAN2/LOAN2.REL` (sha 712cfcb2…) carries the eight EDIT
+     tables at data 0x0000-0x00A1, the 15-byte STATIC `name` cell ABOVE them at
+     0x00A2-0x00B0, and the lowering-allocated pool from 0x00B1; the total is
+     unchanged (162 + 15 = 177 = where lowering starts), so `base' and the C152
+     demand/layout assertion below are UNTOUCHED by this reordering.  The tables
+     therefore allocate from data 0 with `pool = []'; the static cells and their
+     `addr_of' addresses are shifted ABOVE the table run right after prealloc.
+     [PROPOSED until the whole-file LOAN2 cmp lands -- PLAN sec P3-18.] *)
+  let fmt_blocks = prealloc_fmt_tables st stmts in
+  let tables_total = st.pool_next in
+  st.pool
+    <- st.pool @ List.map (fun (a, bs) -> (a + tables_total, bs)) statics.sy_cells;
+  st.pool_next <- tables_total + statics.sy_total;
+  (* ONE shift covers EVERY consumer of a bind-relative static address:
+     `stat_addrs' has exactly one reader, `addr_of_raw' (which returns the static
+     address WITHOUT `st.base'), and `stat_total' is read nowhere.  Static arrays
+     refuse IN BIND (`STATIC array is not independently characterized', bind.ml
+     ~1048) and explicitly-static structure heads are never aliased, their member
+     rows falling into the `collect_statics' catch-all -- so no member/array
+     consumer can exist below that boundary (hop-4 zero-oracle sanity SAN1/SAN3). *)
+  st.stat_addrs
+    <- List.map (fun (n, a) -> (n, a + tables_total)) statics.sy_addrs;
   (* lower prologue + body + epilogue into st.items (code segment) *)
   let ls = { labs = []; fwd = []; scope = 0; own = []; own_procs = []; chain = []
            ; on_pads = []; sp_cell = None; on_any = false } in
@@ -15744,13 +15780,13 @@ let emit_program (progname : string) (auto_bytes : int)
     (if addr > 0 || i > 0 then [Link (t_set_lc, Some (Data, addr), None)] else [])
     @ List.map (fun v -> Data (v land 0xff)) bs
   in
-  (* [E2E-52/P3-2] the blocks created by the prealloc pass are the pool blocks ABOVE
-     the static-initialiser cells and BELOW everything lowering allocates. *)
-  let n_static_blocks = List.length statics.sy_cells in
+  (* [E2E-52/P3-2, SUPERSEDED by [E2E-52/P3-18] on LOAN2.REL evidence] the blocks
+     created by the prealloc pass USED to be identified by an index window above the
+     static blocks; the allocation order is now tables-first (see the prealloc site),
+     so the group is identified by its recorded block ADDRESSES (a phase tag), and
+     legacy programs cannot tell the difference. *)
   let fmt_grp, rest_grp =
-    List.partition
-      (fun (i, _) -> i >= n_static_blocks && i < n_static_blocks + n_fmt_blocks)
-      pool_sorted
+    List.partition (fun (_, (addr, _)) -> List.mem addr fmt_blocks) pool_sorted
   in
   (* MEASURED record order, `golden/probe55/P086K/P086K.REL` (512 B, reldump
      build/e52p3/p086k-reldump.txt): DEF-PUBLIC / SET-LC(data,0000) + the 6-byte PUT
@@ -15762,18 +15798,14 @@ let emit_program (progname : string) (auto_bytes : int)
      prescan/lowering phase boundary, not at the head of DATA whenever a FILE exists
      (E46N10, FLTPOLY2 -- no EDIT table, common first -- stay exactly as measured).
      When there is no COMMON group this reordering cannot move a byte: the tables are
-     already the lowest-address blocks, so the stream is the same address-ordered one. *)
+     already the lowest-address blocks, so the stream is the same address-ordered one.
+     [E2E-52/P3-18] with the static cells allocated ABOVE the tables (LOAN2.REL
+     evidence above), the SAME split reproduces the authentic prelude for the
+     tables-plus-statics class: tables FIFO (= address ascending from 0) -> COMMON ->
+     static cell -> lowering pool in address order.  The P3-2 `[TBD]' refusal of the
+     tables-above-statics shape is DELETED because the class is now MEASURED, by the
+     kept authentic golden, not assumed. *)
   let tables_before_common = fmt_grp <> [] && common_seg <> [] in
-  if
-    tables_before_common
-    && (n_static_blocks > 0
-        || (match fmt_grp with ((_, (0, _)) :: _) -> false | _ -> true))
-  then
-    failwith
-      ("codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser "
-       ^ "cells, or with a format-table group that does not start at data 0, is an unmeasured "
-       ^ ".REL record order [E2E-52/P3-2 measures P086K only: tables at data 0000, NO static "
-       ^ "cells]");
   let pool_head = Link (t_set_lc, Some (Data, 0), None) in
   let data_seg =
     if st.pool = [] then []

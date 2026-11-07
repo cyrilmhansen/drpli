@@ -8974,3 +8974,61 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   `build/` + `ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no push);
   chain 01a1b554 renewal 9/12 used, cap 12. **NEXT = implement per PLAN §P3-18 §5.1 in this
   session (hop 4 continues), then the §5.2–§5.7 tail.**
+
+## E2E-52/P3-18 hop 4 (CONTINUED) — LAW IMPLEMENTED; LOAN2 COMPILES rc=0 FOR THE FIRST TIME; WHOLE-FILE CMP DIVERGES AT FILE BYTE 324 (1-based) — NEW BLOCKER CLASS RECORDED, NEVER FIX BY PREDICTION (same session 01a1b6c2, renewal 9/12)
+
+- **ACCEPTED — implementation landed exactly per PLAN §P3-18 §5.1** (`ocaml/lib/codegen.ml`
+  only; bind untouched; committed after this entry): `prealloc_fmt_tables` returns the
+  allocated table ADDRESSES (FIFO = the phase tag; `pool_alloc` 530 already returns the
+  address — no second arithmetic); `st` starts `pool = []`, `pool_next = 0`; tables
+  allocate from data 0; static cells appended shifted by `tables_total`,
+  `pool_next = tables_total + sy_total`; `stat_addrs` shifted by the same amount (single
+  reader `addr_of_raw`); emission partition is now `List.mem addr fmt_blocks` on the
+  address-stable-sorted pool (FIFO == ascending; `List.sort` is stable); the P3-2 `[TBD]`
+  refusal DELETED; `base`/`data_size` UNCHANGED; C114 comment DATED-superseded in place.
+- **ACCEPTED — one build slip (stale-exe lesson RE-CONFIRMED):** first build rc=1
+  (`mem_assoc` vs `int list`), FIXED, second build rc=0 ZERO `Error`
+  (`build/p3-18/build-hop4-arm2.log`); NEVER trust a fingerprint after a failed build.
+  NEW ARMED FINGERPRINT sha256 `f93b86eaa5d3282b7b6ee0a501c6d405a350af4c0edc053836722dfeb15ace5f`
+  (supersedes `b744acfb…`; determinism + histogram 68/124 NOT yet re-checked this hop).
+- **ACCEPTED — the C152 falsifier did NOT fire:** no demand/layout mismatch; the prescan
+  demand really does include the table bytes (hop-3 finding confirmed by execution).
+- **MEASURED — LEGACY FALSIFIER PASSED:** sweep `python3 build/e52p3/sweep.py E46N E46K
+  E51 E52 P086 R10` rc=0 (`build/p3-18/sweep-hop4.log`, refusions BY-NAME only, FAILS 0);
+  SAN2 control (static char cell, no tables) byte-identical before/after (256 B cmp rc=0).
+  `sy_cells = []` identical-by-construction claim holds.
+- **MEASURED — LOAN2 NOW COMPILES: rc=0, NO `.REL`-less refusal, 7808 B, code=2469
+  data=91** (FRESH POSITIONAL `build/p3-18/p4-out/LOAN2.REL`; source sha `7be23ba3…`
+  UNMODIFIED; golden sha `712cfcb2…` UNTOUCHED). **The P3-17 record-order blocker is
+  CLOSED as a blocker class — but the whole-file `cmp` IS the verdict and it FAILS:**
+  `cmp` first difference **file byte 324 (1-based) = offset 0x0143**:
+  golden `... 12 eb 10 00 | d4 ba c8 00 12 09 29 88 ...`, mine `... 12 eb 10 02 | f1 ea 5d 66 00 5e ...`.
+  My file is 128 B LONGER (7808 vs 7680). `tools/reldump.py` normalises byte alignment, so
+  its logical streams AGREE through the entire table prelude (records @251-@490 identical
+  incl. SET-LC 0007/0015 and the 5-byte tables) — the byte-level divergence sits INSIDE the
+  bit-packed record stream immediately after the `LINK-SET-LC data 0007` record header,
+  i.e. in the following record's bit-packed payload/START-ADDRESS area. Dumps kept:
+  `build/p3-18/{mine,golden}-rel-dump.txt`, raw xxd windows recorded here.
+- **CLASSIFICATION — `my-gap` (my compiler is behind DR; DR produced the 7680 B golden).**
+  The allocation-order LAW (tables@0 -> statics -> lowering, COMMON between) is NOT falsified
+  by this: the logical DATA prelude matches record-for-record; the divergence is a NEW,
+  EARLIER-CLASS blocker (whole-file byte detail, likely downstream of a size/count difference
+  — 128 B). Per the never-predict rule NO further code change is made; P3-19 must START from
+  this recorded first-difference, decode both streams at bit level around 0x013A-0x016A and
+  find where the 128 B comes from BEFORE proposing anything.
+- **FALSIFIED (tooling):** the guess that byte 324 was a DATA-byte divergence — the reldump
+  logical streams match through data 0015; the difference is in the bit-packing after the
+  SET-LC(data,0007) header record.
+- **STILL OWED this chain (successor):** fingerprint determinism fresh `--build-dir` +
+  histogram 68/124; markers 16/16; DEC 64/0; divcheck 9/9; register (REAL
+  `--update-inventory`, census OWN path — the LOAN2 census msg NOW MOVES: rc=0 with a
+  `.REL`, expect a DIFFERENT message or retire); C376 measured-bytes-only BEFORE any
+  COVERAGE touch; coverage `STOR.STATIC_MEMBER_INITIAL`/`IO.PUT_EDIT` FIRST-HAND; FULL gate
+  rc=0 DIRECT `build/gate-e52p18-reg.log`; RESULTS §P3-18 (LAW IMPLEMENTED + legacy intact +
+  LOAN2 rc=0 + whole-file cmp MY-GAP recorded VERBATIM — LOAN2 stays UNCLAIMED, never claim
+  exactness) + §5 row finalise + §P3-18 CLOSED -> **P3-19 (LAST slice) on the ACTUAL new
+  blocker: the 128 B / byte-324 whole-file difference.** Ledger ENDS C375; inventory
+  1309/190; coverage 145/95 EXACT:47; LAST gate rc=0 `build/gate-e52p17-reg.log`; ARMED
+  binary `f93b86ea…` == tree; goldens KEPT NEVER re-derived; standing constraints per
+  PROTOCOL Part 2 anchor; `ocaml/scratch-*` + `build/` NEVER staged; config NEVER staged;
+  no push; chain 01a1b554 renewal 9/12 used, cap 12.
