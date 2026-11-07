@@ -8450,3 +8450,66 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
   LOAN2 sha `7be23ba3…` rc=2 Line-160 VERBATIM NEVER fix; config NEVER staged; no push; rc
   DIRECT; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; never
   glue `rm`; never parallelize dependent bash; byte-tier; chain 01a1b2d5 10/12 used, cap 12.
+
+## P3-16 hop 3 CAMPAIGN e52p16 LANDED — 5 ok/5 DR-ACCEPTED, EVERY §4 byte prediction HIT; H-B/H-C/H-D CONFIRMED, H-E MEASURED ACCEPTED-UNARMED; ARM OWED (session 01a1b4c9, chain 01a1b2d5 renewal 10/12; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED — campaign rc=0 5 ok/5** (`build/p3-16/campaign-e52p16.log`, batches [A B C D]+[E]);
+  every `.PRN` `NO ERROR(S)` both passes; goldens `golden/e52p16/E522{A..E}/` KEPT VERBATIM
+  NEVER re-derived; decodes `build/p3-16/e52p16-decode.txt` (first-hand this hop).
+- **ACCEPTED — H-A/H-A2 CONFIRMED:** E522A (a−b both dec(10,2), formal dec(10,2)) = 22 B
+  `DLDOP(0A)/DLDOP(0A)/?DSUOP/LXI H,*A(temp)/MVI A,0A/?DSTOP` ZERO shifts — byte-for-byte the
+  authentic LOAN2 0738-0752 geometry in the probe context.
+- **ACCEPTED — H-B CONFIRMED (L1 fires in the ACTUAL context):** E522B (a dec(10,2) − yi
+  dec(4,3) vs dec(10,2) formal) = 32 B: left pushed FIRST, `MVI A,01 / ?QDDSL` BETWEEN the two
+  pushes aligning the shorter-scale LEFT up; push MVI bytes carry operand precisions 0A/04.
+- **ACCEPTED — H-C CONFIRMED (L5 window generalises from Mul to Sub AND Add):** same probe,
+  `MVI A,01 / ?QDDSR` BETWEEN `?DSUOP` and the temp store; E522D (m−n both scale 0 vs
+  dec(7,2) formal) = 27 B UP `MVI A,02/?QDDSL`, `?DSTOP A=07` — direction from SCALES ONLY,
+  pf < both operand precisions irrelevant ([C371] ZB law reconfirmed on Sub).
+- **ACCEPTED — H-D CONFIRMED:** E522C BYTE-IDENTICAL to E522B except `?DADOP` for `?DSUOP`.
+  Add alignment was UNMEASURED even in the expression context (R705/707/715 = subtract);
+  now pinned: Add == Sub geometry. **This EXTENDS [C086] L1 evidence: alignment law now
+  measured for ADD and in the DEC-ACTUAL context** (cite at C374).
+- **ACCEPTED — H-E MEASURED: DR ACCEPTS the nested compound actual** `a − b*c` (E522E 512 B,
+  44 B block `DLDOP a/QDDSL 03/DLDOP b/DLDOP c/DMUOP/DSUOP/QDDSR 03/DSTOP 0A`): NO separate
+  temp for the inner product (three pushes, ONE result temp); the inner Mul emits NO window
+  (product scale 5 = enclosing context scale 5 — L5 "enclosing +/- aligns its own operands and
+  adds no fix"); the OUTER +/- aligns the LEFT up 2→3; window 5→2 DOWN 3 before the single
+  DSTOP. Per PLAN §5 the nested class is NOT armed this subround (falsifier fired → boundary
+  stays honest my-gap, golden KEPT; recursive arm is a FUTURE measurement-gated decision,
+  NEVER smuggled in).
+- **ZERO §4 misses.** Whole-file cmp adjudication owed at arm validation (sizes A/B/C/D 384,
+  E 512; CODE 006A/0074/0074/006F/007F).
+- **SUCCESSOR CONTRACT — P3-16 hop 3 continued, EXACT ORDER:** (1) commit THIS § + goldens
+  `golden/e52p16/` + `build/p3-16/{campaign-e52p16.log,e52p16-decode.txt}` + durables BY
+  EXPLICIT PATHS — goldens BEFORE any `ocaml/` byte, BINDING. (2) ARM: `ocaml/lib/codegen.ml`
+  ~4846 — widen the Mul admission pattern to `Ast.Ebinary ((Ast.Add | Ast.Sub), l, r)` with
+  the SAME `dec_product_operand` both-sides test; RENAME helper → `dec_arith_operand` (define
+  it recursively? **NO — keep NON-recursive VERBATIM**: nested stays refused per H-E; a
+  recursive test would silently arm E522E). Update the [C371] comment block to cite Add/Sub
+  measured this campaign; BY-NAME refusal text UNTOUCHED (markers survive); NO bind change;
+  NO emitter change. (3) build rc=0 + NEW sha256 fingerprint (record; deterministic re-build
+  fresh `--build-dir`) + histogram codegen 68/total 124 == baseline + cmp A/B/C/D whole-file
+  FRESH POSITIONAL `build/p3-16/arm-out/` (E must stay rc=2 BY NAME) + sweep count-moves-with-
+  inventory FAILS 0 + markers (CRLF+bare-^Z) incl E522E boundary re-measure + DEC 64/0 +
+  divcheck 9/9. (4) LOAN2 UNMODIFIED POSITIONAL FRESH → ACTUAL next blocker VERBATIM NEVER
+  fix; full `.REL` ⇒ STRAIGHT whole-file parity vs `712cfcb2…` NEVER re-derived (first
+  genuine difference reported, no fixing loops without new pre-registered evidence).
+  (5) register from **1303/188** COMPUTE: +4 SPECIMENS A/B/C/D (accepted byte-exact) →
+  expect **1307/189**? NO — E522E is DR-ACCEPTED but refused HERE = honest my-gap → REJECTS
+  +1 golden KEPT UNCLAIMED (XJ/XK/E521D precedent, marker re-measured) → refusals 188→189:
+  **expect 1307/189, adjudicate by `--update-inventory` real output, NEVER force**;
+  `git diff --cached --stat`; census OWN path 15/0/26/0, LOAN2 msg MOVES VERBATIM.
+  (6) **C374 measured-bytes-only BEFORE ANY COVERAGE touch** (all bytes above re-verified
+  first-hand vs KEPT goldens; opcode-exact ranges; DATED L1-extends note; H-E nested
+  accepted-unarmed; BY-NAME perimeter; byte-tier NOT-say). (7) coverage EXTEND
+  `PROC.CALL_DEC_ACTUALS` (read row FIRST-HAND; expected EXACT 8→12: +A/B/C/D) + SAME-change
+  IDS ONLY if NEW row; NEVER coverage_gen.py; 15 cols; coverage_check+prose rc=0. (8) FULL
+  gate rc=0 DIRECT → `build/gate-e52p16-reg.log`. (9) RESULTS §P3-16 + PLAN §5 row INSIDE
+  table anchored by LINE NUMBER (7-unescaped-pipes, escape raw `|`) + §P3-16 CLOSED; then
+  P3-17 ACTUAL blocker, marathon through P3-19 (slice 7 of ≤8).
+- **STATE:** HEAD = campaign-evidence commit after this; ledger ENDS C373; inventory
+  1303/188; coverage 145/95; binary `02ea809e…` == tree (UNARMED for Sub/Add); goldens
+  `golden/e52p16/` KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 Line-160 VERBATIM
+  NEVER fix; config NEVER staged; no push; rc DIRECT; POSITIONAL; opam env every shell;
+  never glue `rm`; never parallelize dependent bash; byte-tier; chain 10/12 cap 12.
