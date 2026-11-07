@@ -1,0 +1,8 @@
+E525D: procedure options(main);
+   /* E2E-53/P1 probe D (PLAN H-D): `get skip list(<char        */
+   /* varying variable);' on the console.  COPYLPT:36 measures  */
+   /* this shape context-rich at 012D; isolated here.           */
+   dcl s character(10) varying;
+   get skip list(s);
+end E525D;
+

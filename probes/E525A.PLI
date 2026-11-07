@@ -1,0 +1,7 @@
+E525A: procedure options(main);
+   /* E2E-53/P1 probe A (PLAN H-A): bare console `get skip;`  */
+   /* isolated.  Falsifier: any byte deviating from the EXPR1 */
+   /* 004A-005A / REPORT 0065-0075 shape (SYSIN/SKPOP/QIOOP). */
+   get skip;
+end E525A;
+

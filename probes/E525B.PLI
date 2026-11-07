@@ -1,0 +1,9 @@
+E525B: procedure options(main);
+   /* E2E-53/P1 probe B (PLAN H-B): counted console skip with a */
+   /* constant operand, `get skip(2);'.  DEPREC:95 measures the   */
+   /* same statement context-rich at code 0414; this pins it      */
+   /* MINIMAL.  Falsifier: DR refusal, or an MVI A operand other  */
+   /* than 02, or any different routine sequence.                 */
+   get skip(2);
+end E525B;
+

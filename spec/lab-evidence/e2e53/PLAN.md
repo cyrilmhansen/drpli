@@ -91,3 +91,99 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
   never clean/reset, `handoff.config.json` never staged, no push.
 - Renewal: only at safe boundaries (never mid-oracle/mid-git); never touch renewal-state;
   close the chain at cap via `handoff_finalize`.
+
+## P1 — GET SKIP family (PRE-REGISTERED 2026-11-08, session 01a1b818, BEFORE any oracle call or `ocaml/lib/` byte)
+
+### P1.1 Blocker VERBATIM (re-measured FRESH POSITIONAL on `baec1f82…`, ignored `build/e53p1/sanity/`)
+
+Four minimal console-SKIP probes all die at the single E2E-3e catch
+(`lower_stmt`, `ocaml/lib/codegen.ml` ~14055; the prescan `Ast.Sget` arm at ~3714 demands 0 pool
+bytes for non-EDIT GETs, which is correct here — SKIP items take no pool cell):
+
+```
+E525A rc=2  codegen: GET form not in E2E-3e subset [TBD] (line 5)
+E525B rc=2  codegen: GET form not in E2E-3e subset [TBD] (line 7)
+E525C rc=2  codegen: GET form not in E2E-3e subset [TBD] (line 7)
+E525D rc=2  codegen: GET form not in E2E-3e subset [TBD] (line 6)
+```
+
+Same message EXPR1:21 carries today (`(line 21)`). Corpus users: EXPR1:21 and REPORT:33 bare,
+DEPREC:95 counted `get skip(2);`, COPYLPT:23/32/36 `get skip list(<var>);` — all four behind
+OTHER first blockers, so Goal A moves only for the census MESSAGE, not for program EXACTness,
+this slice.
+
+### P1.2 Existing authentic evidence (decoded FIRST-HAND this session from KEPT goldens)
+
+The `build/e53-audit/` campaign-open reading is re-measured and **corrected** (P1.5). The
+`.PRN` listings pin every statement's code address directly:
+
+| Program:line | statement | `.PRN` pin | measured bytes |
+|---|---|---|---|
+| EXPR1:21 | `get skip;` | (decode 004A-005A) | `LXI D,0290 / LXI B,<cont 005B> / CALL ?SYSIN / MVI A,01 / CALL ?SKPOP / CALL ?QIOOP` — 17 B |
+| REPORT:33 | `get skip;` | `33 c 0065` | byte-identical shape (`?SYSIN` slot 006C, `?SKPOP` slot 0071, `?QIOOP` slot 0074) |
+| DEPREC:95 | `get skip(2);` | `95 c 0414` | SAME skeleton with `MVI A,02` (slot 041B `?SYSIN`, 0420 `?SKPOP`, 0423 `?QIOOP`) — 17 B |
+| COPYLPT:23 | `get skip list(pagewidth);` (fixed bin) | `23 c 0089` | skip prefix (17 B, `MVI A,01`) then ONE item `CALL ?GNVOP / JP <cont+… 00A3> / CALL ?QCIOP / SHLD data@0100` then `CALL ?QIOOP` — 31 B |
+| COPYLPT:36 | `get skip list(line);` (char varying 14) | `36 c 012D` | skip prefix then `CALL ?GNVOP / JP 0149 / LXI H,data@0106 / MVI B,0E / CALL ?SSVFS / CALL ?QIOOP` |
+
+Routine-slot law re-confirmed: CHAIN-EXT slot = CALL operand address (opcode+1); the bare
+console SKIP attaches **`?SYSIN`** — the same routine the console `get list(...)` already uses —
+NOT `?SIOOP` (that is the FILE-route attach, `lower_get_file`). The count byte rides between
+attach and `?SKPOP` exactly as on the PUT LIST route ([E2E-22/P4] `emit_skip_count` literal arm,
+`MVI A,n / CALL ?SKPOP`), and the item tails are byte-for-byte the existing `lower_get_body`
+arms ([R903] fixed-bin `?QCIOP/SHLD`; [X201/X202] varying `LXI H/MVI B,cap/?SSVFS`).
+The console PUT SKIP bytes (`LXI D,0252 / ?SYSPR`) are NOT reused anywhere here — GET evidence
+stands on its own goldens.
+
+### P1.3 Arms and falsifiers (probes `probes/E525A..D`, tag `e53p1`, ids VERIFIED unused)
+
+- **H-A (bare)** `E525A` = `get skip;` alone. Prediction: exactly the 17-B EXPR1/REPORT shape
+  (`MVI A,01`). FALSIFIER: any different byte, size, or routine sequence; DR refusal.
+- **H-B (counted const)** `E525B` = `get skip(2);`. Prediction: the same 17 B with `MVI A,02`
+  (DEPREC measures this shape in context). FALSIFIER: DR refusal, an operand other than `02`,
+  or a different sequence.
+- **H-C (list, fixed-bin item)** `E525C` = `dcl n fixed binary; get skip list(n);`. Prediction:
+  17-B skip prefix + 11-B item chain per COPYLPT:23 geometry + closing `?QIOOP`. FALSIFIER:
+  refusal or any deviation.
+- **H-D (list, char-varying item)** `E525D` = `dcl s character(10) varying; get skip list(s);`.
+  Prediction: skip prefix + `GNVOP/JP/LXI H,*D(cell)/MVI B,0A/?SSVFS` + `?QIOOP` per COPYLPT:36.
+  FALSIFIER: refusal or any deviation.
+
+Explicitly OUT of P1 (stay refusing BY NAME via the preserved E2E-3e catch): a VARIABLE skip
+count on GET (`get skip(n);` — no DR object anywhere; the PUT-side expression law [E46N18] is
+NOT evidence for GET), MULTI-ITEM skip lists (`get skip list(a,b);` — no corpus user and no
+authentic witness), FILE-route GET SKIP (COPYLPT:23/36 are console `sysin`-style reads; named
+`get file(f) skip` has no witness), and `get skip edit(...)`. If DR refuses any probe, that is
+recorded `dr-refuses` and NOTHING is armed on its authority.
+
+### P1.4 Arm plan (only after goldens are decoded first-hand)
+
+One new matcher (console `Sget` `kind = List_` with a leading `Pi_ctl ("SKIP", None|Some literal)`
+and ONLY `Pi_data Eident` items) in front of `match_get_list_var` at the `Ast.Sget` dispatch, and
+skip-prefix emission sharing the existing `emit_skip_count` literal arm + the attach bytes only
+where the GET goldens pin them; `lower_get_body`/`lower_get` reused unchanged for the item tails.
+The `GET form not in E2E-3e subset` catch STAYS for every other shape. Falsifiers: N45_GETSUB
+(subscripted item) and E46K15 (console GET EDIT) must keep their markers; arm changes NO accepted
+specimen (all four forms refuse today), the sweep is the legacy falsifier; EXPR1/REPORT/DEPREC/
+COPYLPT rerun UNMODIFIED — their census messages may move, their first blockers for the OTHER
+families stay and are recorded VERBATIM.
+
+### P1.5 DATED correction (zero-oracle, this session)
+
+The campaign-open note (LEARNINGS 2026-11-08) and PROGRESS/HANDOFF "full contract" recorded the
+bare `get skip;` attach as `CALL ?SIOOP`. **FALSIFIED by direct decode:** slot `0051` carries
+`?SYSIN` in `golden/first/EXPR1/EXPR1.REL` (also DEPREC 041B, COPYLPT 0090/00F4/0134, REPORT
+006C). The predecessor's own kept raw dump `build/e53-audit/expr1-rel.txt` line 205 says
+`@ 3235 LINK-CHAIN-EXT  code 0051 ?SYSIN`. The 17-byte geometry is otherwise as quoted. All P1
+reasoning above uses the corrected routine.
+
+### P1.6 Validation / registration contract (step 5 of PROGRESS Next action)
+
+Fingerprint determinism (default == fresh `--build-dir`, grep `Error`, ZERO allowed); histogram
+baseline; sweep (`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10`) FAILS 0; markers
+argv-driven incl. any new negatives, DEC 64/0, divcheck 9/9; probe parity FRESH POSITIONAL
+whole-file `cmp` vs `golden/e53p1/`; REAL `--update-inventory` adjudicated by its OWN output;
+census OWN path; **C378+ measured-bytes-only BEFORE any `spec/COVERAGE.tsv` touch** (reproduce
+every cited byte first-hand — P3-16 lesson); coverage adjudicated FIRST-HAND (candidate rows:
+`IO.GET_LIST` row 64 EXTEND; NEVER `coverage_gen.py`); FULL gate rc=0 DIRECT
+`build/gate-e53p1-reg.log`; RESULTS.md §P1 in this directory + PLAN §4 dashboard row + §P1
+CLOSED; then re-rank the matrix and open P2 (B1 non-2-byte arrays).

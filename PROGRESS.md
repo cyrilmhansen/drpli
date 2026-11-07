@@ -50,7 +50,19 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-53/P1 **GET SKIP family** — PLAN COMMITTED, PRE-REGISTRATION OWED; read `spec/lab-evidence/e2e53/PLAN.md` FIRST — BINDING)
+## Next action (E2E-53/P1 **GET SKIP family** — PLAN COMMITTED, PRE-REGISTRATION **LANDED**; campaign `e53p1` OWED; read `spec/lab-evidence/e2e53/PLAN.md` FIRST — BINDING)
+
+**DONE at P1 pre-registration (session 01a1b818, chain 1/12):** recovery verified FIRST-HAND
+(HEAD `756f2eca` guard commit; `dune build` rc=0 binary `baec1f82…` == armed tree; checkpoint
+`current` per diagnostics session_start). ZERO-oracle decode of ALL existing authentic GET SKIP
+evidence first-hand (EXPR1 004A-005A, REPORT 0065 via `33 c 0065`, DEPREC 0414 via `95 c 0414`,
+COPYLPT 0089/012D via `.PRN` pins) into ignored `build/e53p1/`. **DATED CORRECTION (FALSIFIED
+carried fact):** the bare/`skip(n)` console GET attach is **`?SYSIN`** (slots 0051/041B/0090/
+0134/006C), NOT `?SIOOP` as quoted in the campaign-open contract below and in LEARNINGS — the
+predecessor's own `build/e53-audit/expr1-rel.txt` line 205 says `?SYSIN`; the 17-B geometry
+otherwise stands. Probes `probes/E525A..D.PLI` written (CRLF + bare `^Z`) and sanity-checked
+UNARMED: all rc=2 at the E2E-3e catch, no `.REL` (`build/e53p1/sanity/`). PLAN §P1.1–§P1.6 +
+LEARNINGS committed by EXPLICIT paths BEFORE any oracle call or `ocaml/lib/` byte.
 
 **DONE at campaign open (session 01a1b800, chain renewals 0/12):** baseline verified
 FIRST-HAND (HEAD `9ac1775e`; INVENTORY 1312/190; gate log 190/190 NEG + 9/9 DIV + 145 rows +
@@ -3126,7 +3138,7 @@ checkpoint-generation: 551
 checkpoint-id: g551-1ddbc19967d7
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-07T22:19:01.576Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -3812,6 +3824,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b800-f175-7516-b7cf-3ada912a57f6
+readiness-at: 2026-11-07T22:19:32.174Z
+readiness-checkpoint: g551-1ddbc19967d7
 <!-- guard:end checkpoint -->
 
 ## Blockers

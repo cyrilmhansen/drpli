@@ -1,0 +1,9 @@
+E525C: procedure options(main);
+   /* E2E-53/P1 probe C (PLAN H-C): `get skip list(<fixed bin   */
+   /* variable);' on the console.  COPYLPT:23 measures this     */
+   /* shape context-rich at 0089; isolated here.  Falsifier:    */
+   /* refusal, or any deviation from skip-prefix + [R903] item. */
+   dcl n fixed binary;
+   get skip list(n);
+end E525C;
+
