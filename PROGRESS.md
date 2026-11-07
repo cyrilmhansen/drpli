@@ -50,7 +50,54 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-53/P1 **CLOSED** at `670b7379` — hop 3 completed TAIL→REGISTER→C378→COVERAGE→GATE→RESULTS/PLAN; **P2 = B1 non-2-byte arrays OWED, PRE-REGISTER FIRST** — BINDING)
+## Next action (E2E-53/P2 B1 arrays — ZERO-ORACLE PRE-AUDIT LANDED; SCOPE DECISION + PRE-REGISTRATION OWED — BINDING; full findings LEARNINGS.md sec "P2 B1 arrays — ZERO-ORACLE PRE-AUDIT IN FLIGHT")
+
+**DONE this hop (session 01a1b83e, chain 3/12, ZERO oracle, ZERO ocaml/lib byte):** recovery verified
+(HEAD 982c1c2d, checkpoint current, build rc=0, binary 8e51c261… == tree). All four B1 blockers re-held
+VERBATIM FRESH POSITIONAL build/e53p2/pre-audit/: DEPREC/LABELS/MPMCALLA "array of 0-byte elements
+[C159]", OPTIMIST "array of 9-byte elements [C159]". Trip sites first-hand: DEPREC schedule(0:3) entry
+variable; MPMCALLA localstk(0:255) entry (fixed) variable; LABELS (x,y,z(3)) label; OPTIMIST
+negative(1:5) char(8) varying static initial. E526*/e53p2 VERIFIED UNUSED. Goldens decoded FIRST-HAND:
+entry & label cells = 2 bytes (DEPREC d@04E6-04ED; LABELS z@000C-0011, x@0008/y@000A; empty label stmts
+c(1..3) share stub 008D; implicit label-const array c() d@0000-0005 init 8D 00 x3); label/entry-constant
+stores = LXI H,0000 (+CHAIN-ADDR at operand slot) / SHLD or MOV M,E byte stores; computed goto = ladder
++ MOV E,M/INX/MOV D,M/XCHG/PCHL; OPTIMIST varying statics: stride 1+n, cell = len-byte + initial padded
+with spaces ('' -> 00 + n spaces), statics FIRST in DATA decl order; stride-9 variable subscript =
+LXI H,*D(base-lb*9) / PUSH H / LHLD i / LXI DE,0009 / CALL ?IM22N / POP D / DAD D (DAD-H doubling
+replaced by RTL multiply). MY CODE: only dyn_addr hardcodes doubling (codegen.ml ~1108); constant
+subscripts already scale by ez; bind guard bind.ml:1046 elem_sz<>2 + separate STATIC-array refusal.
+
+**EXECUTE NEXT (successor, EXACT order; full contract LEARNINGS P2 successor):** (1) UNARMED sanity
+audit in ignored build/e53p2/sanity/ (throwaway probes, NOT probes/ yet): which candidate programs does
+8e51c261 reach codegen on — stride-1 (fixed bin(7), char(1)) and stride-3 (char(3)) arrays, const +
+var subscripts, only shapes whose scalar machinery is KNOWN accepted (2-byte store laws, SMCCM char
+copy V106); record where each dies VERBATIM. (2) DECIDE scope (PROPOSED, not adopted: arm sizing +
+generalized dyn_addr stride ladder ONLY in campaign-pinned forms; entry/label VALUE class (CHAIN-ADDR
+operands, PCHL, row TRAN.COMPUTED_GOTO REFUSED/N6) and varying-descriptor class (?CXVVM + A3 string
+builtins) stay refused BY NAME unless evidence forces otherwise; never generalize unmeasured shapes).
+(3) PRE-REGISTER PLAN sec P2 (blocker VERBATIM, H-arms + falsifiers, validation contract) + final
+probes/E526A.. (CRLF + bare ^Z) + LEARNINGS, COMMIT EXPLICIT PATHS BEFORE any oracle/ocaml/lib byte.
+(4) ONE campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E526A … --tag e53p2 --switches
+'$L$D'; EVERY .PRN NO ERROR(S) both passes; goldens VERBATIM first. (5) Decode first-hand (p13dump
+explicit hex ranges, ext slots HEX, CALL slot = opcode+1); arm measured ONLY; parity whole-file cmp;
+rerun DEPREC/LABELS/MPMCALLA/OPTIMIST/EXPR1/REPORT/COPYLPT UNMODIFIED — blockers VERBATIM never fix.
+(6) Tail (fingerprint fresh --build-dir + grep Error; hist 68/124; markers argv; DEC 64/0; divcheck
+9/9; sweep FAILS 0, count COMPUTED vs 194/0 baseline) -> REAL --update-inventory (OWN output, baseline
+1316/190) -> census OWN path (python3 tools/corpus_census.py --check spec/census/corpus-census.json)
+-> **C379+ measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch** -> coverage FIRST-HAND (NEVER
+coverage_gen.py; candidate EXTEND AGG.ARRAY_1D_FIXED row 7 / NEW AGG row + spec/COVERAGE-IDS.txt
+explicit) -> FULL gate rc=0 DIRECT build/gate-e53p2-reg.log -> RESULTS sec P2 + PLAN sec 4 row (7
+pipes) + sec P2 CLOSED.
+
+**STATE:** ledger ENDS C378 (201 headers); inventory 1316/190; coverage 145/95 (row 64 EXACT:28); LAST
+gate rc=0 build/gate-e53p1-reg.log; census 16/0/25/0; armed binary 8e51c261… == tree; goldens
+golden/e53p1/ + golden/first*/ KEPT VERBATIM NEVER re-derived (dir.txt NEVER staged); corpus blockers
+VERBATIM never fix; standing constraints per PROTOCOL Part 2 anchor (POSITIONAL pli80c.exe IN OUT NO
+-o; eval opam env every shell; rc DIRECT; never glue rm; never parallelize dependent bash; byte-tier;
+build/ + ocaml/_build-* + ocaml/scratch-* NEVER staged; handoff.config.json NEVER staged; no push);
+chain renewals 3/12 used, cap 12; stray root S2..S5.PLI/.log pre-existing debris, untouched.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P1 **CLOSED** at `670b7379` — hop 3 completed TAIL→REGISTER→C378→COVERAGE→GATE→RESULTS/PLAN; **P2 = B1 non-2-byte arrays OWED, PRE-REGISTER FIRST** — BINDING)
 
 **DONE hop 3 (session 01a1b82b, chain 2/12, ZERO new oracle):** g554 blocks VERBATIM `82bd89de`;
 build rc=0 ZERO Error, binary `8e51c261…` deterministic; tail ALL HIT (sweep 190/0 pre-reg —
