@@ -9744,3 +9744,124 @@ classified `unmeasured` rather than `dr-refuses`.
   slice; LOAN2 is NOT claimed exact. EXPR1 (GET line 21) and EXPR2 (FLOAT line
   35) are UNCHANGED. Provenance: [C090] [C094] [C358] [C361] [C362] [C371]
   [C372].
+
+## C374 — DEC ADD/SUB EXPRESSION ACTUALS against a FIXED DECIMAL formal ride the [C370]-window law EXACTLY as the product actual does, and L1/L5 are NOT subtract-only: equal operand scales emit NO alignment (the LOAN2:160 no-window block is the general law, not an exception); differing operand scales emit `MVI A,|Δs| / CALL ?QDDSL` BETWEEN the two operand pushes (left pushed FIRST, its `MVI A` carrying its own precision) plus the L5 consumer window between the arith op and the FORMAL-width temp store; the ADD twin is BYTE-IDENTICAL to the SUB twin except for the two chain-name bytes `?DSUOP`→`?DADOP` — CODE, RELOC and DATA segments byte-for-byte identical, whole `.REL` files differing in EXACTLY FIVE BYTES (the three packed program-name records at 0-based file offsets 6/19/28 plus the chain-name bytes at 112/113); the window direction is determined by SCALES ONLY — never by precisions — with the `MVI A` before `?DSTOP` the FORMAL precision even when that is BELOW both operand precisions; and DR ACCEPTS a NESTED compound actual `a - b * c` as THREE pushes into ONE result temp with NO inner-Mul window (measured, honestly NOT armed — my compiler keeps its BY-NAME refusal) (E2E-52/P3-16; MEASURED — `E522A`/`E522B`/`E522C`/`E522D` whole-file `cmp` rc=0 against `golden/e52p16/`, four whole-file witnesses, PLUS `E522E` as an honest my-gap: DR-ACCEPTED retained 512 B golden with `.PRN` `NO ERROR(S)` both passes but refused BY NAME by my compiler (rc=2, NO `.REL`, refusal ends `Line 13`, re-measured at claim time on the armed binary); goldens VERBATIM from campaign `e52p16` `5 ok/5` (`91b10c25`), pre-registration `dfba24a4` committed BEFORE the campaign with the A/B/C/D byte sequences pinned in `spec/lab-evidence/e2e52-p3/PLAN.md` §4; every cited byte, span and `.REL` record re-verified FIRST-HAND at claim time against the retained goldens with `build/p3-13/p13dump.py rawcode/data` and `tools/reldump.py`, never fitted; the four accepted objects re-reproduced byte-exactly by the armed compiler at claim time, `cmp` 4/4 rc=0 on FRESH positional paths `build/p3-16/claim-out/`, armed binary sha256 `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175`)
+
+* **Measured — the equal-scale control IS the authentic LOAN2 block (`E522A`).**
+  `p = q(a - b);` with `a`, `b` plain `fixed dec(10,2)` autos and the formal
+  `x fixed dec(10,2)` emits the actual block at code `0006-0020` (27 raw file
+  bytes): `21 00 00 / 3E 0A / CD 00 00` (`LXI H,*A(data@0000)`, operand
+  relocation `0007 → data@0000`, `MVI A,0A`, chain slot `000C = ?DLDOP`),
+  `21 06 00 / 3E 0A / CD 00 00` (relocation `000F → data@0006`, slot `0014 =
+  ?DLDOP`), `CD 00 00` (slot `0017 = ?DSUOP`), `21 14 00 / 3E 0A / CD 00 00`
+  (relocation `001A → data@0014` — the FORMAL-width temp — slot `001F =
+  ?DSTOP`). ZERO shift instructions: equal scales (L1 emits nothing [C086],
+  result scale 2 = formal scale 2 so L5 emits nothing [C370]). This is the
+  VERBATIM shape of the authentic LOAN2 `summary`-call actual block at
+  `golden/first/LOAN2/LOAN2.REL` code `0738-0752` (27 raw file bytes,
+  `LXI H,*A(02FA=IP) / MVI A,0A / CALL ?DLDOP / LXI H,*A(02F4=YIN) / MVI A,0A /
+  CALL ?DLDOP / CALL ?DSUOP / LXI H,*A(034E temp) / MVI A,0A / CALL ?DSTOP`
+  re-read FIRST-HAND at claim time) — LOAN2:160's no-window block is the
+  general L1+L5 composition, NOT an exception. Call geometry unchanged from
+  the [C371] static-vector law: the descriptor `LXI H,*A(data@0012)` at
+  `0021-0023` (SET-LC data `0012`, inline constant `14 00` = the temp cell —
+  raw DATA image verified; never runtime-written), the CALL operand word at
+  slot `0024` riding the `LINK-CHAIN-ADDR code 0025`; the returned value
+  stored by `21 0C 00 / 3E 0A / CD 00 00` (`?DSTOP` head `002D`) into `p` at
+  `data@000C`. DEF records: CODE `006A`, DATA `001C`. DATED correction of my
+  own working decode (`build/p3-16/e52p16-decode.txt` hop 3 recorded
+  `DATA 0014` — that is the temp CELLS' inline address value at `0014`, not
+  the DEF-DATA-SIZE record field, which is `001C`; re-read from the raw
+  record via `tools/reldump.py` at claim time).
+
+* **Measured — L1 alignment in the ACTUAL context, and DATED: L1/L5 now
+  MEASURED FOR ADD, extending [C086]'s subtract-only pinning.** `E522B`
+  (`a - yi`, `a fixed dec(10,2)`, `yi fixed dec(4,3)`, formal
+  `dec(10,2)`) emits at code `0006-002A` (37 raw file bytes): left push
+  `21 00 00 / 3E 0A / CD 00 00` (`?DLDOP` slot `000C`), THEN `3E 01 / CD 00 00`
+  (`MVI A,01 / CALL ?QDDSL`, chain slot `0011`) BETWEEN the two pushes — the
+  shorter-scale LEFT operand, pushed first [C086] L7, aligned UP by
+  `|2−3| = 1` before the right push carries `3E 04` (its own precision) and
+  `?DLDOP` slot `0019`; `?DSUOP` slot `001B`; the L5 consumer window
+  `3E 01 / CD 00 00` (`?QDDSR` slot `0020`) between the op and the store;
+  store `21 11 00 / 3E 0A / CD 00 00` (temp at `data@0011`, `?DSTOP` slot
+  `0029`, `MVI A,0A` = formal precision). Until this slice the BOTH-directions
+  pinning of L1 and the L1-position pinning (shift-between-pushes) rested on
+  subtract witnesses `R705/R707/R715`; `E522C` (`a + yi`, same declarations)
+  is the ADD twin measured here: `?DADOP` chain slot `001C` in place of
+  `?DSUOP`, EVERY other emitted byte identical. The strongest possible twin
+  witness: the two whole `.REL` FILES differ in exactly FIVE BYTES — 0-based
+  offsets `6`, `19`, `28` (the packed `E522B`/`E522C` program-name records
+  [C372]'s name-only class) and `112`, `113` (the two chain-name bytes `SU` →
+  `AD` of `?DSUOP`/`?DADOP` inside the `LINK-CHAIN-EXT` name record); the
+  CODE segment, every RELOC record and the DATA image are BYTE-IDENTICAL
+  (`cmp -l` re-run FIRST-HAND at claim time). DR consults no operand-class
+  table for the ADD route either; the armed code shares ONE non-recursive
+  lowering for `Mul|Add|Sub`.
+
+* **Measured — window direction from SCALES ONLY; DSTOP carries the FORMAL
+  precision below BOTH operand precisions (`E522D`).** `m - n` with
+  `m fixed dec(10,0)`, `n fixed dec(8,0)` against formal `dec(7,2)`: code
+  `0006-0025` (32 raw file bytes) `21 00 00 / 3E 0A / CD 00 00` (`?DLDOP`
+  slot `000C`), `21 06 00 / 3E 08 / CD 00 00` (right push carries `3E 08` —
+  precision, not scale — slot `0014 = ?DLDOP`), `CD 00 00` (`?DSUOP` slot
+  `0017`), NO alignment (`s_l = s_r = 0`), then the L5 window `3E 02 / CD 00 00`
+  (`MVI A,02 / CALL ?QDDSL` — UP, slot `001C` — the result scale 0 must RISE
+  to the formal scale 2; the direction comes from the SCALES alone while the
+  precisions 10/8 exceed the formal's 7), and the store `21 11 00 / 3E 07 /
+  CD 00 00` with `?DSTOP` slot `0024` and `MVI A,07` = FORMAL precision
+  `[C371]` law reconfirmed on the Sub route with `pf` strictly less than both
+  operand precisions. DEF records: CODE `006F`, DATA `0017`.
+
+* **Measured — DR ACCEPTS the nested compound actual; my-gap, NOT armed
+  (`E522E`).** `a - b * c` with `a fixed dec(10,2)`, `b fixed dec(4,3)`,
+  `c fixed dec(10,2)` against formal `dec(10,2)`: retained 512 B golden
+  `golden/e52p16/E522E/E522E.REL`, `.PRN` `NO ERROR(S) IN PASS 1` AND `NO
+  ERROR(S) IN PASS 2`, DEF CODE `007F`, DATA `001F`. The actual block at code
+  `0006-0035` (48 raw file bytes) is THREE pushes into ONE temp: left
+  `21 00 00 / 3E 0A / CD 00 00` (`?DLDOP` slot `000C`), the OUTER alignment
+  `3E 03 / CD 00 00` (`?QDDSL` slot `0011`, left scale 2 UP 3 to the
+  subtract-context scale 5 = `3+2` of the product [C086] L2), then `21 06 00 /
+  3E 04 / CD 00 00` (b, `?DLDOP` slot `0019`), `21 09 00 / 3E 0A / CD 00 00`
+  (c, `?DLDOP` slot `0021`), `CD 00 00` (`?DMUOP` slot `0024`) — the INNER
+  product carries NO window of its own (its scale 5 equals the outer
+  subtract-context scale) — `CD 00 00` (`?DSUOP` slot `0027`), the consumer
+  window `3E 03 / CD 00 00` (`?QDDSR` slot `002C`, DOWN 5−2), and ONE store
+  `21 17 00 / 3E 0A / CD 00 00` (temp `data@0017`, `?DSTOP` slot `0034`). NO
+  intermediate product temp exists. This compiler REFUSES the shape BY NAME
+  with the VERBATIM guard text `codegen: non-variable argument against a
+  FIXED DECIMAL formal is unproven [TBD] (… Line 13)` (rc=2, NO `.REL`,
+  re-measured at claim time on the armed binary). The armed helper
+  `dec_arith_operand` is deliberately NON-RECURSIVE — a recursive admission
+  would have silently armed this DR-accepted shape without a byte-exact
+  witness for the MY-side lowering; the shape is recorded as evidence only,
+  and NO equivalence is claimed for it.
+
+* **Perimeter — what stays refused BY NAME (my gaps, never DR rules).** Only
+  a TOP-LEVEL `Mul`/`Add`/`Sub` whose two operands are PLAIN automatic
+  decimal variables (not dereferenced formals) is admitted against a scalar
+  `RTdec` formal of an internal, non-recursive, attribute-free callee; DIV
+  actuals, suffix/deref operands, nested compounds (`E522E`), literals
+  INSIDE a binary operand position on this route, and EXTERNAL or recursive
+  callees keep their VERBATIM Line-N `[TBD]` refusals with every marker
+  substring intact. The arm widened ONLY the guard
+  `Ast.Ebinary (Ast.(Mul | Add | Sub), l, r)` in `ocaml/lib/codegen.ml`
+  (~4851) over the SAME non-recursive shape helper; ZERO bind or emitter
+  bytes changed — the admitted Add/Sub actuals route through the already
+  [C371]-armed `dec_push`/`dec_actual_mat` chain verbatim.
+
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no
+  `e52p16` object was linked or run under cpmsim; NOTHING here asserts
+  runtime behaviour beyond what the retained `.REL` records show, and no
+  `spec/RUNTIME.txt` row comes from this claim. LOAN2 itself still refuses
+  (rc=2, NO `.REL`, source UNMODIFIED sha256 `7be23ba3…`): its blocker MOVED
+  VERBATIM past Line-160 to `codegen: PUT FILE(OUTPUT) EDIT of a variable
+  bound as fixed-binary has no byte-exact DR witness [TBD] (line 177)` —
+  recorded, NOT fixed by this slice; LOAN2 is NOT claimed exact. EXPR1 (GET
+  line 21) and EXPR2 (FLOAT line 35) are UNCHANGED. The working-note block
+  SIZE labels of PLAN §4 (`22 B`, `32 B`, `27 B`) were composed-op labels at
+  pre-registration; this claim cites RAW INCLUSIVE file spans re-measured
+  first-hand (A 27 B, B/C 37 B, D 32 B, E 48 B) — the pre-registered BYTE
+  SEQUENCES and shift verdicts all HIT, and no prediction of a byte,
+  direction or cell was missed. Provenance: [C084] [C086] [C094] [C358]
+  [C361] [C370] [C371] [C372].
