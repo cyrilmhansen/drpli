@@ -1,23 +1,25 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "693b43f02a829d7d079ee5c6797b86ea",
+ "binary_md5": "afaae6e8ce2003e482bd099063fbb19d",
  "counts": {
   "AUTHENTIC": 41,
-  "DIFFERS": 0,
+  "DIFFERS": 1,
   "DR_REJECTED": 3,
   "EXACT": 15,
   "HISTORICAL": 44,
   "NOSRC": 0,
   "NO_ORACLE": 3,
-  "REFUSED": 26,
+  "REFUSED": 25,
   "UNEXPECTED": 0,
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-07T13:25:36",
+ "generated": "2026-11-07T17:37:18",
  "git_dirty_paths": [
-  "M handoff.config.json",
+  "M HANDOFF.md",
+  " M PROGRESS.md",
+  " M handoff.config.json",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-p312hist/",
@@ -29,6 +31,9 @@
   "?? ocaml/_build-p315/",
   "?? ocaml/_build-p316/",
   "?? ocaml/_build-p317/",
+  "?? ocaml/_build-p318b/",
+  "?? ocaml/_build-p318c/",
+  "?? ocaml/_build-p318dbg/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
   "?? ocaml/build-e52p10-hop3rem-build.log",
@@ -44,9 +49,10 @@
   "?? ocaml/build-p314b.log",
   "?? ocaml/build-p37.log",
   "?? ocaml/build-warn-e52p6.log",
-  "?? ocaml/scratch-p314/"
+  "?? ocaml/scratch-p314/",
+  "?? ocaml/scratch-p318/"
  ],
- "git_head": "4b67ed486a045bcef43e57e5269d0aa78f683f30",
+ "git_head": "a18f35b4189d629cfb82f254da91ae488eafc8da",
  "rows": [
   {
    "dir_present": true,
@@ -421,10 +427,13 @@
    "src_present": true
   },
   {
+   "differing_bytes": 7361,
    "dir_present": true,
+   "dr_bytes": 7680,
    "dr_verdict": "ok",
-   "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser cells, or with a format-table group that doe",
+   "first_diff": 323,
+   "mine": "DIFFERS",
+   "mine_bytes": 7808,
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
