@@ -12,42 +12,42 @@
   "LOOP": 4,
   "NEG": 2,
   "OBJ": 3,
-  "PROC": 10,
+  "PROC": 11,
   "RTME": 1,
   "STOR": 15,
   "TRAN": 6
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 118,
+  "MEASURED": 119,
   "SINGLE_SAMPLE": 18,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 130,
+  "ACCEPTS": 131,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 9,
   "UNTESTED": 4
  },
- "manual_none": 120,
+ "manual_none": 121,
  "manual_unverified": 0,
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 3,
   "PARTIAL": 23,
   "REFUSED": 21,
-  "SUPPORTED": 94
+  "SUPPORTED": 95
  },
  "no_parity": 28,
- "no_runtime": 114,
+ "no_runtime": 115,
  "perimeter": {
   "C": 2,
   "M": 18,
   "OPEN": 1,
-  "S": 123
+  "S": 124
  },
- "rows": 144,
+ "rows": 145,
  "single_sample": 18,
  "unreviewed": 5,
- "with_boundary": 144
+ "with_boundary": 145
 }
