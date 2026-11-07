@@ -3064,17 +3064,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 545
-checkpoint-id: g545-464c291a6eeb
+checkpoint-generation: 547
+checkpoint-id: g547-6f793d80f08c
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T21:00:52.784Z
+checkpointed: 2026-11-07T21:28:19.963Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0b7b444fea86382581b7c3dc00807b08c5edd96355b4e9eb0ef7fd9695202d40
+source-progress: e89a4d446c0cf771e33a454c4485225b86d650ae17fe28307b16f0581cc91481
 source-handoff: d97b05876c76190815216b6212f2a45fd47de365bb177b54871fcaf104e8912f
-source-learnings: 7b742b06f791cef2e2d1ee5abd06fc185d6eacb1bf0128a2bf2e60b7f3c5f98a
+source-learnings: 6b2bcf8762417f4a7d3f86d1f7361943964e53fbc1381f1cbd302618301edfa7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `): decode goldens FIRST-HAND `build/p3-19/` (p13dump `build/p3-13/p13dump.py` modes rawcode|code|data|chains|sizes; reldump line form `@ <bit> <KIND> <seg?> <addr> <val>`, use `t.index('DATA')`) → adjudicate H-A caret-decode (falsifier: any `5E` in golden DATA) / H-B' per-literal SEPARATE cells vs merge / H-C residue ONLY if E524B pins else VERBATIM never fit → implement measured shapes ONLY (`lexer.ml:53 NOTE [PROBE 3]` caret carry; demand LOCKSTEP `pool_bytes` ~580/`dec_pool_bytes` ~1255/prescan ~15341/15361; C152 fires ⇒ STOP+record, NEVER adjust `base`) → probe parity FRESH POSITIONAL cmp vs `golden/e52p19/` → LOAN2 UNMODIFIED sha `7be23ba3…` whole-file `cmp` vs `712cfcb2…` = ONLY finale → tail (fingerprint fresh `--build-dir` grep `Error`; hist 68/124; markers argv; DEC 64/0; divcheck 9/9; sweep FAILS 0) → REAL `--update-inventory` (+3 expected, never force) → census OWN path (may move 15/1/25/0) → **C377 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (NEVER coverage_gen.py) → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape raw `\|`) + §P3-19 **CLOSED**; new blocker ⇒ VERBATIM never fix. Ledger ENDS **C376** (199 headers, ZERO new claim this hop); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p18-reg.log`; goldens KEPT NEVER re-derived; LOAN2 rc=0 7808 B DIFFERS my-gap UNCLAIMED (cmp byte 324); chain 01a1b554 12/12 CAP NOT reset — hop 4 = fresh operator-launched session, closes via handoff_finalize.
 
@@ -3753,9 +3753,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b7bc-23d4-766e-b428-4a6fb0a54eba
-readiness-at: 2026-11-07T21:01:25.653Z
-readiness-checkpoint: g545-464c291a6eeb
 <!-- guard:end checkpoint -->
 
 ## Blockers
@@ -3803,3 +3800,5 @@ readiness-checkpoint: g545-464c291a6eeb
   FULL GATE rc=0 1174/0 (neg 181/181, div 9/9, cov 133/0/0, census 15/0/26/0, prose clean)
   measured at `545dcf1`, recorded `d648bcd`; 23-block byte-verified close archive
   `docs/history/2026-11-02-e50p2-closed.md`.
+
+**HOP-6 ADDENDUM (accepted, session 01a1b7d0):** FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` — 1312/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5 — EVERY number HIT (verified first-hand in the log tail). REMAINING WORK = ONLY the CLOSE: RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape `\|`) + §P3-19 heading CLOSED + prose rc=0 + commit `spec/lab-evidence/e2e52-p3/{RESULTS.md,PLAN.md}` explicit paths + commit refreshed guard blocks VERBATIM + **STOP and report the LOAN2 finale (whole-file byte-exact 7680 B, CLAIMED at [C377]) — LAST budgeted slice; open NOTHING new.**
