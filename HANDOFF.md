@@ -1654,22 +1654,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 488
-checkpoint-id: g488-8dfeeb3426cf
-checkpoint-kind: auto
+checkpoint-generation: 489
+checkpoint-id: g489-fe09b0c1caf7
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4526, session 01a1b486-7e31-71e7-84a1-50f1348d2bab)
-checkpointed: 2026-11-07T06:04:15.565Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1243, session 01a1b486-7e31-71e7-84a1-50f1348d2bab)
+checkpointed: 2026-11-07T06:05:50.859Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7ff87862d9a94f2975f5a5d07316e1df6ff94169b272b4c3afe915154bf724bc
-source-handoff: f2fb46a3aaaf2a0109ec98b6b4a169cf485081aaadf08f62f6e67a0cb4133efb
+source-progress: b461ea7dec182ab2da48208ee2ece3efe9eff50771a1e9e46e0b488920605db3
+source-handoff: 07e095e72f8f0fc42eeb1ad7a102ea9180464160f6beafe337e06218944fc65c
 source-learnings: c30dc0543b2d7600526153d87a4c27d70ac6f0880f1050ad6ad6ba86d1bb2cf1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b486-7e31-71e7-84a1-50f1348d2bab
+readiness-at: 2026-11-07T06:05:50.887Z
+readiness-checkpoint: g489-fe09b0c1caf7
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2324,5 +2327,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-15 hop 4 LANDED (43298b74): campaign e52p15 rc=0 4 ok/4 ALL DR-ACCEPTED, every .PRN NO ERROR(S) both passes; goldens golden/e52p15/ VERBATIM BEFORE any ocaml/ byte; H-A CONFIRMED (E521B formal chain 2A 26 00/3E 0A/?DLDOP/3E 0D/06 02/?QDCOP/?EDTOV + decoded-VERBATIM 21 B table + shared 7C + static desc vector + 0E 04 block-copy); H-C/H-D CONFIRMED (E521C T3 clone, arity-5 0E 0A); H-E MEASURED: DR ACCEPTS fixed-bin deref formal (E521D LHLD/5E 23 56 EB/3E 09/?QICOP/?EDTOV) — SINGLE WITNESS NEVER ARM (do-not-generalise); arm = ONE Vdec-only clause in authorize_file_edit_item PIvar deref branch, refusal text VERBATIM otherwise. EXECUTE NOW LEARNINGS § hop 4 SUCCESSOR CONTRACT steps (2)-(7): arm, histogram 68/124 fresh build-dir, cmp A/B/C FRESH POSITIONAL (D stays rc=2 my-gap), sweep count-moves-with-inventory FAILS 0, markers, DEC 64/0, divcheck 9/9, LOAN2 ACTUAL blocker VERBATIM NEVER fix, register from 1300/187 expect 1303/187 (+A/B/C; D REJECTS my-gap golden KEPT marker re-measured), census 15/0/26/0, C373 measured-bytes-only BEFORE COVERAGE + DATED guard-reason-clause correction, coverage EXTEND-or-NEW + SAME-change IDS, FULL gate -> build/gate-e52p15-reg.log, RESULTS §P3-15 + PLAN §5 row by LINE NUMBER 7-pipe check + CLOSED, P3-16; binary b88e7b02 == tree UNARMED; ledger C372; coverage 145/95; pre-reg bbb916b6 preceded campaign; goldens NEVER re-derived; config NEVER staged; POSITIONAL pli80c no -o; eval opam env every shell; rc DIRECT; no push; byte-tier; chain 01a1b2d5 6/12 cap 12.
+P3-15 hop 6 CLOSE-OUT: execute LEARNINGS.md § "P3-15 hop 5 PART LANDED" SUCCESSOR CONTRACT steps (2)-(6) exactly — C373 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch (all bytes already re-verified first-hand this session via build/p3-13/p13dump.py on KEPT goldens: E521B chain 0071-0082 2A 26 00/3E 0A/?DLDOP@0077/3E 0D/06 02/?QDCOP@007E/?EDTOV@0081 desc cell 0026 NO static bytes; E521A twin 21 2A 00 reloc->002A identical remaining 15 bytes = prep-only law CONFIRMED + authentic LOAN2 2A 42 03 at 06A1; 21 B table 80 00 03 FF 02 08 02 0C 24 5A 5A 5A 2C 5A 5A 39 2E 56 39 39 81 shared 7C@0015 predicted-before-measured HIT; E521C 50 B T3 clone + 7C@0032 + vector 0051..5A->33/39/3F/45/4B arity-5 0E 0A; E521D 005F-006D LHLD/5E 23 56 EB/3E 09/?QICOP/?EDTOV ACCEPTED single witness NEVER arm; DATED guard-reason FALSE-AS-WRITTEN correction + DATED opcode-range correction both IN claim); coverage EXTEND-or-NEW + SAME-change IDS; FULL gate rc=0 DIRECT -> build/gate-e52p15-reg.log expect 1303/0, 188/188, 9/9, 145 rows (or +1), census 15/0/26/0, prose 5; RESULTS §P3-15 + PLAN §5 row INSIDE table by LINE NUMBER + 7-unescaped-pipes + §P3-15 CLOSED; P3-16: read artefacts/LOAN2.PLI line 160 FIRST-HAND BEFORE anything (blocker VERBATIM 'non-variable argument against a FIXED DECIMAL formal is unproven [TBD] ... Line 160'; current_year(IP-YIN) DEC-SUB is PROPOSAL only), verify E522*/e52p16 unused, pre-register BEFORE any oracle/ocaml byte; register from 1303/188. Armed binary 02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb == tree; inventory 1303/188; ledger ENDS C372; coverage 145/95; goldens NEVER re-derived; config NEVER staged; POSITIONAL pli80c no -o; eval opam env every shell; rc DIRECT; no push; byte-tier; never glue rm; never parallelize dependent bash; escape raw | in §5 prose; chain 01a1b2d5 7/12 used cap 12.
 <!-- guard:end checkpoint -->
