@@ -50,7 +50,50 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-53/P1 — ARM LANDED + PARITY 4/4; TAIL→REGISTER→C378→COVERAGE→GATE→CLOSE OWED — BINDING)
+## Next action (E2E-53/P1 hop 3 — TAIL ALL HIT + REGISTER + C378 LANDED; COVERAGE→GATE→RESULTS/PLAN→CLOSE OWED — BINDING)
+
+**DONE hop 3 (session 01a1b82b, chain 2/12, ZERO new oracle — campaign ran pre-registered in hop 2):**
+guard g554 blocks committed VERBATIM `82bd89de`; build rc=0 ZERO `Error`, armed fingerprint
+`8e51c261…` re-verified deterministic (fresh `_build-e53p1h3`); tail ALL HIT: sweep 190/0 FAILS 0
+pre-reg (contract's 187 was STALE — honest measured value recorded), post-reg **194/0**, markers
+**16/16**, DEC **64/0**, divcheck **9/9**, parity re-held cmp **4/4 rc=0** `build/e53p1/claim-out/`;
+REGISTER `1212bb25` (SPECIMENS +4 measured-byte comments — first draft mislabeled GNVOP/QCIOP
+slots, CAUGHT and re-derived from raw hex before commit; REAL `--update-inventory` OWN output
+**1316/190** exactly +4 rows; census OWN path `--check spec/census/corpus-census.json` rc=0 counts
+UNCHANGED **16/0/25/0**); **C378 `3b904631` BEFORE ANY COVERAGE contact** (17-B console GET SKIP
+prefix law `?SYSIN`-attach + skip-list 11-B fixed-bin / 14-B varying tails, corpus anchors EXPR1
+004A-005A / DEPREC 0414 / COPYLPT 0090-009E re-verified FIRST-HAND at claim time, perimeter
+re-measured `build/e53p1/perim/`); ledger **201 headers ENDS C378**; prose rc=0; LEARNINGS hop-3
+section appended.
+
+**EXECUTE NEXT (successor, EXACT order):** (1) coverage row 64 `IO.GET_LIST` FIRST-HAND EXTEND:
+col09 `EXACT:24`→**`EXACT:28`**, col11 append `,E525A,E525B,E525C,E525D` (panel keys verified via
+`load_panel` semantics — all four are INVENTORY specimens NOW), DATED col04 sentence (console GET
+SKIP 17-B prefix + skip-list tails, attach `?SYSIN`) + col13 clause, col15 append `[C378]`; NEVER
+`coverage_gen.py`; `python3 tools/coverage_check.py` expect **145 rows 0/0 SUPPORTED 95** +
+`file_prose_check` rc=0; commit explicit path. (2) re-sweep full panel expect **194/0** already
+held; **FULL gate rc=0 DIRECT** `python3 tools/e2e_gate.py > build/gate-e53p1-reg.log 2>&1; echo
+RC=$?` (expect **1316**/0, **190/190**, 9/9, 145 rows SUPPORTED 95, census **16/0/25/0**, prose 5).
+(3) CREATE `spec/lab-evidence/e2e53/RESULTS.md` §P1 (parity 4/4 table, H-A..H-D CONFIRMED, dated
+`?SYSIN` correction, corpus blocker moves VERBATIM, zero §4 misses, byte-tier) + PLAN §4 dashboard
+row (P1: +4 specimens, corpus newly-EXACT 0, claims C378) + §P1 heading **CLOSED**; prose rc=0;
+commit. (4) Update PROGRESS/LEARNINGS, commit refreshed guard blocks VERBATIM, renew at safe
+boundary (chain 2/12, cap 12). (5) OPEN **P2 = B1 non-2-byte arrays**: verify ids `E526*`/tag
+`e53p2` UNUSED; PRE-REGISTER PLAN §P2 + probes + LEARNINGS by EXPLICIT paths BEFORE any oracle
+call or `ocaml/lib/` byte (PROTOCOL #1).
+
+**STATE:** HEAD = this commit; ledger ENDS **C378** (201 headers); inventory **1316/190**; coverage
+**145/95** (row 64 `IO.GET_LIST` STILL EXACT:24 — EXTEND owed); LAST full gate rc=0
+`build/gate-e52p19-reg.log` (e53p1 gate OWED); armed binary `8e51c261…` == tree; goldens
+`golden/e53p1/` KEPT VERBATIM NEVER re-derived (`dir.txt` NEVER staged); corpus blockers of
+EXPR1/REPORT/DEPREC/COPYLPT recorded VERBATIM in hop-2 commit `53dd4a9f` message +
+`build/e53p1/corpus-out/`, NEVER fix; standing constraints per PROTOCOL Part 2 anchor
+(POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue
+`rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/_build-*`+`ocaml/scratch-*`
+NEVER staged; `handoff.config.json` NEVER staged; no push); chain renewals 2/12 used, cap 12;
+stray root `S2..S5.PL I`/`.log` = pre-existing untracked debris, untouched.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P1 — ARM LANDED + PARITY 4/4; TAIL→REGISTER→C378→COVERAGE→GATE→CLOSE OWED — BINDING)
 
 **DONE hop 2 (session 01a1b818, chain 1/12, all verified first-hand):**
 (1) PRE-REGISTRATION committed `2ba9d0ca` BEFORE any oracle/`ocaml/lib` byte (PLAN §P1.1–§P1.6,
