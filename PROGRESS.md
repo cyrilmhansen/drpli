@@ -3206,17 +3206,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 553
-checkpoint-id: g553-5c4d57c548fb
-checkpoint-kind: auto
+checkpoint-generation: 554
+checkpoint-id: g554-38fa3f434ad2
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-07T22:38:53.488Z
+checkpointed: 2026-11-07T22:39:52.125Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b4f32bb672d4cc5b9a46ea8dd8cc300fc1695c71015e4ebf595c4773ecee59a0
 source-handoff: b63564b4dd4239cebe806a9b71caa2b88a2af4d6594b27206bef4f09a561fd71
-source-learnings: 90860c7b9248745cc247cbe3db2af40d8555d4b1cca4ebc7e57b09d0167640f3
+source-learnings: 91f3e70973ea3b8bc3db1ed4558e3923709898fadfe82fd0910069e79b2df63b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` E2E-53/P1 steps (1)–(5)): PRE-REGISTER PLAN §P1 + `probes/E525A..D` (CRLF + bare `^Z`; ids VERIFIED unused) committed by EXPLICIT paths BEFORE any oracle call/`ocaml/lib/` byte → ONE campaign tag `e53p1` → goldens VERBATIM → decode/adjudicate (NEVER reuse PUT SKIP bytes by analogy) → arm measured ONLY, keep the GET catch refusal for unmeasured forms → whole-file parity + rerun EXPR1/REPORT/DEPREC/COPYLPT UNMODIFIED (new blockers VERBATIM) → tail → REAL `--update-inventory` → census OWN path → **C378+ measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (NEVER `coverage_gen.py`) → FULL gate rc=0 DIRECT `build/gate-e53p1-reg.log` → RESULTS §P1 + PLAN §4 row + CLOSED → re-rank, open P2. Ledger ENDS **C377**; inventory **1312/190**; coverage **145/95**; LAST gate rc=0 `build/gate-e52p19-reg.log`; armed binary `baec1f82…` == tree; goldens KEPT NEVER re-derived; `handoff.config.json` NEVER staged; no push; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/scratch-*` NEVER staged; chain renewals 0/12 used, cap 12.
 0a-marathon-28. **P3-19 hop 3 LANDED — CAMPAIGN e52p19 3/3 DR-ACCEPTED, GOLDENS COMMITTED VERBATIM `7e8d577d` BEFORE ANY `ocaml/lib/` BYTE; DECODE/ADJUDICATION/ARM/TAIL/REGISTER/CLOSE OWED (session 01a1b78a operator-launched; chain 01a1b554 renewal-state VERIFIED STILL 12/12 CAP NOT reset — renewal NOT attempted, close via handoff_finalize; oracle ran ONCE pre-registered; ZERO `ocaml/` byte; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; byte-tier):** recovery verified FIRST-HAND (HEAD `1cddd051`; g539-9c091600596c CURRENT — all five source hashes replayed with the guard's EXACT-STRING strip law [does NOT consume the post-END newline; a newline-eating regex gives a FALSE stale on PROGRESS.md]; operator `handoff.config.json` edit [cap 12, window 145000] already hashed into g539 `43186947…`, NEVER staged; build rc=0 ZERO `Error`; armed `f93b86ea…` == tree == fresh `--build-p319/default/bin/pli80c.exe` — dated tool note: dune `--build-dir` nests `default/`). CAMPAIGN `PLI_SRC=probes timeout 900 python3 oracle/batch.py E524A E524B E524C --tag e52p19 --switches '$L$D'` rc=0 **3 ok/3**, EVERY `.PRN` `NO ERROR(S)` both passes; golden sizes A 384 B sha12 `37c9053b73c6`, B 768 B `c2276dfd7ae8`, C 512 B `3f490fffcd91` — ALL EQUAL my unarmed sanity sizes ⇒ verdict rides on pool-CONTENT decode, not size. SUCCESSOR (BINDING = `LEARNINGS.md` § "P3-19 hop 3" SUCCESSOR CONTRACT steps (1)–(6) + PROGRESS.md `## Next action`): decode goldens FIRST-HAND `build/p3-19/` (p13dump `build/p3-13/p13dump.py` modes rawcode|code|data|chains|sizes; reldump line form `@ <bit> <KIND> <seg?> <addr> <val>`, use `t.index('DATA')`) → adjudicate H-A caret-decode (falsifier: any `5E` in golden DATA) / H-B' per-literal SEPARATE cells vs merge / H-C residue ONLY if E524B pins else VERBATIM never fit → implement measured shapes ONLY (`lexer.ml:53 NOTE [PROBE 3]` caret carry; demand LOCKSTEP `pool_bytes` ~580/`dec_pool_bytes` ~1255/prescan ~15341/15361; C152 fires ⇒ STOP+record, NEVER adjust `base`) → probe parity FRESH POSITIONAL cmp vs `golden/e52p19/` → LOAN2 UNMODIFIED sha `7be23ba3…` whole-file `cmp` vs `712cfcb2…` = ONLY finale → tail (fingerprint fresh `--build-dir` grep `Error`; hist 68/124; markers argv; DEC 64/0; divcheck 9/9; sweep FAILS 0) → REAL `--update-inventory` (+3 expected, never force) → census OWN path (may move 15/1/25/0) → **C377 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (NEVER coverage_gen.py) → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape raw `\|`) + §P3-19 **CLOSED**; new blocker ⇒ VERBATIM never fix. Ledger ENDS **C376** (199 headers, ZERO new claim this hop); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p18-reg.log`; goldens KEPT NEVER re-derived; LOAN2 rc=0 7808 B DIFFERS my-gap UNCLAIMED (cmp byte 324); chain 01a1b554 12/12 CAP NOT reset — hop 4 = fresh operator-launched session, closes via handoff_finalize.
@@ -3897,8 +3897,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1b818-71e0-7516-b7cf-3ade5ae2bb35
-readiness-at: 2026-11-07T22:39:16.571Z
-readiness-checkpoint: g553-5c4d57c548fb
+readiness-at: 2026-11-07T22:39:52.170Z
+readiness-checkpoint: g554-38fa3f434ad2
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -1681,25 +1681,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 553
-checkpoint-id: g553-5c4d57c548fb
-checkpoint-kind: auto
+checkpoint-generation: 554
+checkpoint-id: g554-38fa3f434ad2
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3271, session 01a1b818-71e0-7516-b7cf-3ade5ae2bb35)
-checkpointed: 2026-11-07T22:38:53.488Z
+status: checkpoint (guard level 4, remaining ~364, session 01a1b818-71e0-7516-b7cf-3ade5ae2bb35)
+checkpointed: 2026-11-07T22:39:52.125Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b4f32bb672d4cc5b9a46ea8dd8cc300fc1695c71015e4ebf595c4773ecee59a0
 source-handoff: b63564b4dd4239cebe806a9b71caa2b88a2af4d6594b27206bef4f09a561fd71
-source-learnings: 90860c7b9248745cc247cbe3db2af40d8555d4b1cca4ebc7e57b09d0167640f3
+source-learnings: 91f3e70973ea3b8bc3db1ed4558e3923709898fadfe82fd0910069e79b2df63b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1b818-71e0-7516-b7cf-3ade5ae2bb35
-readiness-at: 2026-11-07T22:39:16.571Z
-readiness-checkpoint: g553-5c4d57c548fb
+readiness-at: 2026-11-07T22:39:52.170Z
+readiness-checkpoint: g554-38fa3f434ad2
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
@@ -2385,5 +2385,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-19 CLOSED at 306e0f21 + durables bf49fde9: RESULTS §P3-19, PLAN §5 row after 109 (7-pipe assert HIT), heading CLOSED, prose rc=0, close-time parity 4/4 rc-0 fresh positional build/p3-19/close-out/, gate rc-0 build/gate-e52p19-reg.log (1312/0,190/190,9/9,census 16/0/25/0,prose 5). Campaign objective MET: LOAN2 whole-file byte-exact, claimed [C377]. NEXT: report to operator and STOP; NOTHING opens without operator authorization. No oracle, no compiler change, no runtime, no push.
+E2E-53/P1 arm landed (53dd4a9f), parity 4/4 cmp rc=0, goldens be66e654, pre-reg 2ba9d0ca; armed binary 8e51c261. SUCCESSOR: execute PROGRESS.md Next action steps (a)-(g) EXACTLY: tail (sweep 187/0 pre-reg then register +4 SPECIMENS rows E525A..D in tools/e2e_gate.py ~2853 pattern, REAL --update-inventory expect 1316/190 own output, markers 16/16, DEC 64/0, divcheck 9/9, census OWN path) -> C378 measured-bytes-only BEFORE COVERAGE (GET SKIP console law ?SYSIN NOT ?SIOOP) -> coverage IO.GET_LIST EXTEND first-hand -> FULL gate rc-0 DIRECT build/gate-e53p1-reg.log -> RESULTS.md sec P1 + PLAN sec4 row + CLOSED -> open P2=B1 arrays (ids E526*/tag e53p2 verify unused, pre-register first). Chain 1/12 cap 12; config never staged; no push.
 <!-- guard:end checkpoint -->
