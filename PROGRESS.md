@@ -42,7 +42,13 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-16 **CLOSED** `2a9215dd` at hop 6 — C374 `85500489` + coverage 8->12 `0e20023f` + FULL gate rc=0 EVERY NUMBER HIT; P3-17 slice 8 of <=8 = LAST — read `LEARNINGS.md` § "P3-16 hop 6 CLOSED" STILL OWED FIRST, it is BINDING)
+## Next action (E2E-52/P3-17 hop 1 — ZERO-oracle PRE-AUDIT LANDED; PRE-REGISTRATION + CAMPAIGN OWED; read `LEARNINGS.md` § "P3-17 hop 1 IN FLIGHT" FIRST — BINDING)
+
+**EXECUTE NOW (successor, hop 2):** (1) `/handoff verify`; build rc=0, binary MUST be `215c4503…` == tree. (2) Write PLAN §P3-17 §1-§7 + probes `probes/E523{A,B,C}.PLI` (A main-auto fixed-bin FILE EDIT item + `2(a,p'99')` formats; B LOAN2:177 twin: inner-proc LOCAL fixed-bin + global fixed-bin + DEC formal in ONE list; C boundary fixed-bin STATIC variable; CRLF+bare-^Z, ≤71 cols, ONE dcl/line, first-line label, continuation stmt) + §4 byte predictions = decoded chains VERBATIM from LEARNINGS §P3-17 hop 1; commit EXPLICIT paths BEFORE any oracle/`ocaml/` byte. (3) ZERO-oracle sanity: current compiler rc=2 BY-NAME on all three. (4) ONE campaign `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py E523A E523B E523C --tag e52p17 --switches '$L$D'` rc DIRECT; read EVERY .PRN; decode accepted .RELs FIRST-HAND into build/p3-17/; goldens VERBATIM first. (5) Arm iff A+B accepted+byte-exact: ONE clause in `authorize_file_edit_item` non-deref branch (codegen.ml ~12541) `| Vint -> ()`; deref-Vint (E521D form) STAYS refused; NO new encoder (lowering ~13085 already emits `LHLD *D / MVI A,09 / ?QICOP / ?EDTOV`). (6) Validation: build rc=0; histogram 68/124 fresh --build-dir; cmp FRESH POSITIONAL; sweep FAILS 0 (count moves with inventory); markers; DEC 64/0; divcheck 9/9; LOAN2 UNMODIFIED POSITIONAL → ACTUAL blocker VERBATIM NEVER fix (if full .REL → straight whole-file parity vs `golden/first/LOAN2/LOAN2.REL` sha `712cfcb2…`). (7) Register from 1307/189 COMPUTE; census OWN path 15/0/26/0 msg MOVES VERBATIM; C375 measured-bytes-only BEFORE COVERAGE; coverage EXTEND `IO.PUT_EDIT` row 66 EXACT:45 adjudicated first-hand (NEVER coverage_gen.py); FULL gate rc=0 DIRECT → build/gate-e52p17-reg.log; RESULTS §P3-17 + PLAN §5 row (LINE-NUMBER anchor + 7-pipe assert) + §P3-17 CLOSED; then STOP — marathon budget EXHAUSTED, no P3-18 without operator decision.
+
+**STATE:** HEAD = durables commit this hop; armed binary `215c4503ffaaa1c7c970014cd6c90833656fca1fb13f838126d8e6aa41405175` == tree; ledger ENDS **C374**; inventory **1307/189**; coverage **145/95**; LAST gate rc=0 `build/gate-e52p16-reg.log`; goldens KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL` Line-177 VERBATIM (`PUT FILE(OUTPUT) EDIT of a variable bound as fixed-binary …`) NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; config NEVER staged; no push; FRESH chain (operator reset), renewals available.
+
+SUPERSEDED-BY-ABOVE: 
 
 **EXECUTE NOW (successor) — P3-17 fixed-bin EDIT (Line-177), EXACTLY per LEARNINGS § "P3-16 hop 6" STILL OWED:** (1) ZERO-oracle pre-audit FIRST-HAND: read `artefacts/LOAN2.PLI` line 177 + its authentic LOAN2.REL route BEFORE proposing; anchor KEPT witness `golden/e52p15/E521D/E521D.REL` (DR-accepted fixed-bin FORMAL item, chain `005F-006D` `2A 0D 00 / 5E 23 56 EB / 3E 09 / ?QICOP@0069 / ?EDTOV@006C`, table `80 00 03 FF 81`, sha `edca27a01a50`) — but LOAN2:177 edits a fixed-bin VARIABLE: audit the PREP difference first, NEVER predict. (2) Verify `E523*`/tag `e52p17` UNUSED. (3) Pre-register PLAN §P3-17 §1-§7 + probes + LEARNINGS, commit EXPLICIT paths BEFORE any oracle call/`ocaml/` byte. (4) ONE campaign e52p17; goldens VERBATIM first; arm measured shapes ONLY (single-witness/do-not-generalise law; `authorize_file_edit_item` codegen.ml ~12533); FULL validation + FULL GATE BEFORE CLOSE -> `build/gate-e52p17-reg.log`; register from 1307/189 (COMPUTE panel-delta expectations); C375 measured-bytes-only BEFORE COVERAGE; coverage adjudicate EXTEND `IO.PUT_EDIT` row 66 EXACT:45 first-hand; RESULTS §P3-17 + PLAN §5 row (LINE-NUMBER anchor + assert 7 unescaped pipes) + CLOSED. (5) Slice budget EXHAUSTED after P3-17 — STOP, report LOAN2 next ACTUAL blocker VERBATIM, NEVER fix; no P3-18 without a new operator decision. NEW CHAIN needed: operator must archive+reset ignored `.pi-guard/renewal-state.json` (chain 01a1b2d5 capped 12/12).
 
@@ -2960,17 +2966,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 504
-checkpoint-id: g504-9277c011dad1
-checkpoint-kind: manual
+checkpoint-generation: 506
+checkpoint-id: g506-0ca5c9eeea3c
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-07T08:27:31.099Z
+checkpointed: 2026-11-07T09:54:22.742Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: af3d40ae0ad62e9a106015aeece61305c1333db033c54168409bcd85169270c9
 source-handoff: ef8dfbda934f193ac8c2ce43fc1d11fc876bfdd13d3d7bf01e12f41f05fc6fc9
-source-learnings: a9675d7dfecfd6795ac7d448f95e2f2764e675c2b0ac3a5bc32212f6e2651405
+source-learnings: c2238c193182941c059a89637ccd14ff88b8d5ff4a97d81f1083d3767b8113d8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` P3-16 hop 2: verify `E522*`/`e52p16` UNUSED; PLAN §P3-16 §1-§7 (OPEN question: does Sub at DIFFERING scales emit the [C370] window — NEVER fit) + probes pre-registered + committed EXPLICIT paths BEFORE any oracle/`ocaml/` byte; ZERO-oracle sanity (`pli80c.exe` POSITIONAL FRESH — no-.exe gives rc=127 trap); ONE campaign e52p16; goldens VERBATIM first; arm measured ONLY; FULL validation + gate BEFORE close → `build/gate-e52p16-reg.log`; register from **1303/188** (COMPUTE panel-delta expectations; REJECTS prose edits need SAME-change `--update-inventory`); C374 measured-bytes-only BEFORE COVERAGE; RESULTS+PLAN §5 (line-anchored, 7-pipe, escape raw `|`)+CLOSED; marathon through P3-19 (slice 7 of ≤8). Ledger ENDS **C373**; inventory **1303/188**; coverage **145/95** IO.PUT_EDIT EXACT:45; LAST gate rc=0 `build/gate-e52p15-reg.log` EVERY number hit; armed binary `02ea809e8fbc908a722e1e1b979e238b7353fa16eafe7b31df1bce8da0c826fb` == tree; goldens `golden/e52p15/` KEPT NEVER re-derived; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO `.REL` Line-160 VERBATIM NEVER fix; EXPR1 GET-21/EXPR2 FLOAT-35; POSITIONAL `pli80c.exe IN OUT` no `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; no push; byte-tier; chain 01a1b2d5 10/12 used after renewal, cap 12.**
 
@@ -3625,9 +3631,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b504-afec-71e7-84a1-510417f5cf52
-readiness-at: 2026-11-07T08:27:31.124Z
-readiness-checkpoint: g504-9277c011dad1
 <!-- guard:end checkpoint -->
 
 ## Blockers
