@@ -1649,3 +1649,25 @@ via E520C only if it lands). The bare-statement boundary (H-5) must be stated as
 BY-NAME [TBD] refusal unless E520E measures DR acceptance. If E520B/C/D are DR-REFUSED,
 C372 does not exist for this subround — the honest verdict is a `dr-refuses` record with
 the VERBATIM diagnostic and NO arm.
+
+### 4b. DATED ADDENDUM (2026-11-07, hop 1): campaign e52p14 MEASURED verdicts + probe defect
+
+Campaign 1 (`golden/e52p14/`, committed VERBATIM `1afc3bd3`, rc=0, 1 ok/5):
+**E520D ACCEPTED** both passes NO ERROR(S), `.REL` decoded first-hand — **H-4 CONFIRMED**:
+main `21 02 00 / CD head@000A` (LXI H,*A(desc), operand inline CODE?? no — RELOC→DATA 0002;
+LINK-CHAIN-ADDRESS addr:[000A]); descriptor cell 0002 = two zero bytes with **inline DATA
+RELOC → 0000** (i's OWN cell — STATIC, exactly the armed t14h topology); callee entry 002B
+peeled `5E 23 56 EB / SHLD 0004`; body `2A 04 00 / 36 02 / 23 / 36 00 / C9`; tail
+`C3 3B / CD ?STOPX`. The SHADOWED builtin name with a variable actual rides the EXISTING
+[C093]/[C123] route once the target parses as a name.
+
+**E520A/B/C/E diag, NO .REL — PROBE DEFECT (MINE, not a DR verdict on H-1/H-2/H-3/H-5):**
+the SYNTAX pointer fires on the EMPTY-PARENS HEADER `procedure();` (error lines 13/14/17/15
+— the headers), while the CALL-SITE lines carry NO error; DR PL/I-80 spells zero-formal
+headers `procedure;` (LOAN2 lines 158/188/209 first-hand). E520E's line-12 SYNTAX (bare
+`summary();`, BOTH passes) is REAL but CONFOUNDED by the broken header — H5 stays
+UNMEASURED pending the corrected twin. NEW PROBE LAW (accepted): DR headers are
+`procedure;` / `procedure(x);` — NEVER `procedure();`; zero-oracle sanity CANNOT catch
+DR-only syntax (my parser accepts both). Corrected probes (identical statements, header
+fixed) re-measure under tag **e52p14b**; `golden/e52p14/` KEPT UNTOUCHED as the campaign-1
+record (precedent e52p3d, e42p0b/c).

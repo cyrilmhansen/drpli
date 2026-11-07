@@ -6,6 +6,8 @@ E520C: procedure options(main);
       the later operand is an inline RELOC against the
       PREVIOUS site operand word, the first operand is
       two zero DATA bytes; authentic LOAN2 chain head
+      CORRECTED e52p14b: header procedure; after
+      campaign-1 SYNTAX on procedure(); (PLAN P3-14 S4b).
       066F links 0621, both fill 0733. */
    dcl i fixed bin;
 
@@ -14,7 +16,7 @@ E520C: procedure options(main);
    call summary();
    put skip list(i);
 
-summary: procedure();
+summary: procedure;
    i = 1;
    end summary;
 end E520C;

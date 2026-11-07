@@ -4,13 +4,15 @@ E520A: procedure options(main);
       with EMPTY PARENS, single site. Prediction: bare
       3 B CALL, no descriptor, no LXI H [C124]; the
       single site carries the chain record [C123];
+      CORRECTED e52p14b: header procedure; after
+      campaign-1 SYNTAX on procedure(); (PLAN P3-14 S4b).
       the put continuation follows the call. */
    dcl i fixed bin;
 
    call foo();
    put skip list(i);
 
-foo: procedure();
+foo: procedure;
    i = 1;
    end foo;
 end E520A;

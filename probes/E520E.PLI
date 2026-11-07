@@ -6,13 +6,15 @@ E520E: procedure options(main);
       CALL); my parser KEEPS the builtin capture here
       by design. If DR refuses, the [TBD] refusal
       stays BY NAME; if DR accepts, the bytes
+      CORRECTED e52p14b: header procedure; so the
+      line-12 verdict is UNCONFOUNDED (PLAN P3-14 S4b).
       adjudicate against the CALL form. */
    dcl i fixed bin;
 
    summary();
    put skip list(i);
 
-summary: procedure();
+summary: procedure;
    i = 1;
    end summary;
 end E520E;

@@ -5,13 +5,15 @@ E520B: procedure options(main);
       DR lowers it EXACTLY like probe A; predicted .REL
       differs from E520A ONLY in the program-name
       record byte A->B (internal procedure names never
+      CORRECTED e52p14b: header procedure; after
+      campaign-1 SYNTAX on procedure(); (PLAN P3-14 S4b).
       appear in the object [C123]). */
    dcl i fixed bin;
 
    call summary();
    put skip list(i);
 
-summary: procedure();
+summary: procedure;
    i = 1;
    end summary;
 end E520B;
