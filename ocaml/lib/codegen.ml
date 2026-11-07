@@ -1890,6 +1890,35 @@ let rec pdec_operand_bytes (cx : pdec_ctx) (e : Ast.expr) =
                   | Some (Some (p, sc)) -> Some (p, sc)
                   | _ -> None)
              | _ -> None)
+        (* [E2E-52/P3-19 E524B] mirror of the dpartner Div arm: a DIV
+           compound additive partner aligns the literal to the QUOTIENT
+           descriptor (15, sl + (15 - pl) - sr), the scale dv_of computes
+           (n = 15 - pl, sc = sl + n - sr; identical formula when n = 0).
+           Dividend p,s come ONLY from pd_vars and the divisor scale only
+           from an Enumber (own digits irrelevant, scale 0) or a DEC
+           pd_vars ident; every other shape mirrors a lowering refusal
+           and yields None.  C152 is the lockstep check; NEVER adjust
+           `base`. *)
+        | Ast.Ebinary (Ast.Div, dl, dr) ->
+            let dl = unw dl in
+            let dr = unw dr in
+            (match (dl.Ast.e, dr.Ast.e) with
+             | Ast.Eident n, Ast.Enumber _ ->
+                 (match List.assoc_opt (String.lowercase_ascii n.Ast.orig)
+                          cx.pd_vars with
+                  | Some (Vdec (pl, sl)) -> Some (15, sl + (15 - pl))
+                  | _ -> None)
+             | Ast.Eident n, Ast.Eident m ->
+                 (match
+                    ( List.assoc_opt (String.lowercase_ascii n.Ast.orig)
+                        cx.pd_vars,
+                      List.assoc_opt (String.lowercase_ascii m.Ast.orig)
+                        cx.pd_vars )
+                  with
+                  | Some (Vdec (pl, sl)), Some (Vdec (_, sr)) ->
+                      Some (15, sl + (15 - pl) - sr)
+                  | _ -> None)
+             | _ -> None)
         | _ -> None
       in
       let side lit other =
@@ -6311,16 +6340,24 @@ let dcompound _st (e : Ast.expr) =
 
 (* the (p,s) an additive/compare integer literal aligns to: only a DEC
    variable or a DEC function call is evidenced [R608, R507/R607] *)
-let dpartner st (e : Ast.expr) : (int * int) option =
+let rec dpartner st (e : Ast.expr) : (int * int) option =
   match (unwrap_e e).Ast.e with
   | Ast.Eident n -> vk_dec_opt st n
   | Ast.Esuffix _ -> Some (dec_edit_pt st e)
+  (* [E2E-52/P3-19 E524B] a DIV compound additive partner aligns the literal
+     to the QUOTIENT descriptor: golden/e52p19 E524B measures the literal `1`
+     in the additive role pushed LXI H,*D(0014) / MVI A,0F (image
+     00 00 00 00 00 00 10 00 = 10^13, i.e. p = 15, s = quotient scale) with
+     ?QDDSR 8 before ?DSTOP fi(7,5).  Div partners ONLY — Add/Sub/Mul
+     compound partners keep the existing None (own-digit) behaviour, and
+     dv_of keeps pv = None for Div so N32_DIV_CHAINED stays refused. *)
+  | Ast.Ebinary (Ast.Div, _, _) -> Some (15, (dv_of st nop_cx e).sc)
   | _ -> None
 
-let nop_cx =
+and nop_cx =
   { c_tgt = None; c_lit = None; c_mult = false; c_round = false
   ; c_direct = false }
-let round_arg_cx =
+and round_arg_cx =
   { c_tgt = None; c_lit = None; c_mult = false; c_round = true; c_direct = false }
 
 (* ------------------------------------------------------------------ *
@@ -6347,7 +6384,7 @@ let round_arg_cx =
  *   My compiler emits bytes only -- the arithmetic is DR's ?DROUN --   *
  *   so the mode is evidence for the model, not a rule I implement.     *
  * ------------------------------------------------------------------ *)
-let round_split args =
+and round_split args =
   match args with
   | [ x; nn ] -> (unwrap_e x, nn)
   | [ _ ] ->
@@ -6356,7 +6393,7 @@ let round_split args =
          itself, with pass-2 `SYNTAX ?` and no .REL [R808])"
   | _ -> failwith "codegen: ROUND arity [TBD]"
 
-let round_n nn =
+and round_n nn =
   match (unwrap_e nn).Ast.e with
   | Ast.Enumber k ->
       let (v, _own, lsc) = dec_lit_value k in
@@ -6374,7 +6411,7 @@ let round_n nn =
 (* everything about a ROUND node that needs no value descriptor: arity, the
    digit-count literal, and the argument shape.  The scale-vs-n check lives
    in dv_of, which is the only place that can see the entry scale. *)
-let round_shape st args =
+and round_shape st args =
   let (x, nn) = round_split args in
   let n = round_n nn in
   begin
@@ -6405,7 +6442,7 @@ let round_shape st args =
 (* context for a BINARY operand: a direct integer literal takes its
    partner's precision in an additive/compare position and its own digit
    count in a multiplicative one; anything else inherits nothing *)
-let dchild_cx _st op partner x =
+and dchild_cx _st op partner x =
   match op with
   | Ast.Mul | Ast.Div ->
       { c_tgt = None; c_lit = None; c_mult = true; c_round = false
@@ -6417,7 +6454,7 @@ let dchild_cx _st op partner x =
            ; c_direct = false }
        | _ -> nop_cx)
 
-let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
+and dv_of st (cx : dctx) (e : Ast.expr) : dv =
   match (unwrap_e e).Ast.e with
   | Ast.Eident n ->
       (match vk_dec_opt st n with
