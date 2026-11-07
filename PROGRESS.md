@@ -3066,17 +3066,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 548
-checkpoint-id: g548-90261f604bb6
+checkpoint-generation: 549
+checkpoint-id: g549-f3087008fe64
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-07T21:28:40.411Z
+checkpointed: 2026-11-07T21:39:30.767Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 479d14f984697164f0d20532eaa383f683d6f55ba8f53117da31bf744998464a
+source-progress: bf3644993bb2efa33a1d578fb6d0cdfab0cddd9b37544d65e2ff1b15c617af81
 source-handoff: d97b05876c76190815216b6212f2a45fd47de365bb177b54871fcaf104e8912f
-source-learnings: 6b2bcf8762417f4a7d3f86d1f7361943964e53fbc1381f1cbd302618301edfa7
+source-learnings: 36451141beb13eed92051e14e675deb410b30ecbf7a17bfee7f2261218b71e2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `): decode goldens FIRST-HAND `build/p3-19/` (p13dump `build/p3-13/p13dump.py` modes rawcode|code|data|chains|sizes; reldump line form `@ <bit> <KIND> <seg?> <addr> <val>`, use `t.index('DATA')`) → adjudicate H-A caret-decode (falsifier: any `5E` in golden DATA) / H-B' per-literal SEPARATE cells vs merge / H-C residue ONLY if E524B pins else VERBATIM never fit → implement measured shapes ONLY (`lexer.ml:53 NOTE [PROBE 3]` caret carry; demand LOCKSTEP `pool_bytes` ~580/`dec_pool_bytes` ~1255/prescan ~15341/15361; C152 fires ⇒ STOP+record, NEVER adjust `base`) → probe parity FRESH POSITIONAL cmp vs `golden/e52p19/` → LOAN2 UNMODIFIED sha `7be23ba3…` whole-file `cmp` vs `712cfcb2…` = ONLY finale → tail (fingerprint fresh `--build-dir` grep `Error`; hist 68/124; markers argv; DEC 64/0; divcheck 9/9; sweep FAILS 0) → REAL `--update-inventory` (+3 expected, never force) → census OWN path (may move 15/1/25/0) → **C377 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (NEVER coverage_gen.py) → FULL gate rc=0 DIRECT `build/gate-e52p19-reg.log` → RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape raw `\|`) + §P3-19 **CLOSED**; new blocker ⇒ VERBATIM never fix. Ledger ENDS **C376** (199 headers, ZERO new claim this hop); inventory **1309/190**; coverage **145/95 EXACT:47**; LAST gate rc=0 `build/gate-e52p18-reg.log`; goldens KEPT NEVER re-derived; LOAN2 rc=0 7808 B DIFFERS my-gap UNCLAIMED (cmp byte 324); chain 01a1b554 12/12 CAP NOT reset — hop 4 = fresh operator-launched session, closes via handoff_finalize.
 
@@ -3756,8 +3756,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1b7d0-ef2b-766e-b428-4a7302c548f5
-readiness-at: 2026-11-07T21:28:40.454Z
-readiness-checkpoint: g548-90261f604bb6
+readiness-at: 2026-11-07T21:39:30.810Z
+readiness-checkpoint: g549-f3087008fe64
 <!-- guard:end checkpoint -->
 
 ## Blockers

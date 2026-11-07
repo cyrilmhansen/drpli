@@ -1680,25 +1680,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 548
-checkpoint-id: g548-90261f604bb6
+checkpoint-generation: 549
+checkpoint-id: g549-f3087008fe64
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~2194, session 01a1b7d0-ef2b-766e-b428-4a7302c548f5)
-checkpointed: 2026-11-07T21:28:40.411Z
+status: checkpoint (guard level 4, remaining ~-16483, session 01a1b7d0-ef2b-766e-b428-4a7302c548f5)
+checkpointed: 2026-11-07T21:39:30.767Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 479d14f984697164f0d20532eaa383f683d6f55ba8f53117da31bf744998464a
+source-progress: bf3644993bb2efa33a1d578fb6d0cdfab0cddd9b37544d65e2ff1b15c617af81
 source-handoff: d97b05876c76190815216b6212f2a45fd47de365bb177b54871fcaf104e8912f
-source-learnings: 6b2bcf8762417f4a7d3f86d1f7361943964e53fbc1381f1cbd302618301edfa7
+source-learnings: 36451141beb13eed92051e14e675deb410b30ecbf7a17bfee7f2261218b71e2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1b7d0-ef2b-766e-b428-4a7302c548f5
-readiness-at: 2026-11-07T21:28:40.454Z
-readiness-checkpoint: g548-90261f604bb6
+readiness-at: 2026-11-07T21:39:30.810Z
+readiness-checkpoint: g549-f3087008fe64
 ### Last verified state
-guard level 4; checkpoint requested (finalize: P3-19 hop 6 (LAST budgeted slice) — C377 a59e687c + coverage ad7f06a2 + FULL gate rc=0 build/gate-e52p19-reg.log (1312/0,190/190,9/9,145/95,census 16/0/25/0,prose 5 ALL HIT) LANDED; LOAN2 whole-file byte-exact CLAIMED. Successor: ONLY the CLOSE per PROGRESS.md Next action — RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape \|) + §P3-19 CLOSED + prose rc=0 + commit guard blocks VERBATIM, then STOP and report the LOAN2 finale to the operator; open NOTHING new.)
+guard level 4; checkpoint requested (finalize: E2E-52/P3-19 CLOSED at 306e0f21 + durables bf49fde9: RESULTS §P3-19, PLAN §5 row after 109 (7-pipe assert HIT), heading CLOSED, prose rc=0, close-time parity 4/4 rc-0 fresh positional build/p3-19/close-out/, gate rc-0 build/gate-e52p19-reg.log (1312/0,190/190,9/9,census 16/0/25/0,prose 5). Campaign objective MET: LOAN2 whole-file byte-exact, claimed [C377]. NEXT: report to operator and STOP; NOTHING opens without operator authorization. No oracle, no compiler change, no runtime, no push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2383,5 +2383,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-19 hop 6 (LAST budgeted slice) — C377 a59e687c + coverage ad7f06a2 + FULL gate rc=0 build/gate-e52p19-reg.log (1312/0,190/190,9/9,145/95,census 16/0/25/0,prose 5 ALL HIT) LANDED; LOAN2 whole-file byte-exact CLAIMED. Successor: ONLY the CLOSE per PROGRESS.md Next action — RESULTS §P3-19 + PLAN §5 row after 109 (7-pipe assert RUN IN CODE, escape \|) + §P3-19 CLOSED + prose rc=0 + commit guard blocks VERBATIM, then STOP and report the LOAN2 finale to the operator; open NOTHING new.
+E2E-52/P3-19 CLOSED at 306e0f21 + durables bf49fde9: RESULTS §P3-19, PLAN §5 row after 109 (7-pipe assert HIT), heading CLOSED, prose rc=0, close-time parity 4/4 rc-0 fresh positional build/p3-19/close-out/, gate rc-0 build/gate-e52p19-reg.log (1312/0,190/190,9/9,census 16/0/25/0,prose 5). Campaign objective MET: LOAN2 whole-file byte-exact, claimed [C377]. NEXT: report to operator and STOP; NOTHING opens without operator authorization. No oracle, no compiler change, no runtime, no push.
 <!-- guard:end checkpoint -->
