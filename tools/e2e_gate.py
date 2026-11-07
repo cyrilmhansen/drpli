@@ -2683,7 +2683,7 @@ SPECIMENS.update({
 #             0016/001C; callee prologue `11 26 00 / 0E 04 / 7E 23 12 13 / 0D / C2 4C 00'
 #             (2 formal cells, 4 B copied each).
 #   E521B 640 B; CODE 00AD (173 B), DATA 0026.  THE TARGET CLASS (H-A): the EDIT item is
-#             the deref'd FIXED DEC formal x -- chain at 0070-0081 `2A 26 00 / 3E 0A /
+#             the deref'd FIXED DEC formal x -- chain at 0071-0082 `2A 26 00 / 3E 0A /
 #             CD ?DLDOP@0077 / 3E 0D / 06 02 / CD ?QDCOP / CD ?EDTOV@0081': LHLD of the
 #             DESCRIPTOR cell 0026 (which carries NO static bytes -- the block-copy
 #             prologue writes it at runtime) instead of the variable route's LXI H,*A;
@@ -5678,7 +5678,7 @@ NEG_META["E52XK"] = ("my-gap",
 NEG_META["E521D"] = ("my-gap",
     "DR COMPILES IT (golden/e52p15/E521D/E521D.REL, 512 B whole-file: `NO ERROR(S)' in BOTH "
     "passes; campaign e52p15 4 ok/4 measured at 43298b74; [C373] H-E) -- the file EDIT item "
-    "is the deref'd FIXED BIN formal n: chain at 0060-006C `2A 0D 00 LHLD desc / 5E 23 56 EB "
+    "is the deref'd FIXED BIN formal n: chain at 005F-006D `2A 0D 00 LHLD desc / 5E 23 56 EB "
     "(deref-to-value, the P063B read) / 3E 09 width / CD ?QICOP@0069 / CD ?EDTOV@006C', "
     "attach `?SIOOP@0057 / ?EDITF@005D', table `80 00 03 FF 81' at data@0000, callee "
     "prologue `11 0D 00 / 0E 04'.  This is a SINGLE witness of a class the P3-15 arm "
