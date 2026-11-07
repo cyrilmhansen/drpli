@@ -2939,15 +2939,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 486
-checkpoint-id: g486-2a8b15258ed2
-checkpoint-kind: auto
+checkpoint-generation: 487
+checkpoint-id: g487-d1788ca26afe
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-07T05:38:24.432Z
+checkpointed: 2026-11-07T05:40:54.467Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: ba9ecd7335d272219d9f39df4fd7027b6272484099dd0f7fbc58bc334bb151fc
+source-progress: 7ff87862d9a94f2975f5a5d07316e1df6ff94169b272b4c3afe915154bf724bc
 source-handoff: f2fb46a3aaaf2a0109ec98b6b4a169cf485081aaadf08f62f6e67a0cb4133efb
 source-learnings: f9289212123923f63c84fcaa9609ffbe51c406c971a8c673035cd1fd8141bf2c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -3598,6 +3598,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b46a-a12e-71e7-84a1-50eddd70d650
+readiness-at: 2026-11-07T05:40:54.496Z
+readiness-checkpoint: g487-d1788ca26afe
 <!-- guard:end checkpoint -->
 
 ## Blockers
