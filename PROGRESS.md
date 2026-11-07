@@ -3016,17 +3016,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 526
-checkpoint-id: g526-e7bd68160190
-checkpoint-kind: auto
+checkpoint-generation: 527
+checkpoint-id: g527-d5f2eb7aac59
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-07T16:04:31.728Z
+checkpointed: 2026-11-07T16:05:33.023Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: edcb7dcaa590ece7b508805ba7e3853d4352be5612c44bc07d02f85deecd72a2
 source-handoff: 24c269e9571aeb8bdfe3420e1c8cc9722a09d0e204cf865035af543e0ff06808
-source-learnings: 147ecd0a93a4347992b12e80a76e7aff74032a8e15edee9a51415563c059035b
+source-learnings: 4df4e40bde4c56e51f2305910df4bdecb3f57aa098eb628886eb05bec8b10234
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` + LEARNINGS § "P3-17 hop 5 IN FLIGHT"): coverage `IO.PUT_EDIT` **EXACT:45→47** + col11 `,E523A,E523B` (37→39) + DATED col4/col13 clauses (NEVER `coverage_gen.py`, 15 tab cols, NO IDS line) → `coverage_check`+prose rc=0 → **FULL gate rc=0 DIRECT** `build/gate-e52p17-reg.log` (1309/0,190/190,9/9,145 rows SUPPORTED 95,census 15/0/26/0,prose 5) → RESULTS §P3-17 + PLAN §5 row LINE-anchored (7-pipe assert RUN IN CODE) + §P3-17 **CLOSED** → **STOP, budget EXHAUSTED 8/8**, report LOAN2 blocker VERBATIM never fix, NO P3-18 without operator decision. Ledger ENDS **C375** (198 headers); inventory **1309/190**; coverage **145/95 EXACT:45**; LAST gate rc=0 `build/gate-e52p16-reg.log`; goldens `golden/e52p17/` KEPT NEVER re-derived; LOAN2 sha `7be23ba3…` rc=2 NO `.REL`; POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier; `build/` git-IGNORED NEVER `git add -f`; config NEVER staged; no push; chain 01a1b554 renewal 5/12 scheduled, cap 12.
 
@@ -3693,6 +3693,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1b6a5-c9d3-7577-b10f-a8a22b97b75e
+readiness-at: 2026-11-07T16:05:33.050Z
+readiness-checkpoint: g527-d5f2eb7aac59
 <!-- guard:end checkpoint -->
 
 ## Blockers
