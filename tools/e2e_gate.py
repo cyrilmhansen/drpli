@@ -2752,6 +2752,62 @@ SPECIMENS.update({
 #   E522E is NOT here -- DR ACCEPTED the nested a-b*c actual (512 B, CODE 007F) but PLAN
 #   §P3-16 §5 kept the nested class OUTSIDE the arm (the operand test is deliberately
 #   NON-recursive): registered below as an honest my-gap, refused BY NAME.
+# [E2E-52/P3-17] E523A..E523B -- FILE PUT/EDIT item panel for a variable bound as
+# FIXED BINARY (campaign e52p17 3 ok/3 at 40d98144; PLAN §P3-17 H-A/H-B CONFIRMED, every
+# `.PRN' NO ERROR(S) in BOTH passes).  The guard `authorize_file_edit_item' now admits
+# exactly ONE extra class -- a NON-deref PIvar whose binding is `Vint' -- by the single
+# clause `| Vint -> ()' after the `Vdec _' arm; the lowering was ALREADY armed (the
+# Vint|Vbased|Vbfix item arm emits LHLD own-cell / MVI A,w / ?QICOP / ?EDTOV).  ZERO
+# bind/emitter change.  Both whole-file cmps rc=0 FRESH POSITIONAL on binary
+# b744acfb... (build/p3-17/arm-out/ and hop4-out/).
+#   E523A 512 B; CODE 0081, DEF-DATA-SIZE 0019, COMMON abs 0024 (PF).  H-A CONFIRMED
+#             (predicted-before-measured HIT): the MAIN-AUTO fixed-bin item `a' is
+#             11 RAW BYTES code 0049-0053 -- `2A 17 00' LHLD own cell (first operand
+#             byte RELOC 004A -> data@0017, a cell with NO static bytes), `3E 09' MVI
+#             A,9 (the fixed-bin width), `CD 00 00' CALL ?QICOP (operand SLOT 004F),
+#             `CD 00 00' CALL ?EDTOV (SLOT 0052).  NO deref quartet, NO `06 xx'/
+#             ?QDCOP pair, NO shift -- byte-for-byte the authentic LOAN2 `yp'/'y' item
+#             pattern.  The two `|' literal items (1 and 4) REUSE ONE shared cell
+#             data@0014 `7C' (operand RELOCs 0034 and 0055); `XX' = data@0015 `58 58'
+#             carried by `21 15 00 / 3E 02' + ?SLCTS slot 0044 + ?EDTOV slot 0047.
+#             Format table data@0000-0013 = `80 00 03 FF 0B 0F 80 02 03 FF 02 02 00 02
+#             39 39 81 03 FF 81' (nested `2(a,p'99')' = `80 02 .. 81', picture `99' =
+#             `39 39') behind `LXI H,*C(common@0)/LXI D,0652 inline/LXI B code@0062
+#             (RELOC 0028)/?SIOOP slot 002B/?EDITF slot 0031'; tail `3E 01'/?SKPOP slot
+#             006E then the console `put skip list(a)' `2A 17 00/3E 09/?QICOP slot
+#             0076/?PNVOP slot 0079/?QIOOP slot 007C' [C373] geometry verbatim.
+#   E523B 896 B; CODE 00E6, DEF-DATA-SIZE 0056, COMMON abs 0024 (PF).  H-B CONFIRMED --
+#             the LOAN2:177 STATEMENT CLASS (8 items / 7 specs, `put skip file(pf) edit')
+#             inside internal `cy': items 3 and 5 are fixed-bin autos, each the SAME 11 B
+#             chain -- `yp' (cy-local) `2A 54 00'@007A (RELOC 007B -> data@0054) `3E 09'
+#             ?QICOP slot 0080 ?EDTOV slot 0083; `y' (MAIN auto) `2A 48 00'@0090 (RELOC
+#             0091 -> data@0048) `3E 09' slots 0096/0099.  Item 7 is the DEREF'D DEC
+#             FORMAL `i' = 17 B `2A 52 00'@00A6 (RELOC 00A7 -> the DESCRIPTOR cell
+#             data@0052, written at run time by the entry prologue, NO static bytes) /
+#             `3E 0A'/DLDOP slot 00AC / `3E 0D'/`06 02'/QDCOP slot 00B3/EDTOV slot 00B6
+#             -- [C373] verbatim, so FIXED BIN auto and DEC formal items COEXIST in one
+#             EDIT list.  Shared `|' cell data@002B (RELOCs 0065 and 00B9); `Interest
+#             Paid During ''' = data@002C (22 B, `3E 16'), `-'''@data@0042, ` is '@
+#             data@0044 (4 B, `3E 04'); picture `$$$,$$$,$$9V.99' = 15 B data@0017-0025
+#             `24 24 24 2C 24 24 24 2C 24 24 39 56 2E 39 39' behind `02 0A'/`02 0F';
+#             attach `LXI H,*C(common@0)/LXI D,0652/LXI B,code@00C6 (RELOC 0054)/?SIOOP
+#             slot 0057 / 3E 01/?SKPOP slot 005C / LXI H,*A(data@0000)/?EDITF slot 0062',
+#             close ?QIOOP slot 00C4.  `cy' ENTRY is code@0040 (CHAIN-ADDR head SLOT
+#             001F -> LC code@0040): peel `5E 23 56 EB' + `22 52 00' SHLD descriptor
+#             data@0052 -- the authentic LOAN2 `current_year' geometry (entry 076A,
+#             `5E 23 56 EB'/`22 54 03').  `call cy(q)' actual descriptor `LXI
+#             H,*A(data@0050)'@001B (RELOC 001C -> data@0050; the cell holds `4A 00' with
+#             DATA RELOC -> data@004A, the [C371] static-vector law).
+#   E523C is NOT here -- DR ACCEPTED `dcl s fixed binary static;' (512 B, CODE 0065) with
+#   an item chain BYTE-IDENTICAL to the automatic one, but MY compiler refuses the
+#   DECLARATION itself, so the EDIT guard is unreachable: registered below as an honest
+#   my-gap with its golden KEPT UNCLAIMED (E522E precedent), and NOTHING is armed on its
+#   authority.
+SPECIMENS.update({
+    "E523A": ("probes/E523A.PLI", "golden/e52p17/E523A/E523A.REL"),
+    "E523B": ("probes/E523B.PLI", "golden/e52p17/E523B/E523B.REL"),
+})
+
 SPECIMENS.update({
     "E522A": ("probes/E522A.PLI", "golden/e52p16/E522A/E522A.REL"),
     "E522B": ("probes/E522B.PLI", "golden/e52p16/E522B/E522B.REL"),
@@ -5642,6 +5698,17 @@ REJECTS.update({
     # materialization (Line 13), never invented.
     "E522E": (open("probes/E522E.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 13)"),
+    # [E2E-52/P3-17] E523C -- MEASURED my-gap row, golden KEPT UNCLAIMED (E521D/E522E
+    # precedent, NOT dr-refuses): campaign e52p17 measured DR ACCEPTING a STATIC
+    # fixed-binary EDIT item (`.PRN' NO ERROR(S) BOTH passes, 512 B .REL, CODE 0065, item
+    # chain `2A 10 00/3E 09/?QICOP slot 003E/?EDTOV slot 0041' BYTE-IDENTICAL to the
+    # automatic one, the static cell carrying NO static DATA bytes).  MY compiler refuses
+    # the DECLARATION (storage-class sampling, not the EDIT guard), so the EDIT route for
+    # a static bin is UNREACHABLE here and NOTHING was armed on C's authority.  The
+    # marker is MY refusal RE-MEASURED rc=2 on armed binary b744acfb... under the gate's
+    # CRLF+bare-^Z materialization (line 8), never invented.
+    "E523C": (open("probes/E523C.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "STATIC on FIXED BINARY(15,0) is unsampled [TBD]"),
 })
 NEG_META["E52SF"] = ("dr-refuses",
     "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
@@ -5751,6 +5818,23 @@ NEG_META["E521D"] = ("my-gap",
 # [E2E-52/P3-16] E522E -- MEASURED my-gap on the DEC-expression-actual route (precedent
 # E521D above): DR accepts the NESTED Sub-of-Mul actual; the arm contract kept nesting
 # outside and the operand test stays NON-recursive until the class gets its own panel.
+NEG_META["E523C"] = ("my-gap",
+    "DR COMPILES IT (golden/e52p17/E523C/E523C.REL, 512 B whole-file: `NO ERROR(S)' in BOTH "
+    "passes; campaign e52p17 3 ok/3 measured at 40d98144; [C375] H-C) -- `dcl s fixed binary "
+    "static;' edited by `put file(pf) edit('|',s)(a,2(a,p'99'))' emits DEF CODE 0065, DATA "
+    "0013 and an item chain BYTE-IDENTICAL to the automatic fixed-bin item: `2A 10 00' LHLD "
+    "the static cell data@0010 (first operand byte RELOC 0039), `3E 09', CALL ?QICOP (SLOT "
+    "003E), CALL ?EDTOV (SLOT 0041); the shared `|' cell is data@0012 `7C' and the static "
+    "cell itself carries NO static DATA bytes.  Mine KEEPS refusing BY NAME -- at the "
+    "DECLARATION, before any EDIT guard: `codegen: STATIC on FIXED BINARY(15,0) is unsampled "
+    "[TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER case and "
+    "E20B/E20D the BIT(1) one, but only those two initialiser encodings have DR bytes; line "
+    "8)' (rc=2, NO .REL, re-measured at claim time on armed binary b744acfb...).  This is a "
+    "`my-gap' row and the golden is claimed by NOTHING here: NO arm was added on C's "
+    "authority, because the EDIT-item lowering for a STATIC bin has no MY-side witness at "
+    "all (do-not-generalise, P3-10 WF/WG law).  Marker RE-MEASURED rc=2 this hop under the "
+    "gate's CRLF+bare-^Z materialization (refusal ends `line 8'), never assumed.")
+
 NEG_META["E522E"] = ("my-gap",
     "DR COMPILES IT (golden/e52p16/E522E/E522E.REL, 512 B whole-file: `NO ERROR(S)' in BOTH "
     "passes; campaign e52p16 5 ok/5 measured at 91b10c25; [C374] H-E) -- the actual is the "
