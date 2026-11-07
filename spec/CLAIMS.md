@@ -9520,3 +9520,109 @@ classified `unmeasured` rather than `dr-refuses`.
   still-refused DEC-formal routes (N53 conjunction etc.) — their DR behaviour remains
   UNMEASURED.  This addendum moves NOTHING else: the product/literal laws above stand
   verbatim and byte-tier-only still holds (no runtime claim is made from these bytes).
+
+## C372 — A CALL STATEMENT target is a plain procedure DESIGNATOR, never a keyword table: calling an internal procedure whose name collides with a compiler built-in name produces an object whose CODE and DATA segments are BYTE-IDENTICAL to the same program under a non-colliding name (all whole-file differences are confined to the three packed program-name records); an arity-0 call written with EMPTY PARENS is the bare 3-byte `CD 00 00` with NO descriptor and NO `LXI H` and its operand word is the chain slot; a multi-site forward chain rides the LAST site's operand word and links back to the PREVIOUS site's operand word, whose word is the zero terminator, the linker filling the entry LC at the chain record's emission point into EVERY slot; a shadowed arity-1 call with one variable actual keeps the static own-cell descriptor and the arity-1 peeled copy prologue verbatim; and the bare procedure-statement form `name();` WITHOUT the `CALL` keyword is DR-REFUSED with `SYNTAX ?` on both passes and NO object (E2E-52/P3-14; MEASURED — `E520A`/`E520B`/`E520C` `cmp` rc=0 against `golden/e52p14b/` and `E520D` `cmp` rc=0 against `golden/e52p14/`, four whole-file witnesses, plus `E520E` `dr-refuses` with the retained `.PRN` and NO `.REL`; goldens VERBATIM from campaigns e52p14 (E520D) and the corrective e52p14b (`3 ok/4`, probe-defect record in `spec/lab-evidence/e2e52-p3/PLAN.md` §4b), every `.PRN` of an accepted probe `NO ERROR(S) IN PASS 1` AND `NO ERROR(S) IN PASS 2` (4/4 re-read this session), every cited byte and every `.REL` bitstream record re-verified FIRST-HAND against the retained goldens at claim time, never fitted; the four objects reproduced byte-exactly by the armed compiler, `cmp` 4/4 rc=0)
+
+* **Measured — the built-in name collision costs NOTHING at the call site (`E520B` vs
+  `E520A`, both 256 B, CODE 50 B max `0032`, DATA size 2, COMMON 0).** `call foo();` and
+  `call summary();` — `summary` being a DR built-in name — compile to objects whose
+  ONLY whole-file differences are THREE bytes, at 0-based offsets 6, 19 and 28 (octal
+  `141→241`, `6→12`, `145→245`), and those three offsets fall inside the three
+  name-carrying bitstream records and nowhere else: `PROG-NAME` (file bytes 0-6, packed
+  raw `4D 4C 8C 10 61` → `4D 4C 8C 10 A1`), `EXTDEF` (13-19) and `DEF-PUBLIC code@0`
+  (19-28), each carrying the program name `E520A` → `E520B`, whose final 6-bit character
+  flip carries across the byte boundary of the packed field. HONEST NEAR-MISS KEPT
+  VERBATIM: pre-registration (PLAN §P3-14 H-2) predicted a SINGLE differing character
+  byte; the measured figure is three file bytes, one per name-carrying record. The
+  `REQ-LIBRARY 'PLILIB'` record, the `DEF-DATA-SIZE abs 2` record, the seven `CHAIN-EXT`
+  records (slots 4 `?START`, 16 `?SYSPR`, 21 `?SKPOP`, 29 `?QICOP`, 32 `?PNVOP`, 35
+  `?QIOOP`, 48 `?STOPX`), the `CHAIN-ADDR code@7` record, the `DEF-CODE-SIZE code@50`
+  record and every code and data byte are IDENTICAL. So DR never consults a keyword table
+  for a CALL target: the internal procedure name never appears in the object and the
+  statement lowers through the ordinary internal-call route.
+
+* **Measured — an arity-0 `CALL name();` is the BARE three-byte call, no descriptor, no
+  address load (`E520A` raw code 0000-000B = `01 00 02 CD 00 00 CD 00 00 11 52 02`).**
+  Code `0006` is `CD 00 00` = the `call foo();` statement itself; its operand word
+  `0007-0008` is `00 00` and is the chain slot — the file carries
+  `ITEM t=12 CHAIN-ADDR val=('code', 7)` and the chain head resolves to the callee entry
+  LC at the record's emission point, `slot 0007 -> LC code@0028`, which is exactly the
+  internal procedure's first instruction (`0025-002E` = `C3 2F 00 21 01 00 22 00 00 C9`
+  = `JMP` over the body, entry at 0028 `LXI H,1 / SHLD *i / RET`). NO `LXI H` precedes
+  the call and NO descriptor cell exists: `DEF-DATA-SIZE` is `abs 2` (the single variable
+  `i`) and `E520A`'s complete code-relocation list is `000D→code@0025`,
+  `0018→data@0000`, `0026→code@002F`, `002C→data@0000` — nothing points at a descriptor.
+  Empty parentheses therefore cost zero bytes and zero cells against a zero-formal callee.
+
+* **Measured — with TWO call sites the chain record rides the LAST site and links BACK to
+  the first (`E520C`, 384 B, CODE 81 B max `0051`, `DEF-DATA-SIZE abs 2`,
+  `DEF-CODE-SIZE code@81`).** First site `0006` = `CD 00 00` with operand word
+  `0007-0008` = `00 00` (the zero terminator); second site `0025-0027` = `CD 07 00`,
+  i.e. an INLINE code relocation `RELOC -> code 0007` emitted at `lc code@0026` — the
+  second operand word holds the ADDRESS OF THE PREVIOUS SITE'S OPERAND WORD, not the
+  target. The chain head record is `ITEM t=12 CHAIN-ADDR val=('code', 38)` = slot `0026`
+  (the LAST site) and the chain head LC-at-emission is `slot 0026 -> LC code@0047` = the
+  `summary` entry, which the linker writes into EVERY slot of the chain. The authentic
+  corpus object shows the SAME geometry at larger scale: `golden/first/LOAN2/LOAN2.REL`
+  carries `RELOC -> code 0621 (at lc code@066F)` and
+  `ITEM t=12 CHAIN-ADDR val=('code', 1647)` = slot `066F`, with
+  `slot 066F -> LC code@0733` — LOAN2's two `call summary();` statements at source lines
+  121 and 135 are one backward-linking chain whose two slots are both filled with the
+  entry address `0733`. DR thus emits the chain in EMISSION order with the head at the
+  LAST site; direction is head→earlier, never earlier→head.
+
+* **Measured — a shadowed arity-1 call with one variable actual is the ordinary
+  call-by-address shape, unchanged (`E520D`, 256 B, CODE 62 B max `003E`,
+  `DEF-DATA-SIZE abs 6`, DATA bytes `0002-0003 = 00 00`, `addr: [10]`).** Caller code
+  `0006-0009` = `21 02 00 CD 00 00` = `LXI H,*A(data@0002) / CALL` with the code
+  relocation `0007 → data@0002` (the DESCRIPTOR cell) and `ITEM t=12 CHAIN-ADDR
+  val=('code', 10)` — the call's operand word `000A` is the chain head and
+  `slot 000A -> LC code@002B` = the callee entry. The descriptor is STATIC and written in
+  the DATA segment: the record stream is `SET-LC ('data', 2)` immediately followed by
+  `RELOC -> data 0000 (at lc data@0002)` — the cell at 0002 holds the ADDRESS OF THE
+  ACTUAL'S OWN CELL (0000, the 2-byte `i`) with ZERO runtime code, exactly the [C093]
+  own-cell descriptor law, and `001B → data@0000` shows the caller still reading `i`
+  directly. The callee at 002B is the [C094] arity-1 peeled copy prologue followed by the
+  deref'd store: raw `002B-003A` = `5E 23 56 EB 22 04 00 2A 04 00 36 02 23 36 00 C9` =
+  `MOV E,M / INX H / MOV D,M / XCHG / SHLD *0004` (copy the incoming address into formal
+  cell 0004) then `LHLD 0004 / MVI M,02 / INX H / MVI M,00 / RET` (`x = 2;` written
+  THROUGH the pointer), with code relocations `0030 → data@0004` and
+  `0033 → data@0004`. Nothing in this object depends on the callee's name being a
+  built-in word: the whole P3-14 gap was in MY FRONT END, not in any DR dispatch rule.
+
+* **Measured — the bare procedure statement `summary();` is DR-REFUSED (`E520E`,
+  `.PRN` retained, NO `.REL`: `golden/e52p14b/E520E/dir.txt` lists `e520e.prn` only and
+  `summary.txt` records `E520E diag PRN=True REL=False`).** Both passes report the error
+  AT THE STATEMENT and nowhere else — pass 1 `  14 b         summary();` /
+  `SYNTAX            ?` / `    1 ERROR(S) IN PASS 1`; pass 2 `  14 c         summary();`
+  / `SYNTAX            ?` / `    1 ERROR(S) IN PASS 2` — with a CLEAN header
+  (`E520E: procedure options(main);` accepted at line 1), so the verdict is
+  UNCONFOUNDED by the probe-defect that invalidated campaign e52p14's first four
+  listings. A PL/I procedure statement therefore REQUIRES the `CALL` keyword on this
+  compiler for this shape; my `codegen: CALL target is not a simple procedure name
+  [TBD] (only `CALL id` / `CALL id(args)` / bare `id;` have a DR lowering sampled; line
+  14)` refusal for the bare form AGREES with the oracle and stays.
+
+* **Perimeter — what stays refused BY NAME (my gaps, never DR rules).** Only the
+  `CALL`-keyword route is claimed here. Builtin capture in EXPRESSION position
+  (`primary` following a built-in key with `(`) is UNCHANGED and unmeasured by this panel;
+  a CALL target that is not a plain identifier or a suffix chain (an expression, an
+  operator, a qualified external) now fails in the PARSER against the designator grammar
+  rather than in codegen, which is a DIFFERENT refusal and is not claimed equivalent to
+  any DR behaviour; external, recursive and attribute callees and the DEC-expression and
+  DEC-literal formal shapes keep their existing explicit `[TBD]` refusals and their
+  marker substrings (`FIXED DECIMAL formal is unproven`, `PUT FILE(F) has no byte-exact
+  DR witness`). No name-based special-casing exists anywhere in the arm: the CALL arm
+  never consults the built-in table, which is exactly what the first bullet proves DR
+  does not do either.
+
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no `e52p14` or
+  `e52p14b` object was linked or run under cpmsim; NOTHING here asserts what the linker
+  writes at RUN time beyond what the retained `.REL` chain records show, and no
+  `spec/RUNTIME.txt` row comes from this claim. LOAN2 itself still refuses (rc=2, NO
+  `.REL`, source UNMODIFIED sha256 `7be23ba3…`): its blocker MOVED VERBATIM past Line-121
+  to `codegen: PUT FILE(OUTPUT) EDIT of the FORMAL A has no byte-exact DR witness [TBD]
+  (line 147)` = the `put file (output) edit ('|',a,…) (…,p'$zz,zzz,zz9v.99',a)` statement
+  — recorded, NOT fixed by this slice; LOAN2 is NOT claimed exact. EXPR1 (GET line 21)
+  and EXPR2 (FLOAT line 35) are UNCHANGED. Provenance: [C080] [C093] [C094] [C123]
+  [C124] [C371].
