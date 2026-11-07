@@ -1,0 +1,36 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E524A
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E524A
+
+   1 a 0000 E524A: procedure options(main);
+   2 a 0006    /* E2E-52/P3-19 probe A (PLAN H-A/H-B):    */
+   3 a 0006    /* LOAN2 line-42 class: %replace of a name */
+   4 a 0006    /* by '^z' plus an adjacent '^i^i' literal */
+   5 a 0006    /* in ONE put list; measures escape decode  */
+   6 a 0006    /* and per-literal pool cell geometry.      */
+   7 c 0006    %replace
+   8 c 0006       clear by '^z';
+   9 c 0006    dcl output file;
+  10 c 0006    put list(clear,'^i^iS U M M A R Y');
+  11 c 0028    put skip list('^i^icannot write to');
+  12 a 0044 end E524A;
+
+CODE SIZE = 0047
+DATA AREA = 0021
+FREE SYMS = 384E
+END  COMPILATION
+
