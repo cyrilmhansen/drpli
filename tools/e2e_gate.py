@@ -2752,6 +2752,52 @@ SPECIMENS.update({
 #   E522E is NOT here -- DR ACCEPTED the nested a-b*c actual (512 B, CODE 007F) but PLAN
 #   §P3-16 §5 kept the nested class OUTSIDE the arm (the operand test is deliberately
 #   NON-recursive): registered below as an honest my-gap, refused BY NAME.
+# [E2E-52/P3-19] E524A..E524C -- POOL LITERAL ENCODING panel (campaign e52p19 3 ok/3
+# at 1cddd051; goldens committed VERBATIM 7e8d577d; PLAN §P3-19 H-A/H-B'/H-C ALL
+# CONFIRMED FIRST-HAND, every `.PRN' NO ERROR(S) in BOTH passes).  Three edits land
+# the measured shapes: (1) lexer.ml `scan_string' decodes `^c' to CHR(code c land 1F)
+# at literal assembly when the caret is followed by a REGULAR character; a caret
+# before a quote, CR, LF or EOF is UNMEASURED and passes through verbatim ([TBD]
+# honesty -- falsifier: golden DATA contains ZERO 5E).  (2) codegen.ml `dpartner'
+# gains ONE arm `| Ast.Ebinary (Ast.Div, _, _) -> Some (15, (dv_of st nop_cx e).sc)'
+# -- a DIV compound ADDITIVE partner aligns the literal to the QUOTIENT descriptor
+# (p = 15, scale = sl + (15 - pl) - sr); Add/Sub/Mul compound partners keep the
+# existing None (own-digit) behaviour and `dv_of' keeps `pv = None' for Div, so
+# N32_DIV_CHAINED stays refused BY NAME (marker re-held 16/16).  (3) the prescan
+# `pdec_operand_bytes' `prec' mirrors the SAME law over pd_vars so the 8-byte cell
+# demand is LOCKSTEP (C152 never fired; `base' untouched).  ZERO bind/emitter
+# change.  All three whole-file cmps rc=0 FRESH POSITIONAL on armed binary
+# baec1f82... (build/p3-19/hop5-out/) -- and with them LOAN2 compiles WHOLE-FILE
+# BYTE-EXACT (7680 B, cmp rc=0 vs golden/first/LOAN2/LOAN2.REL sha 712cfcb2...):
+# the P3 finale.
+#   E524A 384 B; CODE 0047, DEF-DATA-SIZE abs 0021, COMMON abs 0028.  H-A CONFIRMED:
+#             DATA used 33 bytes max 0021, ZERO 5E anywhere -- `1A 09 09 53 20 55 20
+#             ...' (`^z' -> 1A, `^i' -> 09, ONE byte per pair) then `09 09 cannot
+#             write to'.  H-B' CONFIRMED -- the three replace-literal routes use
+#             THREE SEPARATE cells with per-literal operand pairs LXI H,*D(0000)/MVI
+#             A,01 (the 1-byte `^z' cell), LXI H,*D(0001)/MVI A,0F (the 15-byte `^i
+#             ^iS U M M A R Y' cell) and LXI H,*D(0010)/MVI A,11 (the 17-byte `^i^i
+#             cannot write to' cell); the hop-1 merge law (one cell, summed length)
+#             stays FALSIFIED.
+#   E524B 768 B; CODE 00B2, DEF-DATA-SIZE abs 0053 (DATA used 68 max 0044).  H-C
+#             RESIDUE PINNED -- dividend `ir' dec(4,2) pushed LXI H,*D(0044)/MVI A,04
+#             /?DLDOP (ext slot 66) then MVI A,0B/?QDDSL (71) with N = 15 - 4 [C086
+#             L3]; divisor `1200' is the 3-B OWN-DIGITS cell `00 12 00' at data
+#             0011-0013, MVI A,04/?DLDOP (79) -- scale 0 [C086 L8], MY route already
+#             matched; ?DDVOP (82) makes the quotient scale 2 + 11 - 0 = 13.  The
+#             literal `1' in ADDITIVE role aligns to the QUOTIENT descriptor (15,
+#             13): 8-byte cell 0014-001B `00 00 00 00 00 00 10 00' = 10^13, pushed
+#             LXI H,*D(0014)/MVI A,0F/?DLDOP (90) + ?DADOP (93), then MVI A,08/
+#             ?QDDSR (98) down to the STORE scale and MVI A,07/?DSTOP (106) into fi
+#             dec(7,5).  `1.00' STORE role (15,14): cell 001C-0023 `...00 01' =
+#             10^14, ?DLDOP (114) + ?DSTOP (122).  Variables LIVE IN DATA AFTER the
+#             pool (ir 0044, fi 0047, ci 004B) -> DEF-DATA-SIZE 0053 = 004B + 8.
+#             Two more literal cells 0024-0034 (`^i^iStarting M', 17 B `MVI A,11')
+#             and 0035-0043 (`onthrol literal', 15 B `MVI A,0F').
+#   E524C 512 B; CODE 005E, DEF-DATA-SIZE abs 0014 (DATA used 18 max 0012) -- the
+#             CONTROL twin: NO carets, NO DEC literals; plain skip(2) MVI A,02/
+#             ?SKPOP and two SEPARATE 9-byte literal cells *D(0000)/*D(0009) each
+#             MVI A,09 prove plain-cell and skip geometry needed NO change.
 # [E2E-52/P3-17] E523A..E523B -- FILE PUT/EDIT item panel for a variable bound as
 # FIXED BINARY (campaign e52p17 3 ok/3 at 40d98144; PLAN §P3-17 H-A/H-B CONFIRMED, every
 # `.PRN' NO ERROR(S) in BOTH passes).  The guard `authorize_file_edit_item' now admits
@@ -2803,6 +2849,12 @@ SPECIMENS.update({
 #   DECLARATION itself, so the EDIT guard is unreachable: registered below as an honest
 #   my-gap with its golden KEPT UNCLAIMED (E522E precedent), and NOTHING is armed on its
 #   authority.
+SPECIMENS.update({
+    "E524A": ("probes/E524A.PLI", "golden/e52p19/E524A/E524A.REL"),
+    "E524B": ("probes/E524B.PLI", "golden/e52p19/E524B/E524B.REL"),
+    "E524C": ("probes/E524C.PLI", "golden/e52p19/E524C/E524C.REL"),
+})
+
 SPECIMENS.update({
     "E523A": ("probes/E523A.PLI", "golden/e52p17/E523A/E523A.REL"),
     "E523B": ("probes/E523B.PLI", "golden/e52p17/E523B/E523B.REL"),
