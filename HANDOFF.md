@@ -1672,25 +1672,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 520
-checkpoint-id: g520-92dbd934fe18
+checkpoint-generation: 524
+checkpoint-id: g524-a722836b773f
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 2, remaining ~9334, session 01a1b674-d2b9-7577-b10f-a89aaf534431)
-checkpointed: 2026-11-07T15:00:23.600Z
+status: checkpoint (guard level 4, remaining ~-2109, session 01a1b687-5b96-7577-b10f-a89f2b65cfb3)
+checkpointed: 2026-11-07T15:34:09.056Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: fa56231e488b4a06a0d23a628fb9a4dd6cb87a377ba1c07b4ad95c49d1be534d
-source-handoff: 846c992f18848c177d71a623705fd640c04f1b516440c379f1a42bfd18ed940e
-source-learnings: 0564465d3e8fb0da2b946ea5b462f01c145e97167adb5076164caf8fe3b8d699
+source-progress: 6520150903f14bc988c69c0709cfe54bd147b5796af941187caedd7c41626baf
+source-handoff: 24c269e9571aeb8bdfe3420e1c8cc9722a09d0e204cf865035af543e0ff06808
+source-learnings: 147ecd0a93a4347992b12e80a76e7aff74032a8e15edee9a51415563c059035b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b674-d2b9-7577-b10f-a89aaf534431
-readiness-at: 2026-11-07T15:00:23.627Z
-readiness-checkpoint: g520-92dbd934fe18
+readiness-by: session:01a1b687-5b96-7577-b10f-a89f2b65cfb3
+readiness-at: 2026-11-07T15:34:09.084Z
+readiness-checkpoint: g524-a722836b773f
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2363,5 +2363,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-18 hop 1 COMPLETE (commit d8a3e97d): operator budget correction recorded (P3-18/P3-19 authorized; '8/8 exhausted' was a planning error; P3-17 CLOSED untouched). Zero-oracle record-order audit landed: authentic golden/first/LOAN2/LOAN2.REL MEASURES the disputed class -- 8 EDIT format tables data@0000-00A1 -> DEF-COMMON-SIZE OUTPUT(40B)/SEL-COMMON/SET-LC(common,0)+40 -> STATIC 'name character(14) varying initial($con)' cell at data@00A2 -> lowering literal pool address-ascending -> DEF-DATA-SIZE 035A. H-A (full address sort) and H-B (statics-first) FALSIFIED BY EXISTING EVIDENCE; emission law consistent with the golden = tables(prealloc order) -> COMMON -> rest(address order). Corpus sweep (1871 distinct goldens, build/p3-18/order_audit.py + order-audit.log): 26 both-sides-of-COMMON goldens all single pre-common region at data@0; DIOCALLS/MPMCALLA/B late-reemission class recorded. My emitter bug: index-window partition (ocaml/lib/codegen.ml ~15749-15782) seeded pool=statics.sy_cells first picks wrong table blocks; fix = tag table blocks BY ALLOCATION PHASE (prealloc FIFO), keep legacy tables-at-0-no-statics shape byte-identical. SUCCESSOR: execute LEARNINGS.md sec 'E2E-52/P3-18 hop 1' SUCCESSOR CONTRACT steps (1)-(6): rebuild+fingerprint b744acfb...==tree; ZERO-oracle bind self-audit via throwaway Pli80.Bind dune exe (my static/table addresses vs build/p3-18/loan2-prelude.txt; if bind does NOT already place statics ABOVE tables record SEPARATE layout blocker VERBATIM, do not fake); PRE-REGISTER PLAN sec P3-18 before any ocaml byte (probes only if genuinely discriminating needed, verify E524*/e52p18 unused); implement phase-tagged emission; LOAN2 FRESH POSITIONAL compile -> FULL-FILE cmp vs golden sha 712cfcb2... is the verdict; new blocker VERBATIM never fix by prediction; validation tail/register/C376 measured-bytes-only before COVERAGE/gate build/gate-e52p18-reg.log/RESULTS+PLAN sec 5+CLOSED; then P3-19 if needed. Chain 01a1b554 renewal 6/12 used; standing constraints per PROTOCOL Part 2 anchor; config never staged; no push.
+P3-18 hop 2 COMPLETE (commit e7cf970a): ZERO-oracle bind/pool self-audit via throwaway UNTRACKED ocaml/scratch-p318/audit.exe (output build/p3-18/bind-selfaudit.txt). MEASURED MY side for LOAN2: static `name` cell data@0x0000 (15B, bytes `04 '$con' + 10 blanks`), 8 prealloc tables 0x000F-0x00B0 in FIFO order whose BYTES and ORDER are IDENTICAL to the golden's data@0x0000-0x00A1; golden = tables -> COMMON -> static 0x00A2 -> lowering 0x00B1+; both sides sum to 177=0x00B1. CONCLUSION (accepted): the P3-18 blocker is ALLOCATION ORDER — DR allocates the prealloc EDIT format tables BELOW the static-initialiser cells — not merely DATA record order; fixing only the record order would emit right records at wrong addresses. The index-window partition (ocaml/lib/codegen.ml ~15749-15782) plus the P3-2 [TBD] refusal is the second half of the same bug. SUCCESSOR (hop 3): execute LEARNINGS.md sec "P3-18 hop 2" + PROGRESS.md Next action — (1) PRE-REGISTER PLAN sec P3-18 (law + falsifiers; probes only if genuinely discriminating, verify E524*/tag e52p18 unused first) committed by EXPLICIT paths BEFORE any ocaml/lib byte; (2) implement: prealloc_fmt_tables on pool=[] pool_next=0, then append statics.sy_cells shifted by tables_total, then pool_next = tables_total + sy_total; emit tables(FIFO) -> COMMON -> rest by ADDRESS order; delete the index-window partition and the P3-2 refusal; FALSIFIER: every consumer of a bind-relative static address (st.stat_addrs, LXI H,*D(cell), addr(), members) must gain tables_total; (3) FRESH POSITIONAL LOAN2 compile — rc=0 => FULL-FILE cmp vs golden sha 712cfcb2... is the verdict; new blocker => record VERBATIM, never fix by prediction; (4) validation tail (fingerprint determinism fresh --build-dir + grep Error, histogram 68/124, sweep build/e52p3/sweep.py E46N E46K E51 E52 P086 R10 FAILS 0, markers 16/16, DEC 64/0, divcheck 9/9) -> register (REAL --update-inventory, census OWN path, LOAN2 msg MOVES VERBATIM or retires) -> C376 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch -> coverage adjudication (STOR.STATIC_MEMBER_INITIAL, IO.PUT_EDIT read FIRST-HAND) -> FULL gate rc=0 DIRECT build/gate-e52p18-reg.log -> RESULTS sec P3-18 + PLAN sec 5 row (LINE-anchored, 7-unescaped-pipes assert RUN IN CODE, escape raw \|) + sec P3-18 CLOSED -> P3-19 (last slice per corrected operator budget). Standing constraints per PROTOCOL Part 2 anchor; never commit ocaml/scratch-p318 or build/; config never staged; no push; chain 01a1b554 renewal 7/12 used, cap 12.
 <!-- guard:end checkpoint -->
