@@ -1652,22 +1652,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 482
-checkpoint-id: g482-d444dbce1d77
-checkpoint-kind: auto
+checkpoint-generation: 483
+checkpoint-id: g483-1e5d028586db
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4444, session 01a1b43b-ce61-71e7-84a1-50e549adf32f)
-checkpointed: 2026-11-07T04:48:37.098Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1184, session 01a1b43b-ce61-71e7-84a1-50e549adf32f)
+checkpointed: 2026-11-07T04:49:48.937Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 38ca496ba093856e0117dc15040df9bf2dfa6a935f307e2e1da38319388706b3
-source-handoff: 62ff33ee11cf63b53edf821ebc5b77563a7148bc33225e78005c3bf4cf033bb5
+source-handoff: f2fb46a3aaaf2a0109ec98b6b4a169cf485081aaadf08f62f6e67a0cb4133efb
 source-learnings: 4a9ecb8862f0a0d18af7ad4f5d19edbecba8fa80d12a06885046a58f62ecabfb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b43b-ce61-71e7-84a1-50e549adf32f
+readiness-at: 2026-11-07T04:49:48.961Z
+readiness-checkpoint: g483-1e5d028586db
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2322,5 +2325,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-14 hop 4 LANDED: C372 `5aae7109` measured-bytes-only BEFORE any COVERAGE touch (E520B vs A = EXACTLY 3 differing bytes 0-based 6/19/28 all inside packed PROG-NAME/EXTDEF/DEF-PUBLIC, CODE+DATA identical; arity-0 CALL = bare CD 00 00, chain slot 0007 -> LC 0028, no descriptor; two-site chain head at LAST site 0026 links BACK to 0007, first word 00 00, entry filled into every slot, LOAN2 head 066F->0621 both fill 0733; shadowed arity-1 = static own-cell descriptor SET-LC data@2 + RELOC -> data@0000 + [C094] peeled prologue; E520E dr-refuses bare summary(); line 14 both passes header-clean NO .REL; ledger ENDS C372, 195 headers) and coverage NEW row `PROC.CALL_TARGET_DESIGNATOR` `f2513593` + SAME-change IDS line (row 85 PROC.CALL_COPYIN adjudicated FIRST-HAND and left UNBUMPED — its law is the actuals copy-in ladder, E520A/B/C have NO actuals; coverage_check rc=0 145 rows 0/0 SUPPORTED 95, prose rc=0). Validation re-held: binary b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2 == tree, cmp 4/4 rc=0 FRESH POSITIONAL build/p3-14c/arm-out/, E520E rc=2 BY NAME, 4 PRNs NO ERROR(S) both passes. NEW TOOL LAWS: pli80c is POSITIONAL (pli80c IN.PLI OUT.REL, NO -o; my -o run gave FALSE rc=2 usage failures); the disassembler's "?START" on a DATA address is an ANNOTATION ARTIFACT — cite only raw reloc records; build/p3-14c/items.py prints item -> file-byte spans for offset attribution. Execute PROGRESS.md ## Next action EXACTLY: (8a) FULL gate rc=0 DIRECT -> build/gate-e52p14-reg.log expect 1300/0, 187/187, 9/9, 145 rows, census 15/0/26/0, prose 5 (ONLY the gate runs the negative panel); (8b) RESULTS §P3-14 (parity table + E520E row; H-2 3-byte near-miss VERBATIM; probe-defect + e52p14b provenance; LOAN2 121->147 never-fix; byte-tier); (8c) PLAN §5 row INSIDE the table anchored by LINE NUMBER + §P3-14 CLOSED, prose rc=0; (9) P3-15 on the ACTUAL line-147 blocker (PUT FILE(OUTPUT) EDIT of the FORMAL A) — ZERO-oracle pre-audit of LOAN2.REL 053F-0542 + E52PF precedents BEFORE any probe, verify E521*/e52p15 unused, pre-register PLAN+probes+LEARNINGS by EXPLICIT paths before any oracle call or ocaml/ byte, never-predict; marathon through P3-19 (slice 5 of ≤8). Goldens NEVER re-derived; config NEVER staged; rc DIRECT; POSITIONAL FRESH paths; eval "$(opam env)" every shell; never parallelize dependent bash calls; no push; byte-tier; chain 01a1b2d5 3/12 cap 12.
+P3-14 CLOSED (a72fd2e3: gate rc=0 build/gate-e52p14-reg.log every number hit; RESULTS §P3-14; PLAN §5 row + CLOSED). P3-15 hop 1 ZERO-oracle PRE-AUDIT LANDED (f0d12528): authentic LOAN2.REL display body 0674-0732 pins the refused FORMAL file-EDIT shape (LHLD desc cell/3E 0A/?DLDOP/3E 0D/06 02/?QDCOP/?EDTOV x5; P086K shows only the PREP instruction differs from the armed variable route); guard reason clause false-as-written vs corpus (correction owed at C373). Execute LEARNINGS § "P3-15 hop 1" SUCCESSOR CONTRACT steps (1)-(5) EXACTLY: decode the $-picture format record at data@0015.. FIRST-HAND into build/p3-15/ BEFORE writing §4 predictions (never fit); pre-register PLAN §P3-15 H-A..H-D + probes E521A..D (CRLF+bare-^Z, <=71 cols, ONE dcl/line, headers procedure;/procedure(x,y);, arity>=2 fixed dec(10,2) block-copy callee, open file (output) print;, continuation statement after every put, non-formal control twin) + LEARNINGS by EXPLICIT paths BEFORE any oracle call or ocaml/ byte; ONE campaign --tag e52p15 rc DIRECT; goldens VERBATIM first; arm measured shapes ONLY (authorize_file_edit_item deref-RTdec-formal admission; all else keeps VERBATIM BY-NAME refusal; histogram 68/124); FULL GATE BEFORE CLOSE -> build/gate-e52p15-reg.log (expect 1300/0 baseline + whatever registration moves); LOAN2 UNMODIFIED -> ACTUAL blocker VERBATIM NEVER fix; register from 1300/187; C373 measured-bytes-only BEFORE ANY COVERAGE touch; PLAN §5 row INSIDE table anchored by LINE NUMBER with 7-unescaped-pipe check (NEW lesson: escape raw | in table prose); marathon through P3-19 (slice 6 of <=8). Binary b88e7b023027e2eeba1b6f49dc0815cb25e14f20269074a637a7c1f84f3c72e2 == tree; ledger ENDS C372 (195 headers); coverage 145/95; goldens NEVER re-derived; config NEVER staged; POSITIONAL pli80c NO -o; eval "$(opam env)" every shell; rc DIRECT; never glue rm; never parallelize dependent bash; no push; byte-tier; chain 01a1b2d5 4/12 cap 12.
 <!-- guard:end checkpoint -->
