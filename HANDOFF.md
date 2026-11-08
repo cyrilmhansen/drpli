@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0b-e54p1b-4. **E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED 2026-11-08 (session 01a1bd21, renewal 3/12; ZERO oracle; ocaml/lib+bin byte-clean):** S1-fresh verified first-hand (`build/e54p1b-freshbuild.log` rc 0, ZERO `Error`, hist 122; `_build-e54p1b` exe == `172595d5…` — law: fresh-dir logs record only rc+headers, sha checked against the kept exe). CLOSE `78348582`: `RESULTS.md` §P1-b (S1–S10 panel WITH values — semtest H01 4refs/3syms H02 7/2 H03 7/4 H04 4/2, corrupt rc1, gate FROZEN 1328/1328-190/190-9/9-149rows-0/0-16/0/25/0-prose5, F10 pinned lines `hir_build.ml:41`+`:557`, S8/S2/S10 clean, predicted multi-refusal drift NOT exposed; dependency map sites 4/6/11/14/15/16 → `Semantic_env`, **class [D] = NONE honest**, −155 net lines; §P1-b.6 VERBATIM; THREE measured notes recorded NOT fitted: SFormat amendment, OCaml record-eval-order law, BEGIN/DO hang PRE-EXISTING at `aaf295f0`); arch doc §7-1; PLAN dashboard **P1-b CLOSED**. Regression re-run first-hand: `dune build` rc 0; `tools/hir_test.py` rc 0 H01–H07+semtest+F10/S8. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED…)` — NOTHING IS AUTHORIZED: report closure, await the OPERATOR. P1-a/P2/P3+ and the recorded-defect repairs are PROPOSED ONLY (RESULTS §P1-b.6, §P0 §6); each slice needs its own pre-registration (PROTOCOL #1).** Ledger stays **C380** (203 headers); config never staged; no push; explicit-path commits.
+
 0b-e54p1b-3. **E2E-54/P1-b hop 3 LANDED steps 4–5(gate) (session 01a1bd02; ZERO oracle; ocaml/lib+bin byte-clean):** `semtest.exe` + hir_test extension (F10/S8/semtest×2) `00a58a44`; 7 live invariants GREEN H01 4refs/3syms, H02 7/2, H03 7/4, H04 4/2; `--corrupt` rc 1 SEM-FAIL zero stdout (S6); S1 `172595d5…` held after new exe stanza; hir_test rc 0 H01–H07, S2 frozen; **FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5**; fresh `--build-dir _build-e54p1b` rc 0 ZERO Error (verify sha line); MEASURED (recorded, NOT fitted): bare BEGIN/DO block hangs `register_children` rc 124 — identical pre-migration `aaf295f0` — pre-existing, not P1-b drift. Durables `3afdd9ee`. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)` EXECUTE (hop 4) VERBATIM: CLOSE ONLY — RESULTS §P1-b (panel + dependency map + §P1-b.6 + THREE measured notes) + arch §7-1 + PLAN dashboard CLOSED + durables/guard. STOP after P1-b; P1-a NOT authorized.** Ledger C380 (203 headers); config never staged; no push; explicit-path commits.
 
 0b-e54p1b-2. **E2E-54/P1-b hop 2 LANDED steps 1–3 (session 01a1bce0; ZERO oracle; ocaml/lib+bin byte-clean):** `semantic_env.ml` `512d939f` (SFormat amendment documented; epr/sret_pr verbatim); `hir_build.ml` migrated `dfe1435a` (−155 net; Bind ref = alias + one `bind_program`; S1 `172595d5…` + S2 H01–H05 byte-frozen THROUGH migration); H06/H07 pins `acd7955e` (H06 `HIR-E02 … CHAR(3)`; H07 `HIR-E03 line 5`; MEASURED: body-reading undeclared formal dies HIR-E06 FIRST — OCaml record-field eval order, pre-existing, recorded not fitted); hir_test rc 0 H01–H07; durables `a5b4d16a`. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 2 LANDED steps 1–3…)` EXECUTE (hop 3) VERBATIM: (4) `ocaml/hir/semtest.ml` + hir_test.py extension (semtest ×2 per positive fixture, F10, S8) → (5) FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN counts + S1 fresh `--build-dir` → (6) RESULTS §P1-b + arch §7-1 + PLAN CLOSED + durables. STOP; P1-a NOT authorized.** Ledger stays C380; config never staged; no push.
@@ -1711,31 +1713,33 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 625
-checkpoint-id: g625-7536c0c9a5f2
-checkpoint-kind: auto
+checkpoint-generation: 626
+checkpoint-id: g626-f46e14710b81
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~687, session 01a1bd02-1dd5-71ea-9e0a-5c02765d2348)
-checkpointed: 2026-11-08T21:45:53.609Z
+status: checkpoint (guard level 4, remaining ~-6122, session 01a1bd02-1dd5-71ea-9e0a-5c02765d2348)
+checkpointed: 2026-11-08T21:47:39.855Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 99c66a5643c242aa3b355ec565b0cec83faf2adbf3f7b89a4b5bb61064e6794c
-source-handoff: 4da0da57198858c75f8b6e79939a8b724aaad12fd7d13e9a3b1341f67b3156a2
+source-handoff: b2839236387721192ec13d90c023ed750f665fb77e4554e68f5a2b5bb66bdabb
 source-learnings: 2ff52e6550b9adade7345b5f8eba9d52f91231f360dc675a892b994f1c72e0d7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1bd02-1dd5-71ea-9e0a-5c02765d2348
-readiness-at: 2026-11-08T21:47:02.203Z
-readiness-checkpoint: g625-7536c0c9a5f2
+readiness-at: 2026-11-08T21:47:39.905Z
+readiness-checkpoint: g626-f46e14710b81
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-(E2E-54/P1-b hop 2 LANDED steps 1–3…)` EXECUTE (hop 3) VERBATIM: (4) `ocaml/hir/semtest.ml` + hir_test.py extension (semtest ×2 per positive fixture, F10, S8) → (5) FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN counts + S1 fresh `--build-dir` → (6) RESULTS §P1-b + arch §7-1 + PLAN CLOSED + durables. STOP; P1-a NOT authorized.** Ledger stays C380; config never staged; no push.
+(E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)` EXECUTE (hop 4) VERBATIM: CLOSE ONLY — RESULTS §P1-b (panel + dependency map + §P1-b.6 + THREE measured notes) + arch §7-1 + PLAN dashboard CLOSED + durables/guard. STOP after P1-b; P1-a NOT authorized.** Ledger C380 (203 headers); config never staged; no push; explicit-path commits.
+
+0b-e54p1b-2. **E2E-54/P1-b hop 2 LANDED steps 1–3 (session 01a1bce0; ZERO oracle; ocaml/lib+bin byte-clean):** `semantic_env.ml` `512d939f` (SFormat amendment documented; epr/sret_pr verbatim); `hir_build.ml` migrated `dfe1435a` (−155 net; Bind ref = alias + one `bind_program`; S1 `172595d5…` + S2 H01–H05 byte-frozen THROUGH migration); H06/H07 pins `acd7955e` (H06 `HIR-E02 … CHAR(3)`; H07 `HIR-E03 line 5`; MEASURED: body-reading undeclared formal dies HIR-E06 FIRST — OCaml record-field eval order, pre-existing, recorded not fitted); hir_test rc 0 H01–H07; durables `a5b4d16a`. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 2 LANDED steps 1–3…)` EXECUTE (hop 3) VERBATIM: (4) `ocaml/hir/semtest.ml` + hir_test.py extension (semtest ×2 per positive fixture, F10, S8) → (5) FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN counts + S1 fresh `--build-dir` → (6) RESULTS §P1-b + arch §7-1 + PLAN CLOSED + durables. STOP; P1-a NOT authorized.** Ledger stays C380; config never staged; no push.
 
 0b-e54p1b-1. **E2E-54/P1-b hop 1 LANDED — §P1-b PRE-REGISTERED, CODE NOT STARTED (session 01a1bcc7; operator authorized P1-b 2026-11-08; ZERO oracle; ZERO `ocaml/lib/`+`ocaml/bin/` byte):** baseline verified first-hand at `aaf295f0` (build rc 0; exe `172595d5…`; hir_test rc 0 H01–H05; hist clean). `PLAN.md` §P1-b committed: operator brief VERBATIM, 19-site audit of `hir_build.ml` classified [P]-projection/[O]-organization/[D]-none/[U] (**class [D] honestly NONE — P1-b removes table-reconstruction machinery, not duplicate resolution**), `Semantic_env` API contract (own `stype` dropping offsets/cell sizes; `epr` = `Bind.rty_str` verbatim for byte-identical type diagnostics; typed `Not_found` vs `None`; no `Hir` type in interface; Bind-flat-registry law re-confirmed: `pl_ptrs` names ARE bind-produced in formal order, `bind.ml:2557`), migration contract (only Bind ref left in hir_build = alias + one `bind_program` call), fixtures H06 (char→HIR-E02) + H07 (undeclared formal→HIR-E03), `ocaml/hir/semtest.exe` 7 semantic-authority invariants + `--corrupt` control, falsifiers S1–S10 (S1 exe `172595d5…` after EVERY build step; S2 `hir/expected/` byte-frozen; S3 FULL gate FROZEN → `build/gate-e54p1b-reg.log`; S5 Bind-seam grep; S8 env Hir-free+purity; S10 byte-identical diagnostics). Predicted adjudicated drift: multi-refusal programs may report a different FIRST diagnostic (env guards now precede subset projection) — both stay loud rc 2 zero stdout. One self-caught append defect fixed (stale duplicated P0 header prose) before commit. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 1 IN PROGRESS…)` EXECUTE (hop 2) VERBATIM: implement `ocaml/hir/semantic_env.ml` → migrate `hir_build.ml` → H06/H07 measured pins → semtest+hir_test extension → FULL gate → RESULTS §P1-b + arch doc + close; STOP, P1-a NOT authorized.** Ledger stays **C380** (203 headers); config NEVER staged; no push; explicit-path commits; chain renewals 0→? of cap 12 — check `/guard status`; S2..S5 debris untouched.
 
@@ -2443,5 +2447,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-b hop 3: execute PROGRESS.md "## Next action (E2E-54/P1-b hop 2 LANDED steps 1–3…)" EXECUTE (hop 3) VERBATIM: (4) ocaml/hir/semtest.ml per PLAN §P1-b.4 (7 live-env invariants, --corrupt control, exe stanza in ocaml/hir/dune, S1 re-check 172595d5…, extend tools/hir_test.py: semtest ×2 per positive fixture H01–H04, F10 Bind-seam grep, S8 \bHir\b grep on semantic_env.ml) → (5) FULL gate rc 0 → build/gate-e54p1b-reg.log FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5; S1 on FRESH --build-dir → (6) CLOSE: RESULTS §P1-b (panel + dependency map + §P1-b.6 + measured notes: SFormat amendment, record-eval-order E06-before-E03 law; P1-a order PROPOSED ONLY) + docs/architecture/backend-boundary.md §7-1 + PLAN dashboard CLOSED + durables/guard. STOP after P1-b; P1-a NOT authorized. ZERO oracle; ledger stays C380 (203 headers); ocaml/lib+bin byte-clean; hir/expected byte-frozen (H01–H05 frozen through migration at dfe1435a; H06/H07 pins at acd7955e); config never staged; no push; explicit-path commits only.
+E2E-54/P1-b hop 4 = CLOSE ONLY, execute PROGRESS.md "## Next action (E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)" VERBATIM: (a) verify fresh --build-dir sha in build/e54p1b-freshbuild.log (expect 172595d5…; log rc 0, ZERO Error already confirmed); (b) RESULTS §P1-b (S1–S10 panel with measured values: semtest H01 4refs/3syms H02 7/2 H03 7/4 H04 4/2, corrupt rc1, gate FROZEN 1328/1328-190/190-9/9-149rows-16/0/25/0-prose5, F10 two pinned Bind lines, S8 clean, S2 frozen; dependency map; §P1-b.6; THREE notes: SFormat amendment, record-eval-order law, BEGIN/DO hang PRE-EXISTING at aaf295f0 rc124 both trees — recorded not fitted); arch doc §7-1; PLAN dashboard P1-b CLOSED; P1-a PROPOSED only, NOT authorized. Durables+guard, STOP. ZERO oracle; ledger C380 (203 headers); lib+bin byte-clean; config never staged; no push; explicit paths only.
 <!-- guard:end checkpoint -->
