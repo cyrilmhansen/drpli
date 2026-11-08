@@ -1690,25 +1690,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 586
-checkpoint-id: g586-b098efdb00cf
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-457, session 01a1b9c5-eca8-7124-92a5-844de5da68b6)
-checkpointed: 2026-11-08T06:28:30.434Z
+checkpoint-generation: 588
+checkpoint-id: g588-9930d0fd68d2
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6582, session 01a1b9d8-1cab-7124-92a5-845038811969)
+checkpointed: 2026-11-08T06:48:56.232Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f5a0c6ff33e06989a351859f7cf36c2e4bfa068c759df34b2e2a640c838164eb
-source-handoff: 2f01ae7f4e77add8a0dbe3fa1e5b2516feee5ecea87f31ed47fb8135cf8a25b4
-source-learnings: 838c5eb5ea8824866e660e03305ded3cc13a8c136f6646b316ee492e8d230348
+source-progress: c1ce46a4b058e2707afb1a343fd64f9c5134dcebbc38f114bba4015ef651b54f
+source-handoff: 96cb55ca5963ce105dc52427e7e64e908d5b2cb9eea1f58a85d2f94547dfa978
+source-learnings: af78a4039c481f811dd93559fcd287ab089882928f80b1707ea28f837637650f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b9c5-eca8-7124-92a5-844de5da68b6
-readiness-at: 2026-11-08T06:28:30.481Z
-readiness-checkpoint: g586-b098efdb00cf
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -2402,5 +2399,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-53/P3 hop 7: IMPLEMENT THE ARM then CLOSE. Contract BINDING in PROGRESS.md "## Next action" (hop 7) — READ LEARNINGS.md § "E2E-53/P3 hop 6" FIRST (exact first-hand line numbers for every site; supersedes hop-5 approximations), then hop-5 law table + hops 3/4 §§, then build/e53p3/decode/*-full.txt as needed. Recovery verified this hop: HEAD 741deccc (durables), binary cb90687158d9662c... == tree, ZERO arm bytes, ZERO oracle. Order: build rc -> arm bind.ml (bytes_of RTlabel->2; sizing elem_sz shadow + allow-list RTlabel|RTentry_ -> true; strings BYTE-IDENTICAL; AB5 after; refs_stmt NEW Sassign Rk_val case, LHS label/entry class via Sdcl walk, demand-fold test extended, computed Sgoto charges NOTHING) -> arm codegen.ml (Vlbl; rows_of fold RTlabel for NON-array names only - undersize trap; lower_proc same arm; label-value store encoder: backward PLAIN reloc, forward slot-only ls.fwd cons no JMP, scalar/offset0 LXI H+SHLD, else pair 21/11/73/23/72, dyn ladder backward only, dyn+forward REFUSE; goto arms: array dyn ladder+5E 23 56 EB+E9, scalar Vlbl LHLD/E9 (+deref if in st.deref), const-subscript goto REFUSE, all non-label refusals keep phrase 'computed GOTO' (N6); E527G actual descriptor = OPEN QUESTION: locate caller emission or REFUSE BY NAME, never invent) -> parity 5/5 fresh positional cmp vs golden/e53p3 -> falsifiers -> tail -> REAL --update-inventory (1323/190 +5) -> census -> C380 BEFORE coverage -> coverage row 101 + new rows -> FULL gate rc=0 build/gate-e53p3-reg.log -> RESULTS/PLAN CLOSE -> durables+guard. Never fit bytes; unmeasured combos loud [TBD]; config NEVER staged; no push; chain 3/12 cap 12.
+E2E-53/P3 hop 8: ARM NOW. Durable HEAD 4b59247b; binary cb906871… == tree PRE-ARM; ZERO oracle. Read LEARNINGS § “E2E-53/P3 hop 7” FIRST (resolved G-descriptor question + 7-item measured edit list + 2 OPEN verify-before-arm items: bind `formals` at ~2440-2459, and the unresolved-ref survey consumer vs label-var `goto g`), then hop-6 § (exact line map) + hop-5 law table. Order: build rc → arm bind (bytes_of 148; sizing ~1003/1060 strings byte-identical, AB5 after; Rk_val Sassign + LHS-class fold 1805; Sgoto _ -> [] unchanged) → arm codegen (Vlbl 28; vars fold ~16653 array-skip; lower_proc ~14100; lbl_val_operand slot-only fwd beside label_def 13821; lower_label_assign from Sassign 14300; SHLD/pair forms; dyn+forward REFUSE; goto 14563/14589 arms, all refusals keep phrase `computed GOTO` (N6); G formal per OPEN item — if admitting label formals into pl_ptrs moves ANY existing golden, REFUSE G by name, parity 4/5, record VERBATIM, never invent) → parity 5/5 (or recorded G refusal) fresh positional cmp vs golden/e53p3 → falsifiers (SNS4/sweep byte-identical; OPTIMIST 9-byte unmoved; DEPREC/LABELS/MPMCALLA NEW VERBATIM refusal; B/F/H refuse; nelem=1 unchanged; EXPR1/REPORT/COPYLPT UNMODIFIED) → tail (fingerprint supersedes cb906871…; hist 68/124; sweep 194/0+5; markers 19; DEC 64/0; divcheck 9/9) → REAL --update-inventory (1323/190 +5) → census (3 msgs MOVE VERBATIM) → C380 measured-bytes-only BEFORE coverage → coverage row 101 + NEW entry/label rows + explicit IDS → FULL gate rc=0 build/gate-e53p3-reg.log → RESULTS §P3 + PLAN §4 row + §P3 CLOSED → durables+guard. Config NEVER staged; no push; chain 4/12 cap 12.
 <!-- guard:end checkpoint -->

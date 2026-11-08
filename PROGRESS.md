@@ -3544,17 +3544,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 586
-checkpoint-id: g586-b098efdb00cf
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-08T06:28:30.434Z
+checkpoint-generation: 588
+checkpoint-id: g588-9930d0fd68d2
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-08T06:48:56.232Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f5a0c6ff33e06989a351859f7cf36c2e4bfa068c759df34b2e2a640c838164eb
-source-handoff: 2f01ae7f4e77add8a0dbe3fa1e5b2516feee5ecea87f31ed47fb8135cf8a25b4
-source-learnings: 838c5eb5ea8824866e660e03305ded3cc13a8c136f6646b316ee492e8d230348
+source-progress: c1ce46a4b058e2707afb1a343fd64f9c5134dcebbc38f114bba4015ef651b54f
+source-handoff: 96cb55ca5963ce105dc52427e7e64e908d5b2cb9eea1f58a85d2f94547dfa978
+source-learnings: af78a4039c481f811dd93559fcd287ab089882928f80b1707ea28f837637650f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop 7): build → arm bind+codegen measured forms ONLY → parity 5/5 fresh positional cmp vs `golden/e53p3/` → falsifiers (SNS4/sweep byte-identical; OPTIMIST 9-byte unmoved; DEPREC/LABELS/MPMCALLA NEW VERBATIM refusal; B/F/H refuse; N6 keeps phrase; `nelem=1` unchanged; EXPR1/REPORT/COPYLPT UNMODIFIED) → tail (fingerprint supersedes `cb906871…`; hist 68/124; sweep 194/0+5; markers 19; DEC 64/0; divcheck 9/9) → REAL `--update-inventory` (1323/190 +5) → census (3 msgs MOVE VERBATIM) → **C380 measured-bytes-only BEFORE COVERAGE** → coverage row 101 + NEW entry/label rows + explicit IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 row + §P3 CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; chain 3/12 cap 12.
 0a-e53-8. **E2E-53/P2 CLOSED hop 6 — C379 + NEW-ROW COVERAGE + FULL GATE rc=0 + RESULTS/PLAN CLOSE LANDED; RE-RANK MATRIX, OPEN P3 (session successor of 01a1b8b4, chain renewals 9/12; ZERO oracle; goldens VERBATIM; config NEVER staged; no push; rc DIRECT; byte-tier):** recovery verified (HEAD `36efba7c`; g573 attested; binary `cb906871…` == tree; build rc=0). C379 `8364798e` measured-bytes-only BEFORE COVERAGE (stride-1/3/LB-0 laws re-verified first-hand; 7/7 cmp rc=0 claim-time `build/e53p2/c379-out/`; falsified multiply predictions kept; 202 headers). Coverage: NEW row `AGG.ARRAY_1D_STRIDED` adjudicated first-hand (row 7 2-byte law stays VERBATIM; extending it would falsify its contract) + explicit COVERAGE-IDS; coverage_check 146/0/0 SUPPORTED 96 (count moved BY ADJUDICATION, recorded; `fafda045`). FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` (1323/0, 190/190, 9/9, 146 rows, census 16/0/25/0, prose 5). RESULTS §P2 + PLAN §4 row (LINE-anchored, pipe assert RUN IN CODE vs P1 row) + §P2 CLOSED `b54a8080`. SUCCESSOR (BINDING = PROGRESS.md `## Next action`): re-read PLAN §2 + RE-MEASURE first refusals on `cb906871…` (matrix predates arms), open P3 with ZERO-oracle pre-audit, verify `E527*`/`e53p3` unused, PRE-REGISTER PLAN §P3+probes+LEARNINGS BEFORE any oracle/`ocaml/lib` byte, campaign, decode/arm/parity/tail (baseline sweep 194/0+N, inventory 1323/190)/C380+ BEFORE COVERAGE/gate `build/gate-e53p3-reg.log`/CLOSE. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; `nelem=1` crash RECORDED never fixed; constraints per PROTOCOL Part 2 anchor; chain 9/12 cap 12.
@@ -4242,9 +4242,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b9c5-eca8-7124-92a5-844de5da68b6
-readiness-at: 2026-11-08T06:28:30.481Z
-readiness-checkpoint: g586-b098efdb00cf
 <!-- guard:end checkpoint -->
 
 ## Blockers
