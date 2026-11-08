@@ -9756,3 +9756,12 @@ fixed; corpus blockers VERBATIM never fix; chain renewals 7/12 after this switch
   EXPLICIT parameters through the walk; never infer an ancestor from insertion order.
 - `grep -c '^SPECIMEN' spec/INVENTORY.txt` is the wrong shape check — rows are TAB fields
   `name specimen|refusal source golden-or-reason`; count via non-`#` rows (1518).
+
+## E2E-54/P0 hop 1 close (same session, level-3/4) — tooling laws
+**ACCEPTED:** the `edit` tool rolls a multi-edit batch back ATOMICALLY on first no-match — but a
+later edit in a retried batch can still fail on non-uniqueness; anchor STATE-block prose with text
+from the NEWEST section only (9 historical "**STATE:** HEAD = this durables commit;" lines exist).
+**FALSIFIED:** hop-1 belief that hir_build.ml's head half "compiles modulo the top-level" — it does
+NOT: `diag` was deleted while `raise_err` used it (see PROGRESS hop-2 STATE defect checklist (a)-(f)).
+**OPEN:** F1 (pli80c.exe sha invariance under added unused units) UNTESTED — `dune build` never ran
+after the new files landed. Next session runs it at hop-2 step (4)-(5).
