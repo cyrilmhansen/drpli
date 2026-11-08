@@ -15,39 +15,39 @@
   "PROC": 11,
   "RTME": 1,
   "STOR": 15,
-  "TRAN": 6
+  "TRAN": 9
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 120,
-  "SINGLE_SAMPLE": 18,
+  "MEASURED": 122,
+  "SINGLE_SAMPLE": 19,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 132,
+  "ACCEPTS": 136,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 9,
-  "UNTESTED": 4
+  "UNTESTED": 3
  },
- "manual_none": 122,
+ "manual_none": 125,
  "manual_unverified": 0,
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 3,
-  "PARTIAL": 23,
-  "REFUSED": 21,
-  "SUPPORTED": 96
+  "PARTIAL": 24,
+  "REFUSED": 20,
+  "SUPPORTED": 99
  },
- "no_parity": 28,
- "no_runtime": 116,
+ "no_parity": 27,
+ "no_runtime": 119,
  "perimeter": {
   "C": 2,
   "M": 18,
   "OPEN": 1,
-  "S": 125
+  "S": 128
  },
- "rows": 146,
- "single_sample": 18,
+ "rows": 149,
+ "single_sample": 19,
  "unreviewed": 5,
- "with_boundary": 146
+ "with_boundary": 149
 }
