@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0b-e54-2. **E2E-54/P0 hop 2 LANDED IN-PROGRESS (build rc=0; F1 MOVED — restructure OWED; session successor of 01a1bbbd, renewal 1/12; ZERO oracle; ZERO historical `ocaml/lib/` byte):** `ocaml/lib/hir_build.ml` head defects (a)-(f) + SIX OCaml-5.4/syntax blockers fixed; top-level section REWRITTEN per contract (explicit parent-block threading, procs_by_name complete before lowering, second-authority guards); `ocaml/bin/pli80hir.ml` + bin/dune stanza added; `dune build` rc=0; SMOKE: deterministic HIR dump rc=0 on H01-shape source. **F1 FAILED:** `pli80c.exe` moved to `81d6122f…` (+40 B, nm count identical, ZERO Hir/Target/Diagnostic symbols — cause UNATTRIBUTED; old exe kept `ocaml/_build-e53p4h15/…` = `172595d5…`). NOTHING compiler-side committed (F1 gate). SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P0 hop 3…)` VERBATIM: move `ocaml/lib/{diagnostic,target,hir,hir_build}.ml` (all untracked) to NEW `ocaml/hir/` library `pli80hir` (aliases `module Bind = Pli80.Bind` etc.), re-verify F1 `172595d5…` (if still moved: STOP+record), then fixtures/expected (H04 P401-shape CONFIRMED supportable; bare `fixed` = RTbin 15)/hir_test.py/backend.ml-in-hir/gate `build/gate-e54p0-reg.log` frozen 1328-190-9-149-16-0-25-0-5/RESULTS+roadmap PROPOSED/durables+guard. Design amendments adopted-in-code (record in RESULTS): precision-ceiling CLAMP (no refuse) + BEGIN-inline lowering (F9). Ledger stays C380; config NEVER staged; no push.
+
 0b-e54-1. **E2E-54/P0 hop 1 LANDED (plan+audit committed; HIR modules IN FLIGHT — session 01a1bbbd, fresh chain 0/12; ZERO oracle; ZERO historical `ocaml/lib/` byte):** the operator restated the E2E-54 brief; it is recorded VERBATIM as §0 of `spec/lab-evidence/e2e54/PLAN.md` (`c89a9df3`) with §P0 pre-registered (falsifiers F1–F9). Audit draft `docs/architecture/backend-boundary.md` committed `41dc2d2c`. Baseline verified first-hand (fingerprint `172595d5…` == tree; gate/ledger/inventory numbers all hit — see PROGRESS hop-2 heading). UNCOMMITTED: `ocaml/lib/{diagnostic,target,hir}.ml` complete; `ocaml/lib/hir_build.ml` HALF-DRAFT (top-level section broken — rewrite per PROGRESS `## Next action` hop-2 step (1) VERBATIM). SUCCESSOR contract = PROGRESS.md `## Next action (E2E-54/P0 hop 2 …)` EXACT order: finish hir_build → bin/dune stanza + pli80hir.ml → `dune build` rc=0 → **F1 sha256 of pli80c.exe must still be `172595d5…`** → fixtures H01..H05 + reviewed expected dumps → tools/hir_test.py → backend.ml witness → FULL gate rc=0 `build/gate-e54p0-reg.log` (counts frozen 1328/190/9/149/16-0-25-0/5; any move = STOP+revert wiring) → RESULTS + roadmap PROPOSED (P1 NOT authorized) → durables+guard. Ledger stays **C380**; no coverage/inventory/goldens touch; `handoff.config.json` NEVER staged; no push; stray root S2..S5 debris untouched.
 
 0a-e53-15. **E2E-53/P4 hop 16 LANDED — §P4 CLOSED, THE WHOLE E2E-53 CAMPAIGN IS CLOSED (session 01a1bb38, renewal 2/12 of the OPERATOR-RESET chain; ZERO oracle; ZERO `ocaml/lib/` byte):** recovery verified first-hand (HEAD `0fff88d8`; `dune build` rc=0; tree binary sha256 **`172595d5…`** == armed fingerprint == committed arm `39c7919e`). Tail run and rc DIRECT: sweep **206 byte-exact / 0 FAILS / 28 refusals** `build/e53p4/sweep.log`, DEC **64/0** `build/e53p4/dec.log`, divcheck **9/9** `build/e53p4/divcheck.log`, **FULL gate rc=0** `build/gate-e53p4-reg.log` (1328/1328, 190/190, 9/9, coverage 149 rows 0/0, census 16/0/25/0, prose 5). **The carried sweep expectation 201 was STALE, and it was ATTRIBUTED rather than forced** — the same six prefixes scope to 201 specimen rows in `git show b7544b61^:spec/INVENTORY.txt` and 206 in HEAD's, the delta being exactly the five E527 specimens §P3 registered (each re-verified `cmp` rc=0 vs `golden/e53p3/`); FAILS 0 and refusals 28 unchanged ⇒ **the inventory moved, not the compiler**. Hist re-counted first-hand: 122 headers, ZERO `Error`, the three vanished sites re-confirmed by header-set diff vs `build/e53p3/build-fresh-h13.log`. SNS4 name collision re-checked fresh (`build/e53p4/fals/sns4-recheck-h16.log`, rc=0 + `cmp` rc=0 vs `build/e53p2/sanity/SNS4.out.rel`). CLOSE DOCS `fcca9ad0`: `RESULTS.md` §P4, `PLAN.md` §4 P4 row (LINE 76, 8-pipe assert RUN IN CODE), §P4 **CLOSED**, `PLAN.md` §P4.6 DATED close-out. NO probes, NO `--update-inventory` (1328/190 verified THROUGH the gate), NO coverage touch, NO new claim — ledger ENDS **C380** (203 headers). SUCCESSOR (hop 17) — **THE E2E-54 BRIEF IS MISSING:** "E2E-54/P0 (HIR)" is quoted by the hop-14/15/16 contracts but exists in NO durable file (`grep -rnw HIR` hits only those sentences; no `spec/lab-evidence/e2e54/`, no note, nothing in GOAL/PLAN §2). **Ask the OPERATOR to restate it and record it VERBATIM in a new `spec/lab-evidence/e2e54/PLAN.md` §0 BEFORE pre-registering anything**; the PROPOSED reading (High-level IR between `bind` and the 17k-line `codegen.ml`; `ir.ml` is 324 lines) is an inference, NOT authorization. Alternative zero/low-oracle candidates are listed in PROGRESS `## Next action`. Ledger ENDS **C380**; inventory **1328/190**; coverage **149/99**; census 16/0/25/0; goldens all KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fixed; `nelem=1` crash recorded (site quotation now **10248**), never fixed; config NEVER staged; no push; chain renewal **2/12** cap 12 (earlier "9/12" quotations are OBSOLETE after the operator reset).
@@ -1699,25 +1701,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 611
-checkpoint-id: g611-9aa246503017
-checkpoint-kind: manual
+checkpoint-generation: 612
+checkpoint-id: g612-2443ded73d4d
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~3607, session 01a1bbbd-252e-74f7-97ac-0a4a0e4b6df6)
-checkpointed: 2026-11-08T15:58:01.898Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3957, session 01a1bbe1-eedd-74f7-97ac-0a4ff4540468)
+checkpointed: 2026-11-08T16:31:43.924Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 661bcb92876fc281092211505265eca538e0ada04f724c5dfd18fcaeba1e7f5e
+source-progress: 48f6a65734938b29170e0954a2c1c8af24f69ef7d7c7adb19bba63354548db6e
 source-handoff: 19286dbd57749cb767d686ad9c3df2efac139e275fdc56bcd42f77fe76986019
 source-learnings: 79a40f7fd77b8d2ded79869c3968d5435d30ee94a70a18a9f82b852a92c1ae9c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bbbd-252e-74f7-97ac-0a4a0e4b6df6
-readiness-at: 2026-11-08T15:58:01.932Z
-readiness-checkpoint: g611-9aa246503017
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
