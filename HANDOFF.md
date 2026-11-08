@@ -1688,25 +1688,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 576
-checkpoint-id: g576-7432c222ba7c
-checkpoint-kind: auto
+checkpoint-generation: 577
+checkpoint-id: g577-7d9670bd541f
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4974, session 01a1b8c9-68d5-7516-b7cf-3afed1a97bb6)
-checkpointed: 2026-11-08T01:54:23.917Z
+status: checkpoint (guard level 2, remaining ~9125, session 01a1b8dd-8beb-7516-b7cf-3b0258b67bc4)
+checkpointed: 2026-11-08T02:21:26.875Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1f244be8195380c9ce32c9448c9978ef2d4eae438c51ed2bcd7b148dd107c21b
+source-progress: 9de266a55185ec60c8921944e3dcee76fc881d4cf73dd47406e26518e5cc3691
 source-handoff: 34c2e593fd2cb7ad901a472ac34ff1fd3a98b446d01a0230d7a0b2e10d68ac59
-source-learnings: 858b446aa6190d8d51b4bd0731f3b881e3770de28b7a68cfbbb64b672ece7ae8
+source-learnings: a4e3060e332252f4ee9605abf40439a3f2d511f2e1572e190050a9f8927300d5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b8c9-68d5-7516-b7cf-3afed1a97bb6
-readiness-at: 2026-11-08T01:54:49.429Z
-readiness-checkpoint: g576-7432c222ba7c
+readiness-by: session:01a1b8dd-8beb-7516-b7cf-3b0258b67bc4
+readiness-at: 2026-11-08T02:21:26.905Z
+readiness-checkpoint: g577-7d9670bd541f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2399,5 +2399,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-53/P2 CLOSED (hop 6): C379 measured-bytes-only BEFORE COVERAGE (8364798e, 202 headers); NEW row AGG.ARRAY_1D_STRIDED adjudicated first-hand — row 7 2-byte law kept VERBATIM; explicit COVERAGE-IDS edit; coverage_check 146 rows 0/0 SUPPORTED 96 (count moved BY ADJUDICATION, recorded; contract's 145/95 was the EXTEND option); FULL gate rc=0 DIRECT build/gate-e53p2-reg.log (1323/0, 190/190, 9/9, 146 rows, census 16/0/25/0, prose 5); RESULTS §P2 + PLAN §4 row LINE-anchored (pipe assert ran IN CODE, 8 delimiters == P1 row) + §P2 CLOSED b54a8080; coverage-stats snapshot via OWN write path 6a08c042; durables c92b205b. ZERO oracle this hop; goldens d55ec7b5 VERBATIM; nelem=1 crash still RECORDED never fixed; binary cb90687158d9662c74da60a60c88c71b2904476d765f464b3ed082f1374f9d7e == tree; config NEVER staged; no push; chain 10/12 cap 12. SUCCESSOR (BINDING = PROGRESS.md ## Next action): open E2E-53/P3 — re-read PLAN §2 matrix AND re-measure first refusals DIRECT (matrix predates P1/P2 arms), ZERO-oracle pre-audit, VERIFY E527*/e53p3 unused, PRE-REGISTER PLAN §P3+probes+LEARNINGS BEFORE any oracle/ocaml/lib byte, then campaign/decode/arm/parity/tail (sweep baseline 194/0+N, inventory 1323/190)/C380+ BEFORE COVERAGE/gate build/gate-e53p3-reg.log/CLOSE.
+E2E-53/P3 hop 2 DONE: matrix re-ranked, PLAN §6 P3 pre-registered c02aa9ee BEFORE oracle; campaign e53p3 5 ok (A/C/D/E/G) + 3 dr-refuses (B/H TYPES NOT= scalar-entry both dirs FALSIFY H-A/H-B; F ARG COUNT falsifies H-F); goldens VERBATIM 6b3dbef4; first-hand decode LANDED (backward=plain-RELOC LXI H/SHLD; forward array-cell=SELF-ADDRESS pair 21/11/73/23/72; forward scalar=CHAIN-ADDR SHLD; computed goto=LHLD/E9 PCHL; label-var actual descriptor LXI H,*A(cell)/CALL + formal LHLD/E9; stride-2 ladder EXISTING law; 2-byte cells decl order). SUCCESSOR (BINDING = PROGRESS.md ## Next action): ARM bind+codegen measured forms ONLY (bind sizing label/entry arrays elem=2 + scalar label VAR cells; store-source resolution; backward/forward operand classes; const+dyn subscripts; Sgoto label-var PCHL — N6 MUST keep refusing; label-var actual descriptor), parity 5/5 FRESH POSITIONAL cmp, falsifiers (SNS4/sweep byte-identical, OPTIMIST 9-byte UNMOVED, DEPREC/LABELS/MPMCALLA move past bind to NEW VERBATIM refusal never suddenly EXACT, B/F/H keep refusing), tail (hist 68/124, sweep 194/0+5 COMPUTED, markers 19, DEC 64/0, divcheck 9/9) -> inventory OWN (1323/190 +5) -> census OWN -> C380 measured-bytes-only BEFORE COVERAGE -> coverage FIRST-HAND (row 101 TRAN.COMPUTED_GOTO adjudication + NEW entry/label rows, COVERAGE-IDS explicit, NEVER coverage_gen) -> gate build/gate-e53p3-reg.log rc=0 -> RESULTS §P3 + PLAN §4 row + CLOSED -> durables. Chain will be 11/12 of cap 12: if another switch is needed, finalize at cap and STOP for operator chain reset. Never stage handoff.config.json; no push; goldens NEVER re-derived; dir.txt NEVER staged.
 <!-- guard:end checkpoint -->
