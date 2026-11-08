@@ -9542,3 +9542,10 @@ fixed; corpus blockers VERBATIM never fix; chain renewals 7/12 after this switch
   STATE: HEAD `b2f0d474`; ARMED binary `cb906871…` == tree; ledger ENDS **C378** (next C379);
   inventory **1323/190**; coverage 145/95; goldens `d55ec7b5` VERBATIM; `nelem=1` crash RECORDED
   never fixed; no push; chain 8/12 cap 12.
+
+## E2E-53/P2 hop 6 — C379 + COVERAGE NEW-ROW + FULL GATE + CLOSE LANDED (§P2 CLOSED)
+- **ACCEPTED — C379 `8364798e`** (measured-bytes-only, BEFORE any COVERAGE touch): stride-1/stride-3/LB-0 array laws; claim-time evidence loop = re-read `build/e53p2/decode/{sizes,code,reldump}.txt` + goldens sha + `.PRN` NO-ERROR recount (2/file) + 7/7 FRESH POSITIONAL `cmp` on the armed binary (`build/e53p2/c379-out/`). 202 headers.
+- **ACCEPTED — coverage adjudication was NEW row, not EXTEND (recorded procedure):** when a candidate row's `contract` column states a size/shape-specific law already MEASURED (row 7 "contiguous 2 bytes per element"), new-class evidence gets its own row; EXTEND would have falsified the old contract text. Consequence honestly recorded: contract predicted 145 rows/95 SUPPORTED (EXTEND option); actual 146/96 by adjudication — coverage_check + gate both rc=0 with the moved count.
+- **ACCEPTED — dashboard row pipe-assert convention:** run the assert IN CODE against the PREVIOUS row's delimiter count (8 for the 7-column PLAN §4 table), LINE-anchored insert, no raw `|` anywhere in cell text.
+- **ACCEPTED — FULL gate `build/gate-e53p2-reg.log` rc=0:** 1323/0, 190/190, 9/9, 146 rows, census 16/0/25/0, prose 5.
+- **OPEN (successor P3):** PLAN §2 matrix predates P1/P2 arms — re-measure first refusals DIRECT on `cb906871…` before ranking; ids `E527*`/tag `e53p3` must be VERIFIED unused; `nelem=1` crash still RECORDED-never-fixed (separate pre-registered fix owed).
