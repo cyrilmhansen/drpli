@@ -1,28 +1,38 @@
-(* lib/hir_build.ml — read-only adapter: (Ast.block x Bind layout rows) -> Hir.program.
+(* lib/hir_build.ml — read-only consumer: Semantic_env projection -> Hir.program.
 
    E2E-54/P0 semantic-reuse rule (spec/lab-evidence/e2e54/PLAN.md §P0.4, operator
    brief §5): this module performs NO independent name resolution, NO independent
    type interpretation and NO declaration discovery of its own. Every identifier
-   that reaches HIR resolves through a bind-produced row table
-   ([Bind.bind_rows] / [Bind.prog_layout]); every type is a bind [Bind.rt]
-   projected into [Hir.ty]. The precedent for consuming bind facts this way is
-   codegen.ml [callee_formal_rt_l], which reads the same structures.
+   that reaches HIR resolves through a bind-produced row table; every type is a
+   bind type projected into [Hir.ty].
 
-   What is deliberately NOT carried across the boundary (falsifier F8): frame
-   offsets, DATA-area placement, pool cells, saved-SP cells, section sizes. The
-   offset component is dropped in [rows_of_block], the first thing that touches
-   a bind row.
+   E2E-54/P1-b seam (PLAN §P1-b.3): ALL table construction, lexical lookup, the
+   proc registry, the declaration-line channel and the signature reads now live
+   behind [Semantic_env] — the ONE typed projection of the binder. This file is
+   the consumer: the HIR SUBSET GATE (stype -> Hir.ty, refusal unchanged,
+   quoting the env-carried bind rendering VERBATIM), the eager sid-ordered
+   projection of env symbols into [Hir.sym] (which preserves the historic
+   refusal ORDER within registration), the lowering and typing rules, and the
+   diagnostic plumbing. The ONLY remaining Bind reference here is the single
+   [Bind.bind_program] authority call (falsifier S5); every other bind read
+   crosses through [Semantic_env].
+
+   What is deliberately NOT carried across the boundary (falsifiers F8/S8):
+   frame placements, DATA-area placement, pool cells, saved-stack cells,
+   section extents. Semantic_env drops them at its projection boundary.
 
    Everything outside the P0 subset (FIXED BINARY scalars, +-*/, assignment,
    IF/ELSE, DO WHILE, internal procedure call/return, STOP) is refused with a
    typed Diagnostic. There is no generic statement/expression constructor in
    [Hir] to misuse: the type is closed over the subset.
 
-   Determinism: scopes/sids/pids are assigned by a pre-order walk (main block
-   rows in bind declaration order, then nested procedures in source order,
-   parents before children). No Hashtbl iteration, no physical identities. *)
+   Determinism: scopes/sids/pids are assigned by the env's pre-order walk (main
+   block rows in bind declaration order, then nested procedures in source
+   order, parents before children) — EXACTLY the scheme this file used at
+   aaf295f0, so every dump byte is preserved (falsifier S2). No Hashtbl
+   iteration, no physical identities. *)
 
-(* Cross-library aliases: this unit lives in the separate [pli80hir] library
+(* Cross-library aliases: this unit lives in the separate [pli80_hir] library
    (E2E-54/P0 PLAN §P0.8 F1 remedy — the HIR units must never enter the
    [pli80] library that links pli80c.exe). The historical front-end modules
    are reached through the wrapped [Pli80] module. *)
@@ -34,60 +44,71 @@ open Source
 
 module D = Diagnostic
 module H = Hir
+module SE = Semantic_env
 
 (* ---------- context ---------- *)
 
+(* P1-b: the mutable registration tables (next_sid/next_scope/next_pid/
+   blocks/procs_by_name) are GONE — Semantic_env owns identity assignment.
+   [syms] is the eager, sid-ordered Hir.sym projection of the env symbols;
+   lowering reads HIR types through it, never re-deriving them. *)
 type ctx = {
   profile : Target.profile;
-  plan : Bind.prog_layout;
-  mutable next_sid : int;
-  mutable next_scope : int;
-  mutable next_pid : int; (* pid 0 is reserved for the outermost block *)
-  mutable blocks : block_info list; (* all registered blocks, pre-order *)
-  (* name -> pid for every procedure (bind-registered and AST-seen alike) *)
-  mutable procs_by_name : (string * int) list;
-}
-
-and block_info = {
-  bi_ast : Ast.block; (** the syntax this block came from *)
-  bi_scope : int;
-  bi_pid : int;
-  bi_parent : int option;
-  bi_syms : (string * H.sym) list; (** bind rows, re-keyed; NO new lookup rules *)
-  bi_proc : Bind.proc_layout option; (** bind's own record, when this block is a procedure *)
+  env : SE.t;
+  mutable syms : (int * H.sym) list; (** sid -> projected Hir.sym (all blocks) *)
 }
 
 exception Hir_error of D.t list
 
 let raise_err ?line code msg = raise (Hir_error [ D.make ?line code msg ])
 
-(* Deterministic header line for a block: [Ast.block] carries no pos of its own
-   (hop-2 measurement); the name/spelling fields do. Used for block-level
-   diagnostics and fallbacks only — symbol lines come from the dcl rows. *)
-let block_line (blk : Ast.block) : int =
-  match blk.Ast.blabel with
-  | Some n -> n.Ast.pos.line
-  | None -> (
-      match blk.Ast.bname with
-      | Some n -> n.Ast.pos.line
-      | None -> (
-          match blk.Ast.bendpos with
-          | Some p -> p.line
-          | None -> 0))
+(* ---------- type mapping: Semantic_env.stype -> Hir.ty, P0 subset ONLY ---------- *)
 
-(* ---------- bind row projection (offset dropped immediately) ---------- *)
+(* THE HIR subset gate (§P1-b.3). [pr] is the bind rendering the caller carries
+   (symbol [epr] / signature [sret_pr]), so every type-naming message quotes
+   bind's own words byte-identically across the seam (falsifier S10); the gate
+   never fabricates a rendering from the projection. *)
+let ty_of_rt (s : SE.stype) ~(pr : string) : (H.ty, string) result =
+  match s with
+  | SE.SFixed_bin p -> Ok (H.Fixed_bin (p, 0))
+  | _ -> Error pr
 
-let rows_of_block (blk : Ast.block) : (string * Bind.rt * bool) list =
-  List.map
-    (fun (nm, rt, _off, auto) -> (nm, rt, auto))
-    (Bind.bind_rows blk)
+(* Eager sid-ordered projection (blocks pid-ascending, rows in bind order —
+   the same sequence register_block consumed at aaf295f0, so the FIRST
+   out-of-subset refusal is the same symbol on the same line with the same
+   message; the P0 per-block interleaving of registration guards with this
+   gate is the §P1-b.3 predicted drift, recorded, never silent). *)
+let project_syms ctx =
+  List.iter
+    (fun (be : SE.block_env) ->
+      List.iter
+        (fun (_key, (s : SE.symbol)) ->
+          match ty_of_rt s.SE.ety ~pr:s.epr with
+          | Ok ty ->
+              let storage =
+                match s.SE.estorage with
+                | SE.S_formal -> H.Formal
+                | SE.S_auto -> H.Auto
+                | SE.S_static -> H.Static
+              in
+              ctx.syms <-
+                ( s.SE.esid,
+                  { H.sid = s.SE.esid; skey = s.ekey; sorig = s.eorig;
+                    scope = s.escope; sty = ty; sstorage = storage;
+                    sline = s.eline } )
+                :: ctx.syms
+          | Error rt_s ->
+              raise_err ~line:s.SE.eline D.e_type
+                ("declared type " ^ rt_s ^ " for " ^ s.SE.ekey
+                ^ " is outside the P0 HIR subset (FIXED BINARY scalars only)"))
+        be.SE.esyms)
+    (SE.blocks ctx.env)
 
-(* ---------- type mapping: Bind.rt -> Hir.ty, P0 subset ONLY ---------- *)
-
-let ty_of_rt (rt : Bind.rt) : (H.ty, string) result =
-  match rt with
-  | Bind.RTbin p -> Ok (H.Fixed_bin (p, 0))
-  | _ -> Error (Bind.rty_str rt)
+(* Resolve a name through the env (bind rows over the AST-nesting chain). *)
+let resolve ctx (bi : SE.block_env) (name : string) : H.sym option =
+  match SE.resolve ctx.env bi.SE.escope name with
+  | Some s -> Some (List.assoc s.SE.esid ctx.syms)
+  | None -> None
 
 (* ---------- diagnostics ---------- *)
 
@@ -119,84 +140,10 @@ let refuse_name (s : Ast.stmt_kind) : string =
   | Ast.Salloc _ -> "ALLOCATE"
   | Ast.Sfree _ -> "FREE"
   | Ast.Sassign_label _ -> "label assignment"
-  | Ast.Sformat _ -> "FORMAT"
+  | Ast.Sformat _ -> "FORMAT statement"
   | Ast.Spicturestmt _ -> "PICTURE statement"
   | Ast.Spreproc _ -> "preprocessor directive"
   | Ast.Snull _ -> "null statement"
-
-(* ---------- scope + symbol registration ---------- *)
-
-(* Bind's OWN declaration flattener: the parser keeps dcls as Sdcl statements in
-   bstmts (blk.bdecls is [] for corpus-shaped programs — codegen.ml:15729 records
-   the same trap), so consulting bdecls alone silently yields "no declaration"
-   and every symbol falls back to the block line. Using [Bind.frame_decls] keeps
-   the semantic-reuse rule (§P0.4): the name->dcl channel is bind's, not ours. *)
-let find_dcl (blk : Ast.block) (key : string) : (Ast.dcl * int) option =
-  List.find_opt (fun (d, _l) -> String.equal (Bind.pl_l d.Ast.dname) key)
-    (Bind.frame_decls blk)
-
-let register_block acc parent_scope pid (blk : Ast.block)
-    (binfo_formals : string list) (bi_proc : Bind.proc_layout option) : block_info =
-  let scope_id = acc.next_scope in
-  acc.next_scope <- scope_id + 1;
-  let rows = rows_of_block blk in
-  (* bind keeps one alias row per name; ASSERT the identity precondition. *)
-  let rec dup_free = function
-    | (a, _, _) :: rest
-      when List.exists (fun (b, _, _) -> String.equal a b) rest ->
-        raise_err ~line:(block_line blk) D.e_decl
-          ("bind produced duplicate rows for " ^ a)
-    | _ :: rest -> dup_free rest
-    | [] -> ()
-  in
-  dup_free rows;
-  let formals = List.map String.lowercase_ascii binfo_formals in
-  let syms =
-    List.map
-      (fun (key, rt, auto) ->
-        let d = find_dcl blk key in
-        let sorig =
-          match d with
-          | Some (dd, _) -> dd.Ast.dname.Ast.orig
-          | None -> key (* formal without explicit dcl has no row; guards below catch it *)
-        in
-        let sline = match d with Some (_, l) -> l | None -> block_line blk in
-        match ty_of_rt rt with
-        | Ok ty ->
-            let storage =
-              if List.mem key formals then H.Formal
-              else if auto then H.Auto
-              else H.Static
-            in
-            let sid = acc.next_sid in
-            acc.next_sid <- sid + 1;
-            ( key,
-              { H.sid; skey = key; sorig; scope = scope_id; sty = ty; sstorage = storage;
-                sline } )
-        | Error rt_s ->
-            raise_err ~line:sline D.e_type
-              ("declared type " ^ rt_s ^ " for " ^ key
-              ^ " is outside the P0 HIR subset (FIXED BINARY scalars only)"))
-      rows
-  in
-  let bi =
-    { bi_ast = blk; bi_scope = scope_id; bi_pid = pid;
-      bi_parent = (if pid = 0 then None else Some parent_scope);
-      bi_syms = syms; bi_proc }
-  in
-  acc.blocks <- bi :: acc.blocks;
-  bi
-
-(* Resolve a name through bind rows, walking the lexical chain the block nesting
-   creates. Existence and meaning come from bind tables only. *)
-let rec resolve acc (bi : block_info) (name : string) : H.sym option =
-  match List.assoc_opt name bi.bi_syms with
-  | Some s -> Some s
-  | None -> (
-      match bi.bi_parent with
-      | Some p ->
-          resolve acc (List.find (fun b -> b.bi_scope = p) acc.blocks) name
-      | None -> None)
 
 (* ---------- expressions ---------- *)
 
@@ -207,9 +154,9 @@ let wrap ty ef line k = { H.ex = k; ex_ty = ty; ex_line = line; ex_ef = ef }
 let lit_int (text : string) : int option =
   int_of_string_opt (String.concat "" (String.split_on_char '_' text))
 
-let lower_lit acc (e : Ast.expr) (text : string) : H.expr =
+let lower_lit ctx (e : Ast.expr) (text : string) : H.expr =
   let line = e.Ast.epos.line in
-  match acc.profile.Target.default_integer_precision.value with
+  match ctx.profile.Target.default_integer_precision.value with
   | None ->
       raise_err ~line D.e_profile
         "target profile leaves default integer precision UNKNOWN: literals \
@@ -229,21 +176,21 @@ let lower_lit acc (e : Ast.expr) (text : string) : H.expr =
           ^ ") literal domain; DR's literal typing beyond the measured window is unmeasured [TBD]");
       wrap (H.Fixed_bin (p, 0)) H.Pure line (H.Const { text })
 
-let rec lower_expr acc (bi : block_info) (e : Ast.expr) : H.expr =
+let rec lower_expr ctx (bi : SE.block_env) (e : Ast.expr) : H.expr =
   let line = e.Ast.epos.line in
   match e.Ast.e with
-  | Ast.Enumber text -> lower_lit acc e text
+  | Ast.Enumber text -> lower_lit ctx e text
   | Ast.Eident n -> (
-      let key = Bind.pl_l n in
-      match resolve acc bi key with
+      let key = SE.key_of n in
+      match resolve ctx bi key with
       | Some s ->
           (* procedures are not values in the P0 subset *)
-          if List.mem_assoc key acc.procs_by_name then
+          if SE.procedure ctx.env key <> None then
             raise_err ~line D.e_call
               ("procedure " ^ key ^ " used as a value: P0 admits calls only")
           else wrap s.H.sty H.Pure line (H.Var { sid = s.sid; addressable = true })
       | None ->
-          if List.mem_assoc key acc.procs_by_name then
+          if SE.procedure ctx.env key <> None then
             raise_err ~line D.e_call
               ("procedure " ^ key ^ " used as a value: P0 admits calls only")
           else
@@ -252,18 +199,18 @@ let rec lower_expr acc (bi : block_info) (e : Ast.expr) : H.expr =
             raise_err ~line D.e_unresolved
               ("identifier " ^ n.Ast.orig
               ^ " resolved by NO bind row in this or any enclosing block"))
-  | Ast.Econd inner -> lower_expr acc bi inner (* parentheses carry no semantics here *)
+  | Ast.Econd inner -> lower_expr ctx bi inner (* parentheses carry no semantics here *)
   | Ast.Eprefix (pfx, inner) -> (
       match pfx with
       | Ast.Minus ->
-          let x = lower_arith acc bi inner in
+          let x = lower_arith ctx bi inner in
           wrap x.H.ex_ty x.H.ex_ef x.H.ex_line (H.Neg { e = x })
       | _ ->
           raise_err ~line D.e_expr
             "prefix form outside the P0 subset (only unary minus of a fixed value)")
   | Ast.Ebinary (op, l, r) -> (
       match op with
-      | Ast.Add | Ast.Sub | Ast.Mul -> lower_arith_node acc bi op l r e
+      | Ast.Add | Ast.Sub | Ast.Mul -> lower_arith_node ctx bi op l r e
       | Ast.EqR rop ->
           (* a comparison reaching the arithmetic path (e.g. inside an argument)
              is a CONDITION value: permitted only under IF/WHILE heads, which
@@ -276,7 +223,7 @@ let rec lower_expr acc (bi : block_info) (e : Ast.expr) : H.expr =
             "binary operator outside the P0 subset (lowered: + - * arithmetic and \
              = ^= < <= > >= only under IF/DO WHILE heads)")
   | Ast.Esuffix ({ e = Ast.Eident f; _ }, args) ->
-      lower_call acc bi line (Bind.pl_l f) args
+      lower_call ctx bi line (SE.key_of f) args
   | _ ->
       raise_err ~line D.e_expr
         "expression form outside the P0 HIR subset (lowered: integer literals, \
@@ -284,8 +231,8 @@ let rec lower_expr acc (bi : block_info) (e : Ast.expr) : H.expr =
          calls; string/bit/picture literals, built-ins and qualified references \
          are not)"
 
-and lower_arith acc bi (e : Ast.expr) : H.expr =
-  let x = lower_expr acc bi e in
+and lower_arith ctx bi (e : Ast.expr) : H.expr =
+  let x = lower_expr ctx bi e in
   match x.H.ex_ty with
   | H.Fixed_bin _ -> x
   | H.Condty ->
@@ -295,10 +242,10 @@ and lower_arith acc bi (e : Ast.expr) : H.expr =
       raise_err ~line:x.H.ex_line D.e_type
         ("arithmetic operand has type " ^ H.pp_ty t ^ "; P0 admits FIXED BINARY only")
 
-and lower_arith_node acc bi op l r e =
+and lower_arith_node ctx bi op l r e =
   let line = e.Ast.epos.line in
-  let x = lower_arith acc bi l in
-  let y = lower_arith acc bi r in
+  let x = lower_arith ctx bi l in
+  let y = lower_arith ctx bi r in
   let p1, p2 =
     match (x.H.ex_ty, y.H.ex_ty) with
     | H.Fixed_bin (p1, 0), H.Fixed_bin (p2, 0) -> (p1, p2)
@@ -319,7 +266,7 @@ and lower_arith_node acc bi op l r e =
      result is CLAMPED and the clamp is named in the node's typing string —
      a representation choice, not a DR law. *)
   let rp, rule =
-    match acc.profile.Target.max_fixed_precision.value with
+    match ctx.profile.Target.max_fixed_precision.value with
     | Some m when rp > m ->
         ( m,
           rule ^ "; clamped to profile ceiling " ^ string_of_int m
@@ -347,12 +294,12 @@ and relop_name = function
   | Ast.Gt -> ">" | Ast.Ge -> ">="
 
 (* conditions: P0 admits exactly relational comparisons of fixed values. *)
-and lower_cond acc bi (e : Ast.expr) : H.expr =
+and lower_cond ctx bi (e : Ast.expr) : H.expr =
   let line = e.Ast.epos.line in
   match e.Ast.e with
   | Ast.Ebinary (Ast.EqR rop, l, r) ->
-      let x = lower_arith acc bi l in
-      let y = lower_arith acc bi r in
+      let x = lower_arith ctx bi l in
+      let y = lower_arith ctx bi r in
       let op =
         match rop with
         | Ast.Eq -> H.Eq | Ast.Ne -> H.Ne | Ast.Lt -> H.Lt | Ast.Le -> H.Le
@@ -360,23 +307,22 @@ and lower_cond acc bi (e : Ast.expr) : H.expr =
       in
       wrap H.Condty (ef_union x.ex_ef y.ex_ef) line
         (H.Bin { op; left = x; right = y; typing = "language-rule:relational" })
-  | Ast.Econd inner -> lower_cond acc bi inner
+  | Ast.Econd inner -> lower_cond ctx bi inner
   | _ ->
       raise_err ~line D.e_expr
         "condition shape outside the P0 subset (only relational comparisons of \
          FIXED BINARY expressions; AND/OR chains, ^, built-in conditions require \
          evaluation-order evidence, see backend-boundary.md §1.6)"
 
-(* calls: the callee identity is bind's procedure registry (pl_procs entries
-   collected into acc.procs_by_name); argument COUNT is checked against bind's
-   own formal cells (pl_ptrs), never against a re-derived signature. *)
-and lower_call acc bi line (key : string) (args : Ast.expr list) : H.expr =
+(* calls: the callee identity is the env's procedure registry; argument COUNT
+   is bind's own formal-cell count (sptr_count), never a re-derived signature. *)
+and lower_call ctx bi line (key : string) (args : Ast.expr list) : H.expr =
   let pid =
-    match List.assoc_opt key acc.procs_by_name with
+    match SE.procedure ctx.env key with
     | Some pid -> pid
     | None ->
         (* maybe an array/built-in suffix call — all out of P0, name them distinctly *)
-        (match resolve acc bi key with
+        (match resolve ctx bi key with
         | Some _ ->
             raise_err ~line D.e_expr
               ("indexed/bounded reference " ^ key ^ " is outside the P0 subset (arrays unlowered)")
@@ -384,28 +330,28 @@ and lower_call acc bi line (key : string) (args : Ast.expr list) : H.expr =
             raise_err ~line D.e_unresolved
               ("call target " ^ key ^ " is no bind-registered procedure"))
   in
-  let callee = proc_info acc pid in
+  let callee = SE.block_of_pid ctx.env pid in
   let nformal =
-    match callee.bi_proc with
-    | Some pl -> List.length pl.Bind.pl_ptrs
-    | None -> List.length callee.bi_ast.Ast.bparams
+    match callee.SE.esig with
+    | Some s -> s.SE.sptr_count
+    | None -> List.length callee.SE.east.Ast.bparams
   in
   if List.length args <> nformal then
     raise_err ~line D.e_call
       ("call to " ^ key ^ " passes " ^ string_of_int (List.length args) ^ " arguments to "
       ^ string_of_int nformal ^ " bind-registered formals");
-  let hargs = List.map (fun a -> lower_arith acc bi a) args in
+  let hargs = List.map (fun a -> lower_arith ctx bi a) args in
   let () =
-    match callee.bi_proc with
-    | Some { Bind.pl_rec = true; _ } | Some { Bind.pl_attr_rec = true; _ } ->
+    match callee.SE.esig with
+    | Some { SE.srec = true; _ } | Some { SE.sattr_rec = true; _ } ->
         raise_err ~line D.e_call
           ("recursive procedure " ^ key ^ " is outside the P0 subset")
     | _ -> ()
   in
   let rty =
-    match callee.bi_proc with
-    | Some { Bind.pl_ret = Some rt; _ } -> (
-        match ty_of_rt rt with
+    match callee.SE.esig with
+    | Some { SE.sret = Some st; sret_pr = Some pr; _ } -> (
+        match ty_of_rt st ~pr with
         | Ok t -> t
         | Error s -> raise_err ~line D.e_type ("procedure result type " ^ s ^ " outside P0 subset"))
     | _ -> raise_err ~line D.e_call
@@ -414,15 +360,13 @@ and lower_call acc bi line (key : string) (args : Ast.expr list) : H.expr =
   let ef = List.fold_left (fun accx a -> ef_union accx a.H.ex_ef) H.Pure hargs in
   wrap rty ef line (H.Call_e { pid; args = hargs })
 
-and proc_info acc pid = List.find (fun b -> b.bi_pid = pid) acc.blocks
-
 (* ---------- statements ---------- *)
 
-let rec lower_stmts acc bi (ss : Ast.stmt list) : H.stmt list =
-  List.concat_map (lower_stmt acc bi) ss
+let rec lower_stmts ctx bi (ss : Ast.stmt list) : H.stmt list =
+  List.concat_map (lower_stmt ctx bi) ss
 
 (* a grouped target (DO; ... END;) becomes a list; anything else a singleton. *)
-and flatten_group _acc (_bi : block_info) (s : Ast.stmt) : Ast.stmt list =
+and flatten_group _ctx (_bi : SE.block_env) (s : Ast.stmt) : Ast.stmt list =
   match s.Ast.st with
   | Ast.Sdobegin l -> l
   | Ast.Sproc bs ->
@@ -438,7 +382,7 @@ and flatten_group _acc (_bi : block_info) (s : Ast.stmt) : Ast.stmt list =
       else [ s ]
   | _ -> [ s ]
 
-and lower_stmt acc bi (s : Ast.stmt) : H.stmt list =
+and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
   let line = s.Ast.spos.line in
   let node k = [ { H.st = k; st_line = line } ] in
   match s.Ast.st with
@@ -461,9 +405,9 @@ and lower_stmt acc bi (s : Ast.stmt) : H.stmt list =
           if d.dpre <> None then
             raise_err ~line D.e_decl "preprocessor-spliced declaration is outside the P0 subset"
           ;
-          let key = Bind.pl_l d.dname in
-          match List.assoc_opt key bi.bi_syms with
-          | Some sy -> node (H.Declare sy.sid)
+          let key = SE.key_of d.dname in
+          match List.assoc_opt key bi.SE.esyms with
+          | Some sy -> node (H.Declare sy.SE.esid)
           | None ->
               raise_err ~line D.e_decl
                 ("declaration " ^ d.dname.orig ^ " produced no bind row in this block"))
@@ -471,14 +415,14 @@ and lower_stmt acc bi (s : Ast.stmt) : H.stmt list =
   | Ast.Sassign { lhs; rhs } -> (
       match lhs.Ast.e with
       | Ast.Eident n -> (
-          let key = Bind.pl_l n in
-          match resolve acc bi key with
+          let key = SE.key_of n in
+          match resolve ctx bi key with
           | Some sy ->
-              if List.mem_assoc key acc.procs_by_name then
+              if SE.procedure ctx.env key <> None then
                 raise_err ~line D.e_call ("assignment target " ^ key ^ " names a procedure")
               ;
               let t = wrap sy.H.sty H.Pure lhs.Ast.epos.line (H.Var { sid = sy.sid; addressable = true }) in
-              let v = lower_expr acc bi rhs in
+              let v = lower_expr ctx bi rhs in
               let v =
                 if v.H.ex_ty <> sy.sty then
                   match (v.H.ex_ty, sy.sty) with
@@ -504,36 +448,42 @@ and lower_stmt acc bi (s : Ast.stmt) : H.stmt list =
           raise_err ~line D.e_expr
             "only simple variable assignment targets are lowered in the P0 subset")
   | Ast.Sif { cond; then_; els } ->
-      let cond' = lower_cond acc bi cond in
-      let then' = lower_stmts acc bi (flatten_group acc bi then_) in
+      let cond' = lower_cond ctx bi cond in
+      let then' = lower_stmts ctx bi (flatten_group ctx bi then_) in
       let else' =
         match els with
-        | Some e -> lower_stmts acc bi (flatten_group acc bi e)
+        | Some e -> lower_stmts ctx bi (flatten_group ctx bi e)
         | None -> []
       in
       node (H.If { cond = cond'; then_ = then'; else_ = else' })
   | Ast.Sdowhile { cond; body } ->
-      let cond' = lower_cond acc bi cond in
-      let body' = lower_stmts acc bi (flatten_group acc bi body) in
+      let cond' = lower_cond ctx bi cond in
+      let body' = lower_stmts ctx bi (flatten_group ctx bi body) in
       node (H.While { cond = cond'; body = body' })
   | Ast.Sstop None -> node H.Stop
   | Ast.Sstop (Some _) ->
       raise_err ~line D.e_stmt "STOP with a code argument is outside the P0 subset"
   | Ast.Sreturn eo -> (
-      let proc = proc_info acc bi.bi_pid in
-      let ret_rt = match proc.bi_proc with Some { Bind.pl_ret = r; _ } -> r | None -> None in
-      match (eo, ret_rt) with
+      (* bind's RETURNS fact for THIS block, as a typed signature (§P1-b.3):
+         sret/sret_pr are mapped together by the env — the Some/None split is
+         an env invariant, so one arm covers both. *)
+      let ret_spec =
+        match SE.signature ctx.env bi.SE.epid with
+        | Some { SE.sret = Some st; sret_pr = Some pr; _ } -> Some (st, pr)
+        | _ -> None
+      in
+      match (eo, ret_spec) with
       | None, _ -> node (H.Return None)
       | Some _, None ->
           raise_err ~line D.e_conv
             "RETURN with a value in a procedure bind gave no RETURNS fact"
-      | Some e, Some rt -> (
+      | Some e, Some (st, pr) -> (
           let want =
-            match ty_of_rt rt with
+            match ty_of_rt st ~pr with
             | Ok t -> t
             | Error s -> raise_err ~line D.e_type ("result type " ^ s ^ " outside P0 subset")
           in
-          let v = lower_expr acc bi e in
+          let v = lower_expr ctx bi e in
           let v =
             if v.H.ex_ty <> want then
               match (v.H.ex_ty, want) with
@@ -551,27 +501,27 @@ and lower_stmt acc bi (s : Ast.stmt) : H.stmt list =
   | Ast.Sprocedure_stmt { target; args } -> (
       match target.Ast.e with
       | Ast.Eident n ->
-          let key = Bind.pl_l n in
-          (match List.assoc_opt key acc.procs_by_name with
+          let key = SE.key_of n in
+          (match SE.procedure ctx.env key with
           | Some pid ->
-              let callee = proc_info acc pid in
-              (match callee.bi_proc with
-              | Some { Bind.pl_ret = Some _; _ } ->
+              let callee = SE.block_of_pid ctx.env pid in
+              (match callee.SE.esig with
+              | Some { SE.sret = Some _; _ } ->
                   raise_err ~line D.e_call
                     ("statement-level call to function " ^ key ^ " discards a value; unlowered in P0")
               | _ -> ());
               let nformal =
-                match callee.bi_proc with
-                | Some pl -> List.length pl.Bind.pl_ptrs
-                | None -> List.length callee.bi_ast.Ast.bparams
+                match callee.SE.esig with
+                | Some s -> s.SE.sptr_count
+                | None -> List.length callee.SE.east.Ast.bparams
               in
               if List.length args <> nformal then
                 raise_err ~line D.e_call
                   ("call to " ^ key ^ " passes " ^ string_of_int (List.length args)
                   ^ " arguments to " ^ string_of_int nformal ^ " bind-registered formals");
-              let hargs = List.map (fun a -> lower_arith acc bi a) args in
-              (match callee.bi_proc with
-              | Some { Bind.pl_rec = true; _ } | Some { Bind.pl_attr_rec = true; _ } ->
+              let hargs = List.map (fun a -> lower_arith ctx bi a) args in
+              (match callee.SE.esig with
+              | Some { SE.srec = true; _ } | Some { SE.sattr_rec = true; _ } ->
                   raise_err ~line D.e_call ("recursive procedure " ^ key ^ " is outside the P0 subset")
               | _ -> ());
               node (H.Call_s { pid; args = hargs })
@@ -592,189 +542,84 @@ and lower_stmt acc bi (s : Ast.stmt) : H.stmt list =
         (* statement-only BEGIN/DO block: bind merged its scope into this one, so
            its statements execute inline here. Dropping them would be exactly the
            silent lowering F9 forbids. *)
-        lower_stmts acc bi ib.Ast.bstmts
+        lower_stmts ctx bi ib.Ast.bstmts
   | k ->
       raise_err ~line D.e_stmt
         ("statement " ^ refuse_name k ^ " is outside the P0 HIR subset")
 
 (* ---------- top level ---------- *)
 
-(* Mirror of codegen rows_of's two-authority guard: when the outermost block is
-   a procedure-only module (bind's pl_top), every bind_rows name must appear in
-   the section layout, else refuse (same rule, same reason; a structural
-   consistency check over two bind views, not an independent resolution). *)
-let check_top_authority (blk : Ast.block) (plan : Bind.prog_layout) : unit =
-  match plan.Bind.pl_top with
-  | None -> ()
-  | Some tp ->
-      let missing =
-        List.filter
-          (fun (n, _rt, _o, _a) ->
-            not
-              (List.exists
-                 (fun (x, _rt, _o) -> String.equal x n)
-                 tp.Bind.pl_rows))
-          (Bind.bind_rows blk)
-      in
-      if missing <> [] then
-        raise_err ~line:(block_line blk) D.e_decl
-          ("declaration "
-             ^ (match List.hd missing with n, _, _, _ -> n)
-             ^ " is outside bind's section layout for a procedure-only module \
-                [C136 shape]")
-
-(* Pre-order registration walk over the Sproc block tree. bind's proc_layout
-   registry is flat and carries NO parent pointer (hop-1 measurement), so the
-   nesting SHAPE must be re-read from the AST — a structural traversal that
-   allocates ids and mirrors bind's own block discovery (bind_program's
-   collect descends through every Sproc child likewise); every NAME/TYPE/
-   signature fact below comes from bind (falsifier F6): a Bproc child with no
-   pl_procs entry is a hard refusal, never a silently invented block. *)
-let rec register_children acc (plan : Bind.prog_layout) (parent : block_info) :
-    unit =
-  List.iter
-    (fun (s : Ast.stmt) ->
-      match s.Ast.st with
-      | Ast.Sproc bs ->
-          let ib = bs.Ast.blk in
-          if ib.Ast.bkind = Ast.Bproc then begin
-            let key =
-              match ib.Ast.bname with
-              | Some n -> Bind.pl_l n
-              | None ->
-                  raise_err ~line:bs.Ast.bpos.line D.e_scope
-                    "anonymous procedure block: bind registers no procedure \
-                     without a name"
-            in
-            let pl =
-              match
-                List.find_opt
-                  (fun (p : Bind.proc_layout) -> String.equal p.Bind.pl_name key)
-                  plan.Bind.pl_procs
-              with
-              | Some p -> p
-              | None ->
-                  raise_err ~line:bs.Ast.bpos.line D.e_scope
-                    ("procedure " ^ key
-                    ^ " is not in bind's proc_layout registry \
-                       (second-authority guard)")
-            in
-            (match List.assoc_opt key acc.procs_by_name with
-            | Some _ ->
-                raise_err ~line:bs.Ast.bpos.line D.e_scope
-                  ("duplicate internal procedure name " ^ key
-                  ^ " (bind-legal? P0 refuses rather than guess)")
-            | None -> ());
-            let pid = acc.next_pid in
-            acc.next_pid <- pid + 1;
-            (* names complete BEFORE any body lowers: forward calls to later-
-               declared internal procedures are bind-legal. *)
-            acc.procs_by_name <- (key, pid) :: acc.procs_by_name;
-            let bi =
-              register_block acc parent.bi_scope pid ib
-                (List.map Bind.pl_l ib.Ast.bparams)
-                (Some pl)
-            in
-            register_children acc plan bi
-          end
-          else
-            (* BEGIN/DO blocks share the parent's scope (bind has no per-BEGIN
-               scoping — hop-1); descend for PROCEDURE DISCOVERY only. *)
-            register_children acc plan parent
-      | _ -> ())
-    parent.bi_ast.Ast.bstmts
-
 let build (blk : Ast.block) (profile : Target.profile) :
     (H.program, D.t list) result =
   try
+    (* THE one semantic-authority call in this file (§P1-b.3, falsifier S5):
+       everything the rest of the path reads crosses via Semantic_env. *)
     let plan = Bind.bind_program blk in
-    let acc =
-      { profile;
-        plan;
-        next_sid = 0;
-        next_scope = 0;
-        next_pid = 1; (* pid 0 is the outermost block *)
-        blocks = [];
-        procs_by_name = []
-      }
-    in
-    check_top_authority blk plan;
-    (* 1. outermost block: pid 0, scope 0. A procedure-only module (bind's
-          pl_top) is the program entry AND a named call target; a MAIN program
-          has no bind proc record for its outer block and no module name. *)
-    let main_pl = if Bind.top_is_proc blk then plan.Bind.pl_top else None in
-    (match main_pl with
-    | Some tp ->
-        acc.procs_by_name <- (tp.Bind.pl_name, 0) :: acc.procs_by_name
-    | None -> ());
-    let main_bi = register_block acc 0 0 blk [] main_pl in
-    (* 2. pre-order registration of nested procedures; pids/scopes/sids follow
-          source order (bind rows are declaration-ordered — hop-1 measurement). *)
-    register_children acc plan main_bi;
-    (* 3. HIR construction: pid 0 first, then procs in allocation order. *)
-    let blocks =
-      List.sort (fun a b -> compare a.bi_pid b.bi_pid) acc.blocks
-    in
-    let params_of (bi : block_info) : int list =
-      List.map
-        (fun (n : Ast.name) ->
-          match List.assoc_opt (Bind.pl_l n) bi.bi_syms with
-          | Some s -> s.H.sid
-          | None ->
-              (* bind gives an undeclared formal no row (hop-1 proposal, tested
-                 on H04): P0 requires the explicit formal dcl. *)
-              raise_err ~line:n.Ast.pos.line D.e_decl
-                ("explicit formal dcl required in P0: parameter " ^ n.Ast.orig
-                ^ " produced no bind row"))
-        bi.bi_ast.Ast.bparams
-    in
-    let ret_of (bi : block_info) : H.ty option =
-      match bi.bi_proc with
-      | Some { Bind.pl_ret = Some rt; _ } -> (
-          match ty_of_rt rt with
-          | Ok t -> Some t
-          | Error s ->
-              raise_err ~line:(block_line bi.bi_ast) D.e_type
-                ("procedure result type " ^ s ^ " outside the P0 HIR subset"))
-      | _ -> None
-    in
-    let procs =
-      List.map
-        (fun bi ->
-          { H.pid = bi.bi_pid;
-            name = (match bi.bi_ast.Ast.bname with
-                   | Some n -> Some n.Ast.orig
-                   | None -> None);
-            is_main = bi.bi_pid = 0;
-            scope = bi.bi_scope;
-            params = params_of bi;
-            ret = ret_of bi;
-            (* body = the block's statements; nested Sproc Bproc definitions
-               drop out here and lower as their own pid entries (§lower_stmt). *)
-            body = lower_stmts acc bi bi.bi_ast.Ast.bstmts
-          })
-        blocks
-    in
-    let syms =
-      List.sort (fun a b -> compare a.H.sid b.H.sid)
-        (List.concat_map (fun bi -> List.map snd bi.bi_syms) blocks)
-    in
-    let scopes =
-      List.sort (fun a b -> compare a.H.scope_id b.H.scope_id)
-        (List.map
-           (fun bi ->
-             { H.scope_id = bi.bi_scope;
-               parent = bi.bi_parent;
-               skind =
-                 (if bi.bi_pid = 0 then H.Program_scope
-                 else H.Proc_scope bi.bi_pid)
-             })
-           blocks)
-    in
-    Ok
-      { H.profile_name = profile.Target.name;
-        scopes;
-        syms;
-        procs
-      }
+    match SE.create blk plan with
+    | Error ds -> Error ds (* env registration guards, verbatim diagnostics *)
+    | Ok env ->
+        let ctx = { profile; env; syms = [] } in
+        project_syms ctx;
+        (* HIR construction: pid 0 first, then procs in allocation order. *)
+        let blocks = SE.blocks env in (* already pid-ascending = pre-order *)
+        let params_of (bi : SE.block_env) : int list =
+          List.map
+            (fun (n : Ast.name) ->
+              match List.assoc_opt (SE.key_of n) bi.SE.esyms with
+              | Some s -> s.SE.esid
+              | None ->
+                  (* bind gives an undeclared formal no row (hop-1 proposal, tested
+                     on H04): P0 requires the explicit formal dcl. *)
+                  raise_err ~line:n.Ast.pos.line D.e_decl
+                    ("explicit formal dcl required in P0: parameter " ^ n.Ast.orig
+                    ^ " produced no bind row"))
+            bi.SE.east.Ast.bparams
+        in
+        let ret_of (bi : SE.block_env) : H.ty option =
+          match bi.SE.esig with
+          | Some { SE.sret = Some st; sret_pr = Some pr; _ } -> (
+              match ty_of_rt st ~pr with
+              | Ok t -> Some t
+              | Error s ->
+                  raise_err ~line:(SE.block_line bi.SE.east) D.e_type
+                    ("procedure result type " ^ s ^ " outside the P0 HIR subset"))
+          | _ -> None
+        in
+        let procs =
+          List.map
+            (fun bi ->
+              { H.pid = bi.SE.epid;
+                name = bi.SE.ename;
+                is_main = bi.SE.epid = 0;
+                scope = bi.SE.escope;
+                params = params_of bi;
+                ret = ret_of bi;
+                (* body = the block's statements; nested Sproc Bproc definitions
+                   drop out here and lower as their own pid entries (§lower_stmt). *)
+                body = lower_stmts ctx bi bi.SE.east.Ast.bstmts
+              })
+            blocks
+        in
+        let syms =
+          List.sort (fun a b -> compare a.H.sid b.H.sid)
+            (List.map snd ctx.syms)
+        in
+        let scopes =
+          List.sort (fun a b -> compare a.H.scope_id b.H.scope_id)
+            (List.map
+               (fun bi ->
+                 { H.scope_id = bi.SE.escope;
+                   parent = bi.SE.eparent;
+                   skind =
+                     (if bi.SE.epid = 0 then H.Program_scope
+                     else H.Proc_scope bi.SE.epid)
+                 })
+               blocks)
+        in
+        Ok
+          { H.profile_name = profile.Target.name;
+            scopes;
+            syms;
+            procs
+          }
   with Hir_error ds -> Error ds
