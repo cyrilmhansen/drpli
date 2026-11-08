@@ -9359,3 +9359,76 @@ Standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` 
 "$(opam env)"` EVERY shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier;
 `build/`+`ocaml/_build-*`+`ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no
 push; ledger ENDS C378, next id C379; the `nelem=1` crash stays RECORDED-not-fixed, out of P2).
+
+## E2E-53/P2 hop 3 — ARM-SITE CODE RECONNAISSANCE LANDED FIRST-HAND; EXECUTABLE BLUEPRINT; ZERO `ocaml/lib/` BYTE (2026-11-08, session 01a1b88b, chain renewal 6/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+**ACCEPTED (verified first-hand this hop).** Recovery: HEAD `5e871d19`; `dune build` rc=0 binary
+`8e51c261…` == tree; `golden/e53p2/` holds A..G + summary + 2 transcripts. ALL THREE DECODE FILES
+re-read byte-for-byte (`build/e53p2/decode/{sizes,code,reldump}.txt`) — every byte quoted by the
+hop-2 contract matches the kept evidence exactly (A `3E 03/32 RELOC 0000`, `21 RELOC 0002/36 05`;
+B `3A RELOC 0001`, ladder `6F 87 9F 67`, `22 RELOC 0004`, PUT `3A 0000`+ladder+`3E 07`+?QICOP/?PNVOP/?QIOOP;
+C `21 FFFF/E5/2A 04 00/D1/19/7E`+ladder+`3E 07`; D ladder+`36 04`; E DATA `41 42`@0000 size 000B,
+store `21@0002/11@0000/3E 03/06 02/?SMCCM`, PUT `21@0005/3E 03/?SLCTS/?PNCOP/?QIOOP`; F size 000D,
+`21 FFFF/E5/2A 0B 00/11 03 00/CD ?IM22N/D1/19`+SMCCM tail; G `2A 04 00/11 RELOC 0000/19/7E`+ladder).
+
+**ARM-SITE MAP (line numbers of the CURRENT tree, all read this hop).**
+- `bind.ml:1046` `if elem_sz <> 2 then failwith (msg)` inside `if nelem > 1`; rt type
+  `bind.ml:37-51`: `RTbin of int`, `RTchar of int*bool`; `bytes_of`: `RTbin p -> (p+8)/8` (149),
+  `RTchar(n,false) -> n` (166), `(n,true) -> 1+n` (167), `RTentry/RTlabel -> 0` (181). ALLOW LIST:
+  `RTbin 7 -> 1`, `RTchar (3,false) -> 3`, else existing `elem_sz = 2`; message string stays
+  BYTE-IDENTICAL (census pins DEPREC `0-byte`/OPTIMIST `9-byte [C159]` texts).
+- `dyn_ref` `codegen.ml:985-988` {dyn_base;dyn_bias;dyn_idx;dyn_adj}; constructed ONLY at
+  1039-1041 (bare idx, adj 0) and 1051-1053 (i+1, adj 1) — add `dyn_esz = ez` at both.
+  `dyn_addr` 1093-1117: bias=0 `emit_idx; DAD H; LXI D,opnd; DAD D`; bias≠0 `LXI H,opnd; PUSH H;
+  emit_idx; DAD H; POP D; DAD D`. `call_ext` (1123) emits `CD/slot/CHAIN-EXT` — use for ?IM22N.
+  Opcodes present: op_lxi_d 0x11(585), op_dad_d 0x19(589), op_push_h 0xe5(637), op_pop_d 0xd1(638),
+  op_mvi_a 0x3e(639), op_mvi_m 0x36(644), op_lxi_h, op_lhld, op_dad_h, op_xchg, op_mov_a_m 0x7e,
+  op_inx_h. **NO `op_sta`/`op_lda` constants** — the Vbit1 PUT arm uses inline `d st 0x3a (* LDA *),
+  follow that style: STA = `d st 0x32 (* STA *)`.
+- READ `lower_hl` array arm 4555-4570: `Suf_element addr -> op_lhld; reloc Data addr`;
+  `Suf_element_dyn r -> dyn_addr; 0x5e; op_inx_h; 0x56; op_xchg`. ez obtainable via
+  `List.find … st.arrays (hd name)` (4th tuple element).
+- STORE arm 10835+: `self_k` form-4 first, then `dyn_r` literal/computed split, then form 1 (off=0,
+  hl_const/SHLD), form 2 (literal `LXI H/MVI M pair/INX/MVI M`), form 3 (computed PARKED pair).
+- `store_char` 5900; `~dst` callback applied at 5967 BEFORE the tail; `Vfix cap` arm 5995-6008
+  refuses len=0 / len>cap / len=cap (SNS3 keeps) and otherwise emits EXACTLY
+  `LXI D,*S / MVI A,cap / MVI B,len / ?SMCCM` — the E526E/F measured tail; element dst =
+  `~dst:(fun () -> d st op_lxi_h; reloc st Data addr)` (const) or `~dst:(fun () -> dyn_addr st r)`.
+- PUT `PInum` arm 13290+: `vbvar_item` re-dispatch precedent 13299-13345 (vk known HERE,
+  classification is syntax-only — `classify_item` 2349 sends every Esuffix-with-args to PInum);
+  numeric tail 13376-13380 `lower_hl; op_mvi_a; num_width; ?QICOP; tail false ()`. Char-element
+  arm emits `LXI H,*D(elem)` (or dyn ladder) `+ MVI A,cap + ?SLCTS + tail true ()` (E526E;
+  refuse if is_edit). `num_width` Esuffix-array arm (~12400) reads st.vars `.w` — hop-2 accepted
+  `w = binw 7 = 7` so `MVI A,07` needs NO change. st.vars kinds: RTchar(n,false) -> Vfix n
+  (16278/13820); RTbin arm 16215; `vk_of` refuses whole-array names via whole_array_msg.
+
+**EXECUTABLE ARM BLUEPRINT (successor; bytes ONLY as measured — H-A..H-G verdicts in hop 2).**
+(a) bind: allow-list above. (b) `dyn_addr` dispatch on `dyn_esz`: 2 = existing VERBATIM; 1 = same
+forms with the `DAD H` doubling ABSENT (bias≠0 `LXI H,opnd/E5/emit_idx/D1/19`; bias=0
+`emit_idx/LXI D,opnd/19`); 3 = bias≠0 ONLY: `LXI H,opnd/E5/emit_idx/LXI D,0003/call_ext ?IM22N/D1/19`;
+`dyn_adj <> 0` at 1 and 3 REFUSE; bias=0 at 3 REFUSE; any other ez REFUSE. (c) read: ez=1 const
+`LDA/reloc addr + 6F 87 9F 67`; dyn `dyn_addr + 7E + 6F 87 9F 67`; ez=3 in lower_hl REFUSE
+(char element as numeric value unmeasured). (d) store: ez=1 literal 0<=v<=127 ONLY — const off=0
+`3E v / 32 RELOC addr`; const off≠0 `21 RELOC addr / 36 v`; dyn `<ladder> / 36 v`; computed value,
+self-update and v outside 0..127 REFUSE at ez≠2. (e) ez=3 store: rhs `Estring v` ->
+`store_char ~dst st nm (Vfix 3) v` (const/dyn dst above); every other rhs REFUSE. (f) PInum char
+item as above. (g) NEW TRAP found this hop (accepted): element-as-ACTUAL (arm 4619/4786-4820/5055) —
+the [E2E-22/P3] width guard compares the RTbin formal `fw` with element `aw`, so a bin(7) element +
+`fixed(7)` formal gives fw=aw=1 and SILENTLY rides the 2-byte-measured LXI H/SHLD descriptor with a
+1-byte element — add `aw <> 2` (and `dyn_ref dyn_esz <> 2`) REFUSE there. Build rc=0 ZERO Error.
+
+**STATUS:** ZERO `ocaml/lib/` byte, ZERO probes compiled, ZERO oracle, ZERO claims; ledger ENDS
+**C378**; inventory 1316/190; coverage 145/95; goldens VERBATIM `d55ec7b5`. SUCCESSOR = hop-2
+contract steps (a)-(j) (PROGRESS.md `## Next action`) executed ON THIS BLUEPRINT: arm (incl. trap
+(g)) -> parity FRESH POSITIONAL whole-file cmp 7/7 rc=0 vs `golden/e53p2/` (mismatch = record+STOP,
+never fit bytes) -> legacy falsifiers SNS4 + DEPREC/LABELS/MPMCALLA/OPTIMIST keep
+`0-byte`/`9-byte [C159]` VERBATIM (move = LEAKED ARM, revert) + EXPR1/REPORT/COPYLPT unmodified ->
+tail (fingerprint fresh --build-dir grep Error; hist 68/124 COMPUTED; sweep build/e52p3/sweep.py
+E46N E46K E51 E52 P086 R10 FAILS 0 COMPUTED vs 194/0+7; markers argv 16 P1 names + N6/N45_GETSUB/
+E46K15; DEC 64/0; divcheck 9/9) -> REAL --update-inventory (1316/190, +7, never force) -> census
+OWN path (expect 16/0/25/0) -> **C379 measured-bytes-only BEFORE ANY spec/COVERAGE.tsv touch** ->
+coverage FIRST-HAND (row 7 AGG.ARRAY_1D_FIXED EXTEND vs NEW AGG.ARRAY_1D_STRIDED + explicit
+spec/COVERAGE-IDS.txt; NEVER coverage_gen.py) -> FULL gate rc=0 DIRECT build/gate-e53p2-reg.log ->
+RESULTS §P2 + PLAN §4 row (7-pipe assert RUN IN CODE, LINE-anchor) + §P2 CLOSED -> durables + guard
+blocks VERBATIM. Standing constraints per PROTOCOL Part 2 anchor; `nelem=1` crash RECORDED never
+fixed; chain renewals 6/12 after this switch, cap 12.
