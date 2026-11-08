@@ -15,11 +15,9 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-08T02:28:38",
+ "generated": "2026-11-08T02:58:32",
  "git_dirty_paths": [
   "M handoff.config.json",
-  " M spec/INVENTORY.txt",
-  " M tools/e2e_gate.py",
   "?? S2.PLI",
   "?? S2.log",
   "?? S3.PLI",
@@ -80,7 +78,7 @@
   "?? ocaml/scratch-p314/",
   "?? ocaml/scratch-p318/"
  ],
- "git_head": "9ac4181aaf7f37cf52647d45a94db7de03762f5d",
+ "git_head": "6622344aaed26326485e4f11747f6f83dc5ec245",
  "rows": [
   {
    "dir_present": true,
