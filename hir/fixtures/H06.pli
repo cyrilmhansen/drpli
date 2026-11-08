@@ -1,0 +1,7 @@
+h06: procedure options(main);
+   dcl c char(3);
+   dcl x fixed bin(15);
+   x = 1;
+   stop;
+end h06;
+

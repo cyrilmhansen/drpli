@@ -1,0 +1,11 @@
+h07: procedure options(main);
+   dcl x fixed bin(15);
+   x = g(2);
+   stop;
+   g: procedure(q) returns(fixed bin(15));
+      dcl r fixed bin(15);
+      r = 1;
+      return (r);
+   end g;
+end h07;
+
