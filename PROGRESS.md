@@ -3583,17 +3583,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 597
-checkpoint-id: g597-a0f1fd2f39ad
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-guard-level: 4
-checkpointed: 2026-11-08T08:21:34.159Z
+checkpoint-generation: 599
+checkpoint-id: g599-b3d0d86a8bdc
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+guard-level: 0
+checkpointed: 2026-11-08T10:37:01.233Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: feb2fc9022c17cf35fba4748fcc44c4ab6fe5d6322d1590db2068275a2035acb
+source-progress: 3d2b98457c613179715ce01c2e5d95035ebf43c37570c2a8114c6da1f9cd7a03
 source-handoff: 7bad7585fde870da53ecd912d8d96a8de86a7532d15b86621c8e0ba422ebda78
-source-learnings: ab2acce0fcbd3a321274666f1777cb8f8563a274d9981c417ebae58b99e7edb6
+source-learnings: 4350ab96cfbd7f005cbb8b495fd1ff42bb27ccf2ca76e937b109dae41dbddfa0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-11 CODEGEN-ONLY list VERBATIM (LEARNINGS § hop 10 + hop 9 §§ have every anchor), then parity 5/5 → falsifiers (B/F/H vs baseline) → tail → inventory 1323/190 +5 → census (3 msgs MOVE) → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 + CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 6/12 cap 12.
 0a-e53-12. **E2E-53/P3 hop 9 (partial) — SITE MAP FULLY RE-VERIFIED FIRST-HAND; TWO CORRECTIONS; ARM EXECUTION OWED (session 01a1ba02, chain renewal 5/12; ZERO oracle; ZERO `ocaml/lib/` byte):** g590 blocks committed VERBATIM `1c3ca158`; durables `da69f0f9`; binary `cb906871…` == tree PRE-ARM. Every bind/codegen anchor re-confirmed with exact line numbers + full locked design = **LEARNINGS § "E2E-53/P3 hop 9"** (read FIRST). CORRECTION-1 (proposed, verify at run): entry arrays (`entryy⇒stc`) likely die AT BIND on `[C159/AB5]` after the sizing arms, not at codegen — record actual death VERBATIM; only a sudden EXACT is a LEAKED ARM. CORRECTION-2 (accepted): RTentry→2 shadow is layout-safe (scalar entries take `o=0`, bind 1080/1086 guards); B/H preserved by the LHS-class candidate test. Prescan verified safe. SUCCESSOR: PROGRESS.md `## Next action` hop-10 contract VERBATIM — FIRST measure pre-arm deaths of ALL E527A..H (`cb906871…`, `build/e53p3/pre-arm-hop10/`), then arm bind+codegen → parity 5/5 fresh positional cmp vs `golden/e53p3/` (mismatch=record+STOP never fit) → falsifiers → tail (fingerprint supersedes `cb906871…`; hist 68/124; sweep 194/0+5; markers 19; DEC 64/0; divcheck 9/9) → inventory 1323/190+5 → census (3 msgs MOVE VERBATIM) → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 + CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM; corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 6/12 cap 12.
@@ -4285,6 +4285,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1ba2f-1308-7124-92a5-8460b4c7845e
+readiness-at: 2026-11-08T10:37:01.268Z
+readiness-checkpoint: g599-b3d0d86a8bdc
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -1693,22 +1693,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 597
-checkpoint-id: g597-a0f1fd2f39ad
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4988, session 01a1ba2f-1308-7124-92a5-8460b4c7845e)
-checkpointed: 2026-11-08T08:21:34.159Z
+checkpoint-generation: 599
+checkpoint-id: g599-b3d0d86a8bdc
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 0, remaining ~83226, session 01a1ba2f-1308-7124-92a5-8460b4c7845e)
+checkpointed: 2026-11-08T10:37:01.233Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: feb2fc9022c17cf35fba4748fcc44c4ab6fe5d6322d1590db2068275a2035acb
+source-progress: 3d2b98457c613179715ce01c2e5d95035ebf43c37570c2a8114c6da1f9cd7a03
 source-handoff: 7bad7585fde870da53ecd912d8d96a8de86a7532d15b86621c8e0ba422ebda78
-source-learnings: ab2acce0fcbd3a321274666f1777cb8f8563a274d9981c417ebae58b99e7edb6
+source-learnings: 4350ab96cfbd7f005cbb8b495fd1ff42bb27ccf2ca76e937b109dae41dbddfa0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1ba2f-1308-7124-92a5-8460b4c7845e
+readiness-at: 2026-11-08T10:37:01.268Z
+readiness-checkpoint: g599-b3d0d86a8bdc
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 0; checkpoint requested (finalize: E2E-53/P3 hop 12 COMPLETE (session 01a1ba2f, renewal 7/12, ZERO oracle, BYTE TIER ONLY). C/G tail adjudicated FIRST-HAND from kept goldens and armed: stop-window law — a MAIN-level label definition below `stop;' emits its recovery pad (code), so DR still emits the epilogue CALL ?STOPX (E527C CODE 0030) and the nested proc branch-over guard (E527G C3 at 0023 chained to 0035); bounded by R10 (entry NAME is not such a label) and E25G/E34A6/E34A7 (in-procedure labels do not reopen MAIN's window) — both bounds falsified into existence, final condition `slabels <> [] && stop_seen && not in_proc && st <> Sproc`. PARITY 5/5 BYTE-EXACT (A/C/D/E/G cmp rc=0 vs golden/e53p3/ VERBATIM 6b3dbef4). Falsifiers B/H/F deaths and nelem=1 crash UNCHANGED VERBATIM; DEPREC/MPMCALLA moved to bind [C159/AB5] (CORRECTION-1 predicted), LABELS to codegen char store from non-literal [TBD] — recorded verbatim, none became EXACT. Registered 5 SPECIMENS in tools/e2e_gate.py; inventory 1328/190; census snapshot rewritten (16/0/25/0); sweep 201/0 FAILS/28 expected refusals; FULL GATE rc=0 TWICE (build/gate-e53p3-reg.log, -reg2.log): 1328/1328 byte-exact, 190/190 NEG, 9/9 DIV, coverage 149 rows 0/0, prose 5. Armed fingerprint fed67d24297d5e85ffc6b74d654c44e8c066ad23d757762306d31f62f597cb5a (fresh --build-dir, ZERO Error), supersedes half-arm 9a6bccdb and pre-arm cb906871. [C380] written BEFORE any coverage touch (ledger ENDS C380, 203 headers); coverage by hand (NEVER coverage_gen): row 101 TRAN.COMPUTED_GOTO -> ACCEPTS/PARTIAL EXACT:1 (not retired; const-subscript/non-label targets still refuse with the computed GOTO phrase) + 3 new rows TRAN.LABEL_VALUE_CELL EXACT:3 / TRAN.LABEL_AS_ACTUAL EXACT:1 / TRAN.STOP_TAIL_WINDOW EXACT:2 + explicit COVERAGE-IDS. Commits: b7544b61 (codegen arm+gate+inventory+census), c792bf9e (C380+coverage+durables), 1f31b577 (coverage stats). HOP 13 CONTRACT (PROGRESS.md ## Next action): tail checks hist 68/124 + markers argv 19 + DEC 64/0 + divcheck 9/9 still UNCOMPUTED this hop; then RESULTS.md §P3 + PLAN.md §4 row + §P3 CLOSED (LINE-anchor, pipe assert in code), one more gate rc=0 to build/gate-e53p3-reg3.log, then open the NEXT campaign from PLAN §2/§5 with pre-registration BEFORE any oracle; HANDOFF line 0a-e53-13. NEVER stage handoff.config.json (ambient-modified, unstaged), build/, dir.txt; no push; chain 7/12 cap 12.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2406,5 +2409,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-53/P3 hop 11: CODEGEN ARM ONLY (pure execution). Durable HEAD dcc74286; tree binary 9a6bccdb… is a HALF-ARM (bind armed, codegen.ml UNTOUCHED/PRE-ARM) — NEVER a fingerprint. Read LEARNINGS § “hop 10 (partial)” FIRST (pre-arm baseline in build/e53p3/pre-arm-hop10/: B/H must keep dying `undeclared e (no declaration in scope)`; F must keep dying VERBATIM `codegen: computed GOTO deferred [TBD]` — the final Sgoto catch stays untouched and last; C/D/E pass bind now), then hop-9 §. Execute PROGRESS.md `## Next action` hop-11 items (3a)-(3h) VERBATIM (Vlbl kind; lbl_arrs init 15877/save 14034/set 14103/restore 14272; vars-fold RTlabel arm before 16653 + remove RTlabel from death arm; lower_proc locals RTlabel arm refusing pl_arrays names; lbl_val_operand + lower_label_assign beside label_def; Sassign 14303 candidate dispatch; plain goto 14563 Vlbl-first LHLD/+deref-if-in-st.deref/E9; computed 14589 label-array bare-Eident ladder+deref+E9, ALL refusals keep phrase `computed GOTO`). Bind law learned: layout rows are FLAT 4-tuples (no assoc); never splice a let-rec into the refs chain. Then build rc=0 → parity 5/5 fresh positional cmp vs golden/e53p3 into build/e53p3/arm-out (mismatch=record+STOP never fit) → falsifiers (SNS4/sweep byte-identical; OPTIMIST 9-byte unmoved; DEPREC/LABELS/MPMCALLA new deaths VERBATIM — DEPREC/MPMCALLA predicted bind AB5 per CORRECTION-1; B/F/H UNCHANGED vs baseline; nelem=1 crash unchanged; EXPR1/REPORT/COPYLPT UNMODIFIED; N6 phrase) → tail (fingerprint fresh --build-dir supersedes 9a6bccdb…/cb906871…; hist 68/124; sweep 194/0+5; markers argv 19; DEC 64/0; divcheck 9/9) → REAL --update-inventory (1323/190 +5) → census (3 msgs MOVE VERBATIM) → C380 measured-bytes-only BEFORE coverage → coverage row 101 + NEW entry/label rows + explicit IDS → FULL gate rc=0 build/gate-e53p3-reg.log → RESULTS §P3 + PLAN §4 row + §P3 CLOSED → durables+guard. Config NEVER staged; no push; chain 6/12 cap 12.
+E2E-53/P3 hop 12 COMPLETE (session 01a1ba2f, renewal 7/12, ZERO oracle, BYTE TIER ONLY). C/G tail adjudicated FIRST-HAND from kept goldens and armed: stop-window law — a MAIN-level label definition below `stop;' emits its recovery pad (code), so DR still emits the epilogue CALL ?STOPX (E527C CODE 0030) and the nested proc branch-over guard (E527G C3 at 0023 chained to 0035); bounded by R10 (entry NAME is not such a label) and E25G/E34A6/E34A7 (in-procedure labels do not reopen MAIN's window) — both bounds falsified into existence, final condition `slabels <> [] && stop_seen && not in_proc && st <> Sproc`. PARITY 5/5 BYTE-EXACT (A/C/D/E/G cmp rc=0 vs golden/e53p3/ VERBATIM 6b3dbef4). Falsifiers B/H/F deaths and nelem=1 crash UNCHANGED VERBATIM; DEPREC/MPMCALLA moved to bind [C159/AB5] (CORRECTION-1 predicted), LABELS to codegen char store from non-literal [TBD] — recorded verbatim, none became EXACT. Registered 5 SPECIMENS in tools/e2e_gate.py; inventory 1328/190; census snapshot rewritten (16/0/25/0); sweep 201/0 FAILS/28 expected refusals; FULL GATE rc=0 TWICE (build/gate-e53p3-reg.log, -reg2.log): 1328/1328 byte-exact, 190/190 NEG, 9/9 DIV, coverage 149 rows 0/0, prose 5. Armed fingerprint fed67d24297d5e85ffc6b74d654c44e8c066ad23d757762306d31f62f597cb5a (fresh --build-dir, ZERO Error), supersedes half-arm 9a6bccdb and pre-arm cb906871. [C380] written BEFORE any coverage touch (ledger ENDS C380, 203 headers); coverage by hand (NEVER coverage_gen): row 101 TRAN.COMPUTED_GOTO -> ACCEPTS/PARTIAL EXACT:1 (not retired; const-subscript/non-label targets still refuse with the computed GOTO phrase) + 3 new rows TRAN.LABEL_VALUE_CELL EXACT:3 / TRAN.LABEL_AS_ACTUAL EXACT:1 / TRAN.STOP_TAIL_WINDOW EXACT:2 + explicit COVERAGE-IDS. Commits: b7544b61 (codegen arm+gate+inventory+census), c792bf9e (C380+coverage+durables), 1f31b577 (coverage stats). HOP 13 CONTRACT (PROGRESS.md ## Next action): tail checks hist 68/124 + markers argv 19 + DEC 64/0 + divcheck 9/9 still UNCOMPUTED this hop; then RESULTS.md §P3 + PLAN.md §4 row + §P3 CLOSED (LINE-anchor, pipe assert in code), one more gate rc=0 to build/gate-e53p3-reg3.log, then open the NEXT campaign from PLAN §2/§5 with pre-registration BEFORE any oracle; HANDOFF line 0a-e53-13. NEVER stage handoff.config.json (ambient-modified, unstaged), build/, dir.txt; no push; chain 7/12 cap 12.
 <!-- guard:end checkpoint -->
