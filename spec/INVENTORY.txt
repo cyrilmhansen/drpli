@@ -736,6 +736,11 @@ E526D	specimen	probes/E526D.PLI	golden/e53p2/E526D/E526D.REL
 E526E	specimen	probes/E526E.PLI	golden/e53p2/E526E/E526E.REL
 E526F	specimen	probes/E526F.PLI	golden/e53p2/E526F/E526F.REL
 E526G	specimen	probes/E526G.PLI	golden/e53p2/E526G/E526G.REL
+E527A	specimen	probes/E527A.PLI	golden/e53p3/E527A/E527A.REL
+E527C	specimen	probes/E527C.PLI	golden/e53p3/E527C/E527C.REL
+E527D	specimen	probes/E527D.PLI	golden/e53p3/E527D/E527D.REL
+E527E	specimen	probes/E527E.PLI	golden/e53p3/E527E/E527E.REL
+E527G	specimen	probes/E527G.PLI	golden/e53p3/E527G/E527G.REL
 E52A	specimen	probes/E52A.PLI	golden/e52p1/E52A/E52A.REL
 E52B	specimen	probes/E52B.PLI	golden/e52p1/E52B/E52B.REL
 E52C	specimen	probes/E52C.PLI	golden/e52p1/E52C/E52C.REL

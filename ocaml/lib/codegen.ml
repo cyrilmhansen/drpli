@@ -14418,6 +14418,33 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
      silently disabled HL-constant reuse for EVERY statement and broke E24J
      (byte-identical DATA, one relocation record shifted). *)
   if s.Ast.slabels <> [] then st.last_imm <- None;
+  (* [E2E-53/P3 hop 12] a label definition AFTER an explicit `stop;' reopens the fall-out window.
+     The suppression laws (branch-over guard at lower_proc entry, epilogue `CALL ?STOPX' at the
+     main-block end) both read `st.stop_seen', and every prior golden has the stop as the LAST
+     emitted thing, so nothing has ever distinguished "stop seen" from "stop is still the tail".
+     E527C (`stop; lab2:;') and E527G (`stop; lab1:; P: procedure...') do: DR emits lab2's recovery
+     PAD -- real CODE bytes below the stop -- and then still emits its epilogue CALL (C:
+     `002D CD 00 00' + CHAIN-EXT ?STOPX, DEF-CODE-SIZE 0030) and G still emits its branch-over
+     guard (`0023 C3 00 00', operand backpatched out-of-band to the epilogue at 0035 by the
+     existing emit_triple path).  Clearing here, at the label-prefix site, is exactly the law the
+     two objects measure: the pad the label emits displaces the stop.  A procedure declaration with
+     NO preceding label after the stop emits nothing at that point, so the window stays closed and
+     every existing stop-tail golden is untouched.
+     FALSIFIED FIRST-HAND by R10 (golden/e2e177/R10, DEF-CODE-SIZE 004C, NO epilogue CALL): a
+     procedure declaration IS parsed with its name in `slabels', so the unqualified test above let
+     `stop; f: procedure...' reopen the window and emit a guard R10 has no bytes for.  The law is
+     therefore about the LABELLED STATEMENT whose lowering emits code (the recovery pad), never about
+     a procedure's entry name, and the arm EXCLUDES `Sproc'.
+     FALSIFIED AGAIN, same session, by THREE byte-exact goldens (gate `build/gate-e53p3-h12.log':
+     E25G first diff byte 88, E34A6 420, E34A7 451): each declares a label INSIDE a nested
+     procedure whose DECLARATION sits below main's `stop;' (E25G `jmp:', E34A6/A7 `z:'), and those
+     labels must NOT reopen MAIN's window — `stop_seen' there is main's epilogue law, read only by
+     main-level decisions.  The condition is therefore scoped `not st.in_proc' as well.
+     (A `stop;' followed only by an unlabelled statement lowers no code either -- unmeasured, and
+     deliberately NOT covered by this line.) *)
+  if s.Ast.slabels <> [] && st.stop_seen && not st.in_proc
+     && (match s.Ast.st with Ast.Sproc _ -> false | _ -> true)
+  then st.stop_seen <- false;
   match s.Ast.st with
   | Ast.Sassign { lhs; rhs } ->
       (* [E2E-53/P3 hop 11] LABEL-VALUE dispatch (hop-9 CORRECTION-2; the whole point of the

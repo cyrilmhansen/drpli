@@ -2931,6 +2931,39 @@ SPECIMENS.update({
 })
 
 SPECIMENS.update({
+    # [E2E-53/P3] E527A..E527G -- THE LABEL/ENTRY VALUE CLASS (campaign e53p3 5 ok / 3
+    # dr-refuses; goldens golden/e53p3/ KEPT VERBATIM 6b3dbef4; A/C/D/E/G `.PRN' NO ERROR(S)
+    # both passes; B/H `TYPES NOT=' and F `ARG COUNT' are DR's OWN pass-2 refusals, kept as
+    # falsifiers by name).  Bytes re-read FIRST-HAND from build/e53p3/decode/ + the whole-file
+    # cmps in build/e53p3/arm-out/ (all five rc=0 at hop 12):
+    #   E527A 128 B, code 29, data 2: scalar `dcl x label' cell @0000 + SP-save @0002; BACKWARD
+    #     store `x=lab1' = `21 +RELOC code 000D / 22 +RELOC data 0000' (LXI H,<pad start>/SHLD);
+    #     DEF-DATA-SIZE 0004, DEF-CODE-SIZE 001D.
+    #   E527C 256 B, code 45: `dcl z(3) label' cells 0000/0002/0004, SP-save 0006; offset-0 store
+    #     takes the SHLD form; z(2)=lab2 FORWARD is the pair `21 +RELOC data 0002 / 11 00 00 /
+    #     73 23 72' with LINK-CHAIN-ADDR into the LXI D slot 001E (hop-3 correction: the value is
+    #     the PAD address, chained, never a self-address).
+    #   E527D 128 B, code 45, data 4: DYNAMIC subscript = the EXISTING stride-2 ladder `21 +RELOC
+    #     data 0000 / E5 / 2A +RELOC data 0000 / 29 / D1 / 19' (bias -lb*2 STILL a DATA reloc) then
+    #     the pair with a PLAIN backward value `11 +RELOC code 000D'.
+    #   E527E 128 B, code 30, data 4: `goto z(i)' COMPUTED GOTO = the same ladder + `5E 23 56 EB'
+    #     (HL=[HL]) + `E9' PCHL; NO pad and NO SP-save because no label value is ever materialised
+    #     (hop-3 pad-demand law), DEF-DATA-SIZE 0008.
+    #   E527G 256 B, code 50: label-var ACTUAL rides the EXISTING pointer-formal descriptor route
+    #     (hidden cell @0004 = DATA reloc of x's cell; call `21 +RELOC data 0004 / CD'); forward
+    #     store `x=lab1' = `21 00 00' + CHAIN-ADDR slot 000E; callee `goto g' = `LHLD 0006 / 5E 23
+    #     56 EB / E9'.  Its tail also pins the NEW stop-window law (hop 12): a MAIN-level label
+    #     below `stop;' emits its pad, and DR still emits the branch-over guard `C3 00 00' at 0023
+    #     (backpatched to the epilogue CALL ?STOPX at 0035) and the epilogue itself; R10 and the
+    #     in-procedure-label probes E25G/E34A6/E34A7 bound the rule on both sides.
+    "E527A": ("probes/E527A.PLI", "golden/e53p3/E527A/E527A.REL"),
+    "E527C": ("probes/E527C.PLI", "golden/e53p3/E527C/E527C.REL"),
+    "E527D": ("probes/E527D.PLI", "golden/e53p3/E527D/E527D.REL"),
+    "E527E": ("probes/E527E.PLI", "golden/e53p3/E527E/E527E.REL"),
+    "E527G": ("probes/E527G.PLI", "golden/e53p3/E527G/E527G.REL"),
+})
+
+SPECIMENS.update({
     "E524A": ("probes/E524A.PLI", "golden/e52p19/E524A/E524A.REL"),
     "E524B": ("probes/E524B.PLI", "golden/e52p19/E524B/E524B.REL"),
     "E524C": ("probes/E524C.PLI", "golden/e52p19/E524C/E524C.REL"),
