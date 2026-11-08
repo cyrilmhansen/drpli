@@ -2901,6 +2901,35 @@ SPECIMENS.update({
     "E525D": ("probes/E525D.PLI", "golden/e53p1/E525D/E525D.REL"),
 })
 
+# [E2E-53/P2] E526A..E526G -- NON-2-BYTE 1-D FIXED ARRAY panel (campaign e53p2 7 ok/7,
+# EVERY .PRN NO ERROR(S) both passes; goldens golden/e53p2/ KEPT VERBATIM d55ec7b5).
+# Bytes re-read FIRST-HAND from build/e53p2/decode/{sizes,code}.txt at hop 5:
+#   E526A 19 B code, 0 data: dcl a(4) fixed bin(7); stride-1 CONSTANT stores -- offset 0
+#     `3E 03 / 32 00 00' (MVI A,v; STA *D(0000)); offset 2 `21 02 00 / 36 05' (LXI H,*D; MVI M,v).
+#     NO multiply -- no DAD H, no ?IM22N (H-C FALSIFIED). ext slots 4 ?START, 17 ?STOPX.
+#   E526B 46 B: stride-1 CONSTANT read `b=a(2)' = `3A 01 00 + ladder 6F 87 9F 67' + SHLD 0004;
+#     put list(a(1)) = attach 11 52 02 / LXI B,002B / ?SYSPR / LDA+ladder / 3E 07 / ?QICOP(35)
+#     ?PNVOP(38) ?QIOOP(41) / ?STOPX(44): numeric tail with MVI A,07 from the ELEMENT kind.
+#   E526C 43 B: put list(a(i)) DYNAMIC stride-1 = `21 FF FF / E5 / 2A 04 00 / D1 / 19 / 7E' +
+#     ladder + 3E 07 + tail (bias-0 form: LHLD index, no base LXI H needed -- base fold FFFF).
+#   E526D 20 B: a(i)=4 dynamic store = ladder then `36 04' (MVI M,v). ext 4 ?START, 18 ?STOPX.
+#   E526E 45 B code, 2 B data: d(1)='AB' char(3) STORE = `21 02 00 / 11 00 00 / 3E 03 / 06 02 /
+#     ?SMCCM(17)' (V106 len<cap on the ELEMENT address); put list(d(2)) = LXI H,*D(0005) folded
+#     CONSTANT elem addr / 3E 03 element extent / ?SLCTS(34) / ?PNCOP(37) / ?QIOOP(40).
+#   E526F 34 B, 2 B data: d(i)='AB' stride-3 DYNAMIC = `21 FF FF / E5 / 2A 0B 00 / 11 03 00 /
+#     ?IM22N(17) / D1 / 19' (OPTIMIST ladder verbatim with 0003) then SMCCM cell (29).
+#   E526G 41 B: a(0:3) LOWER BOUND 0 -- bias-0 dynamic read `2A 04 00 / 11 00 00 / 19 / 7E' +
+#     ladder; numeric tail 3E 07; ext 30/33/36/39.
+SPECIMENS.update({
+    "E526A": ("probes/E526A.PLI", "golden/e53p2/E526A/E526A.REL"),
+    "E526B": ("probes/E526B.PLI", "golden/e53p2/E526B/E526B.REL"),
+    "E526C": ("probes/E526C.PLI", "golden/e53p2/E526C/E526C.REL"),
+    "E526D": ("probes/E526D.PLI", "golden/e53p2/E526D/E526D.REL"),
+    "E526E": ("probes/E526E.PLI", "golden/e53p2/E526E/E526E.REL"),
+    "E526F": ("probes/E526F.PLI", "golden/e53p2/E526F/E526F.REL"),
+    "E526G": ("probes/E526G.PLI", "golden/e53p2/E526G/E526G.REL"),
+})
+
 SPECIMENS.update({
     "E524A": ("probes/E524A.PLI", "golden/e52p19/E524A/E524A.REL"),
     "E524B": ("probes/E524B.PLI", "golden/e52p19/E524B/E524B.REL"),
