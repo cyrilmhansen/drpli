@@ -9,3 +9,9 @@
  (modules pli80hir)
  (libraries pli80 pli80_hir)
  (flags (:standard -warn-error -a)))
+
+(executable
+ (name semtest)
+ (modules semtest)
+ (libraries pli80 pli80_hir)
+ (flags (:standard -warn-error -a)))

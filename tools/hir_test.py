@@ -22,6 +22,23 @@ Checks, all judged against MEASURED text (pre-registered §P0.8):
      bytes_of, op_-prefixed opcode constants, 0x hex literals or 8080 mnemonics;
      `Hir.ty` carries no size/offset field (words verified against stripped code).
 
+E2E-54/P1-b additions (PLAN §P1-b.4, falsifiers S5-S8):
+
+  6. Semantic authority (S6): every POSITIVE fixture additionally runs
+     ocaml/_build/default/hir/semtest.exe, which judges the LIVE env against
+     bind (never against dump text). Live runs must exit 0 with stdout exactly
+     `SEMANTIC-AUTHORITY OK <n> refs / <m> syms` and EMPTY stderr; the
+     `--corrupt` control must exit 1 with ZERO stdout and a stderr whose every
+     line starts with `SEM-FAIL:` (the tool is not vacuous).
+  7. Determinism (S7): semtest also runs TWICE per positive fixture (live and
+     corrupt) in fresh processes with byte-identical (rc, stdout, stderr).
+  8. F10 Bind-seam audit (S5): after the comment strip, hir_build.ml mentions
+     `Bind` ONLY at the cross-library alias line and the single `bind_program`
+     call — the exact two lines are pinned; any other occurrence fails.
+  9. S8 env independence: after the comment strip, semantic_env.ml contains no
+     `\bHir\b` reference (the env is IR-independent). It also rides the F8 glob
+     automatically (all ocaml/hir/*.ml).
+
 F7/F8 grep OCaml sources AFTER stripping `(* ... *)` comments (nesting-aware),
 because module headers legitimately mention Rel80/Codegen in prose. The stripper
 tracks double-quoted strings (with escapes) but not char literals; measured
@@ -47,6 +64,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 CLI = REPO / "ocaml" / "_build" / "default" / "hir" / "pli80hir.exe"
+SEMTEST = REPO / "ocaml" / "_build" / "default" / "hir" / "semtest.exe"
 FIXDIR = REPO / "hir" / "fixtures"
 EXPDIR = REPO / "hir" / "expected"
 
@@ -116,6 +134,50 @@ def run_cli(fixture: Path) -> subprocess.CompletedProcess:
     )
 
 
+def run_semtest(fixture: Path, corrupt: bool = False) -> subprocess.CompletedProcess:
+    argv = [str(SEMTEST)] + (["--corrupt"] if corrupt else []) + [str(fixture)]
+    return subprocess.run(argv, capture_output=True, timeout=60)
+
+
+# stdout of a passing live run is exactly one line of this shape (§P1-b.4)
+SEM_OK_RE = re.compile(r"^SEMANTIC-AUTHORITY OK [0-9]+ refs / [0-9]+ syms\n$")
+
+
+def check_semtest(fixture: Path, name: str) -> None:
+    """S6/S7: live semantic-authority checks + the corrupt control."""
+    for corrupt in (False, True):
+        tag = "corrupt" if corrupt else "live"
+        s1 = run_semtest(fixture, corrupt)
+        s2 = run_semtest(fixture, corrupt)
+        if (s1.returncode, s1.stdout, s1.stderr) != (s2.returncode, s2.stdout, s2.stderr):
+            fail(f"{name} semtest/{tag}: non-deterministic across two fresh processes (S7)")
+            continue
+        if not corrupt:
+            if s1.returncode != 0:
+                fail(f"{name} semtest/live: rc={s1.returncode} (want 0); stderr={s1.stderr!r}")
+            if s1.stderr != b"":
+                fail(f"{name} semtest/live: stderr not empty: {s1.stderr!r}")
+            if not SEM_OK_RE.match(s1.stdout.decode(errors='replace')):
+                fail(f"{name} semtest/live: stdout {s1.stdout!r} is not exactly one "
+                     "SEMANTIC-AUTHORITY OK line (S6)")
+            else:
+                ok(f"{name} semtest/live: rc 0, {s1.stdout.decode().strip()!r}, deterministic")
+        else:
+            if s1.returncode != 1:
+                fail(f"{name} semtest/corrupt: rc={s1.returncode} (want 1) — the wrong-sid "
+                     "control must fail loudly, never OK (S6)")
+            if s1.stdout != b"":
+                fail(f"{name} semtest/corrupt: control emitted {len(s1.stdout)} stdout bytes")
+            lines = s1.stderr.decode(errors="replace").splitlines()
+            if not lines:
+                fail(f"{name} semtest/corrupt: empty stderr — control printed nothing")
+            elif not all(ln.startswith("SEM-FAIL:") for ln in lines):
+                fail(f"{name} semtest/corrupt: stderr lines not all SEM-FAIL: {lines!r}")
+            else:
+                ok(f"{name} semtest/corrupt: rc 1, ZERO stdout, {len(lines)} SEM-FAIL line(s) "
+                   "(non-vacuity control)")
+
+
 # ---------- checks 1, 2, 4 (fixtures) ----------
 
 F4_ALLOW = set()  # documented hex-shaped dump values; EMPTY at P0 close
@@ -151,6 +213,9 @@ def check_fixtures() -> None:
             for tok in re.findall(r"[0-9a-f]{6,}", r1.stdout.decode()):
                 if tok not in F4_ALLOW:
                     fail(f"{name}: dump contains undocumented hex-shaped token {tok!r} (F4)")
+            # P1-b §P1-b.4: positive fixtures additionally run the live-env
+            # semantic-authority binary and its corrupt control.
+            check_semtest(fx, name)
         elif exp_err.exists() and exp_rc.exists():
             want_rc = int(exp_rc.read_text().strip())
             if r1.returncode != want_rc:
@@ -209,19 +274,57 @@ def check_greps(label: str, files: list[Path], patterns: list[str]) -> None:
         ok(f"{label}: {len(files)} files clean of {len(patterns)} patterns (after nested-comment strip)")
 
 
+# ---------- P1-b seam greps (F10 / S8) ----------
+
+# F10 (S5): the ONLY Bind occurrences allowed in hir_build.ml code are the
+# cross-library alias and the single bind_program call — pinned exactly.
+F10_WANT = [
+    "module Bind = Pli80.Bind",
+    "let plan = Bind.bind_program blk in",
+]
+
+
+def check_seam() -> None:
+    hb = REPO / "ocaml" / "hir" / "hir_build.ml"
+    code = stripped(hb)
+    got = sorted(ln.strip() for ln in code.splitlines() if re.search(r"\bBind\b", ln))
+    if got != sorted(F10_WANT):
+        fail(f"F10 (Bind seam): hir_build.ml code lines mentioning Bind are {got!r}, "
+             f"want exactly {sorted(F10_WANT)!r}")
+    else:
+        ok("F10 (Bind seam): hir_build.ml references Bind only at the alias and the "
+           "single bind_program call")
+    se = REPO / "ocaml" / "hir" / "semantic_env.ml"
+    code2 = stripped(se)
+    hits = list(re.finditer(r"\bHir\b", code2))
+    if hits:
+        for m in hits:
+            ln = code2.count("\n", 0, m.start()) + 1
+            fail(f"S8 (env independence): ocaml/hir/semantic_env.ml:{ln} matches \\bHir\\b "
+                 "in code (after comment strip)")
+    else:
+        ok("S8 (env independence): semantic_env.ml code is free of \\bHir\\b (comment strip)")
+
+
 def main() -> int:
     if not CLI.exists():
         print(f"ERROR: CLI not built: {CLI}\n"
               "       run: cd ocaml && eval \"$(opam env)\" && dune build", file=sys.stderr)
         return 2
+    if not SEMTEST.exists():
+        print(f"ERROR: semtest not built: {SEMTEST}\n"
+              "       run: cd ocaml && eval \"$(opam env)\" && dune build", file=sys.stderr)
+        return 2
     check_fixtures()
     check_greps("F7 separation (historical backend free of HIR refs)", F7_FILES, F7_PATTERNS)
     check_greps("F8 HIR purity (no backend/byte-layout vocabulary)", F8_FILES, F8_PATTERNS)
+    check_seam()
     print()
     if FAILURES:
         print(f"HIR TEST FAILED: {len(FAILURES)} failure(s)")
         return 1
-    print("HIR TEST PASSED: fixtures deterministic + F4/F7/F8/F9 checks clean")
+    print("HIR TEST PASSED: fixtures deterministic + F4/F7/F8/F9 + "
+          "semtest S6/S7 + F10/S8 seam checks clean")
     return 0
 
 
