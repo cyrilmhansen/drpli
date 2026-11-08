@@ -174,6 +174,12 @@ and bytes_of = function
          cell holds a 16-bit data address, which is what `p = addr(z)' stores [LXI H,<DATA+off z>
          / SHLD <p>] and `LHLD <p>' reads.  The old citation was `[HYPOTHESIS] PROBE 57', whose
          probe has no .REL. *)
+  | RTlabel -> 2
+      (* [E2E-53/P3] E527A/E527G: a scalar LABEL variable occupies ONE 2-byte DATA cell in
+         declaration order (E527A x@0000 + SP-save@0002, DEF-DATA-SIZE 0004; E527G main x@0000,
+         SP@0002, hidden descriptor@0004).  The cell holds the label's recovery-PAD start -- a
+         code address, hence the store's `RELOC code' value operand.  ENTRY scalars keep 0
+         (DR refuses scalar ENTRY stores itself: E527B/E527H `.PRN' `TYPES NOT='). *)
   | RTbmem (_, _, _) -> 0   (* a view into an allocated record, not a variable *)
   | RTimem (_, _, _) -> 0   (* a NAME for a byte range the owning head already sized [E2E-39/P2] *)
   | RTstructrec (_, _) -> 0 (* the record type itself allocates nothing statically *)
@@ -1000,7 +1006,17 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
              Everything outside the characterized subset refuses loudly instead
              of sizing on a guess -- an under-sized array silently overlaps the
              next variable, which is exactly the C162 failure class. *)
-          let elem_sz = bytes_of rt in
+          (* [E2E-53/P3] LABEL and ENTRY ARRAY elements are 2-byte cells (E527C `dcl z(3) label'
+             z@0000/0002/0004; the corpus DEPREC/LABELS/MPMCALLA blockers size the same way),
+             which `bytes_of' reports as 0 for both classes -- ENTRY because it is a symbol, and
+             LABEL because its scalar arm below is new.  Shadow the SIZING only; `bytes_of'
+             stays truthful for the symbol tables, and every still-refused class keeps printing
+             its true size inside the byte-identical `[C159]' message below. *)
+          let elem_sz =
+            match rt with
+            | RTlabel | RTentry _ -> 2
+            | _ -> bytes_of rt
+          in
           let nelem, lb, ub =
             match item.ddims with
             | [] -> (1, 1, 1)
@@ -1058,6 +1074,10 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
             let elem_sz_measured =
               match rt with
               | RTbin 7 | RTchar (3, false) -> true
+              (* [E2E-53/P3] label arrays are DR-measured 2-byte cells (E527C/D/E); entry
+                 ARRAYS pass the sizing test but die on the STATIC `[C159/AB5]' refusal below
+                 (`entryy => stc'), which stays ahead -- DEPREC/MPMCALLA keep refusing. *)
+              | RTlabel | RTentry _ -> true
               | _ -> elem_sz = 2
             in
             if not elem_sz_measured then
@@ -1573,6 +1593,20 @@ let bind_members (blk : block) =
   let (_auto, _syms, _statics, _rows, _arrays, mems) = layout blk in
   mems
 
+(* [E2E-53/P3] the SAME second-view trick for LABEL/ENTRY-class ARRAY names: codegen needs to
+   know a subscripted store target `z(i)' is a label array (whose VALUE operand is a label, so
+   the store route differs) while the row `bind_rows' carries is the ELEMENT type.  Arrays
+   whose element declaration class is RTlabel/RTentry, lowercased, in layout order. *)
+let bind_label_arrays (blk : block) : string list =
+  let (_auto, _syms, _statics, rows, arrays, _mems) = layout blk in
+  List.filter_map
+    (fun (nm, _lb, _ub, _esz) ->
+      match List.find_opt (fun (rn, _rt, _o, _a) -> rn = nm) rows with
+      | Some (_rn, rt, _o, _auto) ->
+          (match rt with RTlabel | RTentry _ -> Some nm | _ -> None)
+      | None -> None)
+    arrays
+
 (* ---------- [E2E-5c] whole-program call layout (additive view) ----------
    Rules extracted from DR bytes, P401/P402/RFACT ($S + $C + .REL
    deferred-pair records) [C080]:
@@ -1660,7 +1694,14 @@ type call_site =
    itself with `NOT LABEL' (1 ERROR IN PASS 2, no .REL), in the same-block orientation too
    (T17 is main jumping to its own `sub:'), so a procedure name is not a transfer target and
    the plan exports the entry-label set to make codegen say so. *)
-type ref_kind = Rk_on | Rk_plain
+(* [E2E-53/P3] Rk_val: the label's VALUE is MATERIALIZED -- a bare label name on the RHS of an
+   assignment whose LHS is declared LABEL/ENTRY-class in this block (E527A/C/D/G all charge the
+   saved-SP cell AND the recovery pad exactly like an ON-unit; E527E's computed GOTO, where no
+   value is ever materialized, has NEITHER and so the subscripted `Sgoto' keeps charging
+   nothing).  Detection is by LHS DECLARATION CLASS, never by static offset. *)
+type ref_kind = Rk_on | Rk_plain | Rk_val
+
+let rk_str = function Rk_on -> ":on" | Rk_val -> ":val" | Rk_plain -> ":plain"
 
 type on_facts =
 { of_labels : string list (* labels OWNED by this block that carry a recovery pad [E2E-36] *)
@@ -1719,27 +1760,46 @@ let proc_entries (ss : Ast.stmt list) =
    not a same-block plain reference ([E36T11] would otherwise demand nothing and shift DATA).
    The handler's OTHER statements are still surveyed normally; a GOTO anywhere but last stays
    unmeasured and codegen refuses it BY NAME. *)
-let rec refs_stmts (ss : Ast.stmt list) = List.concat_map refs_stmt ss
-and refs_stmt (s : Ast.stmt) =
+(* [E2E-53/P3] `lcs' = the names declared LABEL- or ENTRY-class IN the block being surveyed
+   (see `label_class_names'); an assignment whose LHS head names one of them charges its bare
+   Eident RHS an Rk_val reference.  Dynamic LHS subscripts charge too (E527D `z(i) = lab1;'
+   carries the SP-save cell); the test is on the DECLARATION, never on the index form. *)
+let rec refs_stmts (lcs : string list) (ss : Ast.stmt list) =
+  List.concat_map (refs_stmt lcs) ss
+and refs_stmt (lcs : string list) (s : Ast.stmt) =
   match s.Ast.st with
   | Ast.Son { handler; _ } ->
       (match handler.Ast.st with
        | Ast.Sgoto { tgt = t; subscript = [] } -> [(lbl t, Rk_on)]
        | Ast.Sgoto _ -> []
-       | Ast.Sdobegin ss -> block_handler_refs ss
+       | Ast.Sdobegin ss -> block_handler_refs lcs ss
        | Ast.Sproc { blk = { Ast.bkind = Ast.Bbegin; bstmts = ss; _ }; _ } ->
-           block_handler_refs ss
-       | _ -> refs_stmt handler)
+           block_handler_refs lcs ss
+       | _ -> refs_stmt lcs handler)
   | Ast.Sgoto { tgt = t; subscript = [] } -> [(lbl t, Rk_plain)]
   | Ast.Sgoto _ -> []
+  | Ast.Sassign { lhs; rhs } ->
+      (match rhs.Ast.e with
+       | Ast.Eident rn ->
+           let head =
+             match lhs.Ast.e with
+             | Ast.Eident n -> Some (lbl n)
+             | Ast.Esuffix ({ Ast.e = Ast.Eident n; _ }, _) -> Some (lbl n)
+             | _ -> None
+           in
+           (match head with
+            | Some h when List.mem h lcs -> [(lbl rn, Rk_val)]
+            | _ -> [])
+       | _ -> [])
   | Ast.Sproc _ -> []
-  | Ast.Sdobegin ss -> refs_stmts ss
+  | Ast.Sdobegin ss -> refs_stmts lcs ss
   | Ast.Sif { then_; els; _ } ->
-      refs_stmt then_ @ (match els with Some e -> refs_stmt e | None -> [])
-  | Ast.Selse e -> refs_stmt e
-  | Ast.Sdowhile { body; _ } -> refs_stmt body
-  | Ast.Sdoto { body; _ } -> refs_stmt body
-  | Ast.Sdoforever body -> refs_stmt body
+      refs_stmt lcs then_
+      @ (match els with Some e -> refs_stmt lcs e | None -> [])
+  | Ast.Selse e -> refs_stmt lcs e
+  | Ast.Sdowhile { body; _ } -> refs_stmt lcs body
+  | Ast.Sdoto { body; _ } -> refs_stmt lcs body
+  | Ast.Sdoforever body -> refs_stmt lcs body
   | _ -> []
 
 (* [E2E-52/P3-6] the ON-unit demand of a BLOCK handler: a trailing bare GOTO charges Rk_on
@@ -1747,15 +1807,48 @@ and refs_stmt (s : Ast.stmt) =
    `BEGIN; ... END;' reaches Bind as a nameless Sproc block (bkind = Bbegin) while a bare
    `DO; ... END;' is an Sdobegin; both mean the same inline handler, and both are measured on
    E52SB / E52SC / LOAN2.REL 003A-0062. *)
-and block_handler_refs (ss : Ast.stmt list) =
+and block_handler_refs (lcs : string list) (ss : Ast.stmt list) =
   match ss with
   | [] -> []
   | _ ->
       let n = List.length ss in
       match (List.nth ss (n - 1)).Ast.st with
       | Ast.Sgoto { tgt = t; subscript = [] } ->
-          refs_stmts (List.take (n - 1) ss) @ [(lbl t, Rk_on)]
-      | _ -> refs_stmts ss
+          refs_stmts lcs (List.take (n - 1) ss) @ [(lbl t, Rk_on)]
+      | _ -> refs_stmts lcs ss
+
+(* [E2E-53/P3] names declared `dcl x label' or `dcl x entry ...' at this BLOCK level,
+   descending through plain nesting exactly like `own_labels_stmts' (a nested BEGIN belongs to
+   the SAME block; Ast.Sproc owns its own declarations and stops the walk).  `dcl x label;'
+   carries dtype NONE plus the LABEL attribute (bind.ml rt_of_dcl); ENTRY carries
+   `Some (Ast.Tentry _)'.  Dims are irrelevant -- a label ARRAY is detected by the same
+   declaration, matching `label_class' detection everywhere [C202: one rule, one walker]. *)
+let rec label_class_names (ss : Ast.stmt list) =
+  List.concat_map label_class_stmt ss
+and label_class_stmt (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sdcl items ->
+      List.filter_map
+        (fun (it : Ast.dcl) ->
+          if has_attr it.dattrs "LABEL"
+             ||
+             match it.dtype with
+             | Some (Ast.Tentry _) -> true
+             | _ -> false
+          then Some (lbl it.dname)
+          else None)
+        items
+  | Ast.Sdobegin ss -> label_class_names ss
+  | Ast.Sif { then_; els; _ } ->
+      label_class_stmt then_
+      @ (match els with Some e -> label_class_stmt e | None -> [])
+  | Ast.Selse e -> label_class_stmt e
+  | Ast.Sdowhile { body; _ } -> label_class_stmt body
+  | Ast.Sdoto { body; _ } -> label_class_stmt body
+  | Ast.Sdoforever body -> label_class_stmt body
+  | Ast.Son { handler; _ } -> label_class_stmt handler
+  | Ast.Sproc _ -> []
+  | _ -> []
 
 (* the ON-unit presence test, unchanged in meaning from [E2E-34]: any ON-unit written at this
    block level, of any condition, with any handler shape, turns on ?OFCOP for a procedure tail *)
@@ -1788,7 +1881,10 @@ let rec survey (b : Ast.block)
      cell to a block DR never even gets to lay out. *)
   let own =
     List.filter (fun x -> not (List.mem x procs)) (own_labels_stmts b.Ast.bstmts) in
-  let direct = List.map (fun (n, k) -> (n, k, true)) (refs_stmts b.Ast.bstmts) in
+  let lcs = label_class_names b.Ast.bstmts in
+  let direct =
+    List.map (fun (n, k) -> (n, k, true)) (refs_stmts lcs b.Ast.bstmts)
+  in
   let kids =
     List.filter_map
       (fun (s : Ast.stmt) -> match s.Ast.st with Ast.Sproc bs -> Some bs.Ast.blk | _ -> None)
@@ -1804,9 +1900,11 @@ let rec survey (b : Ast.block)
     List.fold_left
       (fun (dem, up) (nm, kind, local) ->
         if List.mem nm own then
-          (* resolved HERE.  Demanded if the ON-unit points at it, or if the reference came
-             from another block; a plain same-block GOTO does not demand a pad [E36T11]. *)
-          (if kind = Rk_on || not local then (nm :: dem, up) else (dem, up))
+          (* resolved HERE.  Demanded if the ON-unit points at it, if the label's VALUE is
+             materialized [E527A/C/D/G], or if the reference came from another block; a plain
+             same-block GOTO does not demand a pad [E36T11]. *)
+          (if kind = Rk_on || kind = Rk_val || not local then (nm :: dem, up)
+           else (dem, up))
         else
           (* not ours: an ancestor's, or nothing's -- either way it goes up unchanged *)
           (dem, (nm, kind) :: up))
@@ -1824,8 +1922,8 @@ let rec survey (b : Ast.block)
        (Printf.sprintf "[pad] block@%d own=%s procs=%s direct=%s kidrefs=%s demanded=%s up=%s"
           (match b.Ast.bstmts with x :: _ -> x.Ast.spos.Source.line | [] -> -1)
           (String.concat "," own) (String.concat "," procs)
-          (String.concat "," (List.map (fun (n2, k, _) -> n2 ^ if k = Rk_on then ":on" else ":plain") direct))
-          (String.concat "," (List.map (fun (n2, k) -> n2 ^ if k = Rk_on then ":on" else ":plain")
+          (String.concat "," (List.map (fun (n2, k, _) -> n2 ^ rk_str k) direct))
+          (String.concat "," (List.map (fun (n2, k) -> n2 ^ rk_str k)
                               (List.concat kid_unresolved)))
           (String.concat "," demanded)
           (String.concat "," (List.map fst upward))));
