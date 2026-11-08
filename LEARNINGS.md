@@ -9497,3 +9497,48 @@ measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HA
 `c8ed1b9a2d8c7e70…` (supersedes the UNARMED `8e51c261…`) == tree; goldens `golden/e53p2/`
 `d55ec7b5` KEPT VERBATIM, NEVER re-derived, `dir.txt` NEVER staged; `nelem=1` crash RECORDED never
 fixed; corpus blockers VERBATIM never fix; chain renewals 7/12 after this switch, cap 12.
+
+## E2E-53/P2 hop 5 — E526E FIXED: DISPATCH SHAPE, NOT THE GUARD; PARITY 7/7 BYTE-EXACT; TAIL+REGISTRATION LANDED (2026-11-09, session 01a1b8b4, chain renewal 8/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+- **ACCEPTED (root cause, first-hand):** the hop-4 inference "the char-arm guard never fires" was
+  **FALSIFIED** — a temporary TRACE-ITEM dump (method precedent [E2E-40/P10]) printed
+  `Esuffix hd=d nargs=1 hd_is_element=true ez=3 | arrays=[d[1:3]ez=3]`: the guard ALREADY held and
+  the arm DID emit `LXI H,*D(0005) / MVI A,03 / ?SLCTS / ?PNCOP`. The bug was the MATCH-FORM: hop 4
+  wrote the guard as a STATEMENT `(match ... with arms); <numeric tail>` — OCaml continued into
+  `lower_hl`/`num_width` right after the character item was complete, and `num_width` read the char
+  array's `st.vars` width (0) and raised `constant-only PUT numeric item unproven [TBD]`. Fix = the
+  arms return bool `char_item_emitted` and the numeric tail is `if not char_item_emitted then begin
+  ... end`. Parity FRESH POSITIONAL whole-file `cmp`: **7/7 rc=0** (`build/e53p2/hop5-parity/`),
+  E526E 256 B code=45 data=3 byte-exact. COMMITTED `9ac4181a` (codegen.ml only).
+- **ACCEPTED (tooling law):** `dune build 2>&1 | head -10; echo RC=$?` reports HEAD's rc and can
+  truncate a real error — an EARLY failed build left a stale exe and the backtrace line numbers
+  pointed BEFORE my edit (13631 vs 13657), which is how the staleness was caught. ALWAYS
+  `${PIPESTATUS[0]}` for dune; suspect a stale binary when backtrace lines contradict the file.
+- **ACCEPTED (contract erratum):** the hop contract's marker `N6` does not exist in REJECTS — the
+  real name is `N6_COMPUTED_GOTO`; with it, markers ran **19/19 MARKER_FAILS 0**
+  (`build/e53p2/markers-hop5.log`).
+- **ACCEPTED (falsifiers held):** SNS4 rc=0 BYTE-IDENTICAL vs `build/e53p2/sanity/SNS4.out.rel`;
+  DEPREC/LABELS/MPMCALLA keep `array of 0-byte elements [C159]`, OPTIMIST `array of 9-byte elements
+  [C159]` VERBATIM; EXPR1 (line 29 FLOAT), REPORT (line 27 KEYED), COPYLPT (line 65 SKIP-count)
+  blockers UNMODIFIED (`build/e53p2/hop5-falsify/`). No leaked arm.
+- **ACCEPTED (tail):** fresh `--build-dir _build-e53p2b` binary IDENTICAL — new ARMED fingerprint
+  `cb90687158d9662c74da60a60c88c71b2904476d765f464b3ed082f1374f9d7e` (supersedes `c8ed1b9a…`);
+  ZERO `Error` lines; warning histogram **68 codegen / 124 total == baseline**; sweep
+  **194 byte-exact / FAILS 0** (pre-reg baseline, `build/e53p2/sweep-hop5.log`); DEC **64/0**;
+  divcheck **9/9**.
+- **ACCEPTED (registration):** SPECIMENS +E526A..G with measured-byte comments (every size/slot
+  re-read FIRST-HAND from `build/e53p2/decode/{sizes,code}.txt` at this hop); py_compile rc=0; REAL
+  `--update-inventory` OWN output **1323 entries (1316+7)**, 190 refusals UNCHANGED; census
+  `--check` rc=0 counts IDENTICAL 16/0/25/0. COMMITTED `b2f0d474`.
+- SUCCESSOR (BINDING, the REMAINING hop-2 tail verbatim): **C379 measured-bytes-only BEFORE ANY
+  `spec/COVERAGE.tsv` touch** (claim the stride-1/stride-3 array laws + char PUT item + LOWER-bound
+  bias-0 form; reproduce EVERY cited byte first-hand from `build/e53p2/decode/`; the same byte map
+  is already vetted in the e2e_gate.py comment block at `b2f0d474`) → coverage FIRST-HAND (row 7
+  `AGG.ARRAY_1D_FIXED` EXTEND vs NEW `AGG.ARRAY_1D_STRIDED` + explicit `spec/COVERAGE-IDS.txt`;
+  NEVER `coverage_gen.py`; coverage_check expect 145 rows 0/0 SUPPORTED 95 + prose rc=0) → FULL gate
+  rc=0 DIRECT `python3 tools/e2e_gate.py > build/gate-e53p2-reg.log 2>&1` (expect **1323**/0,
+  **190**/190, 9/9, 145 rows, census 16/0/25/0, prose 5) → RESULTS §P2 + PLAN §4 row (7-pipe assert
+  RUN IN CODE, LINE-anchor) + §P2 CLOSED → durables + guard blocks VERBATIM.
+  STATE: HEAD `b2f0d474`; ARMED binary `cb906871…` == tree; ledger ENDS **C378** (next C379);
+  inventory **1323/190**; coverage 145/95; goldens `d55ec7b5` VERBATIM; `nelem=1` crash RECORDED
+  never fixed; no push; chain 8/12 cap 12.
