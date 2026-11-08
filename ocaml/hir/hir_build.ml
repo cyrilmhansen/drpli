@@ -126,8 +126,14 @@ let refuse_name (s : Ast.stmt_kind) : string =
 
 (* ---------- scope + symbol registration ---------- *)
 
-let find_dcl (blk : Ast.block) (key : string) : Ast.dcl option =
-  List.find_opt (fun d -> String.equal (Bind.pl_l d.Ast.dname) key) blk.Ast.bdecls
+(* Bind's OWN declaration flattener: the parser keeps dcls as Sdcl statements in
+   bstmts (blk.bdecls is [] for corpus-shaped programs — codegen.ml:15729 records
+   the same trap), so consulting bdecls alone silently yields "no declaration"
+   and every symbol falls back to the block line. Using [Bind.frame_decls] keeps
+   the semantic-reuse rule (§P0.4): the name->dcl channel is bind's, not ours. *)
+let find_dcl (blk : Ast.block) (key : string) : (Ast.dcl * int) option =
+  List.find_opt (fun (d, _l) -> String.equal (Bind.pl_l d.Ast.dname) key)
+    (Bind.frame_decls blk)
 
 let register_block acc parent_scope pid (blk : Ast.block)
     (binfo_formals : string list) (bi_proc : Bind.proc_layout option) : block_info =
@@ -151,14 +157,10 @@ let register_block acc parent_scope pid (blk : Ast.block)
         let d = find_dcl blk key in
         let sorig =
           match d with
-          | Some dd -> dd.Ast.dname.Ast.orig
+          | Some (dd, _) -> dd.Ast.dname.Ast.orig
           | None -> key (* formal without explicit dcl has no row; guards below catch it *)
         in
-        let sline =
-          match d with
-          | Some dd -> dd.Ast.dname.pos.line
-          | None -> block_line blk
-        in
+        let sline = match d with Some (_, l) -> l | None -> block_line blk in
         match ty_of_rt rt with
         | Ok ty ->
             let storage =
