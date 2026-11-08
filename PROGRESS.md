@@ -3649,17 +3649,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 627
-checkpoint-id: g627-b98efa8f741d
-checkpoint-kind: manual
+checkpoint-generation: 628
+checkpoint-id: g628-d631abf16860
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-guard-level: 0
-checkpointed: 2026-11-08T22:09:16.722Z
+guard-level: 4
+checkpointed: 2026-11-08T23:10:37.553Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3ee7bb24f869dd54b4696e4f8b89dcfbd657f1259eaf8b7cd2d5b01fd11f74b8
+source-progress: 3ab391fd3d854a7bfd33384cb379e1e6a95fe9b1d4b8ebfea7f98747fc39930d
 source-handoff: 74d7187f21ff490aa5c2d34a027d38919a40bcd5000b3c2e1dc0ed03191ea58e
-source-learnings: 5522be5ddadb5fbd92c3b15c1635a1b749346e135948ae79f12c6958aae5ea4c
+source-learnings: 9f0a9e4d514da7f2491f990256b7d4f11a8551ab8ceddb434990bf78e2e07d2d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED…)` — NOTHING IS AUTHORIZED: report closure, await the OPERATOR. P1-a/P2/P3+ and the recorded-defect repairs are PROPOSED ONLY (RESULTS §P1-b.6, §P0 §6); each slice needs its own pre-registration (PROTOCOL #1).** Ledger stays **C380** (203 headers); config never staged; no push; explicit-path commits.
 
@@ -4371,9 +4371,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1bd21-a020-71ea-9e0a-5c06e546de63
-readiness-at: 2026-11-08T22:09:16.758Z
-readiness-checkpoint: g627-b98efa8f741d
+readiness-by: session:01a1bd4d-a12c-73ad-8fbc-6a67fb7548e7
+readiness-at: 2026-11-08T23:11:07.413Z
+readiness-checkpoint: g628-d631abf16860
 <!-- guard:end checkpoint -->
 
 ## Blockers
