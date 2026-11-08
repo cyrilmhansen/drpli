@@ -37,7 +37,17 @@
 
    The public interface references NO [Hir] type: this env is backend-
    independent; Hir_build remains the only module mapping stype -> Hir.ty
-   (the HIR subset gate). *)
+   (the HIR subset gate).
+
+   E2E-54/P1-a1 amendment (PLAN §P1-a1.4): one-dimensional arrayness is projected
+   from bind's SECOND view of the same layout walk, [Bind.bind_arrays] — the only
+   array authority (facts A-1..A-8). Arrayness is a separate symbol field
+   ([e_array]), merged by lowered key onto the bind row; the row keeps the ELEMENT
+   type and bind's verbatim element rendering (fact A-1), bounds are carried as the
+   declared index limits only, and the record's physical element width is dropped at
+   the first touch like every other layout component. [resolve]/[symbol]/
+   [scope_syms] are unchanged: an array fact rides the eparent chain exactly as an
+   enclosing scalar does (fact A-8). *)
 
 (* Cross-library aliases (P0 F1 law: these units live in the separate
    [pli80_hir] library; the historical front end is reached through [Pli80]). *)
@@ -68,6 +78,15 @@ type stype =
   | SBuiltin
   | SEntry of { params : int; external_ : bool; ret : stype option
               ; ptypes : stype list }
+  | SArray1 of { elem : stype; lo : int; hi : int }
+      (** AMENDMENT to the pre-registered surface (§P1-a1.4): one-dimensional array
+          shape as a SEMANTIC pair of declared index bounds. [type_of_rt] NEVER
+              produces it — bind array rows carry the ELEMENT type (fact A-1) — so
+              arrayness arrives through the separate [bind_arrays] channel and is
+              merged onto the symbol below. This constructor exists so a merged
+              array symbol renders as an array (§P1-a1.4); it carries no stride,
+              no element width, no placement (those are layout, dropped at the
+              projection boundary exactly like the row offset). *)
 
 let rec type_of_rt (rt : Bind.rt) : stype =
   match rt with
@@ -123,10 +142,19 @@ let rec pp_stype (s : stype) : string =
       Printf.sprintf "%s PARAMETERS(%d)"
         (if external_ || ret <> None then "FUNCTION" else "ENTRY")
         params
+  | SArray1 { elem; lo; hi } ->
+      Printf.sprintf "%s ARRAY[%d:%d]" (pp_stype elem) lo hi
 
 (* ---------- symbols ---------- *)
 
 type storage = S_auto | S_static | S_formal
+
+(* The merged array description (§P1-a1.4). Declared index bounds are SEMANTIC
+   quantities (what the program says the array indexes are), never extents:
+   bind's fourth record component is the physical element width and is dropped
+   at the FIRST touch, in the [arrays_of] read below — it crosses nothing here
+   and nothing downstream (falsifier T6). *)
+type array1 = { a_elem : stype; a_lo : int; a_hi : int }
 
 type symbol = {
   esid : int;
@@ -137,6 +165,12 @@ type symbol = {
   epr : string;    (** bind's own rendering VERBATIM (Bind.rty_str of the row) *)
   estorage : storage;
   eline : int;     (** declaration line, from bind's frame_decls channel *)
+  e_array : array1 option;
+      (** AMENDMENT (P1-a1): [Some] = bind's array channel recorded this very name
+          in THIS block (facts A-1/A-8: arrayness is per-block and lives only in
+          [bind_arrays], so the merge is by lowered key). [None] = no array record —
+          which includes a written-but-unvalidated dimension such as [a(1)] (fact
+          A-5) and structure members (fact A-14, which never reach the channel). *)
 }
 
 (* ---------- procedure signatures (bind's own facts, projected) ---------- *)
@@ -232,6 +266,43 @@ let block_line (blk : Ast.block) : int =
           | Some p -> p.line
           | None -> 0))
 
+(* ---------- array channel (bind's second view of the SAME layout walk) ---------- *)
+
+(* [Bind.bind_arrays] is the ONE array authority (fact A-1); the projection reads
+   it per block (fact A-8/A-13: a nested procedure owns its own records) and keeps
+   ONLY the name and the two declared bounds. The record list is already in
+   declaration order and its names are already lowered by bind itself. *)
+let arrays_of (blk : Ast.block) : (string * int * int) list =
+  List.map
+    (fun (nm, lb, ub, _physical) -> (nm, lb, ub))
+    (Bind.bind_arrays blk)
+
+(* Split-channel guards (§P1-a1.4 guard law). bind produces rows and array
+   records from ONE layout walk, so a record with no row — or two records for one
+   name — is an internal inconsistency; the env refuses loudly rather than
+   guessing which view wins. No probe produced either shape (recorded honestly as
+   unexercised, like the P0 dup_free witness); the refusal rides the diagnostic
+   channel so the CLI reports it as a typed HIR-E14, never a crash. *)
+let guard_arrays (blk : Ast.block) (rows : (string * 'a * 'b) list)
+    (arrs : (string * int * int) list) : unit =
+  let rec dup_free = function
+    | (a, _, _) :: rest
+      when List.exists (fun (b, _, _) -> String.equal a b) rest ->
+        refuse ~line:(block_line blk) D.e_dims
+          ("duplicate bind array records for " ^ a
+             ^ " (split-channel inconsistency)")
+    | _ :: rest -> dup_free rest
+    | [] -> ()
+  in
+  dup_free arrs;
+  List.iter
+    (fun (nm, _lb, _ub) ->
+      if not (List.exists (fun (k, _, _) -> String.equal k nm) rows) then
+        refuse ~line:(block_line blk) D.e_dims
+          ("bind array record for " ^ nm
+             ^ " has no matching row (split-channel inconsistency)"))
+    arrs
+
 (* ---------- registration (pre-order id assignment, EXACTLY as at aaf295f0) ---------- *)
 
 type acc = {
@@ -263,6 +334,9 @@ let register_block st parent_scope pid (blk : Ast.block) (formals : string list)
     | [] -> ()
   in
   dup_free rows;
+  (* P1-a1: the block's array records, read once, guards run, then merged by key. *)
+  let arrs = arrays_of blk in
+  guard_arrays blk rows arrs;
   let syms =
     List.map
       (fun (key, rt, auto) ->
@@ -278,11 +352,22 @@ let register_block st parent_scope pid (blk : Ast.block) (formals : string list)
           else if auto then S_auto
           else S_static
         in
+        let ety = type_of_rt rt in
+        (* The merge (§P1-a1.4): a row whose lowered key carries an array record
+           gains the description; its [ety]/[epr] stay the ELEMENT type and bind's
+           verbatim element rendering (fact A-1 — an array row is shape-identical
+           to a scalar row). Bounds come from bind's record, never from the AST
+           dimension text. *)
+        let e_array =
+          match List.find_opt (fun (k, _, _) -> String.equal k key) arrs with
+          | Some (_, lb, ub) -> Some { a_elem = ety; a_lo = lb; a_hi = ub }
+          | None -> None
+        in
         let esid = st.next_sid in
         st.next_sid <- esid + 1;
         ( key,
-          { esid; ekey = key; eorig; escope = scope_id; ety = type_of_rt rt;
-            epr = Bind.rty_str rt; estorage; eline } ) )
+          { esid; ekey = key; eorig; escope = scope_id; ety;
+            epr = Bind.rty_str rt; estorage; eline; e_array } ) )
       rows
   in
   let be =

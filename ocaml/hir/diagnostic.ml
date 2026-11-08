@@ -30,3 +30,15 @@ let e_lit = "HIR-E08" (* literal outside the P0 domain (bin(15) range) *)
 let e_conv = "HIR-E09" (* a conversion the HIR cannot represent faithfully *)
 let e_profile = "HIR-E10" (* the target profile leaves a required field UNKNOWN *)
 let e_scope = "HIR-E11" (* lexical form whose scoping bind does not expose per-block *)
+
+(* E2E-54/P1-a1 additions (PLAN §P1-a1.5). Codes are APPENDED to the stable list;
+   no existing code changes meaning (falsifier T10). Landed with the Semantic_env
+   step because the env's split-channel guard already needs [e_dims]. *)
+let e_index = "HIR-E12" (* subscript use that is not a 1-D array reference: scalar name,
+                            or a constant subscript outside the declared bounds — the
+                            bounds test is an HIR subset rule, DR's out-of-range
+                            behaviour is unmeasured [TBD] (§P1-a1.2) *)
+let e_whole_array = "HIR-E13" (* array name used whole, in value or target position;
+                                 P1-a1 admits element references only (§P1-a1.2) *)
+let e_dims = "HIR-E14" (* subscript count /= 1, or a bind split-channel inconsistency
+                          (an array record with no row, or duplicate records) *)
