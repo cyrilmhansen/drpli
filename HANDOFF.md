@@ -7,6 +7,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-e53-11. **E2E-53/P3 hop 8 — BOTH hop-7 OPEN ITEMS RESOLVED FIRST-HAND; ARM FULLY DERISKED, PURE EXECUTION OWED (session 01a1b9eb, chain renewal 4/12; ZERO oracle; ZERO `ocaml/lib/` byte):** g588 attestation committed VERBATIM `3cd50d09`; binary `cb906871…` == tree PRE-ARM. `formals` = ALL formals → `dcl g label` needs only the lower_proc locals-fold RTlabel arm (refuse nested label ARRAYS by name); `survey_all = fst` DROPS unresolved refs — no bind NOT-LABEL consumer; bytes_of RTlabel→2 alone passes the allow-list; RTentry array admission (shadow + explicit arm) is what moves DEPREC/LABELS/MPMCALLA past bind to NEW VERBATIM codegen refusals; DEF-DATA-SIZE rides `max auto_bytes pl_total` (16092) ⇒ array-row vars-fold skip safe; goto arm builds dyn_ref directly (Sgoto carries a NAME); all vocabulary/opcodes/cons-shapes re-pinned first-hand = **LEARNINGS § hop 8**. SUCCESSOR: EXECUTE PROGRESS.md `## Next action` hop-9 contract VERBATIM (arm bind+codegen final edit list → parity 5/5 fresh positional cmp vs golden/e53p3 → falsifiers → tail → inventory 1323/190 +5 → census 3 msgs MOVE → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 build/gate-e53p3-reg.log → RESULTS/PLAN CLOSE §P3 → durables+guard). Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM; corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 4/12 cap 12.
 0a-e53-10. **E2E-53/P3 hop 7 (partial) — G-DESCRIPTOR OPEN QUESTION RESOLVED FIRST-HAND; FULL EDIT LIST WRITTEN; ARM STILL OWED (session post-g586, chain renewal 3/12; ZERO oracle; ZERO `ocaml/lib/` byte):** g586 switch blocks + hop-6 `0a-e53-9` line committed VERBATIM `e3e17c27`; binary `cb906871…` == tree PRE-ARM. E527G caller descriptor = EXISTING static-route block codegen ~5230-5245 (hidden cell = cs descriptor word; bare-Eident actual → `tgt = addr_of`); callee prologue ~13964 already matches G verbatim; `st.deref = pl_ptrs names`. OPEN (verify before arming): bind `formals` set at ~2440-2459 (pointer-only? how to admit `dcl g label` without moving goldens — else REFUSE G class by name, parity 4/5, never invent); unresolved-ref survey consumer vs label-var `goto g`. 7-item measured-only edit list = **LEARNINGS § “E2E-53/P3 hop 7”** (read with hop-6 § and hop-5 law table, then EXECUTE hop-7 steps (3)-(6) VERBATIM: arm → parity 5/5 → falsifiers → tail → inventory 1323/190 +5 → census 3 msgs MOVE → C380 BEFORE coverage → coverage row 101 + NEW + IDS → FULL gate `build/gate-e53p3-reg.log` → RESULTS/PLAN CLOSE → durables+guard). Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; chain 3/12 cap 12.
 0a-e53-9. **E2E-53/P3 hop 6 — FULL FIRST-HAND ARM-SITE VERIFICATION LANDED; IMPLEMENTATION OWED (session 01a1b9c5, chain renewal 2/12→switch 3/12; ZERO oracle; ZERO `ocaml/lib/` byte; goldens VERBATIM; config NEVER staged; no push; rc DIRECT; byte-tier):** g582 committed VERBATIM `205e902c`; binary `cb906871…` == tree PRE-ARM. All decodes/probes re-read VERBATIM; every arm site pinned with exact line numbers in **LEARNINGS § "E2E-53/P3 hop 6"** (bind `bytes_of` 148, sizing 1003-1074, `ref_kind` 1663, `refs_stmts` 1722 — NO Sassign case, demand fold 1805, sp_cell 2268; codegen `vkind` 28, rows-fold `RTlabel -> None` **16655** + array-undersize trap PROVEN, `lower_proc` ~14040, `lower_assign` 10159, element store forms 10966-11240, label machinery 13726-13860 (`label_def` addr = PAD START; forward store needs slot-only `ls.fwd` cons WITHOUT JMP), GOTO 14563/14589 (`computed GOTO` phrase pinned by N6)). OPEN: E527G label-var-ACTUAL descriptor caller emission NOT located (hop-5 ~13940 falsified = callee prologue) — locate or REFUSE BY NAME, never invent. SUCCESSOR (BINDING = PROGRESS.md `## Next action` hop 7): build → arm bind+codegen measured forms ONLY → parity 5/5 fresh positional cmp vs `golden/e53p3/` → falsifiers (SNS4/sweep byte-identical; OPTIMIST 9-byte unmoved; DEPREC/LABELS/MPMCALLA NEW VERBATIM refusal; B/F/H refuse; N6 keeps phrase; `nelem=1` unchanged; EXPR1/REPORT/COPYLPT UNMODIFIED) → tail (fingerprint supersedes `cb906871…`; hist 68/124; sweep 194/0+5; markers 19; DEC 64/0; divcheck 9/9) → REAL `--update-inventory` (1323/190 +5) → census (3 msgs MOVE VERBATIM) → **C380 measured-bytes-only BEFORE COVERAGE** → coverage row 101 + NEW entry/label rows + explicit IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 row + §P3 CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; chain 3/12 cap 12.
 0a-e53-8. **E2E-53/P2 CLOSED hop 6 — C379 + NEW-ROW COVERAGE + FULL GATE rc=0 + RESULTS/PLAN CLOSE LANDED; RE-RANK MATRIX, OPEN P3 (session successor of 01a1b8b4, chain renewals 9/12; ZERO oracle; goldens VERBATIM; config NEVER staged; no push; rc DIRECT; byte-tier):** recovery verified (HEAD `36efba7c`; g573 attested; binary `cb906871…` == tree; build rc=0). C379 `8364798e` measured-bytes-only BEFORE COVERAGE (stride-1/3/LB-0 laws re-verified first-hand; 7/7 cmp rc=0 claim-time `build/e53p2/c379-out/`; falsified multiply predictions kept; 202 headers). Coverage: NEW row `AGG.ARRAY_1D_STRIDED` adjudicated first-hand (row 7 2-byte law stays VERBATIM; extending it would falsify its contract) + explicit COVERAGE-IDS; coverage_check 146/0/0 SUPPORTED 96 (count moved BY ADJUDICATION, recorded; `fafda045`). FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` (1323/0, 190/190, 9/9, 146 rows, census 16/0/25/0, prose 5). RESULTS §P2 + PLAN §4 row (LINE-anchored, pipe assert RUN IN CODE vs P1 row) + §P2 CLOSED `b54a8080`. SUCCESSOR (BINDING = PROGRESS.md `## Next action`): re-read PLAN §2 + RE-MEASURE first refusals on `cb906871…` (matrix predates arms), open P3 with ZERO-oracle pre-audit, verify `E527*`/`e53p3` unused, PRE-REGISTER PLAN §P3+probes+LEARNINGS BEFORE any oracle/`ocaml/lib` byte, campaign, decode/arm/parity/tail (baseline sweep 194/0+N, inventory 1323/190)/C380+ BEFORE COVERAGE/gate `build/gate-e53p3-reg.log`/CLOSE. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; `nelem=1` crash RECORDED never fixed; constraints per PROTOCOL Part 2 anchor; chain 9/12 cap 12.
@@ -1690,25 +1691,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 588
-checkpoint-id: g588-9930d0fd68d2
+checkpoint-generation: 589
+checkpoint-id: g589-ac321acd852c
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6582, session 01a1b9d8-1cab-7124-92a5-845038811969)
-checkpointed: 2026-11-08T06:48:56.232Z
+content-delta: new
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4891, session 01a1b9eb-3ca5-7124-92a5-8454643c3ce1)
+checkpointed: 2026-11-08T07:14:11.085Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c1ce46a4b058e2707afb1a343fd64f9c5134dcebbc38f114bba4015ef651b54f
+source-progress: 17f1e9b1b516b8ecd7e567a51b26ee36f4d34bd7ccd62e0a06d337225030f9d6
 source-handoff: 96cb55ca5963ce105dc52427e7e64e908d5b2cb9eea1f58a85d2f94547dfa978
-source-learnings: af78a4039c481f811dd93559fcd287ab089882928f80b1707ea28f837637650f
+source-learnings: f298f41456756dbbdefbf9ae578f1dd3e1b9fb6f037c5c2dc8f81140578fe663
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b9d8-1cab-7124-92a5-845038811969
-readiness-at: 2026-11-08T06:49:23.854Z
-readiness-checkpoint: g588-9930d0fd68d2
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
