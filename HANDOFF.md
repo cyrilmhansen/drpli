@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0b-e54-1. **E2E-54/P0 hop 1 LANDED (plan+audit committed; HIR modules IN FLIGHT — session 01a1bbbd, fresh chain 0/12; ZERO oracle; ZERO historical `ocaml/lib/` byte):** the operator restated the E2E-54 brief; it is recorded VERBATIM as §0 of `spec/lab-evidence/e2e54/PLAN.md` (`c89a9df3`) with §P0 pre-registered (falsifiers F1–F9). Audit draft `docs/architecture/backend-boundary.md` committed `41dc2d2c`. Baseline verified first-hand (fingerprint `172595d5…` == tree; gate/ledger/inventory numbers all hit — see PROGRESS hop-2 heading). UNCOMMITTED: `ocaml/lib/{diagnostic,target,hir}.ml` complete; `ocaml/lib/hir_build.ml` HALF-DRAFT (top-level section broken — rewrite per PROGRESS `## Next action` hop-2 step (1) VERBATIM). SUCCESSOR contract = PROGRESS.md `## Next action (E2E-54/P0 hop 2 …)` EXACT order: finish hir_build → bin/dune stanza + pli80hir.ml → `dune build` rc=0 → **F1 sha256 of pli80c.exe must still be `172595d5…`** → fixtures H01..H05 + reviewed expected dumps → tools/hir_test.py → backend.ml witness → FULL gate rc=0 `build/gate-e54p0-reg.log` (counts frozen 1328/190/9/149/16-0-25-0/5; any move = STOP+revert wiring) → RESULTS + roadmap PROPOSED (P1 NOT authorized) → durables+guard. Ledger stays **C380**; no coverage/inventory/goldens touch; `handoff.config.json` NEVER staged; no push; stray root S2..S5 debris untouched.
+
 0a-e53-15. **E2E-53/P4 hop 16 LANDED — §P4 CLOSED, THE WHOLE E2E-53 CAMPAIGN IS CLOSED (session 01a1bb38, renewal 2/12 of the OPERATOR-RESET chain; ZERO oracle; ZERO `ocaml/lib/` byte):** recovery verified first-hand (HEAD `0fff88d8`; `dune build` rc=0; tree binary sha256 **`172595d5…`** == armed fingerprint == committed arm `39c7919e`). Tail run and rc DIRECT: sweep **206 byte-exact / 0 FAILS / 28 refusals** `build/e53p4/sweep.log`, DEC **64/0** `build/e53p4/dec.log`, divcheck **9/9** `build/e53p4/divcheck.log`, **FULL gate rc=0** `build/gate-e53p4-reg.log` (1328/1328, 190/190, 9/9, coverage 149 rows 0/0, census 16/0/25/0, prose 5). **The carried sweep expectation 201 was STALE, and it was ATTRIBUTED rather than forced** — the same six prefixes scope to 201 specimen rows in `git show b7544b61^:spec/INVENTORY.txt` and 206 in HEAD's, the delta being exactly the five E527 specimens §P3 registered (each re-verified `cmp` rc=0 vs `golden/e53p3/`); FAILS 0 and refusals 28 unchanged ⇒ **the inventory moved, not the compiler**. Hist re-counted first-hand: 122 headers, ZERO `Error`, the three vanished sites re-confirmed by header-set diff vs `build/e53p3/build-fresh-h13.log`. SNS4 name collision re-checked fresh (`build/e53p4/fals/sns4-recheck-h16.log`, rc=0 + `cmp` rc=0 vs `build/e53p2/sanity/SNS4.out.rel`). CLOSE DOCS `fcca9ad0`: `RESULTS.md` §P4, `PLAN.md` §4 P4 row (LINE 76, 8-pipe assert RUN IN CODE), §P4 **CLOSED**, `PLAN.md` §P4.6 DATED close-out. NO probes, NO `--update-inventory` (1328/190 verified THROUGH the gate), NO coverage touch, NO new claim — ledger ENDS **C380** (203 headers). SUCCESSOR (hop 17) — **THE E2E-54 BRIEF IS MISSING:** "E2E-54/P0 (HIR)" is quoted by the hop-14/15/16 contracts but exists in NO durable file (`grep -rnw HIR` hits only those sentences; no `spec/lab-evidence/e2e54/`, no note, nothing in GOAL/PLAN §2). **Ask the OPERATOR to restate it and record it VERBATIM in a new `spec/lab-evidence/e2e54/PLAN.md` §0 BEFORE pre-registering anything**; the PROPOSED reading (High-level IR between `bind` and the 17k-line `codegen.ml`; `ir.ml` is 324 lines) is an inference, NOT authorization. Alternative zero/low-oracle candidates are listed in PROGRESS `## Next action`. Ledger ENDS **C380**; inventory **1328/190**; coverage **149/99**; census 16/0/25/0; goldens all KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fixed; `nelem=1` crash recorded (site quotation now **10248**), never fixed; config NEVER staged; no push; chain renewal **2/12** cap 12 (earlier "9/12" quotations are OBSOLETE after the operator reset).
 
 0a-e53-13. **E2E-53/P3 hop 10 (partial) — BIND ARM FULLY LANDED (build rc=0); PRE-ARM BASELINE MEASURED; CODEGEN ARM = SUCCESSOR (session 01a1ba17, chain renewal 6/12; ZERO oracle; codegen.ml UNTOUCHED):** pre-arm deaths of ALL E527A..H with `cb906871…` in `build/e53p3/pre-arm-hop10/` (A/G `undeclared x`; **B/H `undeclared e (no declaration in scope)`**; C/D/E `0-byte [C159]`; **F VERBATIM `computed GOTO deferred [TBD]` — the catch must survive for F**). Entire bind arm: bytes_of RTlabel→2, sizing shadow + allow-list (strings byte-identical, AB5 after), `bind_label_arrays`, `Rk_val`/`rk_str`/`label_class_names` (lcs threaded; walker AFTER block_handler_refs — mid-chain splice = Unbound), Sassign Rk_val case, demand fold, PADDEBUG `:val`; `dune build` rc=0; bind-only: B death byte-identical, C passes bind → codegen death (CORRECTION-1 mechanics ✓). Tree binary `9a6bccdb…` is a HALF-ARM, NEVER a fingerprint. SUCCESSOR = PROGRESS.md `## Next action` hop-11 CODEGEN-ONLY list VERBATIM (LEARNINGS § hop 10 + hop 9 §§ have every anchor), then parity 5/5 → falsifiers (B/F/H vs baseline) → tail → inventory 1323/190 +5 → census (3 msgs MOVE) → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 + CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 6/12 cap 12.
@@ -1697,13 +1699,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 606
-checkpoint-id: g606-0aa9cb20765a
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~7399, session 01a1bb38-7f76-7229-82be-08d0b1a7e705)
-checkpointed: 2026-11-08T13:12:39.716Z
+checkpoint-generation: 608
+checkpoint-id: g608-f99a4d386a04
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4748, session 01a1bb38-7f76-7229-82be-08d0b1a7e705)
+checkpointed: 2026-11-08T13:13:21.534Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 9360da238e2645d34999e36c5d356e1f25822c95521395de03d53118daf35ffa
 source-handoff: a704147831da7d6d8896f405421b9c5a7b694dcc36ad58b519e46531cd346dd1
@@ -1711,11 +1713,8 @@ source-learnings: 79a6acee91ca02272c009b9006e1048e9b8c0ba74851f7b26f27555c328062
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bb38-7f76-7229-82be-08d0b1a7e705
-readiness-at: 2026-11-08T13:12:39.751Z
-readiness-checkpoint: g606-0aa9cb20765a
 ### Last verified state
-guard level 2; checkpoint requested (finalize: E2E-53/P4 hop 16 DONE — §P4 CLOSED, whole E2E-53 campaign CLOSED. Zero oracle, zero ocaml/lib bytes. Tail: sweep 206/0/28 (carried 201 expectation proved STALE — attributed first-hand to the 5 E527 rows registered at b7544b61; FAILS 0, refusals unchanged), DEC 64/0, divcheck 9/9, FULL gate rc=0 build/gate-e53p4-reg.log (1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5). Docs fcca9ad0 (RESULTS §P4, PLAN §4 row + §P4 CLOSED + §P4.6), durables fc853985. Fingerprint 172595d5… == tree. Ledger ENDS C380, no new claim. BLOCKER FOR HOP 17: the E2E-54/P0 ("HIR") operator brief is NOT in any durable file — ask the operator to restate it VERBATIM before pre-registering.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

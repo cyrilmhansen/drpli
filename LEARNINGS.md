@@ -9713,3 +9713,46 @@ fixed; corpus blockers VERBATIM never fix; chain renewals 7/12 after this switch
 - **CLOSE DOCUMENTATION LANDED:** `RESULTS.md` §P4 (arm (a)-(j), post-fix matrix, 16/16 parity, falsifiers, DATED 10189→10248 quotation, fingerprint, hist attribution, close-out numbers, explicit NOT-say) + `PLAN.md` §4 P4 dashboard row (inserted at LINE 76, 8-pipe assert RUN IN CODE against the P3 row, no raw pipe in any cell) + §P4 heading → **CLOSED** + new `PLAN.md` §P4.6 DATED close-out. Commits `fcca9ad0` (docs) then this guard block.
 - **OPEN ITEM FOR THE SUCCESSOR (blocker, not science):** the operator brief for **E2E-54/P0 ("HIR")** is referenced by three SUCCESSOR CONTRACTS (hops 14/15/16) but exists in NO durable file — `grep -rnw HIR` over the repo hits only those contract sentences; there is no `spec/lab-evidence/e2e54/` plan, no note in `spec/notes/`, nothing in GOAL/PLAN §2. The predecessor chain apparently received it interactively. **Do NOT pre-register a campaign on an unread brief.** First action of hop 17: ask the operator to restate the E2E-54 brief (PROPOSED reading, unverified: a High-level IR layer between `bind` and the 17k-line `codegen` — `ocaml/lib/ir.ml` is 324 lines today — with P0 = zero-oracle pre-audit), record it VERBATIM in a NEW `spec/lab-evidence/e2e54/PLAN.md`, and only then pre-register probes/ids by explicit paths BEFORE any oracle or `ocaml/lib/` byte.
 - **STATE:** HEAD = this durables commit; §P1/§P2/§P3/§P4 all CLOSED; armed fingerprint `172595d5…` == tree; ledger ENDS **C380** (203 headers); inventory **1328/190**; coverage **149 rows / SUPPORTED 99**; census 16/0/25/0; LAST gate rc=0 `build/gate-e53p4-reg.log`; goldens KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fixed; `nelem=1`/scalar-subscript crash recorded, site quotation now **10248**, never fixed; char(2) store/compare twins recorded, not touched; config NEVER staged; no push; chain renewal 2/12 cap 12 (operator reset — the "9/12, one renewal left" quotations in earlier blocks are OBSOLETE).
+
+## E2E-54/P0 hop 1 — HIR foundation started; architecture audit; hir_build drafting (session 01a1bbbd, 2026-11-08; ZERO oracle; ZERO historical `ocaml/lib/` byte)
+
+**ACCEPTED (verified first-hand this session):**
+- Baseline re-verified from the artifacts, not the brief: HEAD `b420fe01`; `dune build` rc=0;
+  `pli80c.exe` sha256 `172595d5…`; kept gate log shows 1328/0, 190/190, 9/9, coverage
+  149 rows 0/0, census 16/0/25/0, prose 5; INVENTORY non-comment rows 1518 = 1328+190;
+  CLAIMS has 203 `^## C` headers ending C380. Operator's quoted numbers all hit.
+- `tools/e2e_gate.py` does NOT pin the compiler binary sha256 — the "armed fingerprint" is a
+  campaign-workflow discipline, not a gate check. Consequence: F1 (pli80c.exe invariance after
+  adding unused library units) is a test I must run myself, not something the gate gives me.
+- bind row tables are declaration-ordered: `layout` accumulates `rows := … :: !rows` and returns
+  `List.rev` (bind.ml:992/1126/1154) — deterministic sid assignment can ride this order directly.
+- `proc_layout` carries NO parent pointer; lexical nesting must be re-read from the AST block
+  shape (walk `Sproc` structure) while NAMES/TYPES stay bind's — structural traversal is not a
+  second resolver (no name→meaning decision is made by it).
+- `codegen.ml` already consumes bind layout at lowering time (`callee_formal_rt_l:3984`): the
+  adapter pattern `Ast x prog_layout -> X` is precedent, not novelty.
+- Codegen has NO reusable expression-typing function: result-type knowledge is embedded as
+  instruction-route guards (`dec_pt_of`, `e25_bin_routes`, `num_width`, `is_float_expr`) —
+  extraction is a real refactor, so P0 does NOT extract; it types arithmetic with an explicitly
+  labelled LANGUAGE rule (max+1 / p1+p2) recorded in the node + profile, claiming nothing about DR.
+- Syntax anchors for fixtures (read, not run): `probes/P401.PLI` (internal `dbl: procedure(i)
+  returns(fixed); dcl i fixed; return (i + i);`), `probes/P071M.PLI` (`do while(i < 10); … end;`),
+  `artefacts/ACK.PLI` (`if m = 0 then`). Older probes are CRLF+^Z, `probes/E527A.PLI` is LF-only —
+  the lexer accepts both; HIR fixtures never touch the oracle so LF is fine.
+
+**PROPOSED (unverified, test next hop):**
+- Adding unused modules to the `pli80` dune library will NOT change `pli80c.exe` bytes (OCaml
+  links referenced units only) — F1 must prove this; if false, move HIR units to a separate
+  `ocaml/hir/` library dir.
+- Formal parameters without an explicit `dcl` have no bind row (section2 puts them in `pl_ptrs`
+  only) — P0 subset will require explicit formal dcls; verify on H04.
+- Nested `BEGIN` declarations merge into the enclosing block's single row table (bind has no
+  per-BEGIN scoping) — the adapter REFUSES dcls inside BEGIN (HIR-E11) rather than guessing.
+
+**FALSIFIED / lessons:**
+- My first `hir_build.ml` draft tangled scope-parent threading with pid allocation ("last
+  registered block = parent" is WRONG under DFS siblings) and I left the top-level section as a
+  broken draft. Law: in an adapter with recursive registration, thread `parent_scope`/`pid` as
+  EXPLICIT parameters through the walk; never infer an ancestor from insertion order.
+- `grep -c '^SPECIMEN' spec/INVENTORY.txt` is the wrong shape check — rows are TAB fields
+  `name specimen|refusal source golden-or-reason`; count via non-`#` rows (1518).
