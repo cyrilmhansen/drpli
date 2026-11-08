@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E527C
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E527C
+
+   1 a 0000 E527C: procedure options(main);
+   2 a 0006    /* [E2E-53/P3] H-B1/H-B2: label ARRAY, CONSTANT subscript.   */
+   3 a 0006    /* Backward store and forward store.  Goldens pin only the   */
+   4 a 0006    /* dynamic-subscript ladder (LABELS 0050-005E) and the       */
+   5 a 0006    /* scalar forms.  Predicted const-fold: LXI H,*D(cell) +      */
+   6 a 0006    /* the matching store variant.                               */
+   7 c 0006    dcl z(3) label;
+   8 c 0014  lab1:;
+   9 c 0014    z(1) = lab1;
+  10 c 001A    z(2) = lab2;
+  11 c 0023    stop;
+  12 c 002D lab2:;
+  13 c 002D end E527C;
+
+CODE SIZE = 0030
+DATA AREA = 0008
+FREE SYMS = 389A
+END  COMPILATION
+

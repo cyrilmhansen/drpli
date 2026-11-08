@@ -1,0 +1,34 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E527A
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E527A
+
+   1 a 0000 E527A: procedure options(main);
+   2 a 0006    /* [E2E-53/P3] H-A1: scalar LABEL variable store, BACKWARD  */
+   3 a 0006    /* label reference.  Goldens pin only the FORWARD form       */
+   4 a 0006    /* (LABELS 0006-000A CHAIN-ADDR).  Predicted: LXI H,0000 with */
+   5 a 0006    /* a plain RELOC to the label code address + SHLD cell.      */
+   6 c 0006    dcl x label;
+   7 c 0014  lab1:;
+   8 c 0014    x = lab1;
+   9 c 001A    stop;
+  10 a 001D end E527A;
+
+CODE SIZE = 001D
+DATA AREA = 0004
+FREE SYMS = 38C4
+END  COMPILATION
+
