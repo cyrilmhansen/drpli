@@ -1,6 +1,6 @@
 (library
  (name pli80_hir)
- (modules diagnostic hir target hir_build)
+ (modules diagnostic hir target hir_build backend)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
 
