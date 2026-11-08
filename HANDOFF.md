@@ -1699,28 +1699,33 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 608
-checkpoint-id: g608-f99a4d386a04
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4748, session 01a1bb38-7f76-7229-82be-08d0b1a7e705)
-checkpointed: 2026-11-08T13:13:21.534Z
+checkpoint-generation: 611
+checkpoint-id: g611-9aa246503017
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~3607, session 01a1bbbd-252e-74f7-97ac-0a4a0e4b6df6)
+checkpointed: 2026-11-08T15:58:01.898Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9360da238e2645d34999e36c5d356e1f25822c95521395de03d53118daf35ffa
-source-handoff: a704147831da7d6d8896f405421b9c5a7b694dcc36ad58b519e46531cd346dd1
-source-learnings: 79a6acee91ca02272c009b9006e1048e9b8c0ba74851f7b26f27555c32806237
+source-progress: 661bcb92876fc281092211505265eca538e0ada04f724c5dfd18fcaeba1e7f5e
+source-handoff: 19286dbd57749cb767d686ad9c3df2efac139e275fdc56bcd42f77fe76986019
+source-learnings: 79a40f7fd77b8d2ded79869c3968d5435d30ee94a70a18a9f82b852a92c1ae9c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1bbbd-252e-74f7-97ac-0a4a0e4b6df6
+readiness-at: 2026-11-08T15:58:01.932Z
+readiness-checkpoint: g611-9aa246503017
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-`. Ledger ENDS **C380**; inventory **1328/190**; coverage **149/99**; census 16/0/25/0; goldens all KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fixed; `nelem=1` crash recorded (site quotation now **10248**), never fixed; config NEVER staged; no push; chain renewal **2/12** cap 12 (earlier "9/12" quotations are OBSOLETE after the operator reset).
+` hop-2 step (1) VERBATIM). SUCCESSOR contract = PROGRESS.md `## Next action (E2E-54/P0 hop 2 …)` EXACT order: finish hir_build → bin/dune stanza + pli80hir.ml → `dune build` rc=0 → **F1 sha256 of pli80c.exe must still be `172595d5…`** → fixtures H01..H05 + reviewed expected dumps → tools/hir_test.py → backend.ml witness → FULL gate rc=0 `build/gate-e54p0-reg.log` (counts frozen 1328/190/9/149/16-0-25-0/5; any move = STOP+revert wiring) → RESULTS + roadmap PROPOSED (P1 NOT authorized) → durables+guard. Ledger stays **C380**; no coverage/inventory/goldens touch; `handoff.config.json` NEVER staged; no push; stray root S2..S5 debris untouched.
+
+0a-e53-15. **E2E-53/P4 hop 16 LANDED — §P4 CLOSED, THE WHOLE E2E-53 CAMPAIGN IS CLOSED (session 01a1bb38, renewal 2/12 of the OPERATOR-RESET chain; ZERO oracle; ZERO `ocaml/lib/` byte):** recovery verified first-hand (HEAD `0fff88d8`; `dune build` rc=0; tree binary sha256 **`172595d5…`** == armed fingerprint == committed arm `39c7919e`). Tail run and rc DIRECT: sweep **206 byte-exact / 0 FAILS / 28 refusals** `build/e53p4/sweep.log`, DEC **64/0** `build/e53p4/dec.log`, divcheck **9/9** `build/e53p4/divcheck.log`, **FULL gate rc=0** `build/gate-e53p4-reg.log` (1328/1328, 190/190, 9/9, coverage 149 rows 0/0, census 16/0/25/0, prose 5). **The carried sweep expectation 201 was STALE, and it was ATTRIBUTED rather than forced** — the same six prefixes scope to 201 specimen rows in `git show b7544b61^:spec/INVENTORY.txt` and 206 in HEAD's, the delta being exactly the five E527 specimens §P3 registered (each re-verified `cmp` rc=0 vs `golden/e53p3/`); FAILS 0 and refusals 28 unchanged ⇒ **the inventory moved, not the compiler**. Hist re-counted first-hand: 122 headers, ZERO `Error`, the three vanished sites re-confirmed by header-set diff vs `build/e53p3/build-fresh-h13.log`. SNS4 name collision re-checked fresh (`build/e53p4/fals/sns4-recheck-h16.log`, rc=0 + `cmp` rc=0 vs `build/e53p2/sanity/SNS4.out.rel`). CLOSE DOCS `fcca9ad0`: `RESULTS.md` §P4, `PLAN.md` §4 P4 row (LINE 76, 8-pipe assert RUN IN CODE), §P4 **CLOSED**, `PLAN.md` §P4.6 DATED close-out. NO probes, NO `--update-inventory` (1328/190 verified THROUGH the gate), NO coverage touch, NO new claim — ledger ENDS **C380** (203 headers). SUCCESSOR (hop 17) — **THE E2E-54 BRIEF IS MISSING:** "E2E-54/P0 (HIR)" is quoted by the hop-14/15/16 contracts but exists in NO durable file (`grep -rnw HIR` hits only those sentences; no `spec/lab-evidence/e2e54/`, no note, nothing in GOAL/PLAN §2). **Ask the OPERATOR to restate it and record it VERBATIM in a new `spec/lab-evidence/e2e54/PLAN.md` §0 BEFORE pre-registering anything**; the PROPOSED reading (High-level IR between `bind` and the 17k-line `codegen.ml`; `ir.ml` is 324 lines) is an inference, NOT authorization. Alternative zero/low-oracle candidates are listed in PROGRESS `## Next action`. Ledger ENDS **C380**; inventory **1328/190**; coverage **149/99**; census 16/0/25/0; goldens all KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fixed; `nelem=1` crash recorded (site quotation now **10248**), never fixed; config NEVER staged; no push; chain renewal **2/12** cap 12 (earlier "9/12" quotations are OBSOLETE after the operator reset).
 
 0a-e53-13. **E2E-53/P3 hop 10 (partial) — BIND ARM FULLY LANDED (build rc=0); PRE-ARM BASELINE MEASURED; CODEGEN ARM = SUCCESSOR (session 01a1ba17, chain renewal 6/12; ZERO oracle; codegen.ml UNTOUCHED):** pre-arm deaths of ALL E527A..H with `cb906871…` in `build/e53p3/pre-arm-hop10/` (A/G `undeclared x`; **B/H `undeclared e (no declaration in scope)`**; C/D/E `0-byte [C159]`; **F VERBATIM `computed GOTO deferred [TBD]` — the catch must survive for F**). Entire bind arm: bytes_of RTlabel→2, sizing shadow + allow-list (strings byte-identical, AB5 after), `bind_label_arrays`, `Rk_val`/`rk_str`/`label_class_names` (lcs threaded; walker AFTER block_handler_refs — mid-chain splice = Unbound), Sassign Rk_val case, demand fold, PADDEBUG `:val`; `dune build` rc=0; bind-only: B death byte-identical, C passes bind → codegen death (CORRECTION-1 mechanics ✓). Tree binary `9a6bccdb…` is a HALF-ARM, NEVER a fingerprint. SUCCESSOR = PROGRESS.md `## Next action` hop-11 CODEGEN-ONLY list VERBATIM (LEARNINGS § hop 10 + hop 9 §§ have every anchor), then parity 5/5 → falsifiers (B/F/H vs baseline) → tail → inventory 1323/190 +5 → census (3 msgs MOVE) → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 + CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 6/12 cap 12.
 0a-e53-14. **E2E-53/P3 hop 13 LANDED — §P3 CLOSED; tail COMPUTED, gate rc=0, ONE NEW my-gap recorded (session 01a1babc, renewal 8/12; ZERO oracle; ZERO `ocaml/lib/` byte; BYTE TIER ONLY):** fingerprint `fed67d24…` re-produced on FRESH `--build-dir _build-e53p3h13` ZERO `Error`; markers argv-19 MARKER_FAILS 0 (N6 phrase alive); DEC 64/0; divcheck 9/9; coverage_check 149 rows 0/0 SUPPORTED **99** recounted from the tool's OWN output (96 was the 146-row mid-campaign state); FULL gate **rc=0** `build/gate-e53p3-reg3.log` (1328/0, 190/190, 9/9, 149 rows, census 16/0/25/0, prose 5); `RESULTS.md` §P3 + `PLAN.md` §4 P3 row (8-pipe assert RUN IN CODE) + §P3 **CLOSED**. **hist 68/124 FALSIFIED — measured codegen 72 / total 128**, attributed first-hand to TWO arm sites: unused `idx` (`codegen.ml:14789`) and a NEW partial-match on **`vk_name` (`codegen.ml:7076`)** which is a **LIVE CRASH PATH**: `build/e53p3/h13-sanity/SNSL6.PLI` (`dcl x label; … f = 1.0 + x;`) and `SNSL8.PLI` (`put list(x);`) die `Pattern matching failed` instead of a loud `[TBD]`; controls SNSL4/5/7/9/B refuse loudly, float SNSLC rc=0. Recorded VERBATIM as a NEW my-gap, NEVER fixed (close-out authorizes zero compiler edits); repair = PROPOSED P4 hygiene slice. SUCCESSOR = PROGRESS.md `## Next action` hop-14: read LEARNINGS § hop 13; PRE-REGISTER PLAN §P4 (+ `E528*` probes, ids VERIFIED unused) by EXPLICIT PATHS BEFORE any oracle/`ocaml/lib/` byte; parity vs e53p1/p2/p3 panels; hist baseline now **72/128** — attribute any move, never force it; gate `build/gate-e53p4-reg.log`. Ledger ENDS **C380** (203 headers); inventory **1328/190**; coverage **149/99**; goldens KEPT VERBATIM; `dir.txt`/config NEVER staged; no push; chain 8/12 cap 12.
@@ -2416,5 +2421,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-53/P4 hop 16 DONE — §P4 CLOSED, whole E2E-53 campaign CLOSED. Zero oracle, zero ocaml/lib bytes. Tail: sweep 206/0/28 (carried 201 expectation proved STALE — attributed first-hand to the 5 E527 rows registered at b7544b61; FAILS 0, refusals unchanged), DEC 64/0, divcheck 9/9, FULL gate rc=0 build/gate-e53p4-reg.log (1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5). Docs fcca9ad0 (RESULTS §P4, PLAN §4 row + §P4 CLOSED + §P4.6), durables fc853985. Fingerprint 172595d5… == tree. Ledger ENDS C380, no new claim. BLOCKER FOR HOP 17: the E2E-54/P0 ("HIR") operator brief is NOT in any durable file — ask the operator to restate it VERBATIM before pre-registering.
+E2E-54/P0 hop 2: execute PROGRESS.md `## Next action (E2E-54/P0 hop 2 …)` EXACT order — rewrite the broken top-level of the UNCOMMITTED ocaml/lib/hir_build.ml plus its head-half defect checklist (a)-(f) (hop-1 STATE), dune stanza + bin/pli80hir.ml, dune build rc=0, FALSIFIER F1 first (pli80c.exe sha256 must still be 172595d5… before anything else), fixtures H01..H05 + reviewed expected dumps, tools/hir_test.py, backend.ml witness, FULL gate rc=0 -> build/gate-e54p0-reg.log (counts frozen 1328/190/9/149/census 16-0-25-0/prose 5; any move = STOP+revert wiring), RESULTS.md + architecture-doc finalisation + migration roadmap PROPOSED (P1 NOT authorized), durables+guard. ZERO oracle; ZERO historical ocaml/lib byte (PLAN §P0 zero-edit set); no claims/coverage/inventory/goldens touch; handoff.config.json NEVER staged; no push. Plan: spec/lab-evidence/e2e54/PLAN.md (c89a9df3); audit: docs/architecture/backend-boundary.md (41dc2d2c).
 <!-- guard:end checkpoint -->

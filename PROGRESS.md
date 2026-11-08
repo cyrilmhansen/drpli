@@ -3603,17 +3603,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 610
-checkpoint-id: g610-82544994fda0
-checkpoint-kind: auto
+checkpoint-generation: 611
+checkpoint-id: g611-9aa246503017
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-08T15:57:37.686Z
+checkpointed: 2026-11-08T15:58:01.898Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 661bcb92876fc281092211505265eca538e0ada04f724c5dfd18fcaeba1e7f5e
 source-handoff: 19286dbd57749cb767d686ad9c3df2efac139e275fdc56bcd42f77fe76986019
-source-learnings: a692740c4caba0bef148523c3ac461161412103f26190d14011346168bd3d921
+source-learnings: 79a40f7fd77b8d2ded79869c3968d5435d30ee94a70a18a9f82b852a92c1ae9c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-2 step (1) VERBATIM). SUCCESSOR contract = PROGRESS.md `## Next action (E2E-54/P0 hop 2 …)` EXACT order: finish hir_build → bin/dune stanza + pli80hir.ml → `dune build` rc=0 → **F1 sha256 of pli80c.exe must still be `172595d5…`** → fixtures H01..H05 + reviewed expected dumps → tools/hir_test.py → backend.ml witness → FULL gate rc=0 `build/gate-e54p0-reg.log` (counts frozen 1328/190/9/149/16-0-25-0/5; any move = STOP+revert wiring) → RESULTS + roadmap PROPOSED (P1 NOT authorized) → durables+guard. Ledger stays **C380**; no coverage/inventory/goldens touch; `handoff.config.json` NEVER staged; no push; stray root S2..S5 debris untouched.
 
@@ -4311,6 +4311,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1bbbd-252e-74f7-97ac-0a4a0e4b6df6
+readiness-at: 2026-11-08T15:58:01.932Z
+readiness-checkpoint: g611-9aa246503017
 <!-- guard:end checkpoint -->
 
 ## Blockers
