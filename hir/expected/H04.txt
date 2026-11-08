@@ -1,0 +1,25 @@
+HIR-DUMP schema=v0 profile=dr-pli80-v1.4
+SCOPE 0 parent=- kind=program
+SCOPE 1 parent=0 kind=proc(1)
+SYM 0 name=x key=x scope=0 type=FIXED BINARY(15,0) storage=auto line=2
+SYM 1 name=i key=i scope=1 type=FIXED BINARY(15,0) storage=formal line=6
+PROC 0 name=h04 main=true scope=0 params=[] returns=none
+BODY proc(0)
+  declare sym(0)  [line 2]
+  assign  [line 3]
+    order: target address then value
+    var sym(0) : FIXED BINARY(15,0)  [pure, line 3]
+    call proc(1) : FIXED BINARY(15,0)  [pure, line 3; args left-to-right]
+      arg 0
+        const 2 : FIXED BINARY(15,0)  [pure, line 3]
+  stop  [line 4]
+END proc(0)
+PROC 1 name=dbl main=false scope=1 params=[1] returns=FIXED BINARY(15,0)
+BODY proc(1)
+  declare sym(1)  [line 6]
+  return value  [line 7]
+    binop + : FIXED BINARY(15,0)  [pure, line 7; typing=language-rule:max+1; clamped to profile ceiling 15 (language-rule result precision 16; DR intermediate typing unmeasured [TBD])]
+      order: left then right
+      var sym(1) : FIXED BINARY(15,0)  [pure, line 7]
+      var sym(1) : FIXED BINARY(15,0)  [pure, line 7]
+END proc(1)

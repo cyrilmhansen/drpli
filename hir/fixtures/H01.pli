@@ -1,0 +1,9 @@
+h01: procedure options(main);
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   dcl z fixed bin(7);
+   x = y + 3*2;
+   z = x + 1;
+   stop;
+end h01;
+

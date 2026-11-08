@@ -1,0 +1,10 @@
+h04: procedure options(main);
+   dcl x fixed;
+   x = dbl(2);
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end h04;
+

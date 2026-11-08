@@ -1,0 +1,42 @@
+HIR-DUMP schema=v0 profile=dr-pli80-v1.4
+SCOPE 0 parent=- kind=program
+SYM 0 name=i key=i scope=0 type=FIXED BINARY(15,0) storage=auto line=2
+SYM 1 name=m key=m scope=0 type=FIXED BINARY(15,0) storage=auto line=3
+PROC 0 name=h02 main=true scope=0 params=[] returns=none
+BODY proc(0)
+  declare sym(0)  [line 2]
+  declare sym(1)  [line 3]
+  assign  [line 4]
+    order: target address then value
+    var sym(0) : FIXED BINARY(15,0)  [pure, line 4]
+    const 0 : FIXED BINARY(15,0)  [pure, line 4]
+  while  [line 5]
+    binop < : CONDITION  [pure, line 5; typing=language-rule:relational]
+      order: left then right
+      var sym(0) : FIXED BINARY(15,0)  [pure, line 5]
+      const 10 : FIXED BINARY(15,0)  [pure, line 5]
+    body:
+    if  [line 6]
+      binop = : CONDITION  [pure, line 6; typing=language-rule:relational]
+        order: left then right
+        var sym(0) : FIXED BINARY(15,0)  [pure, line 6]
+        const 5 : FIXED BINARY(15,0)  [pure, line 6]
+      then:
+      assign  [line 7]
+        order: target address then value
+        var sym(1) : FIXED BINARY(15,0)  [pure, line 7]
+        const 1 : FIXED BINARY(15,0)  [pure, line 7]
+      else:
+      assign  [line 9]
+        order: target address then value
+        var sym(1) : FIXED BINARY(15,0)  [pure, line 9]
+        const 0 : FIXED BINARY(15,0)  [pure, line 9]
+    assign  [line 10]
+      order: target address then value
+      var sym(0) : FIXED BINARY(15,0)  [pure, line 10]
+      binop + : FIXED BINARY(15,0)  [pure, line 10; typing=language-rule:max+1; clamped to profile ceiling 15 (language-rule result precision 16; DR intermediate typing unmeasured [TBD])]
+        order: left then right
+        var sym(0) : FIXED BINARY(15,0)  [pure, line 10]
+        const 1 : FIXED BINARY(15,0)  [pure, line 10]
+  stop  [line 12]
+END proc(0)

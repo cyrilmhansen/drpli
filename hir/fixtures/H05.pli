@@ -1,0 +1,6 @@
+h05: procedure options(main);
+   dcl a(5) fixed bin(15);
+   a(1) = 2;
+   stop;
+end h05;
+

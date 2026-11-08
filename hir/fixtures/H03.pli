@@ -1,0 +1,14 @@
+h03: procedure options(main);
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   x = 7;
+   y = g(x);
+   stop;
+   g: procedure(p) returns(fixed);
+      dcl p fixed bin(15);
+      dcl x fixed bin(15);
+      x = p + 1;
+      return (x);
+   end g;
+end h03;
+
