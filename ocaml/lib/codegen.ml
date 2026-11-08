@@ -13572,8 +13572,16 @@ let lower_put_items_gen st ?(file : string option = None)
                  cd <?PNCOP>      (the ordinary character tail)
              and E526C/E526G show the same item on a VARIABLE subscript with the stride-1 ladder
              in place of the LXI H.  A stride-3 NUMERIC read has no witness, so nothing else
-             about this arm is extrapolated. *)
-          (match (unwrap_e x).Ast.e with
+             about this arm is extrapolated.
+             FALL-THROUGH LAW (measured first-hand, hop 5): the character arm emits the
+             COMPLETE item -- operand, MVI A,extent, ?SLCTS and its own ?PNCOP tail -- and the
+             numeric tail below must then contribute NOTHING.  The hop-4 statement-form match
+             emitted those bytes and then executed `lower_hl'/MVI/?QICOP/tail anyway; a
+             TRACE-ITEM dump (same precedent as [E2E-40/P10]) showed the guard ALREADY holds
+             (`hd_is_element=true ez=3'), so the bug was the dispatch shape, never the guard:
+             num_width read the char array's `st.vars' width (0) and raised `constant-only
+             PUT numeric item unproven [TBD]'.  `char_item_emitted' is the single decision. *)
+          let char_item_emitted = match (unwrap_e x).Ast.e with
            | Ast.Esuffix (hd, args)
              when hd_is_element st.arrays hd && array_ez st hd = Some 3 ->
                if is_edit then
@@ -13587,7 +13595,8 @@ let lower_put_items_gen st ?(file : string option = None)
                   | Suf_call _ -> assert false);
                  d st op_mvi_a; d st 3;
                  call_ext st "?SLCTS";
-                 tail true ()
+                 tail true ();
+                 true
                end
            | Ast.Esuffix (hd, _args)
              when hd_is_element st.arrays hd && array_ez st hd <> Some 3 ->
@@ -13595,7 +13604,7 @@ let lower_put_items_gen st ?(file : string option = None)
                   `lower_hl' + MVI A,07 + ?QICOP), exactly as the 2-byte elements RD1/AB* already
                   do; any other element class is unmeasured in a PUT item. *)
                (match array_ez st hd with
-                | Some 1 | Some 2 -> ()
+                | Some 1 | Some 2 -> false
                 | _ ->
                     failwith
                       (Printf.sprintf
@@ -13603,7 +13612,9 @@ let lower_put_items_gen st ?(file : string option = None)
                           (stride 1 rides the numeric tail; stride 3 is the character arm above; \
                           other strides are refused by bind [C159])"
                          (match array_ez st hd with Some e -> e | None -> 0)))
-           | _ -> ());
+           | _ -> false
+          in
+          if not char_item_emitted then begin
           if is_float_expr st x then begin
             (* [E2E-10/FFACT] a float call item leaves its result on the
                float stack and the edit pair MVI A,0E / ?QFCSS follows the
@@ -13630,6 +13641,7 @@ let lower_put_items_gen st ?(file : string option = None)
             lower_hl st x;
             d st op_mvi_a; d st (num_width st x);
             call_ext st "?QICOP"; tail false ()
+          end
           end
   in
   List.iter emit_item items;
