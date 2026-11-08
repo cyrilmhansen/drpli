@@ -643,6 +643,18 @@ let op_mov_a_b = 0x78   (* [E2E-49/P2 arm 1, RESULTS s2.2] equal-extent member-v
                            compare collapse: MVI B,n then MOV A,B, NO MVI A (E49B1 0010). *)
 let op_mvi_m = 0x36     (* [V104] MVI M,00: empty-varying store *)
 
+(* [E2E-53/P2] MOVED UP from just after `dyn_addr': that function is now the STRIDE DISPATCHER
+   and needs it for the measured stride-3 ladder (`LXI DE,0003 / CALL ?IM22N', E526F and
+   OPTIMIST).  The BODY IS UNCHANGED byte for byte. *)
+let call_ext st name =
+  (* CALL <external RTL>: operand slot = cd 00 00, immediately followed by
+     LINK-CHAIN-EXT at the operand address [DR emits CHAIN-EXT per call site]
+     — matches ?START/?STOPX/?IM22N/?ID22N/?IMDOP record streams *)
+  d st op_call;
+  let slot = st.lc in
+  d st 0; d st 0;
+  link st t_chain_ext (Some (Code, slot)) (Some name)
+
 (* [E2E-23] DR's zero-store pair.  The tracker is set here and ONLY here -- an unclassified byte
    can never manufacture "A is zero", which is the difference between a missed optimization and a
    wrong value (C173's lesson, learned the hard way one episode ago). *)
@@ -985,7 +997,14 @@ type dyn_ref =
   { dyn_base : int
   ; dyn_bias : int
   ; dyn_idx : Ast.expr
-  ; dyn_adj : int }
+  ; dyn_adj : int
+  (* [E2E-53/P2] the ELEMENT SIZE in bytes, carried from the same `st.arrays' row that supplies
+     `dyn_bias'.  The address ladder DEPENDS on it: stride 2 doubles with `DAD H' [C141], stride 1
+     emits NO multiply at all, and stride 3 multiplies with `LXI DE,0003 / CALL ?IM22N'.  The two
+     2-byte forms cannot be distinguished from the ladder bytes alone, so the size must travel
+     with the reference -- deriving it later would need the array name, which `resolve_suffix'
+     has already consumed. *)
+  ; dyn_esz : int }
 
 type suffix_ref =
   | Suf_element of int          (* array element; payload = relocated data address *)
@@ -1038,7 +1057,7 @@ let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
                      (* simple variable index: `a(i)' [AB2 AB10 VB1 VB2] *)
                      Suf_element_dyn
                        { dyn_base = addr_of_raw st name; dyn_bias = -lb * ez;
-                         dyn_idx = a; dyn_adj = 0 }
+                         dyn_idx = a; dyn_adj = 0; dyn_esz = ez }
                  | Ast.Ebinary (Ast.Add, l, ({ Ast.e = Ast.Enumber ks; _ } as rr)) ->
                      (* `a(i+1)' [AB8]: DR adds to the INDEX, then doubles -- see the
                         type comment above.  Only +1 is measured; anything wider keeps
@@ -1050,7 +1069,7 @@ let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
                           if k = 1 then
                             Suf_element_dyn
                               { dyn_base = addr_of_raw st name; dyn_bias = -lb * ez;
-                                dyn_idx = l; dyn_adj = 1 }
+                                dyn_idx = l; dyn_adj = 1; dyn_esz = ez }
                           else
                             failwith
                               (Printf.sprintf
@@ -1089,7 +1108,20 @@ let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
    parks it on the runtime stack, which is the C141 discipline applied to an address rather than
    to a value. The doubling is `DAD H' of the index and the second add comes from the parked
    copy, so the ladder's own PUSH/POP pair nests inside a caller's parking pair exactly as AB8
-   and AB10 show. Nothing here allocates storage: bind.layout remains the only sizing authority. *)
+   and AB10 show. Nothing here allocates storage: bind.layout remains the only sizing authority.
+
+   [E2E-53/P2] THE STRIDE IS PART OF THE LADDER, not a constant of the machine. `dyn_esz' selects:
+     2  (C141, VERBATIM ABOVE): the doubling is `DAD H', which is a shift-by-one for a 2-byte cell.
+     1  (E526C bias!=0, E526G bias=0): NO MULTIPLY AT ALL -- no DAD H, no ?IM22N. Bias!=0:
+              LXI H,<base+bias> ; PUSH H ; LHLD idx ; POP D ; DAD D
+          Bias=0:  LHLD idx ; LXI D,<reloc base> ; DAD D
+     3  (E526F, bias!=0 ONLY): the OPTIMIST stride-9 sequence with 0003, byte-verbatim:
+              LXI H,<base+bias> ; PUSH H ; LHLD idx ; LXI D,0003 ; CALL ?IM22N ; POP D ; DAD D
+          The operand is a PLAIN immediate (E526F emits NO reloc for it), and ?IM22N leaves the
+          product in HL, which the caller then adds from the parked base.
+   `dyn_adj <> 0' (the `a(i+1)' INX H shape) is measured at stride 2 ONLY, and a bias-0 stride-3
+   ladder has no DR witness (E526F is lb=1; VB1's bias-0 form is stride 1/2), so both refuse rather
+   than extrapolate -- as does any stride outside {1,2,3}, which bind already refuses at [C159]. *)
 let dyn_addr st (r : dyn_ref) =
   let opnd = (r.dyn_base + r.dyn_bias) land 0xffff in
   let emit_idx () =
@@ -1106,29 +1138,82 @@ let dyn_addr st (r : dyn_ref) =
       d st op_inx_h
     done
   in
-  if r.dyn_bias = 0 then begin
-    emit_idx ();
-    d st op_dad_h;
-    d st op_lxi_d; reloc st Data opnd;
-    d st op_dad_d
-  end
-  else begin
-    d st op_lxi_h; reloc st Data opnd;
-    d st op_push_h;
-    emit_idx ();
-    d st op_dad_h;
-    d st op_pop_d;
-    d st op_dad_d
-  end
-let call_ext st name =
-  (* CALL <external RTL>: operand slot = cd 00 00, immediately followed by
-     LINK-CHAIN-EXT at the operand address [DR emits CHAIN-EXT per call site]
-     — matches ?START/?STOPX/?IM22N/?ID22N/?IMDOP record streams *)
-  d st op_call;
-  let slot = st.lc in
-  d st 0; d st 0;
-  link st t_chain_ext (Some (Code, slot)) (Some name)
+  match r.dyn_esz with
+  | 1 ->
+      if r.dyn_adj <> 0 then
+        failwith
+          "codegen: [TBD] stride-1 array subscript i+1 [E2E-53/P2]: the INX H index bump is DR-\
+           measured on 2-byte cells only (AB8); refused rather than extrapolated"
+      else if r.dyn_bias = 0 then begin
+        (* E526G 000F-0015: LHLD i / LXI D,*D(base) / DAD D -- 7 bytes, no multiply. *)
+        emit_idx ();
+        d st op_lxi_d; reloc st Data opnd;
+        d st op_dad_d
+      end
+      else begin
+        (* E526C 000F-0017 / E526D 0006-000E: the SAME parking form with the DAD H doubling
+           ABSENT -- a 1-byte cell needs no scaling of the index. *)
+        d st op_lxi_h; reloc st Data opnd;
+        d st op_push_h;
+        emit_idx ();
+        d st op_pop_d;
+        d st op_dad_d
+      end
+  | 3 ->
+      if r.dyn_bias = 0 then
+        failwith
+          "codegen: [TBD] stride-3 array subscript with lower bound 0 [E2E-53/P2]: DR's measured \
+           3-byte ladder (E526F, OPTIMIST's stride-9 pattern) carries a nonzero bias; the bias-0 \
+           form has no witness, so whether DR still parks is unmeasured -- refused"
+      else if r.dyn_adj <> 0 then
+        failwith
+          "codegen: [TBD] stride-3 array subscript i+1 [E2E-53/P2]: the INX H index bump is DR- \
+           measured on 2-byte cells only (AB8); refused rather than extrapolated"
+      else begin
+        (* E526F 0006-0014, and OPTIMIST's stride-9 ladder byte for byte with 0003. *)
+        d st op_lxi_h; reloc st Data opnd;
+        d st op_push_h;
+        emit_idx ();
+        d st op_lxi_d; d st 3; d st 0;
+        call_ext st "?IM22N";
+        d st op_pop_d;
+        d st op_dad_d
+      end
+  | 2 ->
+      if r.dyn_bias = 0 then begin
+        emit_idx ();
+        d st op_dad_h;
+        d st op_lxi_d; reloc st Data opnd;
+        d st op_dad_d
+      end
+      else begin
+        d st op_lxi_h; reloc st Data opnd;
+        d st op_push_h;
+        emit_idx ();
+        d st op_dad_h;
+        d st op_pop_d;
+        d st op_dad_d
+      end
+  | ez ->
+      failwith
+        (Printf.sprintf
+           "codegen: [TBD] variable-index ladder for an array of %d-byte elements [E2E-53/P2] \
+            (only strides 1, 2 and 3 are DR-measured; bind refuses the rest [C159])" ez)
 
+(* [E2E-20/P3] the element size of a subscripted name, straight out of the SAME array list that
+   `resolve_suffix' and bind's layout consult -- there is one sizing authority [C167]. *)
+let array_ez st (hd : Ast.expr) =
+  match hd.Ast.e with
+  | Ast.Eident h ->
+      (match
+         List.find_opt
+           (fun (n, _lb, _ub, _ez) ->
+             String.equal n (String.lowercase_ascii h.Ast.orig))
+           st.arrays
+       with
+       | Some (_n, _l, _u, e) -> Some e
+       | None -> None)
+  | _ -> None
 (* [E2E-34/P1] DAD SP is the single-byte 8080 opcode 39h -- read out of DR's own
    E32E2.REL at code offset 0x09, NOT the Z80 pair ED 31 [C207] -- and SPHL is 0xF9. *)
 let op_dad_sp = 0x39
@@ -4559,8 +4644,27 @@ let rec lower_hl st (e : Ast.expr) =
              (base + (sub-lb)*2), the SAME machinery a scalar reference uses -- no new record
              format.  STORES are deliberately not enabled here [C164/Priority 4]. *)
           (match resolve_suffix st hd args with
+           | Suf_element addr when array_ez st hd = Some 1 ->
+               (* [E2E-53/P2] A 1-BYTE ELEMENT READ is not `LHLD': DR loads the byte and
+                  sign-extends it with a fixed ladder. E526B 0006-000C:
+                      3A <data reloc>   LDA  *D(elem)
+                      6F 87 9F 67       MOV L,A / ADD A / SBB A / MOV H,A
+                  which puts the byte in L, doubles it (arithmetic left shift) so bit 7 lands in
+                  H, and SUBs the carry from A into H -- the byte->word sign extension C159's
+                  `LDA + ladder' law (E29C's scalar `fixed bin(7)' read uses the SAME four bytes).
+                  The offset stays folded into the operand, exactly as in the 2-byte form. *)
+               d st 0x3a (* LDA *); reloc st Data addr;
+               d st 0x6f; d st 0x87; d st 0x9f; d st 0x67;
+               st.last_imm <- None
            | Suf_element addr ->
                d st op_lhld; reloc st Data addr; st.last_imm <- None
+           | Suf_element_dyn r when r.dyn_esz = 1 ->
+               (* E526C 0018-001C / E526G 0016-001A: the stride-1 ladder (which itself carries
+                  NO multiply) then `MOV A,M' and the same sign-extension ladder. *)
+               dyn_addr st r;
+               d st 0x7e (* MOV A,M *);
+               d st 0x6f; d st 0x87; d st 0x9f; d st 0x67;
+               st.last_imm <- None
            | Suf_element_dyn r ->
                (* [E2E-22/P2] variable-index READ.  DR's tail is `MOV E,M / INX H / MOV D,M' --
                   the value arrives in DE, not HL (AB2 0025-0027, AB8 0039-003B, AB10
@@ -4568,7 +4672,17 @@ let rec lower_hl st (e : Ast.expr) =
                   tail: AB2's `b = a(i)' continues `XCHG / SHLD b' and AB8/AB10's PUT item
                   continues `XCHG / MVI A,09 / <numeric PUT tail>'.  DR normalizes to HL with
                   XCHG in every measured case, so the read keeps lower_hl's existing HL contract
-                  and every consumer (scalar store, PUT item, arithmetic) works unchanged. *)
+                  and every consumer (scalar store, PUT item, arithmetic) works unchanged.
+                  [E2E-53/P2] A STRIDE-3 ELEMENT READ AS A NUMERIC VALUE IS UNMEASURED -- E526E
+                  reads a char(3) element only as a PUT character item (?SLCTS), and no DR object
+                  loads a 3-byte cell into a word, so `dyn_addr' above is never reached at ez=3
+                  by a numeric read and the char PUT arm owns the only measured shape. *)
+               if r.dyn_esz <> 2 then
+                 failwith
+                   (Printf.sprintf
+                      "codegen: [TBD] numeric read of an array element of %d bytes through a \
+                       variable subscript [E2E-53/P2] (stride-3 element reads are measured only \
+                       as PUT character items via ?SLCTS; refused)" r.dyn_esz);
                dyn_addr st r;
                d st 0x5e; d st op_inx_h; d st 0x56; d st op_xchg;
                st.last_imm <- None
@@ -4803,6 +4917,23 @@ let rec lower_hl st (e : Ast.expr) =
                                  | None -> 2)
                             | _ -> 2
                           in
+                          (* [E2E-53/P2] NEW TRAP, found in hop-3 recon and CLOSED here. The width
+                             test below compares the FORMAL's size with the ELEMENT's size, so a
+                             bin(7) element against a `fixed(7)' formal has fw = aw = 1 and PASSES
+                             -- and the route it then rides is the 2-byte-measured descriptor
+                             (`LXI H,<addr> / SHLD <desc cell>'), which would hand the callee a
+                             ONE-byte cell behind a two-byte reference: a silent wrong-value
+                             miscompile of exactly the C139/C150 class. Every element-as-ACTUAL
+                             shape DR has measured (AB7, PASSARAY, C130) is a 2-byte cell, so
+                             anything else refuses by name. *)
+                          if aw <> 2 then
+                            failwith
+                              ("codegen: [TBD] an array element of " ^ string_of_int aw
+                               ^ " bytes passed as an ACTUAL [E2E-53/P2]: DR's element-as-actual "
+                               ^ "descriptor (LXI H,<elem> / SHLD <cell> / CALL) is measured on "
+                               ^ "2-byte cells only [C130 AB7 PASSARAY]; a 1- or 3-byte cell has "
+                               ^ "no witness (line "
+                               ^ string_of_int arg.Ast.epos.Source.line ^ ")");
                           (match callee_formal_rt st nm i with
                            | Some (Bind.RTbin p) ->
                                let fw = Bind.bytes_of (Bind.RTbin p) in
@@ -10901,6 +11032,97 @@ statement form IS implemented; this expression form is not.)")
              | _ -> None)
         | _ -> None
       in
+      (* [E2E-53/P2] THE ELEMENT STRIDE, from bind's single sizing authority [C167].  The four
+         C165 forms above are DR-measured on 2-BYTE CELLS: `SHLD', the `MVI M,lo / INX H /
+         MVI M,hi' pair and the parked `MOV M,E / INX H / MOV M,D' all write TWO bytes, so none
+         of them may run behind a 1- or 3-byte cell.  The two new classes get their own routes
+         below and every other shape refuses. *)
+      let ez_st =
+        match
+          List.find_opt
+            (fun (n, _l, _u, _e) ->
+              String.equal n
+                (match hd.Ast.e with
+                 | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+                 | _ -> "?"))
+            st.arrays
+        with
+        | Some (_n, _l, _u, e) -> e
+        | None -> 2
+      in
+      (* [E2E-53/P2] the literal value, computed ONCE for the stride-1 gate and the stride-2
+         forms.  [E2E-25/C178] `int_lit_checked' is the same choke point the 2-byte routes use:
+         an out-of-range magnitude refuses rather than wrapping. *)
+      let litv_st =
+        match (unwrap_e rhs).Ast.e with
+        | Ast.Enumber t -> Some (int_lit_checked "an array element store" t)
+        | _ -> None
+      in
+      if ez_st <> 2 then begin
+        (* form 4 (self-update) and the computed-value routes exist only for a 2-byte cell. *)
+        if self_k <> None then
+          failwith
+            "codegen: [TBD] array element self-update on a stride-1/stride-3 cell [E2E-53/P2]: \
+             form 4 (LHLD / bias / SHLD) writes two bytes and is measured only on 2-byte \
+             elements (AB12, AC4); refused"
+      end;
+      match ez_st with
+      | 1 -> begin
+          (* E526A/E526D: one byte, written with `MVI A,v / STA *D' at offset 0 and with
+             `LXI H,*D / MVI M,v' everywhere else -- the SAME discriminator C159 measures for the
+             2-byte cell's forms 1/2, reduced to one byte.  A VARIABLE subscript rides the
+             stride-1 ladder (no multiply) and then `MVI M,v' (E526D 0006-0010).  LITERALS 0..127
+             ONLY: DR's `fixed bin(7)' cell holds a signed byte, and E526 gives no witness for a
+             value >= 128 or for a computed (non-literal) value at stride 1, so both refuse. *)
+          match litv_st with
+          | None ->
+              failwith
+                "codegen: [TBD] stride-1 array element store of a computed value [E2E-53/P2]: \
+                 DR measures only a literal byte here (E526A/E526D); the parked form's \
+                 MOV M,E / INX H / MOV M,D writes two bytes"
+          | Some v when v < 0 || v > 127 ->
+              failwith
+                (Printf.sprintf
+                   "codegen: [TBD] stride-1 array element store of the literal %d [E2E-53/P2]: \
+                    only 0..127 is DR-measured (E526A stores 3 and 5, E526D stores 4); the sign \
+                    and range laws for a bin(7) cell above 127 have no witness." v)
+          | Some v ->
+              st.last_imm <- None;
+              (match dyn_r with
+               | Some r ->
+                   dyn_addr st r;
+                   d st op_mvi_m; d st (v land 0xff)
+               | None ->
+                   if off = 0 then begin
+                     d st op_mvi_a; d st (v land 0xff);
+                     d st 0x32 (* STA *); reloc st Data addr
+                   end
+                   else begin
+                     d st op_lxi_h; reloc st Data addr;
+                     d st op_mvi_m; d st (v land 0xff)
+                   end)
+        end
+      | 3 -> begin
+          (* E526E/E526F: a char(3) element is stored with the SCALAR fixed-char helper on the
+             ELEMENT address -- `LXI H,*D(elem) / LXI D,*S / MVI A,03 / MVI B,len / CALL ?SMCCM',
+             which is store_char's V106 arm verbatim with a different destination address source
+             (the `~dst' callback exists for exactly this).  A string literal is the only
+             measured source; the len<cap extent law is store_char's own. *)
+          match (unwrap_e rhs).Ast.e with
+          | Ast.Estring v ->
+              st.last_imm <- None;
+              store_char ~dst:(Some (fun () ->
+                  match dyn_r with
+                  | Some r -> dyn_addr st r
+                  | None -> d st op_lxi_h; reloc st Data addr))
+                st (match hd.Ast.e with Ast.Eident h -> h.Ast.orig | _ -> "")
+                   (Vfix 3) v
+          | _ ->
+              failwith
+                "codegen: [TBD] stride-3 (CHARACTER(3)) array element store from a non-literal \
+                 source [E2E-53/P2]: E526E/E526F measure only a string literal through ?SMCCM"
+        end
+      | _ -> begin
       match self_k with
       | Some k ->
           st.last_imm <- None;
@@ -10908,17 +11130,7 @@ statement form IS implemented; this expression form is not.)")
           hl_bias st k;
           d st op_shld; reloc st Data addr
       | None ->
-          let litv =
-            match (unwrap_e rhs).Ast.e with
-            | Ast.Enumber t ->
-                (* [E2E-25/C178] checked HERE, once, rather than at each form: litv feeds DR's
-                   offset-0 SHLD form, the offset<>0 byte-pair form (which truncates to
-                   `MVI M,lo / MVI M,hi'), the parked form and the self-update form, so a single
-                   guard covers every element-store shape.  LP12 (`z(1) = 32768') showed the
-                   offset-0 path storing a wrapped 0x8000 where DR converts and aborts. *)
-                Some (int_lit_checked "an array element store" t)
-            | _ -> None
-          in
+          let litv = litv_st in
           if dyn_r <> None then begin
             (* [E2E-22/P2] variable-index STORE.  Two DR-measured shapes, and the discriminator is
                the SAME one as for the ladder's own parking [C141]:
@@ -11030,6 +11242,7 @@ statement form IS implemented; this expression form is not.)")
                 d st op_inx_h;
                 d st 0x72  (* MOV M,D *)
               end
+        end
   | _ -> failwith "codegen: non-simple assignment lhs [TBD]"
 
 (* ---- E2E-3b: comparisons ----  ALL forms transcribed from $C traces
@@ -13349,6 +13562,48 @@ let lower_put_items_gen st ?(file : string option = None)
                 tail true ()
               end
           | None ->
+          (* [E2E-53/P2] A CHARACTER-ARRAY ELEMENT in a PUT LIST is a CHARACTER item, not a
+             number -- classification is syntax-only, so (like the vbvar re-dispatch above and
+             PIvar) the decision is made HERE where bind's array row is readable.  E526E
+             001C-0023 measures `put list(d(2))' on `dcl d(3) char(3)':
+                 21 <data 0005>   LXI  H,*D(elem)      (offset folded, constant subscript)
+                 3E 03            MVI  A,03            (the ELEMENT's declared extent)
+                 cd <?SLCTS>      CALL ?SLCTS
+                 cd <?PNCOP>      (the ordinary character tail)
+             and E526C/E526G show the same item on a VARIABLE subscript with the stride-1 ladder
+             in place of the LXI H.  A stride-3 NUMERIC read has no witness, so nothing else
+             about this arm is extrapolated. *)
+          (match (unwrap_e x).Ast.e with
+           | Ast.Esuffix (hd, args)
+             when hd_is_element st.arrays hd && array_ez st hd = Some 3 ->
+               if is_edit then
+                 failwith
+                   "codegen: [TBD] PUT EDIT of a CHARACTER(3) array element is unsampled [TBD] \
+                    (E526E measures only a plain PUT LIST item: ?SLCTS then the shared ?PNCOP)"
+               else begin
+                 (match resolve_suffix st hd args with
+                  | Suf_element a -> d st op_lxi_h; reloc st Data a
+                  | Suf_element_dyn r -> dyn_addr st r
+                  | Suf_call _ -> assert false);
+                 d st op_mvi_a; d st 3;
+                 call_ext st "?SLCTS";
+                 tail true ()
+               end
+           | Ast.Esuffix (hd, _args)
+             when hd_is_element st.arrays hd && array_ez st hd <> Some 3 ->
+               (* a stride-1 numeric element keeps the numeric route below (E526B/E526C/E526G:
+                  `lower_hl' + MVI A,07 + ?QICOP), exactly as the 2-byte elements RD1/AB* already
+                  do; any other element class is unmeasured in a PUT item. *)
+               (match array_ez st hd with
+                | Some 1 | Some 2 -> ()
+                | _ ->
+                    failwith
+                      (Printf.sprintf
+                         "codegen: [TBD] PUT item reads an array element of %d bytes [E2E-53/P2] \
+                          (stride 1 rides the numeric tail; stride 3 is the character arm above; \
+                          other strides are refused by bind [C159])"
+                         (match array_ez st hd with Some e -> e | None -> 0)))
+           | _ -> ());
           if is_float_expr st x then begin
             (* [E2E-10/FFACT] a float call item leaves its result on the
                float stack and the edit pair MVI A,0E / ?QFCSS follows the

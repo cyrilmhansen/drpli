@@ -1043,7 +1043,24 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                    characterized, not implemented)"
           in
           if nelem > 1 then begin
-            if elem_sz <> 2 then
+            (* [E2E-53/P2] TWO MORE ELEMENT CLASSES ARE NOW DR-MEASURED, and the test is on the
+               RUNTIME TYPE FORM, never on `elem_sz' alone:
+                 RTbin 7         -> 1-byte cells  (E526A..D,G: stride 1 emits NO multiply -- no
+                                                   DAD H and no ?IM22N -- in either bias form)
+                 RTchar (3,false)-> 3-byte cells  (E526E/F: the OPTIMIST `LXI DE,0003 / CALL
+                                                   ?IM22N' stride-9 ladder verbatim with 0003)
+               `elem_sz = 3' alone is NOT the class: RTchar(2,true) also SIZES to 3 (1+n) and is
+               the static-varying descriptor family OPTIMIST refuses with `9-byte [C159]', so a
+               bare size test would arm the refused class.  Everything else -- bin(8)..bin(15),
+               every DECIMAL/FLOAT/BIT spelling, entry/label (0 bytes) and the varying class --
+               keeps refusing, and the refusal STRING IS KEPT BYTE-IDENTICAL because the census
+               pins the DEPREC `0-byte' and OPTIMIST `9-byte' texts. *)
+            let elem_sz_measured =
+              match rt with
+              | RTbin 7 | RTchar (3, false) -> true
+              | _ -> elem_sz = 2
+            in
+            if not elem_sz_measured then
               failwith
                 ("codegen: [TBD] array of " ^ string_of_int elem_sz
                  ^ "-byte elements [C159] (only FIXED BINARY(15) / typeless \

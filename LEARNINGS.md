@@ -9432,3 +9432,68 @@ spec/COVERAGE-IDS.txt; NEVER coverage_gen.py) -> FULL gate rc=0 DIRECT build/gat
 RESULTS §P2 + PLAN §4 row (7-pipe assert RUN IN CODE, LINE-anchor) + §P2 CLOSED -> durables + guard
 blocks VERBATIM. Standing constraints per PROTOCOL Part 2 anchor; `nelem=1` crash RECORDED never
 fixed; chain renewals 6/12 after this switch, cap 12.
+
+## E2E-53/P2 hop 4 — ARM IMPLEMENTED FIRST-HAND FROM THE BLUEPRINT; 6/7 PARITY PASSES; E526E PUT CHAR ITEM UNROUTED (2026-11-09, session 01a1b89d, chain renewal 7/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+**ACCEPTED (verified first-hand this hop).** Recovery verified (HEAD `7fae8ecb`, binary `8e51c261…` ==
+tree, build rc=0). ALL SEVEN golden decodes re-read BYTE FOR BYTE from `build/e53p2/decode/` before
+any edit — every blueprint byte quote matched (`sizes.txt` "used/max" = BYTES, per the E2E-53/P1 tool
+law; `code.txt` shows `LXI H FFFF` whose RELOC record carries the biased operand `0xffff`).
+
+**ARM LANDED (blueprint (a)–(g) verbatim, `ocaml/lib/bind.ml` + `ocaml/lib/codegen.ml` only):**
+(a) `bind.ml` allow-list on the RT FORM — `RTbin 7`, `RTchar (3,false)`, else `elem_sz = 2`; refusal
+string kept BYTE-IDENTICAL. (b) `dyn_ref` gains `dyn_esz` (both constructors, from `resolve_suffix`'s
+`ez`); `dyn_addr` is now an `ez` DISPATCH: ez=2 keeps the C141 body VERBATIM, ez=1 emits the measured
+forms with NO multiply (bias≠0 `21 RELOC/E5/2A idx/D1/19`; bias=0 `2A idx/11 RELOC base/19`), ez=3
+bias≠0 ONLY `21 RELOC/E5/2A idx/11 03 00/CD ?IM22N/D1/19`, and `dyn_adj<>0`, bias-0-at-3 and any other
+stride REFUSE with `[TBD]` strings. (c) `lower_hl`: ez=1 const `3A RELOC + 6F 87 9F 67`; ez=1 dyn
+`<ladder>/7E/6F 87 9F 67`; ez≠2 numeric dyn read REFUSES. (d) store ez=1 literal `0≤v≤127` ONLY
+(off=0 `3E v/32 RELOC`; else `21 RELOC/36 v`; dyn `<ladder>/36 v`), computed/self-update at ez≠2
+REFUSE. (e) ez=3 `Estring` rhs → `store_char ~dst (Vfix 3)` (arm 5995-6008 emits the measured SMCCM
+tail). (g) element-as-ACTUAL: NEW `aw <> 2` REFUSE beside the E2E-22/P3 width test.
+**TOOLING LAWS LEARNED (accepted, will save future hops hours):** (i) OCaml argument order —
+`store_char ?(dst) st name k v` MUST be called `store_char ~dst:(Some f) st name k v`; putting any
+positional argument before the `~label` turns the optional into a plain function argument
+("This expression should not be a function"). (ii) A `\n\` written inside a string is a REAL newline
+plus a spurious continuation — line continuations are `\` + newline ONLY. (iii) `call_ext` (was
+line 1205) had to MOVE UP to just after `op_call`/`op_mvi_m` (now line 649) because `dyn_addr` (1113)
+is a plain `let` and OCaml has no forward reference; body unchanged byte for byte. (iv) `d st` takes
+ONE int argument — `(fun () -> …)` as its argument is always a type error; check which function you
+are really calling before suspecting the callback.
+
+**PARITY RESULT (FRESH POSITIONAL, whole-file `cmp` vs `golden/e53p2/`, `build/e53p2/arm-out/`):**
+E526A/B/C/D/F/G **rc=0 CMP-OK** — the stride-1 store/read/ladder, the stride-3 IM22N ladder and the
+stride-3 SMCCM STORE are byte-exact on the first try. **E526E rc=2 `codegen: constant-only PUT
+numeric item unproven [TBD]`** (raised at `num_width`, codegen.ml ~12641, i.e. `r = 0`).
+
+**OPEN — EXACT NEXT ACTION (single remaining parity failure).** E526E's SECOND statement
+`put list(d(2));` (char(3) element, CONSTANT subscript) reaches the NUMERIC tail instead of the new
+character arm, so `num_width` answers 0 and the item dies. The store statement of the same program
+ALREADY passes (its bytes are inside the rc=2 boundary: the refusal is the PUT). The new arm sits in
+the `| PInum x ->` of `lower_put_items_gen`'s `emit_item` (call site ~13503; the emitter starts
+~13115) and its guard is
+`hd_is_element st.arrays hd && array_ez st hd = Some 3` on `(unwrap_e x).Ast.e`.
+DIAGNOSE FIRST-HAND, do not guess: print/dump the ACTUAL item expression the arm receives (precedent:
+the `TRACE-ITEM` note near codegen.ml ~10296 says width recursion once saw `(BIN Add … (COND …))`,
+so the runtime shape is the authority, never the source text). Two concrete candidate causes, BOTH
+unverified (PROPOSED): (1) `classify_item` (~2349) sends the item somewhere other than `PInum`
+(a `PIvar`/literal path), or (2) the item is `Econd`-wrapped or otherwise not an `Esuffix` at the
+point the guard reads it. Fix = route the measured E526E shape (`21 *D(elem)/3E 03/?SLCTS/?PNCOP`,
+and per E526C/G the dyn form uses the stride-1 ladder in place of `LXI H`) in whichever arm the item
+really lands in; NEVER fit bytes.
+
+**STILL OWED AFTER PARITY 7/7 (hop-2 contract VERBATIM, unchanged in substance):** legacy falsifiers
+SNS4 + DEPREC/LABELS/MPMCALLA/OPTIMIST must keep `0-byte`/`9-byte [C159]` (a move = LEAKED ARM,
+revert) + EXPR1/REPORT/COPYLPT unmodified → tail (fingerprint fresh `--build-dir` + grep `Error`;
+hist 68/124 COMPUTED; `build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 COMPUTED vs 194/0+7;
+markers argv 16 P1 + N6/N45_GETSUB/E46K15; DEC 64/0; divcheck 9/9) → REAL `--update-inventory`
+(1316/190 +7, own output, never force) → census OWN path (expect 16/0/25/0) → **C379
+measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (row 7
+`AGG.ARRAY_1D_FIXED` EXTEND vs NEW `AGG.ARRAY_1D_STRIDED` + explicit `spec/COVERAGE-IDS.txt`; NEVER
+`coverage_gen.py`) → FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` → RESULTS §P2 + PLAN §4 row
+(7-pipe assert RUN IN CODE, LINE-anchor) + §P2 CLOSED → durables + guard blocks VERBATIM.
+**STATE:** ledger ENDS **C378**; inventory 1316/190 (STALE-PENDING until the real update); coverage
+145/95; LAST gate rc=0 `build/gate-e53p1-reg.log`; census 16/0/25/0; ARMED binary sha256
+`c8ed1b9a2d8c7e70…` (supersedes the UNARMED `8e51c261…`) == tree; goldens `golden/e53p2/`
+`d55ec7b5` KEPT VERBATIM, NEVER re-derived, `dir.txt` NEVER staged; `nelem=1` crash RECORDED never
+fixed; corpus blockers VERBATIM never fix; chain renewals 7/12 after this switch, cap 12.
