@@ -52,7 +52,12 @@ SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool d
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon COMPLETE — consumed by site re-verification; see hop 6 § in LEARNINGS)
 
-## Next action (E2E-53/P4 hop 15 **ARM LANDED+COMMITTED 39c7919e; REGRESSION HALF 1 LANDED** — hop 16 = CLOSE-OUT ONLY — BINDING; read LEARNINGS § "P4 hop 15" SUCCESSOR CONTRACT VERBATIM)
+## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING)
+**DONE hop 16 (session 01a1bb38, renewal 2/12 of the OPERATOR-RESET chain; ZERO oracle; ZERO `ocaml/lib/` byte):** recovery verified (HEAD `0fff88d8`; tree binary sha256 **`172595d5…`** == armed fingerprint == committed arm `39c7919e`; build rc=0). Tail all rc DIRECT — sweep **206/0 FAILS/28 refusals** (`build/e53p4/sweep.log`), DEC **64/0** (`dec.log`), divcheck **9/9** (`divcheck.log`), **FULL gate rc=0** `build/gate-e53p4-reg.log` (1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5). **The carried "sweep 201" expectation was STALE, and it was ATTRIBUTED not forced:** prefix-scope row counts are 201 in `git show b7544b61^:spec/INVENTORY.txt` and 206 in HEAD's, the delta being exactly E527A/C/D/E/G, each re-verified `cmp` rc=0 vs `golden/e53p3/`; refusals and FAILS unchanged ⇒ inventory moved, not the compiler (LEARNINGS § hop 16 LAW). Hist 122 headers re-counted first-hand, ZERO `Error`; the three vanished sites re-confirmed by header-set diff. SNS4 collision re-checked fresh (`build/e53p4/fals/sns4-recheck-h16.log`: rc=0, `cmp` rc=0 vs `build/e53p2/sanity/SNS4.out.rel`, sha `c6ad9b56…`). Docs landed at **`fcca9ad0`**: `RESULTS.md` §P4 + `PLAN.md` §4 P4 row (LINE 76, 8-pipe assert RUN IN CODE) + §P4 **CLOSED** + `PLAN.md` §P4.6 DATED close-out; NO claim (ledger ENDS **C380**), NO `--update-inventory`, NO coverage touch, goldens VERBATIM.
+**EXECUTE (hop 17, EXACT order — NO oracle, NO `ocaml/lib/` byte until (1)-(2) are done):** (1) **E2E-54/P0 ("HIR") is REFERENCED BUT NOT RECORDED** — `grep -rnw HIR` hits only the hop-14/15/16 contract sentences; no `spec/lab-evidence/e2e54/`, no `spec/notes/` entry, nothing in GOAL/PLAN §2. **ASK THE OPERATOR to restate the brief and write it VERBATIM into a NEW `spec/lab-evidence/e2e54/PLAN.md` §0**; do NOT pre-register or infer scope from the acronym (PROPOSED reading only: a High-level IR layer between `bind` and the 17k-line `codegen.ml` — `ocaml/lib/ir.ml` is 324 lines — with P0 a ZERO-oracle pre-audit). (2) If the operator confirms that reading, PRE-REGISTER §P0 (scope, falsifiers, regression contract, hist expectation computed from the CURRENT inventory — see the hop-16 sweep law, ids verified unused by explicit `grep`) by EXPLICIT PATHS and COMMIT it BEFORE any oracle call or `ocaml/lib/` byte (PROTOCOL #1). (3) Standing non-oracle candidates the operator may prefer instead, all still requiring the same pre-registration: `nelem=1`/scalar-subscript crash at `codegen.ml:10248` (recorded since P2, never fixed), the `char(2)` store/compare twins (recorded in P4, deliberately untouched), the B1 static-varying residue (`OPTIMIST 9-byte [C159]` MUST NOT move), or A3/A4 (char builtins, FLOAT-expression-as-actual — NO golden exists, so they need a campaign).
+**STATE:** HEAD = this durables commit; armed fingerprint **`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`** == tree; **E2E-53 campaign CLOSED** (§P1 GET SKIP, §P2 stride-1/3 arrays, §P3 label/entry VALUE class, §P4 hygiene); ledger ENDS **C380** (203 headers); inventory **1328/190**; coverage **149 rows / SUPPORTED 99** (0/0); census 16/0/25/0; LAST gate rc=0 **`build/gate-e53p4-reg.log`**; goldens all KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fixed; constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT / `${PIPESTATUS[0]}`; never glue `rm`; byte-tier; `build/`+`ocaml/_build-*`+`ocaml/scratch-*`+`handoff.config.json` NEVER staged; no push); chain **operator-RESET** — renewal state says **2/12 done, cap 12** (the "9/12, one renewal left" quotations in the hop-14/15 blocks are OBSOLETE); stray root `S2..S5.PLI`/`.log` pre-existing debris, untouched.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P4 hop 15 **ARM LANDED+COMMITTED 39c7919e; REGRESSION HALF 1 LANDED** — hop 16 = CLOSE-OUT ONLY — BINDING; read LEARNINGS § "P4 hop 15" SUCCESSOR CONTRACT VERBATIM)
 **DONE hop 15 (session 01a1bb21, renewal 9/12; ZERO oracle; BYTE TIER):** guard g603 committed `eb8592ff`; edits (a)-(j) landed EXACTLY per PLAN §P4, build rc=0; markers argv-19 FAILS 0; sanity post/ — ALL former crashes/silents loud rc=2 ZERO .REL, SANL19/SNSLC byte-identical, 29 former-loud errs byte-identical, SNSLD crash UNCHANGED (site quotation moved 10189→10248, same site); parity **16/16** whole-file cmp OK vs goldens VERBATIM, B/H/F deaths preserved; corpus 7 deaths byte-identical vs `build/e53p3/fals/`; SNS4 cmp OK (source `build/e53p2/sanity/SNS4.PLI`); census rc=0 16/0/25/0; fingerprint **`172595d5…`** fresh `--build-dir` ZERO Error SUPERSEDES `fed67d24…`; hist **66/122 — prediction 68/124 FALSIFIED**, attributed to three sites (predicted 14789 W27, vk_name W8 became exhaustive, + UNPREDICTED resolve_suffix:1067 W27 consumed by edit (j)); NEVER forced.
 **EXECUTE (hop 16, EXACT order — ZERO oracle, ZERO further `ocaml/lib/` byte):** (1) sweep 201/0 → `build/e53p4/sweep.log`; DEC 64/0 → `dec.log`; divcheck 9/9 → `divcheck.log`; (2) NO probes/inventory/coverage/claim (verify 1328/190 via gate; ledger ENDS C380; unexpected move = STOP+record VERBATIM); (3) FULL gate rc=0 DIRECT `build/gate-e53p4-reg.log`; (4) RESULTS §P4 + PLAN §4 row + §P4 CLOSED (include DATED 10189→10248 note); (5) durables+guard; then E2E-54/P0 (HIR) per operator brief.
 **STATE:** armed fingerprint `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` == tree == committed arm; ledger ENDS **C380**; inventory **1328/190**; coverage **149/99**; LAST gate rc=0 `build/gate-e53p3-reg3.log`; census 16/0/25/0; goldens all KEPT VERBATIM (`dir.txt` NEVER staged); config NEVER staged; no push; chain **9/12** cap 12.
@@ -3593,17 +3598,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 603
-checkpoint-id: g603-f42d9505e0cc
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 605
+checkpoint-id: g605-a761ba3bf501
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-08T12:28:19.791Z
+guard-level: 3
+checkpointed: 2026-11-08T12:53:24.412Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 488af651a86b481cc9d159f35b2f423a8473caccaebe12d93a5e74b501f3b515
+source-progress: 4aaff2eb013ea7b5dc3a242b9c3a9c04dd3de187a9a265cf437fc2f1b78d2266
 source-handoff: 262fcc5f2e19c70de2945110e76f1fb28febc5879d98e3621d56a184447dd87b
-source-learnings: c912ed6f3a79d333e30aefacdb313bae09f35031af6eed6c04aa4e01da08e249
+source-learnings: 2857429372fed178420d45f57a4bf7a3830f842fff78e8fcf9f9df273780670b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-11 CODEGEN-ONLY list VERBATIM (LEARNINGS § hop 10 + hop 9 §§ have every anchor), then parity 5/5 → falsifiers (B/F/H vs baseline) → tail → inventory 1323/190 +5 → census (3 msgs MOVE) → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 + CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 6/12 cap 12.
 0a-e53-14. **E2E-53/P3 hop 13 LANDED — §P3 CLOSED; tail COMPUTED, gate rc=0, ONE NEW my-gap recorded (session 01a1babc, renewal 8/12; ZERO oracle; ZERO `ocaml/lib/` byte; BYTE TIER ONLY):** fingerprint `fed67d24…` re-produced on FRESH `--build-dir _build-e53p3h13` ZERO `Error`; markers argv-19 MARKER_FAILS 0 (N6 phrase alive); DEC 64/0; divcheck 9/9; coverage_check 149 rows 0/0 SUPPORTED **99** recounted from the tool's OWN output (96 was the 146-row mid-campaign state); FULL gate **rc=0** `build/gate-e53p3-reg3.log` (1328/0, 190/190, 9/9, 149 rows, census 16/0/25/0, prose 5); `RESULTS.md` §P3 + `PLAN.md` §4 P3 row (8-pipe assert RUN IN CODE) + §P3 **CLOSED**. **hist 68/124 FALSIFIED — measured codegen 72 / total 128**, attributed first-hand to TWO arm sites: unused `idx` (`codegen.ml:14789`) and a NEW partial-match on **`vk_name` (`codegen.ml:7076`)** which is a **LIVE CRASH PATH**: `build/e53p3/h13-sanity/SNSL6.PLI` (`dcl x label; … f = 1.0 + x;`) and `SNSL8.PLI` (`put list(x);`) die `Pattern matching failed` instead of a loud `[TBD]`; controls SNSL4/5/7/9/B refuse loudly, float SNSLC rc=0. Recorded VERBATIM as a NEW my-gap, NEVER fixed (close-out authorizes zero compiler edits); repair = PROPOSED P4 hygiene slice. SUCCESSOR = PROGRESS.md `## Next action` hop-14: read LEARNINGS § hop 13; PRE-REGISTER PLAN §P4 (+ `E528*` probes, ids VERIFIED unused) by EXPLICIT PATHS BEFORE any oracle/`ocaml/lib/` byte; parity vs e53p1/p2/p3 panels; hist baseline now **72/128** — attribute any move, never force it; gate `build/gate-e53p4-reg.log`. Ledger ENDS **C380** (203 headers); inventory **1328/190**; coverage **149/99**; goldens KEPT VERBATIM; `dir.txt`/config NEVER staged; no push; chain 8/12 cap 12.
@@ -4297,9 +4302,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1bb05-cddb-7229-82be-08c8176b3b88
-readiness-at: 2026-11-08T12:28:19.832Z
-readiness-checkpoint: g603-f42d9505e0cc
+readiness-by: session:01a1bb21-dd39-7229-82be-08cd1a434bcd
+readiness-at: 2026-11-08T12:53:24.451Z
+readiness-checkpoint: g605-a761ba3bf501
 <!-- guard:end checkpoint -->
 
 ## Blockers
