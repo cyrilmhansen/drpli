@@ -1,0 +1,11 @@
+E527D: procedure options(main);
+   /* [E2E-53/P3] H-D: stride-2 DYNAMIC read + store — LABELS   */
+   /* already pins both (0042-005E); this probe re-pins them    */
+   /* MINIMAL and outside the ON/DO context of LABELS.          */
+   dcl i fixed, z(3) label;
+ lab1:;
+   i = 2;
+   z(i) = lab1;
+   stop;
+end E527D;
+

@@ -1,0 +1,14 @@
+E527E: procedure options(main);
+   /* [E2E-53/P3] H-C: computed GOTO from a label-variable      */
+   /* ELEMENT with a dynamic subscript.  LABELS pins            */
+   /* ladder + LHLD + PCHL (006F-007D) inside a DO context;     */
+   /* this isolates it and fixes the LB: lb=1 here vs lb=0 in   */
+   /* LABELS `c(i)`.                                            */
+   dcl i fixed, z(3) label;
+ lab1:;
+   i = 2;
+   goto z(i);
+ lab2:;
+   stop;
+end E527E;
+

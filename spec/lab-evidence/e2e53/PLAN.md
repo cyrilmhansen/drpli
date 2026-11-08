@@ -73,7 +73,148 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
 | P1 **CLOSED** | GET SKIP family (console) | +4 (E525A-D, whole-file cmp rc=0) | 0 (blockers moved VERBATIM past GET lines in EXPR1/REPORT/DEPREC/COPYLPT, never fixed) | 0 | C378 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p1-reg.log (1316/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5) |
 | P2 **CLOSED** | non-2-byte array elements (stride 1/3 class) | +7 (E526A-G, whole-file cmp rc=0) | 0 (four B1 blockers re-held VERBATIM 0-byte/9-byte [C159], never fixed) | 0 | C379 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p2-reg.log (1323/0, 190/190, 9/9, 146 rows SUPPORTED 96, census 16/0/25/0, prose 5) |
 
-## 5. Standing constraints (carry into every slice)
+## 5. Re-ranking at P3 open (2026-11-08, successor session of `c3b54516`; ZERO oracle; binary `cb906871…` == tree)
+
+The §2 matrix predates the P1/P2 arms. Re-measured DIRECT this hop (census OWN path,
+`build/census-e53p3-open.log` rc=0, counts UNCHANGED 16/0/25/0; UNARMED sanity
+`build/e53p3/sanity/` SNS1..SNS12 + `sanity2/` E527A..H):
+
+- **A1/A2 (GET SKIP, ACK/PUT families):** P1 armed the console GET SKIP subset only; ACK still
+  carries its THREE independent blockers; COPYLPT line 65 needs the FILE-route SKIP-count class
+  AND, behind it, `get file edit(buff)(a)` + `put edit` FILE primitives + `pageno` + `signal`
+  (full-program audit) — not a slice.
+- **A3/A4 (char builtins, FLOAT-as-expression):** SUBSTR/VERIFY/LENGTH remain wholly unmeasured
+  (no row, no claim); FLOAT-call-as-expression has NO golden witness at all — both stay queued.
+- **B1 residue (entry/label VALUE class + static-varying):** P2 armed stride 1/3 only. The
+  entry/label class is now the ONLY family whose evidence is ALREADY AUTHENTIC AND FULLY
+  DECODABLE from kept goldens — `golden/first/LABELS` (whole program, 384 B, every class
+  decoded first-hand this hop incl. the bitstream record level via `tools/reldump.py`),
+  `golden/first/DEPREC` (both store variants + computed call), `golden/first/MPMCALLA`. It
+  unblocks the bind refusal of THREE corpus programs (LABELS/DEPREC/MPMCALLA) and the
+  `TRAN.COMPUTED_GOTO` row (line 101) itself records "both must land together for LABELS to
+  compile". SELECTED as **P3** (§6). The static-varying descriptor class (OPTIMIST 9-byte)
+  stays queued — its blocker MUST NOT move.
+- **B3/C/D:** descriptor ABI + translate builtin (ANNUITY/SAMPLE/RETRIEVE/DIOCALLS) unmeasured
+  with no golden starting point for the RETURN route; OPEN ENVIRONMENT/KEYED/UPDATE research
+  family (6 programs) unchanged-HIGH; div-checks pinned. REVERT (`exit` implicit-float law) and
+  CREATE (GET LIST unknown name) are single-rule but each still needs a full behind-blocker
+  audit first; queued.
+
+## 6. P3 — entry/label VALUE class (LABELS/DEPREC/MPMCALLA family) — PRE-REGISTERED (2026-11-08, successor session of `c3b54516`, chain 10/12, BEFORE any oracle call or `ocaml/lib/` byte)
+
+### P3.1 Blocker VERBATIM (UNARMED `cb906871…`, `build/e53p3/sanity/` + `sanity2/`)
+
+```
+SNS1/2/6/8/9  dcl x label; x = lab1;          rc=2  codegen: [TBD] undeclared x (no declaration in scope)   (label NAME as store source / copy source never resolves)
+SNS3/4/5      label/entry ARRAY decl           rc=2  codegen: [TBD] array of 0-byte elements [C159]  (bind guard ~1046)
+SNS7          dcl x label; stop;               rc=0  128 B — scalar label/entry vars lay down ZERO bytes (cell law UNMEASURED)
+SNS10/12      y = x (label var as RHS)         rc=2  same undeclared-x shape
+SNS11         goto x; (label var)              rc=2  codegen: [TBD] GOTO to `x': NOT LABEL, which is also what DR reports (E36T9..T17 family) — codegen ~13790
+E527F         goto c(i); (implicit lbl array)  rc=2  codegen: computed GOTO deferred [TBD]
+E527A..H      final probes (sanity2)           rc=2  EXACTLY the shapes above: A/B/H undeclared; C/D/E/F/G bind 0-byte; F additionally computed-GOTO-deferred. NO crash.
+```
+
+Corpus users blocked at bind TODAY: LABELS, DEPREC, MPMCALLA (all `0-byte elements [C159]`).
+OPTIMIST (`9-byte`) is a DIFFERENT class and must NOT move.
+
+### P3.2 Existing authentic evidence (decoded FIRST-HAND this hop; sizes/code/data via `build/p3-13/p13dump.py` into `build/e53p3/pre-audit/labels-{sizes,code,data}.txt`, `deprec-stores.txt`; record level via `tools/reldump.py`)
+
+**SELF-ADDRESS LAW (the key discovery, zero-oracle).** A LABEL/ENTRY variable's cell holds its OWN
+DATA address. LABELS: `SET-LC data 0014 / relocatable word value 0016` → data@0014-15 = 0016 =
+self+2 (array base = first cell); DEPREC/MPMCALLA: cells 04E6..04EC each hold their own address
+(verified by the record stream: `SET-LC data 04E6/04E8/04EA/04EC` each followed by a relocatable
+DATA word carrying that same address). `LXI H,*D(cell)` at LABELS 0024 passes that base as the
+argument pointer for `call P(lab2)` (lab2's own value is IRRELEVANT — pins: 0025-26 operand
+RELOC data@0014; CALL slot 002C CHAIN-ADDR 002B → stub 0091).
+
+| # | shape | witness | bytes |
+|---|---|---|---|
+| W1 | forward ENTRY/label CONSTANT store (scalar) | DEPREC 0006-000B (line 46 `schedule(0)=error;`) | `21 00 00 / 39 / 22 RELOC→cell` — LXI H,0 / DAD SP / SHLD *A(cell) (SP value, byte-verified shape) |
+| W2 | forward entry const store (array cell) | DEPREC 000C-0014 (line 47 `schedule(1)=straight_line;`) | `21 RELOC→cell / 11 RELOC→cell / 73 / 23 / 72` — cell := own address (SELF-ADDRESS store) |
+| W3 | label-var copy | LABELS 0013-0017 (`y = x;`) | `2A *A(x) / 22 *A(y)` |
+| W4 | computed GOTO scalar | LABELS 001C-001F / 0020-0023 (`goto x;`) | `2A *A(x) / E9 (PCHL)` |
+| W5 | stride-2 DYNAMIC address ladder | LABELS 0042-004B (bias≠0, `LXI H,FFFE/PUSH H/LHLD i/DAD H/POP D/DAD D`) and 006F-0078 (bias=0 at ≥3: `LHLD i/LXI DE,*A(base)/DAD D`) | existing 2-byte law UNCHANGED — no multiply, stride 2 IS `DAD H` |
+| W6 | dynamic element STORE 2B | LABELS 004C-005E: ladder + `E5 / 21 *A(y=000A) / E5 / <ladder> / D1 / 19 / D1 / 73 / 23 / 72` | value = x's CELL ADDRESS (descriptor discipline) |
+| W7 | dynamic element READ + PCHL | LABELS 006F-007D `goto z(i);` / 007E-008C `goto c(i);` | ladder + `5E/23/56/EB/E9` |
+| W8 | computed CALL through entry var | DEPREC 043D-0453 (`call schedule(idx(...))`) | `21 *A(i) / 11 *A(base=04E6) / 06 03 / 3E 01 / CD ?INDEX(slot 0448) / 29 / 11 *A(cell0=04E6) / 19 / 5E/23/56/EB / E9` |
+| W9 | IMPLICIT label-const array | LABELS data@0000-0005 = THREE `SET-LC data 2k / relocatable word → CODE 008D / SET-LC code 008D` triples — STATIC data cells pointing at the shared ?RECOV stub; read by the W5/W7 ladder at bias 0 | record-level pins `@1806/@1831/@1850…` in `reldump` |
+
+Cell layout: `DEF-DATA-SIZE 001A`; scalar label vars x@0008, y@000A; SP-save hidden cell @0012;
+implicit c base @0014 — ALL 2-byte cells in declaration order (label scalars need cells; SNS7
+today lays none — my-gap).
+
+### P3.3 Arms and falsifiers (probes `probes/E527A..H`, tag `e53p3`, ids VERIFIED unused)
+
+- **H-A (scalar ENTRY store backward, E527H)** `dcl e entry; e = et;` with et DEFINED earlier.
+  Prediction: the SELF-ADDRESS law holds for scalars too — `LXI H,*A(cell) / LXI D,*A(cell) /
+  MOV M,E / INX H / MOV M,D` (two operand RELOCs to the SAME cell). FALSIFIER: DR refusal; the
+  W1 (SP-save/SHLD) form instead; any other operand.
+- **H-B (scalar ENTRY store forward, E527B)** same with et AFTER the statement. Prediction: also
+  SELF-ADDRESS form (forwardness changes the record KIND of the operands — chain vs plain reloc —
+  not the instruction sequence). FALSIFIER: DR refusal, or the W1 SP-save shape.
+- **H-C (scalar label-var store, backward E527A / forward in same probe)** `x = lab1;`.
+  Prediction: the W2 SELF-ADDRESS form for label variables. FALSIFIER: DR refusal, W1 form,
+  or any 2-byte SHLD-of-constant form.
+- **H-D (constant-subscript array store, E527C)** `z(1)=lab1; z(2)=lab2;` (lab1 backward, lab2
+  forward). Prediction: const-folded cell address `*A(base+2k)` + the SELF-ADDRESS pair store
+  (per H-C). FALSIFIER: refusal; a dynamic ladder for a constant subscript; operands differing.
+- **H-E (dynamic read/store + computed goto minimal, E527D/E527E)** — re-pin W5/W6/W7 outside the
+  DO/ON context with lb=1 (`z(3)`): bias≠0 form `LXI H,FFE...` for i=2. FALSIFIER: any deviation
+  from the pinned sequences, or DR refusal of `goto z(i);` (would FALSIFY the row-101 note and
+  keep TRAN.COMPUTED_GOTO REFUSED).
+- **H-F (implicit label-const array DISTINCT values, E527F)** `i=2; goto c(i); lab1:;lab2:;lab3:;`
+  with distinct targets — tests whether cells hold per-label addresses (W9 law with DIFFERENT
+  stubs) or collapse like LABELS. FALSIFIER: refusal; cells pointing anywhere but the label entry
+  points; distinct labels emitting a DIFFERENT stub than the shared-?RECOV form.
+- **H-G (label-var actual in descriptor + goto of formal, E527G)** `call P(x);` with `dcl g label;`
+  formal, `goto g;` inside. Prediction (weakest-grounded; PINS descriptor-of-label-var): operand
+  `*A(cell of x)` in the W8 register form `21 RELOC→cell / CD ... E9`-family or the LABELS W2-style
+  memory form — either way the CALL must transfer through the stored self-address. FALSIFIER: DR
+  refusal of label-variable actuals (recorded `dr-refuses`, formal stays refused BY NAME).
+
+EXPLICITLY OUT of P3 arms (refuse BY NAME): `call schedule(<expr>)` COMPUTED CALL arm (W8 evidence
+recorded but the `?INDEX` + 13-byte dispatch is its own slice — no probe in this set arms it);
+STATIC/varying DESCRIPTOR class (`?CXVVM`, OPTIMIST — blocker must NOT move); BIT arrays;
+multi-dimensional; the nelem=1 crash (still recorded, never probed).
+
+### P3.4 Arm plan (after goldens decoded first-hand; measured shapes ONLY)
+
+1. `bind.ml` ~1046 + sizing: entry/label ELEMENTS size to 2 for non-STATIC automatic FIXED arrays
+   (measured cell law); scalar label/entry vars gain 2-byte cells in declaration order (SNS7
+   today lays none — the cell law W1-W9 pins);
+2. label/entry NAME resolution in store-source/RHS position (the `undeclared x` path ~939/962) →
+   emit the H-pinned operand class;
+3. const-subscript element store/read via the existing 2-byte folded forms; dynamic via EXISTING
+   stride-2 ladder (W5 = current law — expect ZERO dyn_addr change);
+4. `Sgoto` with a label-variable target (incl. subscripted): PCHL form W4/W7 in place of the
+   NOT-LABEL refusal — N6_COMPUTED_GOTO (inline `goto l(i);` with `dcl i fixed;` ONLY, no label
+   declaration!) MUST keep refusing (it dies at the label-array bind); the `computed GOTO deferred`
+   catch stays for unmeasured forms;
+5. implicit label-constant array: cells + STATIC records per W9 ONLY if E527F is DR-accepted.
+No source-name special cases; every unmeasured combination keeps a loud `[TBD]`.
+
+### P3.5 Validation / registration contract
+
+ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E527A E527B E527C E527D E527E
+E527F E527G E527H --tag e53p3 --switches '$L$D'`; EVERY `.PRN` NO ERROR(S) both passes (or the
+refusal recorded `dr-refuses` verbatim); goldens VERBATIM before any arm byte. Decode FIRST-HAND
+(`build/e53p3/decode/`, p13dump explicit ranges + `reldump` record level; CALL slot = opcode+1).
+Arm measured ONLY; parity FRESH POSITIONAL whole-file `cmp` vs `golden/e53p3/`. Legacy falsifiers:
+SNS4 + whole sweep byte-identical (2-byte [C159] untouched); OPTIMIST stays `9-byte [C159]`;
+EXPR1/REPORT/COPYLPT blockers VERBATIM; LABELS/DEPREC/MPMCALLA blockers MAY move PAST bind (that
+is the POINT of this slice) but each must land in a NEW recorded VERBATIM refusal — programs must
+NOT suddenly become EXACT (that would mean wholesale fixing); N6_COMPUTED_GOTO MUST survive;
+`nelem=1` crash unchanged. Tail: fingerprint fresh `--build-dir` grep `Error` ZERO; hist 68/124
+COMPUTED; sweep vs **194/0 + 8** COMPUTED; markers argv 19 current incl N6_COMPUTED_GOTO;
+DEC 64/0; divcheck 9/9; REAL `--update-inventory` OWN output (baseline **1323/190**); census OWN
+path (counts per OWN output — the three programs' messages MOVE, record VERBATIM); **C380+
+measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch**; coverage FIRST-HAND — candidate rows:
+EXTEND/RETIRE `TRAN.COMPUTED_GOTO` (line 101, REFUSED/NONE) by adjudication + likely NEW row(s)
+for the entry/label cell + value classes with explicit `spec/COVERAGE-IDS.txt` entries; NEVER
+`coverage_gen.py`; FULL gate rc=0 DIRECT `build/gate-e53p3-reg.log`; RESULTS §P3 + PLAN §4 row
+(LINE-anchor, pipe-count assert RUN IN CODE) + §P3 CLOSED; durables + guard blocks VERBATIM.
+
+## 7. Standing constraints (carry into every slice)
 
 - Oracle campaigns: pre-registered PLAN + CRLF/bare-^Z probes committed by explicit paths
   BEFORE any oracle call or `ocaml/lib/` byte; goldens committed VERBATIM before arm.

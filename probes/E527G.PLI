@@ -1,0 +1,17 @@
+E527G: procedure options(main);
+   /* [E2E-53/P3] H-G: LABEL actual in a register descriptor.   */
+   /* LABELS pins `call P(lab2)` = LXI H,*D(implicit-array      */
+   /* cell 0014) / CALL (0024-002D) passing an ARRAY, not a     */
+   /* bare label.  This probe asks DR the orthogonal question:  */
+   /* a label VARIABLE actual against a label formal.           */
+   dcl x label;
+   x = lab1;
+   call P(x);
+   stop;
+ lab1:;
+ P: procedure (g);
+   dcl g label;
+   goto g;
+ end P;
+end E527G;
+

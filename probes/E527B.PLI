@@ -1,0 +1,13 @@
+E527B: procedure options(main);
+   /* [E2E-53/P3] H-A2/H-A3: SCALAR ENTRY variable, no VARIABLE */
+   /* attribute, FORWARD entry reference.  Goldens pin only the */
+   /* subscripted `entry variable` form (DEPREC 000C-0014).     */
+   /* Predicted: either the SHLD/CHAIN-ADDR form or the         */
+   /* LXI H,*D / LXI D,*D / MOV M,E / INX / MOV M,D self-word   */
+   /* form; whichever it is fixes the variant rule.             */
+   dcl e entry;
+   e = et;
+   stop;
+et:;
+end E527B;
+

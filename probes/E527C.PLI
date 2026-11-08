@@ -1,0 +1,14 @@
+E527C: procedure options(main);
+   /* [E2E-53/P3] H-B1/H-B2: label ARRAY, CONSTANT subscript.   */
+   /* Backward store and forward store.  Goldens pin only the   */
+   /* dynamic-subscript ladder (LABELS 0050-005E) and the       */
+   /* scalar forms.  Predicted const-fold: LXI H,*D(cell) +      */
+   /* the matching store variant.                               */
+   dcl z(3) label;
+ lab1:;
+   z(1) = lab1;
+   z(2) = lab2;
+   stop;
+lab2:;
+end E527C;
+

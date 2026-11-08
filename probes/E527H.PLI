@@ -1,0 +1,11 @@
+E527H: procedure options(main);
+   /* [E53/P3] H-A: scalar ENTRY variable, BACKWARD entry     */
+   /* reference.  Discriminates the SELF-ADDRESS law (DEPREC   */
+   /* array cells hold their own address) from the W1 SP-save  */
+   /* variant (DEPREC schedule(0)=error).                      */
+   dcl e entry;
+ et:;
+   e = et;
+   stop;
+end E527H;
+

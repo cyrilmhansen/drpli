@@ -1,0 +1,11 @@
+E527A: procedure options(main);
+   /* [E2E-53/P3] H-A1: scalar LABEL variable store, BACKWARD  */
+   /* label reference.  Goldens pin only the FORWARD form       */
+   /* (LABELS 0006-000A CHAIN-ADDR).  Predicted: LXI H,0000 with */
+   /* a plain RELOC to the label code address + SHLD cell.      */
+   dcl x label;
+ lab1:;
+   x = lab1;
+   stop;
+end E527A;
+
