@@ -1688,25 +1688,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 581
-checkpoint-id: g581-ca2211320a01
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 582
+checkpoint-id: g582-b9352fff5f36
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-31, session 01a1b94f-bc54-7124-92a5-844447b42c1d)
-checkpointed: 2026-11-08T05:40:57.403Z
+status: checkpoint (guard level 2, remaining ~8331, session 01a1b9b1-1289-7124-92a5-8448f0c6a0d8)
+checkpointed: 2026-11-08T06:08:04.954Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0afb386e4424d9bbf7a75259b3c8925bdf8d733b336eaba66f437e335272d3b4
+source-progress: f6da319e6a62ae1576007722275df6ac999fc9276884b0fbc25d926912c23753
 source-handoff: 34c2e593fd2cb7ad901a472ac34ff1fd3a98b446d01a0230d7a0b2e10d68ac59
-source-learnings: 968b7663a09a448faa1cb699f1ab1bdbb7c8527471abd090ae11083e69341b1f
+source-learnings: c54e125ce638d75ff1789721ff61fd4b6b1e0199cf85891a418afcb3320b855b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b94f-bc54-7124-92a5-844447b42c1d
-readiness-at: 2026-11-08T05:45:51.989Z
-readiness-checkpoint: g581-ca2211320a01
+readiness-by: session:01a1b9b1-1289-7124-92a5-8448f0c6a0d8
+readiness-at: 2026-11-08T06:08:04.991Z
+readiness-checkpoint: g582-b9352fff5f36
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2399,5 +2399,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-53/P3 hop 3 DONE: g577 blocks VERBATIM f6e8ec41; all 5 goldens re-decoded FIRST-HAND with NEW E527D/E/G reldump dumps; hop-2 wording FALSIFIED twice (forward array-cell value = label PAD address via CHAIN-ADDR, NOT self-address; E527E ladder bias = 21+RELOC data 0 while 0006 LXI H,0002 is i=2). Exact arm blueprint + pad-demand class (pad+SP-save ONLY where a label VALUE is materialized; E527E has neither) + E527G hidden-descriptor bytes + full arm-site map in LEARNINGS § E2E-53/P3 hop 3; BINDING contract in PROGRESS ## Next action. SUCCESSOR (hop 4, CAP SESSION 12/12, NO renewals left): read LEARNINGS hop 3 § + build/e53p3/decode/* VERBATIM FIRST; arm ONLY measured forms in ocaml/lib/{bind,codegen}.ml (bind bytes_of + sizing allow-list ADD RTlabel|RTentry with elem_sz forced 2, keep [C159] strings byte-identical and STATIC [C159/AB5] refusal ahead; extend pad machinery emit_sp_save/emit_pad/label_def/fwd_ref + bind on_facts for value-materialization demand; stores scalar LXI H value+SHLD vs array-cell pair 21/11/73/23/72, backward=PLAIN RELOC code, forward=CHAIN-ADDR to pad; stride-2 dyn ladder EXISTING law incl bias-word data-reloc; computed goto scalar 2A/E9 and element ladder+5E 23 56 EB/E9 — N6 keeps refusing, forward-DYNAMIC store pair UNMEASURED refuse; label-var actual hidden-cell descriptor + callee deref per LEARNINGS); parity 5/5 FRESH POSITIONAL cmp build/e53p3/arm-out/; falsifiers SNS4/sweep byte-identical, OPTIMIST 9-byte UNMOVED, DEPREC/LABELS/MPMCALLA move past bind to NEW VERBATIM refusal never suddenly EXACT, B/F/H keep refusing, nelem=1 crash unchanged; tail hist 68/124, sweep 194/0+5 COMPUTED, markers argv 19 incl N6, DEC 64/0, divcheck 9/9, fingerprint fresh --build-dir; inventory OWN 1323/190+5; census OWN; C380 measured-bytes-only BEFORE COVERAGE; coverage FIRST-HAND row 101 TRAN.COMPUTED_GOTO adjudication + NEW entry/label rows, COVERAGE-IDS explicit, NEVER coverage_gen; gate build/gate-e53p3-reg.log rc=0; RESULTS §P3 + PLAN §4 row + CLOSED. IF THE CLOSE CANNOT LAND THIS SESSION: commit durables, handoff_finalize, STOP and request operator chain reset — the cap is exhausted. Never stage handoff.config.json; goldens NEVER re-derived; dir.txt NEVER staged; no push.
+E2E-53/P3 hop 6: ARM + CLOSE. Contract BINDING in PROGRESS.md "## Next action" (hop 6). Read LEARNINGS.md §§ "E2E-53/P3 hop 5" (fresh first-hand arm-site recon + PROPOSED plan (i)-(v) + items 1-8 — READ FIRST), hop 4 and hop 3 §§, then build/e53p3/decode/*-full.txt. Recovery verified this chain: HEAD 7393e4a5, binary cb90687158d9662c... == tree PRE-ARM, dune build rc=0. ZERO arm bytes written yet. Order: arm ocaml/lib/{bind,codegen}.ml measured forms ONLY -> parity 5/5 fresh positional cmp vs golden/e53p3 -> falsifiers (SNS4/sweep byte-identical; OPTIMIST 9-byte unmoved; DEPREC/LABELS/MPMCALLA new VERBATIM refusal; B/F/H refuse; N6 keeps 'computed GOTO' phrase) -> tail (fingerprint, hist 68/124, sweep 194/0+5, markers 19, DEC 64/0, divcheck 9/9) -> REAL --update-inventory (1323/190 +5) -> census -> C380 BEFORE coverage -> coverage first-hand (row 101 TRAN.COMPUTED_GOTO + new rows, COVERAGE-IDS) -> FULL gate rc=0 build/gate-e53p3-reg.log -> RESULTS §P3 + PLAN §4 row + CLOSED -> durables+guard. Never fit bytes; unmeasured combos keep loud [TBD]; config NEVER staged; no push; chain 2/12 cap 12.
 <!-- guard:end checkpoint -->

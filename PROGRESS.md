@@ -3528,17 +3528,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 581
-checkpoint-id: g581-ca2211320a01
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 582
+checkpoint-id: g582-b9352fff5f36
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-08T05:40:57.403Z
+guard-level: 2
+checkpointed: 2026-11-08T06:08:04.954Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0afb386e4424d9bbf7a75259b3c8925bdf8d733b336eaba66f437e335272d3b4
+source-progress: f6da319e6a62ae1576007722275df6ac999fc9276884b0fbc25d926912c23753
 source-handoff: 34c2e593fd2cb7ad901a472ac34ff1fd3a98b446d01a0230d7a0b2e10d68ac59
-source-learnings: 968b7663a09a448faa1cb699f1ab1bdbb7c8527471abd090ae11083e69341b1f
+source-learnings: c54e125ce638d75ff1789721ff61fd4b6b1e0199cf85891a418afcb3320b855b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `): re-read PLAN §2 + RE-MEASURE first refusals on `cb906871…` (matrix predates arms), open P3 with ZERO-oracle pre-audit, verify `E527*`/`e53p3` unused, PRE-REGISTER PLAN §P3+probes+LEARNINGS BEFORE any oracle/`ocaml/lib` byte, campaign, decode/arm/parity/tail (baseline sweep 194/0+N, inventory 1323/190)/C380+ BEFORE COVERAGE/gate `build/gate-e53p3-reg.log`/CLOSE. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; `nelem=1` crash RECORDED never fixed; constraints per PROTOCOL Part 2 anchor; chain 9/12 cap 12.
 0a-e53-7. **E2E-53/P2 hop 5 — E526E FIXED (DISPATCH SHAPE, NOT GUARD: hop-4 statement-match emitted the char chain then FELL THROUGH into `lower_hl`/`num_width`; TRACE-ITEM FALSIFIED "guard never fires" — `hd_is_element=true ez=3` held); PARITY 7/7 BYTE-EXACT, ALL FALSIFIERS HELD, TAIL HIT, REGISTRATION 1323/190 + census UNCHANGED COMMITTED; REMAINING = C379 → COVERAGE → FULL GATE → CLOSE (session 01a1b8b4, chain renewals 8/12; ZERO oracle; goldens VERBATIM; config NEVER staged; no push; rc DIRECT; byte-tier):** HEAD `b2f0d474` (fix `9ac4181a`, guard g570 `1bd435f5`); ARMED binary **`cb90687158d9662c…` == tree** (supersedes `c8ed1b9a…`); hist 68/124; sweep 194/0; markers 19/19 (contract erratum: `N6` = `N6_COMPUTED_GOTO`); DEC 64/0; divcheck 9/9; `dune build` rc via `${PIPESTATUS[0]}` (`head` masks failure AND stale exe). SUCCESSOR (BINDING = PROGRESS.md `## Next action`): C379 measured-bytes-only BEFORE ANY COVERAGE touch (stride-1/stride-3/LB-0 array laws from `build/e53p2/decode/`, map vetted in e2e_gate.py at `b2f0d474`) → coverage FIRST-HAND (row 7 EXTEND vs NEW `AGG.ARRAY_1D_STRIDED` + explicit COVERAGE-IDS) → FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` (1323/0,190/190,9/9,145 rows,census 16/0/25/0,prose 5) → RESULTS §P2 + PLAN §4 row + §P2 CLOSED → durables+guard. Ledger ENDS C378; inventory 1323/190; coverage 145/95; goldens `d55ec7b5` VERBATIM; `nelem=1` crash RECORDED never fixed; no push; chain 8/12 cap 12.
@@ -4225,9 +4225,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b94f-bc54-7124-92a5-844447b42c1d
-readiness-at: 2026-11-08T05:45:51.989Z
-readiness-checkpoint: g581-ca2211320a01
+readiness-by: session:01a1b9b1-1289-7124-92a5-8448f0c6a0d8
+readiness-at: 2026-11-08T06:08:04.991Z
+readiness-checkpoint: g582-b9352fff5f36
 <!-- guard:end checkpoint -->
 
 ## Blockers
