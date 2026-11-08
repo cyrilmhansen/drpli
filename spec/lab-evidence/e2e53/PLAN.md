@@ -71,6 +71,7 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
 | Slice | Feature family | New exact specimens | Corpus programs advanced | Newly EXACT programs | Claims | Gate |
 |---|---|---|---|---|---|---|
 | P1 **CLOSED** | GET SKIP family (console) | +4 (E525A-D, whole-file cmp rc=0) | 0 (blockers moved VERBATIM past GET lines in EXPR1/REPORT/DEPREC/COPYLPT, never fixed) | 0 | C378 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p1-reg.log (1316/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5) |
+| P2 **CLOSED** | non-2-byte array elements (stride 1/3 class) | +7 (E526A-G, whole-file cmp rc=0) | 0 (four B1 blockers re-held VERBATIM 0-byte/9-byte [C159], never fixed) | 0 | C379 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p2-reg.log (1323/0, 190/190, 9/9, 146 rows SUPPORTED 96, census 16/0/25/0, prose 5) |
 
 ## 5. Standing constraints (carry into every slice)
 
@@ -188,7 +189,7 @@ every cited byte first-hand — P3-16 lesson); coverage adjudicated FIRST-HAND (
 `build/gate-e53p1-reg.log`; RESULTS.md §P1 in this directory + PLAN §4 dashboard row + §P1
 CLOSED; then re-rank the matrix and open P2 (B1 non-2-byte arrays).
 
-## P2 — non-2-byte array elements, B1 family — PRE-REGISTERED 2026-11-08, session successor of 01a1b83e (chain 4/12), BEFORE any oracle call or `ocaml/lib/` byte
+## P2 — non-2-byte array elements, B1 family — **CLOSED** (2026-11-08 hop 6; results `RESULTS.md` §P2; claim [C379]; gate rc=0 `build/gate-e53p2-reg.log`) — originally PRE-REGISTERED 2026-11-08, session successor of 01a1b83e (chain 4/12), BEFORE any oracle call or `ocaml/lib/` byte
 
 ### P2.1 Blocker VERBATIM (re-held FRESH POSITIONAL on `8e51c261…`, ignored `build/e53p2/pre-audit/`)
 
