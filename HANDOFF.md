@@ -1695,25 +1695,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 602
-checkpoint-id: g602-1b1d50a586ae
+checkpoint-generation: 603
+checkpoint-id: g603-f42d9505e0cc
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-5019, session 01a1babc-56d2-750d-8c08-61ab55ff2efb)
-checkpointed: 2026-11-08T11:08:44.574Z
+status: checkpoint (guard level 2, remaining ~8007, session 01a1bb05-cddb-7229-82be-08c8176b3b88)
+checkpointed: 2026-11-08T12:28:19.791Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0321f5b7348256110a1aa3424aeb8434f25aec48b5f7005a41ac032ba2cc42f9
+source-progress: 488af651a86b481cc9d159f35b2f423a8473caccaebe12d93a5e74b501f3b515
 source-handoff: 262fcc5f2e19c70de2945110e76f1fb28febc5879d98e3621d56a184447dd87b
-source-learnings: 35f7d082b8596ea35f7cad2edc78bb6fcda9cd1a0596c97270d59c923fe97bf4
+source-learnings: c912ed6f3a79d333e30aefacdb313bae09f35031af6eed6c04aa4e01da08e249
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1babc-56d2-750d-8c08-61ab55ff2efb
-readiness-at: 2026-11-08T11:08:44.628Z
-readiness-checkpoint: g602-1b1d50a586ae
+readiness-by: session:01a1bb05-cddb-7229-82be-08c8176b3b88
+readiness-at: 2026-11-08T12:28:19.832Z
+readiness-checkpoint: g603-f42d9505e0cc
 ### Last verified state
-guard level 4; checkpoint requested (finalize: Hop 13 COMPLETE: E2E-53/P3 §P3 CLOSED at HEAD 846bc9ea (working tree clean except NEVER-staged handoff.config.json and untracked dir.txt/S*.PLI debris). Armed fingerprint fed67d24… == tree, FULL gate rc=0 build/gate-e53p3-reg3.log (1328/1328, 190/190, 9/9, coverage 149 rows SUPPORTED 99, census 16/0/25/0, prose 5). Hop 14 = OPEN P4: read LEARNINGS § "hop 13" + RESULTS §P3 FIRST, then PRE-REGISTER PLAN §P4 (+ E528* probes, ids verified unused) by explicit paths BEFORE any oracle call or ocaml/lib byte; first proposed slice is the fail-loud hygiene fix for the NEW recorded my-gap (vk_name partial match = live "Pattern matching failed" crash for label variables; witnesses build/e53p3/h13-sanity/SNSL6.PLI, SNSL8.PLI) — repair must re-run markers/sweep/DEC/divcheck/parity because refusal messages the gate pins contain vk_name output, and the histogram baseline is now 72/128 (attribute any move, never force it). Chain 8/12 cap 12; ZERO oracle this hop; BYTE TIER ONLY; config NEVER staged; no push.)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2413,5 +2413,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-Hop 13 COMPLETE: E2E-53/P3 §P3 CLOSED at HEAD 846bc9ea (working tree clean except NEVER-staged handoff.config.json and untracked dir.txt/S*.PLI debris). Armed fingerprint fed67d24… == tree, FULL gate rc=0 build/gate-e53p3-reg3.log (1328/1328, 190/190, 9/9, coverage 149 rows SUPPORTED 99, census 16/0/25/0, prose 5). Hop 14 = OPEN P4: read LEARNINGS § "hop 13" + RESULTS §P3 FIRST, then PRE-REGISTER PLAN §P4 (+ E528* probes, ids verified unused) by explicit paths BEFORE any oracle call or ocaml/lib byte; first proposed slice is the fail-loud hygiene fix for the NEW recorded my-gap (vk_name partial match = live "Pattern matching failed" crash for label variables; witnesses build/e53p3/h13-sanity/SNSL6.PLI, SNSL8.PLI) — repair must re-run markers/sweep/DEC/divcheck/parity because refusal messages the gate pins contain vk_name output, and the histogram baseline is now 72/128 (attribute any move, never force it). Chain 8/12 cap 12; ZERO oracle this hop; BYTE TIER ONLY; config NEVER staged; no push.
+E2E-53/P4 hop 15: P4 is PRE-REGISTERED and COMMITTED (36f9c43e, HEAD); ZERO `ocaml/lib/` bytes written yet. Recovery: read `spec/lab-evidence/e2e53/PLAN.md` §P4 (binding edit list (a)-(j): vk_name `| Vlbl -> "label"` @7076, `_idx` @14789, PUT-item outer Vlbl refusal beside the Vptr arm ~13449 (kills the 13455 crash class: put list/edit/skip), store_char `| Vlbl` refusal arm (6095), val_addr ~7576 + cmp_load_deref ~8010 guards via `List.assoc_opt (String.lowercase_ascii nm) st.vars` vk=Vlbl refuse, DEC->INT arm ~10591 refuse `vi.vk = Vlbl`, internal-call bare-Eident actual Vlbl admitted ONLY when `formal_rt_at i = Some Bind.RTlabel` (E527G) else refuse, external-entry actual Vlbl refuse, bare-Eident array SUBSCRIPT vk=Vlbl refuse — ALL Vlbl-only arms, refusal texts NEW with [TBD], no pinned marker/census string may move), then LEARNINGS § "E2E-53/P4 hop 14" SUCCESSOR CONTRACT VERBATIM (markers argv-19 FIRST; sanity re-run build/e53p4/post/ — all pre-fix crashes/silents must go loud rc=2 ZERO .REL, SANL19 `goto x` byte-identical vs build/e53p4/sanity/SANL19.REL; parity e53p3 5/5 + e53p1 4/4 + e53p2 7/7 fresh positional whole-file cmp vs goldens VERBATIM; falsifiers SNSL controls + SNSLD 10189 nelem=1 crash UNCHANGED, corpus deaths UNMOVED, census --check 16/0/25/0; fingerprint fresh --build-dir supersedes fed67d24…; hist PREDICTED exactly 68/124 — the 4-point drop = sites 14789 W27 + 7076 W8 ×2 passes, attribute any other move, never force; sweep 201/0, DEC 64/0, divcheck 9/9; NO probes, NO --update-inventory, NO coverage touch, NO new claim, ledger ENDS C380; FULL gate rc=0 DIRECT build/gate-e53p4-reg.log; RESULTS §P4 + PLAN §4 row + §P4 CLOSED; durables+guard), then E2E-54/P0 HIR per operator brief. Constraints: POSITIONAL pli80c.exe IN OUT no -o; eval "$(opam env)" every shell; rc via ${PIPESTATUS[0]}; build/ ocaml/_build-* ocaml/scratch-* handoff.config.json NEVER staged; goldens never re-derived; no push; chain 9/12 cap 12.
 <!-- guard:end checkpoint -->

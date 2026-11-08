@@ -3588,17 +3588,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 602
-checkpoint-id: g602-1b1d50a586ae
+checkpoint-generation: 603
+checkpoint-id: g603-f42d9505e0cc
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-08T11:08:44.574Z
+guard-level: 2
+checkpointed: 2026-11-08T12:28:19.791Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0321f5b7348256110a1aa3424aeb8434f25aec48b5f7005a41ac032ba2cc42f9
+source-progress: 488af651a86b481cc9d159f35b2f423a8473caccaebe12d93a5e74b501f3b515
 source-handoff: 262fcc5f2e19c70de2945110e76f1fb28febc5879d98e3621d56a184447dd87b
-source-learnings: 35f7d082b8596ea35f7cad2edc78bb6fcda9cd1a0596c97270d59c923fe97bf4
+source-learnings: c912ed6f3a79d333e30aefacdb313bae09f35031af6eed6c04aa4e01da08e249
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-11 CODEGEN-ONLY list VERBATIM (LEARNINGS § hop 10 + hop 9 §§ have every anchor), then parity 5/5 → falsifiers (B/F/H vs baseline) → tail → inventory 1323/190 +5 → census (3 msgs MOVE) → C380 BEFORE coverage → coverage row 101 + NEW rows + IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 + CLOSED → durables+guard. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM (`dir.txt` NEVER staged); corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor; config NEVER staged; no push; chain 6/12 cap 12.
 0a-e53-14. **E2E-53/P3 hop 13 LANDED — §P3 CLOSED; tail COMPUTED, gate rc=0, ONE NEW my-gap recorded (session 01a1babc, renewal 8/12; ZERO oracle; ZERO `ocaml/lib/` byte; BYTE TIER ONLY):** fingerprint `fed67d24…` re-produced on FRESH `--build-dir _build-e53p3h13` ZERO `Error`; markers argv-19 MARKER_FAILS 0 (N6 phrase alive); DEC 64/0; divcheck 9/9; coverage_check 149 rows 0/0 SUPPORTED **99** recounted from the tool's OWN output (96 was the 146-row mid-campaign state); FULL gate **rc=0** `build/gate-e53p3-reg3.log` (1328/0, 190/190, 9/9, 149 rows, census 16/0/25/0, prose 5); `RESULTS.md` §P3 + `PLAN.md` §4 P3 row (8-pipe assert RUN IN CODE) + §P3 **CLOSED**. **hist 68/124 FALSIFIED — measured codegen 72 / total 128**, attributed first-hand to TWO arm sites: unused `idx` (`codegen.ml:14789`) and a NEW partial-match on **`vk_name` (`codegen.ml:7076`)** which is a **LIVE CRASH PATH**: `build/e53p3/h13-sanity/SNSL6.PLI` (`dcl x label; … f = 1.0 + x;`) and `SNSL8.PLI` (`put list(x);`) die `Pattern matching failed` instead of a loud `[TBD]`; controls SNSL4/5/7/9/B refuse loudly, float SNSLC rc=0. Recorded VERBATIM as a NEW my-gap, NEVER fixed (close-out authorizes zero compiler edits); repair = PROPOSED P4 hygiene slice. SUCCESSOR = PROGRESS.md `## Next action` hop-14: read LEARNINGS § hop 13; PRE-REGISTER PLAN §P4 (+ `E528*` probes, ids VERIFIED unused) by EXPLICIT PATHS BEFORE any oracle/`ocaml/lib/` byte; parity vs e53p1/p2/p3 panels; hist baseline now **72/128** — attribute any move, never force it; gate `build/gate-e53p4-reg.log`. Ledger ENDS **C380** (203 headers); inventory **1328/190**; coverage **149/99**; goldens KEPT VERBATIM; `dir.txt`/config NEVER staged; no push; chain 8/12 cap 12.
@@ -4292,9 +4292,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1babc-56d2-750d-8c08-61ab55ff2efb
-readiness-at: 2026-11-08T11:08:44.628Z
-readiness-checkpoint: g602-1b1d50a586ae
+readiness-by: session:01a1bb05-cddb-7229-82be-08c8176b3b88
+readiness-at: 2026-11-08T12:28:19.832Z
+readiness-checkpoint: g603-f42d9505e0cc
 <!-- guard:end checkpoint -->
 
 ## Blockers
