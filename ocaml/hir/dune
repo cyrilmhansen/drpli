@@ -1,0 +1,11 @@
+(library
+ (name pli80_hir)
+ (modules diagnostic hir target hir_build)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
+
+(executable
+ (name pli80hir)
+ (modules pli80hir)
+ (libraries pli80 pli80_hir)
+ (flags (:standard -warn-error -a)))
