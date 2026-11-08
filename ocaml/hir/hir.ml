@@ -19,7 +19,12 @@
 
    Provenance: every derived type carries the RULE that produced it as a plain
    string; the rules are language-level and documented (backend-boundary.md §4);
-   none of them is a claim about DR. *)
+   none of them is a claim about DR.
+
+   Dump indentation (adjudicated E2E-54/P0 hop 4, PLAN §P0.3 review): a call's
+   argument EXPRESSION nests one level below its [arg N] label — the call node's
+   children print at [indent + 2] (label at [indent + 1]) in BOTH [Call_e] and
+   [Call_s], so an argument is never at the same depth as its label. *)
 
 (* ---------- semantic types ---------- *)
 
@@ -156,7 +161,7 @@ let rec dump_expr buf indent e =
       List.iteri
         (fun i a ->
           Printf.bprintf buf "%s  arg %d\n" pad i;
-          dump_expr buf (indent + 1) a)
+          dump_expr buf (indent + 2) a)
         args
 
 let rec dump_stmt buf indent s =
@@ -188,7 +193,7 @@ let rec dump_stmt buf indent s =
       List.iteri
         (fun i a ->
           Printf.bprintf buf "%s  arg %d\n" pad i;
-          dump_expr buf (indent + 1) a)
+          dump_expr buf (indent + 2) a)
         args
   | Return None -> Printf.bprintf buf "%sreturn  [line %d]\n" pad s.st_line
   | Return Some e ->
