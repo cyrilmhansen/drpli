@@ -1,7 +1,8 @@
 # DRPLi architecture — the backend boundary (E2E-54/P0 audit)
 
-Status: **P0 draft** (audit pass 2026-11-08, session `01a1bbbd`, E2E-54/P0). Finalised at P0
-close. This document analyses the CURRENT pipeline; it does not change it. All line anchors were
+Status: **FINAL — P0 CLOSED 2026-11-08** (audit pass opened session `01a1bbbd`, E2E-54/P0;
+finalised at hop 4 close; see `spec/lab-evidence/e2e54/RESULTS.md`). This document analyses
+the CURRENT pipeline; it does not change it. All line anchors were
 read from the tree at `b420fe01`/`c89a9df3` and are given as `module.ml:line`.
 
 Scope discipline (brief §2): a **DR code-generation law** (measured oracle behaviour recorded in
@@ -185,7 +186,10 @@ already consumes — and lowers only the P0 subset. Rules:
 
 For the P0 arithmetic subset (`FIXED BINARY`, `+ - *`), HIR result types use the classical PL/I
 language rule: `FIXED BINARY(p1,0) op FIXED BINARY(p2,0)` yields `FIXED BINARY(max(p1,p2)+1,0)`
-for `+`/`-`, and `FIXED BINARY(p1+p2,0)` for `*` (sum of precisions, uncapped — no cap invented).
+for `+`/`-`, and `FIXED BINARY(p1+p2,0)` for `*` (sum of precisions). Adopted-in-code amendment
+(hop 2, recorded in RESULTS §3.3): a rule result above the profile's FIXED ceiling is **CLAMPED**
+to that ceiling and the node's `typing` string names both the language rule and the clamp —
+refusing instead made the pre-registered §P0.6 fixtures unlowerable.
 
 PRECISION (recorded honestly): DRPLi's oracle evidence pins DR *object bytes* for bin(15)
 arithmetic but has never measured DR's *internal result precision* for these expressions
@@ -194,16 +198,21 @@ binary nodes with the **language-level rule marked `Language_level` in the HIR n
 provenance travels with the node), and `Target.profile` records the DR profile's numeric-typing
 field as `Unknown — unmeasured; needs a preregistered oracle experiment`. Nothing in P0 asserts
 this is what DR computes. Multiplication overflow precision beyond DR's measured 15-digit FIXED
-ceiling (`bind.ml:dr_max_fixed_prec:119`, itself DR-measured) is `Unsupported` in the profile.
+ceiling (`bind.ml:dr_max_fixed_prec:119`, itself DR-measured) is CLAMPED to the ceiling by the
+profile (see amendment above); a future pre-registered `$V`-stream experiment may replace the
+language rule and the clamp with measured behaviour — only the profile field and the rule string
+would change.
 
 ## 5. What the future MIR backend will need from this layer (brief §10.5)
 
 (Study only; the external lab `cyrilmhansen/mir-madc-aot-lab` was checked for local accessibility
-without network — result recorded in RESULTS. P0 adds no MIR/MADC dependency.)
+without network at P0 close — **not reachable**, recorded as `[TBD — lab not reachable]` in
+RESULTS §5. P0 adds no MIR/MADC dependency.)
 
 - Typed values with semantic precision/scale, not cells: `Hir.ty` (no `bytes_of`, no pool address).
 - Stable symbol identity across functions: `sid` + scope tree.
-- Call/return signature facts: `Hir.proc.sig` (param types, return type) — *not* the 2-byte
+- Call/return signature facts: `Hir.proc.params` (formal sids in declaring order) +
+  `Hir.proc.ret` (`ty option`) and `SYM` types per formal — *not* the 2-byte
   pointer cells; MIR chooses its own ABI.
 - Explicit conversion nodes so the backend decides representation conversions itself.
 - Deterministic, position-annotated IR so the backend can emit DWARF-free debug annotations later.

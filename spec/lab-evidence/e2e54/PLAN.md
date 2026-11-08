@@ -649,4 +649,4 @@ modification to the lab.
 
 | slice | status | gate log | notes |
 |---|---|---|---|
-| P0 | OPEN (pre-registered) | (owed: `build/gate-e54p0-reg.log`) | zero oracle |
+| P0 | **CLOSED 2026-11-08** (hop 4) | `build/gate-e54p0-reg.log` (rc 0, frozen counts) | zero oracle; RESULTS.md §1–§8; P1 NOT authorized |
