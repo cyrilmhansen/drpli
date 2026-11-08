@@ -450,3 +450,61 @@ by what the goldens pin, NEVER `coverage_gen.py`); FULL compile-tier gate rc=0 D
 `build/gate-e53p2-reg.log`; `spec/lab-evidence/e2e53/RESULTS.md` §P2 + PLAN §4 dashboard row +
 §P2 CLOSED. Goldens committed VERBATIM before any arm byte; `handoff.config.json` never staged;
 no push.
+
+## P4 — label-kind hygiene (fail-loud closure of the hop-13 my-gap) — PRE-REGISTERED (2026-11-09, session 01a1bb05, chain renewal 8/12, BEFORE any `ocaml/lib/` byte)
+
+**Scope (adopted from the hop-13 PROPOSAL, LEARNINGS § "E2E-53/P3 hop 13", EXTENDED by this hop's
+first-hand audit).** Close the recorded `Vlbl` crash my-gap: every path by which a LABEL variable
+can reach lowering must either be one of the E527-armed forms or refuse LOUDLY with `[TBD]` —
+never `Pattern matching failed`. ZERO oracle: no probe produces a new DR object here; every change
+is an internal failure-mode fix or a refusal of an unmeasured operation. `E528*` ids and tag
+`e53p4` VERIFIED UNUSED this hop and STAY UNUSED (no campaign). No new C-claim: a refusal-text fix
+is not a DR law (hop-13 ruling, re-affirmed by the operator brief); ledger stays at **C380**.
+A3/A4 and the B1 static-varying residue are NOT part of P4 (they ride future oracle campaigns).
+
+**Measured PRE-ARM evidence (this session, binary `fed67d24…` == tree, throwaway sources in
+ignored `build/e53p4/sanity/` + `build/e53p4/pre/`; hop-13's SNSL witnesses re-measured first):**
+crashes (partial matches, rc=2, ZERO .REL): SNSL6-class float-mix and `f = x` -> `vk_name`
+`lib/codegen.ml:7076`; `put list(x)`/`put edit(x)`/`put skip list(x)` -> PUT item inner `match vk`
+`lib/codegen.ml:13455` (site PRE-EXISTING partial, newly reachable for Vlbl); `x = 'abc'` ->
+`store_char` `lib/codegen.ml:6095` (PRE-EXISTING partial, newly reachable). SILENT mis-lowerings
+(rc=0 objects, no DR sample anywhere for these operations): `x = d` DEC->INT store into the label
+cell (`is_dec_expr` arm ~10591, guarded only by `vi.size <> 2`); `if x > 3` fixed compare ladder
+(`cmp_load_deref` ~8010 / `val_addr` ~7576 take any name by size); `call sub(x)` to a FIXED formal
+and `call q(x)` to a POINTER formal (both ride the by-reference descriptor; ONLY the E527G
+label-actual/label-formal pair is measured); `arr(x)` and `arr(x) = 1` (label variable used as an
+array SUBSCRIPT — the stride-2 ladder loads the cell as an index). Loud-and-correct controls kept
+VERBATIM: `y = x + 1`/`y = -x`/`i * x` ("arithmetic on char variable" — pre-existing mis-NAMED but
+LOUD catch), `if x then` ("condition form not in E2E-3b subset"), DO bound/index, `d = x`, `p = x`,
+`x = y/c/d-as-nonliteral` ("char store from non-literal"), `addr(x)`, `x = f`; `x(2) = lab1` dies
+at the PRE-EXISTING, separately recorded scalar-subscript/`nelem=1` crash at 10189 — **out of P4
+scope, stays recorded, NEVER fixed here**.
+
+**Authorized edit list (ALL Vlbl-ONLY arms — no other kind's behaviour may move; `ocaml/lib/codegen.ml` only):**
+(a) `vk_name`: `| Vlbl -> "label"`; (b) 14789 `idx` -> `_idx`; (c) PUT item outer dispatch beside
+the Vptr arm: `| Vlbl -> failwith "codegen: PUT of a LABEL value is unsampled [TBD] ..."` (covers
+LIST/EDIT/skip, kills the 13455 reachability); (d) `store_char`: explicit `| Vlbl -> failwith
+"codegen: character store into a LABEL cell ... unsampled [TBD]"` arm (OTHER missing kinds of that
+pre-existing partial stay as-is — not label scope); (e) `val_addr` and (f) `cmp_load_deref`: refuse
+when the name's `st.vars` row is `vk = Vlbl` (looked up via `List.assoc_opt`, NEVER via `vk_of`, so
+no new failure mode for any other name); (g) DEC->INT store arm: refuse `vi.vk = Vlbl`; (h) internal
+call actual: a bare-Eident actual whose row is Vlbl is admitted ONLY when the callee's formal at
+that position is `Bind.RTlabel` (the E527G measured pair), else refuse; (i) external-entry actual:
+a Vlbl bare-Eident actual refuses (no external golden passes a label); (j) array SUBSCRIPT: a
+bare-Eident subscript whose row is Vlbl refuses (no DR sample uses a label value as an index).
+Every refusal text contains `[TBD]` and NEW distinct wording (no census/marker string may move).
+
+**Regression contract (byte tier, rc DIRECT):** post-fix the FULL sanity suite re-measured — every
+former crash becomes a loud rc=2 refusal, every former silent object becomes a loud refusal, armed
+shapes (`goto x`, `x = lab1`, `call P(x)`->label formal) stay rc=0 byte-IDENTICAL; parity FRESH
+POSITIONAL whole-file `cmp` vs `golden/e53p3/` 5/5 AND `golden/e53p1/` 4/4 AND `golden/e53p2/` 7/7;
+markers argv-19 (refusal texts contain `vk_name` output — MUST re-run FIRST among falsifiers);
+sweep 201 byte-exact/0 FAILS + 28 expected refusals; DEC 64/0; divcheck 9/9; `nelem=1` crash and
+SNSL6/SNSL8 PRE deaths recorded VERBATIM above; EXPR1/REPORT/COPYLPT/LABELS/DEPREC/MPMCALLA/OPTIMIST
+corpus deaths UNMOVED (census `--check` rc=0, 16/0/25/0). Histogram: baseline 72/128; removing the
+two P3-added sites (14789 W27 ×2 passes, 7076 W8 ×2 passes) PREDICTS exactly **68/124**; any other
+move is a SIGNAL, attribute it, never force it. No probes => inventory stays 1328/190 and coverage
+stays 149/99 (verify by the gate, do not regenerate either). FULL gate rc-0 DIRECT
+`build/gate-e53p4-reg.log`; then RESULTS §P4 + PLAN §4 row + §P4 CLOSED; durables + guard. NO new
+claim, NO `--update-inventory`, NO coverage touch unless something unexpected moves — then STOP and
+record VERBATIM.
