@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "9e64d712277316fd48f34773532d7483",
+ "binary_md5": "77265bc427e9b45fdf209354ea375d3c",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,7 +15,7 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-07T23:51:03",
+ "generated": "2026-11-08T02:28:38",
  "git_dirty_paths": [
   "M handoff.config.json",
   " M spec/INVENTORY.txt",
@@ -35,11 +35,19 @@
   "?? golden/e53p1/E525B/dir.txt",
   "?? golden/e53p1/E525C/dir.txt",
   "?? golden/e53p1/E525D/dir.txt",
+  "?? golden/e53p2/E526A/dir.txt",
+  "?? golden/e53p2/E526B/dir.txt",
+  "?? golden/e53p2/E526C/dir.txt",
+  "?? golden/e53p2/E526D/dir.txt",
+  "?? golden/e53p2/E526E/dir.txt",
+  "?? golden/e53p2/E526F/dir.txt",
+  "?? golden/e53p2/E526G/dir.txt",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-e53p1/",
   "?? ocaml/_build-e53p1h3/",
   "?? ocaml/_build-e53p1hist/",
+  "?? ocaml/_build-e53p2b/",
   "?? ocaml/_build-p312hist/",
   "?? ocaml/_build-p313arm/",
   "?? ocaml/_build-p313arm2/",
@@ -72,7 +80,7 @@
   "?? ocaml/scratch-p314/",
   "?? ocaml/scratch-p318/"
  ],
- "git_head": "82bd89de7b4350c637eea662ea9dea5aa10fdb65",
+ "git_head": "9ac4181aaf7f37cf52647d45a94db7de03762f5d",
  "rows": [
   {
    "dir_present": true,
