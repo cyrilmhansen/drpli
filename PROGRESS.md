@@ -50,7 +50,17 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-53/P3 hop 6 — **ARM + CLOSE — recon COMPLETE, blueprint in LEARNINGS hop 5 §** — BINDING)
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon COMPLETE — consumed by site re-verification; see hop 6 § in LEARNINGS)
+
+## Next action (E2E-53/P3 hop 7 — **IMPLEMENT THE ARM THEN CLOSE — every site verified FIRST-HAND with exact line numbers in LEARNINGS § "E2E-53/P3 hop 6" — READ THAT § FIRST; it supersedes hop-5 line numbers** — BINDING)
+
+**DONE hop 6 (session 01a1b9b1-successor 01a1b9c5, chain renewal 2/12; ZERO oracle; ZERO `ocaml/lib/` byte):** g582 blocks committed VERBATIM `205e902c`; recovery verified (binary `cb906871…` == tree); ALL decode evidence + probes + every arm site re-read first-hand. Exact lines: bind `bytes_of` 148, sizing 1003/1060/1064/1070/1074, `ref_kind` 1663, `refs_stmts` 1722-1740 (NO Sassign case — Rk_val goes there; demand fold 1805-1812 extend the `kind = Rk_on || not local` test ONLY; sp_cell 2268 charges automatically from of_labels); codegen `vkind` 28, death `undeclared x` via rows-fold None arm **16655** (arm RTlabel there BUT skip array names — bind's row for an ARRAY carries the ELEMENT rt and `auto_bytes` = max off+size over vars ONLY ⇒ undersize trap proven first-hand), `lower_proc` locals catch-all ~14040-14105, store dispatch `lower_assign` 10159 (scalar SHLD tail ~10983/11125; element forms 10966-11240: offset0 `hl_const/lower_hl + SHLD addr`, off≠0 literal form-2, dyn `dyn_addr` + `MVI M` pair), label machinery 13726-13860 (`label_def` addr = PAD START, chain join max-slot ONE CHAIN-ADDR, pad iff ∈ on_pads; `fwd_ref` = JMP+slot — store needs the SAME `ls.fwd` cons WITHOUT the JMP: emit `21`(or `11`) `d 0; d 0` then cons `(nm, owner, st.lc-2)`), GOTO arms 14563/14589 (N6 keys on substring `computed GOTO` — keep it in every non-label refusal). **OPEN QUESTION:** E527G's label-var ACTUAL descriptor hidden cell (`SET-LC data 0004 / RELOC data 0x0 / SET-LC code 0013`) — caller emission site NOT yet located (hop-5's ~13940 is the callee prologue, falsified); grep `pl_ptrs`/descriptor-value-cell machinery; if the existing route cannot carry it WITHOUT invention, refuse that class BY NAME (parity on G then fails — record, never fit).
+
+**EXECUTE (hop 7, EXACT order — LEARNINGS hop-6 § + hop-5 law table are the blueprint):** (1) build sanity `cd ocaml && eval "$(opam env)" && dune build` rc via `${PIPESTATUS[0]}`. (2) ARM bind.ml: `bytes_of` `RTlabel -> 2`; sizing `elem_sz` shadow `match rt with RTlabel | RTentry _ -> 2 | _ -> bytes_of rt` + allow-list `RTlabel | RTentry _ -> true`; refusal strings BYTE-IDENTICAL, `[C159/AB5]` after; `refs_stmt` NEW Sassign case → `Rk_val` (rhs bare Eident; LHS bare-or-array-of-subscript name declared LABEL/ENTRY-class IN THIS BLOCK via Sdcl walk; demand fold test extended; computed-goto `Sgoto _` charges NOTHING — unchanged). (3) ARM codegen.ml: `Vlbl` kind; rows_of fold `RTlabel -> Some {size 2; vk Vlbl}` for NON-array names only; lower_proc same arm; label-value store encoder per law table (backward PLAIN `reloc st Code padaddr`; forward slot-only chain; scalar/offset0 SHLD-form; else pair `21 reloc Data cell / 11 <value> / 73 23 72`; dyn `dyn_addr` then pair, backward only — dyn+forward UNMEASURED REFUSE); goto `Sgoto` subscripted: label-array dyn ladder + `5E 23 56 EB / E9`; scalar Vlbl `LHLD / E9` (+deref when name ∈ st.deref); const-subscript goto + everything else keep `computed GOTO` phrase; G actual: descriptor route or REFUSE (see OPEN QUESTION). (4) parity **5/5** FRESH POSITIONAL whole-file `cmp` vs `golden/e53p3/` into `build/e53p3/arm-out/` (mismatch = record+STOP, NEVER fit bytes). (5) falsifiers: SNS4+sweep byte-identical; OPTIMIST `9-byte [C159]` UNMOVED; DEPREC/LABELS/MPMCALLA move PAST bind to NEW VERBATIM refusal (sudden EXACT = LEAKED ARM → revert); B/F/H keep refusing; `nelem=1` crash unchanged; EXPR1/REPORT/COPYLPT UNMODIFIED; N6 keeps `computed GOTO`. (6) tail: fingerprint fresh `--build-dir` grep `Error` ZERO (armed hash supersedes `cb906871…`); hist 68/124 COMPUTED; sweep `build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` vs **194/0 + 5** COMPUTED; markers argv 19 incl N6_COMPUTED_GOTO; DEC 64/0; divcheck 9/9. (7) REAL `--update-inventory` OWN output (baseline 1323/190, +5) → census OWN path (3 corpus messages MOVE VERBATIM) → **C380 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (row 101 `TRAN.COMPUTED_GOTO` + NEW entry/label rows; explicit `spec/COVERAGE-IDS.txt`; NEVER `coverage_gen.py`) → FULL gate rc=0 DIRECT `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 row (LINE-anchor, pipe-count assert RUN IN CODE) + §P3 CLOSED → durables + guard.
+
+**STATE:** HEAD = this durables commit; armed binary **`cb906871…` == tree (PRE-ARM — ZERO arm bytes)**; ledger ENDS **C379** (202 headers, next **C380**); inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens `golden/e53p3/` `6b3dbef4` + e53p2 `d55ec7b5` + e53p1 + first* KEPT VERBATIM NEVER re-derived (`dir.txt` NEVER staged); corpus blockers VERBATIM never fix; constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval "$(opam env)"` every shell; rc DIRECT; dune rc via `${PIPESTATUS[0]}`; never glue `rm`; never parallelize dependent bash; byte-tier; `build/`+`ocaml/_build-*`+`ocaml/scratch-*`+`handoff.config.json` NEVER staged; no push); chain operator-RESET, renewal 3/12 at next switch, cap 12; stray root S2..S5 debris untouched.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — **ARM + CLOSE — recon COMPLETE, blueprint in LEARNINGS hop 5 §** — BINDING)
 
 **DONE hop 5 (session 01a1b9b1, operator-RESET chain renewal 1/12; ZERO oracle; ZERO `ocaml/lib/` byte):** g581 blocks committed VERBATIM `975c5bc2`; recovery verified (HEAD `b0067f49`; build rc=0; binary `cb906871…` == tree). Contract step (1) COMPLETE: hop-3/4 §§ + both FULL reldumps + code dumps + probes re-read VERBATIM; every byte law re-confirmed; NEW first-hand recon corrections + executable arm plan (8 numbered findings incl. `rows_of` RTlabel `-> None` site, array-row undersizing trap, TWO var-construction sites, `Vlbl` kind, slot-only forward-chain variant, `Rk_val` survey class via LHS-DECL-CLASS detection, N6 gate mechanics `computed GOTO` substring, goto resolution order) in **LEARNINGS.md § "E2E-53/P3 hop 5" — READ IT FIRST**. Context exhausted at recon; NO code edited.
 
@@ -3528,17 +3538,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 582
-checkpoint-id: g582-b9352fff5f36
-checkpoint-kind: manual
+checkpoint-generation: 585
+checkpoint-id: g585-8f71cbdbfd6f
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-08T06:08:04.954Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-08T06:26:54.536Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f6da319e6a62ae1576007722275df6ac999fc9276884b0fbc25d926912c23753
+source-progress: f5a0c6ff33e06989a351859f7cf36c2e4bfa068c759df34b2e2a640c838164eb
 source-handoff: 34c2e593fd2cb7ad901a472ac34ff1fd3a98b446d01a0230d7a0b2e10d68ac59
-source-learnings: c54e125ce638d75ff1789721ff61fd4b6b1e0199cf85891a418afcb3320b855b
+source-learnings: 838c5eb5ea8824866e660e03305ded3cc13a8c136f6646b316ee492e8d230348
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `): re-read PLAN §2 + RE-MEASURE first refusals on `cb906871…` (matrix predates arms), open P3 with ZERO-oracle pre-audit, verify `E527*`/`e53p3` unused, PRE-REGISTER PLAN §P3+probes+LEARNINGS BEFORE any oracle/`ocaml/lib` byte, campaign, decode/arm/parity/tail (baseline sweep 194/0+N, inventory 1323/190)/C380+ BEFORE COVERAGE/gate `build/gate-e53p3-reg.log`/CLOSE. Ledger ENDS **C379**; inventory **1323/190**; coverage **146/96**; LAST gate rc=0 `build/gate-e53p2-reg.log`; census 16/0/25/0; goldens KEPT VERBATIM; corpus blockers VERBATIM never fix; `nelem=1` crash RECORDED never fixed; constraints per PROTOCOL Part 2 anchor; chain 9/12 cap 12.
 0a-e53-7. **E2E-53/P2 hop 5 — E526E FIXED (DISPATCH SHAPE, NOT GUARD: hop-4 statement-match emitted the char chain then FELL THROUGH into `lower_hl`/`num_width`; TRACE-ITEM FALSIFIED "guard never fires" — `hd_is_element=true ez=3` held); PARITY 7/7 BYTE-EXACT, ALL FALSIFIERS HELD, TAIL HIT, REGISTRATION 1323/190 + census UNCHANGED COMMITTED; REMAINING = C379 → COVERAGE → FULL GATE → CLOSE (session 01a1b8b4, chain renewals 8/12; ZERO oracle; goldens VERBATIM; config NEVER staged; no push; rc DIRECT; byte-tier):** HEAD `b2f0d474` (fix `9ac4181a`, guard g570 `1bd435f5`); ARMED binary **`cb90687158d9662c…` == tree** (supersedes `c8ed1b9a…`); hist 68/124; sweep 194/0; markers 19/19 (contract erratum: `N6` = `N6_COMPUTED_GOTO`); DEC 64/0; divcheck 9/9; `dune build` rc via `${PIPESTATUS[0]}` (`head` masks failure AND stale exe). SUCCESSOR (BINDING = PROGRESS.md `## Next action`): C379 measured-bytes-only BEFORE ANY COVERAGE touch (stride-1/stride-3/LB-0 array laws from `build/e53p2/decode/`, map vetted in e2e_gate.py at `b2f0d474`) → coverage FIRST-HAND (row 7 EXTEND vs NEW `AGG.ARRAY_1D_STRIDED` + explicit COVERAGE-IDS) → FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` (1323/0,190/190,9/9,145 rows,census 16/0/25/0,prose 5) → RESULTS §P2 + PLAN §4 row + §P2 CLOSED → durables+guard. Ledger ENDS C378; inventory 1323/190; coverage 145/95; goldens `d55ec7b5` VERBATIM; `nelem=1` crash RECORDED never fixed; no push; chain 8/12 cap 12.
@@ -4225,9 +4235,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b9b1-1289-7124-92a5-8448f0c6a0d8
-readiness-at: 2026-11-08T06:08:04.991Z
-readiness-checkpoint: g582-b9352fff5f36
 <!-- guard:end checkpoint -->
 
 ## Blockers
