@@ -32,6 +32,12 @@ and vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
      excluded from AUTO STORAGE].  Slice 1 covers only a based FIXED BINARY(15); every other based
      type refuses at the layout switch, because DR's store/read bytes for it are not in hand yet. *)
   | Vptr
+  (* [E2E-53/P3 hop 11] a LABEL variable: a 2-byte DATA cell holding a CODE address -- the
+     label's RECOVERY-PAD START (E527A x@0000, the store operand is `RELOC code 000D' = the pad
+     emitted immediately before lab1's body, [C208]).  Deliberately its OWN kind, never Vint
+     (hop-5 item 5): an unmatched kind refuses by name in every arithmetic/PUT/read route, so
+     admitting the cell can never silently accept an operation DR has no object for. *)
+  | Vlbl
   | Vbased of string
   (* [E2E-27/P2/P3] members and names of a level-numbered BASED structure.  Like Vbased these are
      VIEWS: no cell, no AUTO STORAGE contribution.  The string is the associated POINTER's name (""
@@ -255,6 +261,11 @@ type st =
   ; mutable arrays : (string * int * int * int) list
     (* [E2E-20] (name, lb, ub, elem bytes) copied straight out of Bind.bind_arrays --
        bind.layout remains the ONLY storage authority; codegen derives nothing. *)
+  ; mutable lbl_arrs : string list
+    (* [E2E-53/P3 hop 11] LABEL/ENTRY-class ARRAY names of the current block, from
+       Bind.bind_label_arrays.  The `arrays' row above carries only the ELEMENT size, which for a
+       label array equals a fixed-bin array's, so the store/goto dispatch cannot tell them apart
+       without this list.  Swapped per procedure scope exactly like `arrays'. *)
   ; mutable members : (string * string * Bind.rt * int) list
     (* [E2E-42/P1d] internal LEVEL-1 members that bind laid out but did NOT alias, copied
        out of Bind.bind_members / pl_members.  Read ONLY to word a refusal honestly --
@@ -13849,6 +13860,97 @@ let label_def st (ls : lblstate) (nm : string) =
   ls.labs <- (nm, addr, ls.scope) :: ls.labs;
   addr
 
+(* [E2E-53/P3 hop 11] the LABEL-VALUE operand: the 2-byte code address that a label cell is
+   loaded/stored with, written into HL (`op_lxi_h') or DE (`op_lxi_d') as the operand of LXI.
+   BACKWARD (`Lbl_here'/'Lbl_pad', E527A `0014 LXI H,<code 000D>' with a plain RELOC) is inline.
+   FORWARD in the same block (E527C `z(2)=lab2', E527G `x=lab1') emits `opc / 00 / 00' and conses
+   a SLOT-ONLY reference onto this block's pending chain -- the SAME `(nm, scope, slot)' entries
+   `label_def' joins with ONE CHAIN-ADDR at the max slot [C123], and the pad start IS the target
+   ([C208], hop-3 correction: the value stored is the PAD address, not the label's own byte).
+   Cross-block forward (E527G `call P(x)' is a forward store of a label VALUE across the block
+   boundary, but the STORE itself is same-block): unmeasured and refuses loudly. *)
+let lbl_val_operand st (ls : lblstate) (nm : string) (opc : int) : unit =
+  match resolve_label ls nm with
+  | Lbl_here a | Lbl_pad a -> d st opc; reloc st Code a
+  | Lbl_here_fwd ->
+      d st opc;
+      let slot = st.lc in
+      d st 0; d st 0;
+      ls.fwd <- (nm, ls.scope, slot) :: ls.fwd
+  | Lbl_pad_fwd _sc ->
+      failwith
+        ("codegen: [TBD] cross-block forward label-value store unmeasured [E2E-53/P3] "
+         ^ "(" ^ nm ^ ": E527A/C/D/G store only a label of the SAME block; DR's record shape "
+         ^ "for chaining a non-JMP operand to an enclosing block's pad has no golden)")
+  | Lbl_not_label (o, isp) -> refuse_not_label 0 o isp
+
+(* [E2E-53/P3 hop 11] a store whose RHS is a bare label name into a LABEL-class cell.
+   Scalar LHS and array cell at element offset 0 (E527A `x=lab1', E527C `z(1)=lab1') take
+   `LXI H,<value> / SHLD *A(cell)'.  Any other array element (E527C `z(2)=lab2', E527D `z(i)=lab1')
+   takes the measured pair `LXI H,*A(elem) / LXI D,<value> / 73 / 23 / 72' -- MOV M,E / INX H /
+   MOV M,D storing DE's word at (HL).  A dynamic index rides the EXISTING stride-2 ladder
+   (`dyn_addr', C141; label arrays are 2-byte by bind law) and takes the same pair, but only with
+   a BACKWARD value operand: the forward pair's chain-join is UNMEASURED and refuses loudly. *)
+let lower_label_assign st (ls : lblstate) (lhs : Ast.expr) (rhs : Ast.expr) : unit =
+  let rnm =
+    match rhs.Ast.e with
+    | Ast.Eident rn -> String.lowercase_ascii rn.Ast.orig
+    | _ -> failwith "codegen: internal: lower_label_assign rhs must be a bare label name"
+  in
+  st.last_imm <- None;
+  match lhs.Ast.e with
+  | Ast.Eident hn ->
+      let hnm = String.lowercase_ascii hn.Ast.orig in
+      (match List.assoc_opt hnm st.vars with
+       | Some { vk = Vlbl; off; _ } ->
+           lbl_val_operand st ls rnm op_lxi_h;
+           d st op_shld; reloc st Data (off + st.base)
+       | _ ->
+           failwith
+             ("codegen: [TBD] label-value store to non-label scalar `" ^ hnm
+              ^ "' [E2E-53/P3]"))
+  | Ast.Esuffix ({ Ast.e = Ast.Eident hh; _ }, [ sidx ]) ->
+      let a = String.lowercase_ascii hh.Ast.orig in
+      (match List.find_opt (fun (n, _lb, _ub, _ez) -> n = a) st.arrays with
+       | Some (name, lb, _ub, _ez) ->
+           let base = addr_of_raw st name in
+           (match sidx.Ast.e with
+            | Ast.Enumber t ->
+                let sub = int_of_string (String.concat "" (String.split_on_char '_' t)) in
+                let elem = base + (sub - lb) * 2 in
+                if (sub - lb) * 2 = 0 then begin
+                  lbl_val_operand st ls rnm op_lxi_h;
+                  d st op_shld; reloc st Data elem
+                end
+                else begin
+                  d st op_lxi_h; reloc st Data elem;
+                  lbl_val_operand st ls rnm op_lxi_d;
+                  d st 0x73; d st op_inx_h; d st 0x72
+                end
+            | Ast.Eident _ ->
+                (match resolve_label ls rnm with
+                 | Lbl_here _ | Lbl_pad _ ->
+                     dyn_addr
+                       st { dyn_base = base; dyn_bias = -lb * 2; dyn_idx = sidx;
+                            dyn_adj = 0; dyn_esz = 2 };
+                     lbl_val_operand st ls rnm op_lxi_d;
+                     d st 0x73; d st op_inx_h; d st 0x72
+                 | _ ->
+                     failwith
+                       ("codegen: [TBD] dynamic label-array store of a forward label value "
+                        ^ "unmeasured [E2E-53/P3] (E527D pins only the backward PLAIN reloc "
+                        ^ "inside the pair; the chain join at that slot has no golden)"))
+            | _ ->
+                failwith
+                  ("codegen: [TBD] label-array store subscript form unsampled [E2E-53/P3] "
+                   ^ "(only a literal and a bare index variable are DR-measured: E527C/E527D)"))
+       | None ->
+           failwith
+             ("codegen: [TBD] label-value store to subscripted `" ^ a
+              ^ "' which is not an array of this block [E2E-53/P3]"))
+  | _ ->
+      failwith "codegen: [TBD] label-value store to this LHS form unsampled [E2E-53/P3]"
+
 (* [E2E-34/P1] one FORWARD reference to a label, used by a plain GOTO and by an ON
    ... GOTO stub alike, so the two cannot build the chain differently [C202]. *)
 let fwd_ref st (ls : lblstate) (nm : string) (owner : int) =
@@ -14032,6 +14134,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      class.  The list comes from the same proc_layout record that supplies pl_rows, so there is
      still one sizing authority (Bind). *)
   let saveda = st.arrays in
+  let savedla = st.lbl_arrs in
   (* [E2E-40/P4] attach stamps imem from THIS scope's bind rows only; the `@ saved'
      tail below is the outer scope's var_info list, whose records were stamped when that
      scope was built and must not be re-stamped against the inner rows. *)
@@ -14093,6 +14196,23 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
              { off = o; size = Bind.bytes_of rt; vk = Vfix n; w = 0; imem = None }
          | Bind.RTchar (n, true) -> { off = o; size = Bind.bytes_of rt; vk = Vvar n; w = 0; imem = None }
          | Bind.RTptr -> { off = o; size = 2; vk = Vptr; w = 0; imem = None }
+         | Bind.RTlabel ->
+             (* [E2E-53/P3 hop 11] E527G `P: procedure (g); dcl g label;': the formal's declared
+                row is DEDUPED onto its 2-byte descriptor cell (bind 2160-2247) and reads/writes
+                through it exactly as the pointer formals do, so the cell is 2 bytes and its kind
+                is Vlbl.  A label ARRAY local has no golden (E527G is scalar) and refuses BY NAME;
+                `pl_arrays' is this block's own array list. *)
+             if List.exists
+                  (fun (an, _lb, _ub, _ez) ->
+                    String.equal an (String.lowercase_ascii n))
+                  pl.Bind.pl_arrays
+                then
+               failwith
+                 ("codegen: [TBD] nested-procedure label ARRAY local unsampled [E2E-53/P3] (" ^ n
+                  ^ ": only a SCALAR label formal is measured, E527G; a subscripted label variable "
+                  ^ "inside a procedure body has no DR object)")
+             else
+               { off = o; size = 2; vk = Vlbl; w = 0; imem = None }
          | _ ->
              failwith
                ("codegen: procedure local of type " ^ Bind.rty_str rt
@@ -14101,6 +14221,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
                 ^ "fixed, decimal and float)")))
       pl.Bind.pl_rows) @ saved;
   st.arrays <- pl.Bind.pl_arrays @ saveda;
+  st.lbl_arrs <- Bind.bind_label_arrays pb @ savedla;
   (if pl.Bind.pl_rec
      && List.exists
           (fun (n, rt, _) ->
@@ -14270,6 +14391,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   st.vars <- saved;
   st.deref <- savedd;
   st.arrays <- saveda;
+  st.lbl_arrs <- savedla;
   ls.on_pads <- saved_pads;
   ls.sp_cell <- saved_cell;
   ls.on_any <- saved_any
@@ -14298,7 +14420,34 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   if s.Ast.slabels <> [] then st.last_imm <- None;
   match s.Ast.st with
   | Ast.Sassign { lhs; rhs } ->
-      st.lowered <- st.lowered + 1; lower_assign st lhs rhs
+      (* [E2E-53/P3 hop 11] LABEL-VALUE dispatch (hop-9 CORRECTION-2; the whole point of the
+         candidate test is that B/H (`e = et;' on a SCALAR ENTRY variable) must keep their exact
+         present death: neither an RTentry scalar (laid out at `o=0', never in `st.vars') nor a
+         non-label-class LHS qualifies, so every non-label store falls to `lower_assign'
+         UNCHANGED.  A bare `Eident' RHS that names a label of a visible block and is NOT a
+         declared variable/array name is the label-value source (hop-6 value-operand rule). *)
+      st.lowered <- st.lowered + 1;
+      let lbl_value_source =
+        match rhs.Ast.e with
+        | Ast.Eident rn ->
+            let rnm = String.lowercase_ascii rn.Ast.orig in
+            not (List.mem_assoc rnm st.vars)
+            && not (List.exists (fun (n, _l, _u, _e) -> n = rnm) st.arrays)
+            && (match resolve_label ls rnm with Lbl_not_label _ -> false | _ -> true)
+        | _ -> false
+      in
+      let lbl_lhs =
+        match lhs.Ast.e with
+        | Ast.Eident hn ->
+            (match List.assoc_opt (String.lowercase_ascii hn.Ast.orig) st.vars with
+             | Some { vk = Vlbl; _ } -> true
+             | _ -> false)
+        | Ast.Esuffix ({ Ast.e = Ast.Eident hh; _ }, [ _ ]) ->
+            List.mem (String.lowercase_ascii hh.Ast.orig) st.lbl_arrs
+        | _ -> false
+      in
+      if lbl_value_source && lbl_lhs then lower_label_assign st ls lhs rhs
+      else lower_assign st lhs rhs
   | Ast.Sput _ ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match match_put_edit s with
@@ -14570,6 +14719,19 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
          store writes HL.  The kill sites are the TARGETS -- see kill_hl_join. *)
       st.lowered <- st.lowered + 1;
       let nm = String.lowercase_ascii tgt.Ast.orig in
+      (* [E2E-53/P3 hop 11] a LABEL VARIABLE first: `goto g;' where `g' is a declared label
+         variable is a computed transfer, not a branch to a definition.  LABELS W4 pins the
+         scalar form `LHLD *A(cell) / E9 (PCHL)'; E527G's FORMAL cell holds the ADDRESS OF the
+         caller's cell (descriptor route), so when the name is in `st.deref' the measured form
+         adds one more deref `5E 23 56 EB' before PCHL (G 002D).  Hop-5 item 8: preferring the
+         variable over a same-named label of a visible block is UNMEASURED -- the collision is
+         recorded, not silently resolved. *)
+      (match List.assoc_opt nm st.vars with
+       | Some { vk = Vlbl; off; _ } when not (List.mem nm st.lbl_arrs) ->
+           d st op_lhld; reloc st Data (off + st.base);
+           if List.mem nm st.deref then (d st 0x5e; d st 0x23; d st 0x56; d st 0xeb);
+           d st 0xe9
+       | _ ->
       (match resolve_label ls nm with
        | Lbl_here a ->
            d st op_jmp;
@@ -14585,7 +14747,35 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                              reloading. *));
            reloc st Code a
        | Lbl_pad_fwd sc -> fwd_ref st ls nm sc       (* forward, cross-block [E35Y3, E36T2/T3] *)
-       | Lbl_not_label (o, isp) -> refuse_not_label tgt.Ast.pos.Source.line o isp)
+       | Lbl_not_label (o, isp) -> refuse_not_label tgt.Ast.pos.Source.line o isp))
+  (* [E2E-53/P3 hop 11] E527E `goto z(i);' where z is a LABEL ARRAY: the measured form is the
+     EXISTING stride-2 address ladder (C141, bias -lb*2 with a DATA reloc of base-lb*stride) then
+     `5E 23 56 EB' (HL = [HL], load the cell's word) then `E9 (PCHL)'.  `Ast.Sgoto' carries a NAME
+     plus subscript expressions -- NOT an expr -- so the dyn_ref is CONSTRUCTED here with the same
+     fields `resolve_suffix' would have produced (hop-8 fact).  NO pad and NO SP-save are emitted
+     for such a label: E527E's cells are never written and bind's `Rk_val' demand never charges
+     them (hop-3 pad-demand law).  A label array with a CONSTANT subscript has no golden and falls
+     through to the catch below, and so does every other computed goto -- the phrase `computed GOTO'
+     is pinned by the N6_COMPUTED_GOTO negative marker, and the final catch is kept VERBATIM
+     because E527F (DR refuses `goto c(i)' on an implicit distinct-value array with `ARG COUNT')
+     must keep dying with exactly this text. *)
+  | Ast.Sgoto { tgt; subscript = [ ({ Ast.e = Ast.Eident idx; _ } as sidx) ] }
+    when
+      let a = String.lowercase_ascii tgt.Ast.orig in
+      List.mem a st.lbl_arrs
+      && (match List.find_opt (fun (n, _l, _u, _e) -> n = a) st.arrays with
+          | Some (_n, _lb, _ub, 2) -> true
+          | _ -> false)
+    ->
+      st.lowered <- st.lowered + 1;
+      (match List.find (fun (n, _l, _u, _e) -> n = String.lowercase_ascii tgt.Ast.orig) st.arrays with
+       | (name, lb, _ub, _ez) ->
+           dyn_addr
+             st { dyn_base = addr_of_raw st name; dyn_bias = -lb * 2;
+                  dyn_idx = sidx; dyn_adj = 0; dyn_esz = 2 };
+           d st 0x5e; d st 0x23; d st 0x56; d st 0xeb;
+           d st 0xe9
+       | _ -> assert false)
   | Ast.Sgoto _ ->
       failwith "codegen: computed GOTO deferred [TBD]"
   | Ast.Sdobegin ss ->
@@ -15875,6 +16065,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
     ; arrays = Bind.bind_arrays blk
+    ; lbl_arrs = Bind.bind_label_arrays blk
     ; members = Bind.bind_members blk
     ; dec_ret = None
   ; float_ret = false
@@ -16649,10 +16840,22 @@ let rows_of (b : Ast.block) =
                ^ "DR accepts char/bit/dec based storage -- PB6/PB13/PB14/PB15 allocate them -- but "
                ^ "their indirect store bytes are not emitted and compared yet, and bin(16/24/31) "
                ^ "are refused by DR itself [PB11/PB12/PB5].)")
+        | Bind.RTlabel ->
+            (* [E2E-53/P3 hop 11] a scalar LABEL variable gets its 2-byte cell here (E527A x@0000,
+               E527G x@0000; hop-2 SNS7 law: today such declarations lay down ZERO cells, my-gap).
+               An ARRAY row's `rt' is the ELEMENT type, so `dcl z(3) label' ALSO reaches this arm
+               with nm = z, and it registers EXACTLY as a fixed-bin array row does: `size' is the
+               ELEMENT size and the array's EXTENT is carried by bind's `pl_total', because
+               DEF-DATA-SIZE is `max auto_bytes layout.pl_total' (hop-8 fact, codegen 16092). The
+               hop-8/hop-9 "skip array names to avoid undersizing" proposal is FALSIFIED first-hand
+               on E527C/D/E: `addr_of_raw st name' reads the array's BASE through `st.vars', so
+               dropping the row dies `undeclared z'; ordinary 2-byte arrays have always been
+               registered here (AB1/AB2 class) and are not undersized. *)
+            Some (nm, { off; size = 2; vk = Vlbl; w = 0; imem = None })
         (* Symbolic/non-storage kinds legitimately carry no lowering yet.
            Storage kinds outside the int subset must FAIL LOUD (C067
            policy: never silently drop constructs). *)
-        | Bind.RTentry _ | Bind.RTlabel | Bind.RTformat
+        | Bind.RTentry _ | Bind.RTformat
         | Bind.RTbuiltin | Bind.RTstruct _ -> None
         | _ -> failwith
                  (Printf.sprintf

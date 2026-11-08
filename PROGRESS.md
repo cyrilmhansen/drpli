@@ -52,7 +52,15 @@ SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool d
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon COMPLETE — consumed by site re-verification; see hop 6 § in LEARNINGS)
 
-## Next action (E2E-53/P3 hop 11 — **CODEGEN ARM ONLY — bind arm LANDED this chain (build rc=0, binary `9a6bccdb…` HALF-ARM NEVER a fingerprint); read LEARNINGS § “hop 10 (partial)” FIRST (pre-arm baseline + bind state), then hop-9 § (full design/anchors). EXECUTE item (3) below VERBATIM** — BINDING)
+## Next action (E2E-53/P3 hop 12 — **RESOLVE THE C/G TAIL my-gap OR RECORD IT, THEN RUN THE FULL FALSIFIER/TAIL/REGISTER CONTRACT; read LEARNINGS § “hop 11” FIRST (arm landed + TWO corrections) — BINDING)**
+
+**DONE hop 11 (session 01a1ba2f, renewal 7/12; ZERO oracle):** ENTIRE codegen arm (3a)-(3h) landed; `dune build` rc=0; tree binary **`d0ad3a9e51fc7fbf…` (FULL-ARM, NOT yet a fingerprint)**. Parity FRESH POSITIONAL (`build/e53p3/arm-out/`): **A/D/E cmp rc=0 BYTE-EXACT; C/G rc=0 but cmp≠0 — both diverge ONLY in the program TAIL AFTER `stop;`** (C: DR emits an implicit trailing `CALL ?STOPX` because `lab2:` follows the stop, `DEF-CODE-SIZE 0030` vs my `002D`; G: DR emits the branch-over guard `C3` before the procedure entry + the `LINK-CHAIN-ADDR code 000E`/`0017` record order around lab1's pad) — a PRE-EXISTING fall-out/gap class, NOT the label arm; **RECORDED, NEVER FITTED**. Falsifier deaths B/H (`undeclared e`) and F (`computed GOTO deferred [TBD]`) PRESERVED VERBATIM vs `build/e53p3/pre-arm-hop10/`. **TWO corrections to the contract:** (i) hop-5/8/9's array-skip in the vars fold is **FALSIFIED** — `addr_of_raw` needs the array row, register EVERY RTlabel row (DEF-DATA-SIZE rides `max auto_bytes pl_total`); (ii) `pl_arrays`/`bind_arrays` are 4-tuples (`List.exists`, never `mem_assoc`/`mem`).
+
+**EXECUTE (hop 12, EXACT order):** (1) read LEARNINGS § hop 11 + hop 4 § (G tail records). (2) Adjudicate the C/G tail FIRST-HAND from the kept goldens/records (`build/e53p3/arm-out/{mine,gold}-{C,G}.txt`) — main-block implicit-STOP fall-out law + nested-proc guard order; arm measured forms ONLY; if unresolvable, record both as VERBATIM new blockers (parity 3/5) and NEVER fit bytes. (3) THEN the untouched hop-11 tail: falsifier panel (SNS4/sweep byte-identical; OPTIMIST 9-byte unmoved; DEPREC/LABELS/MPMCALLA new deaths VERBATIM — CORRECTION-1 predicts bind AB5 for DEPREC/MPMCALLA; nelem=1 crash unchanged; EXPR1/REPORT/COPYLPT UNMODIFIED; N6 phrase) → tail (fingerprint fresh `--build-dir` supersedes `9a6bccdb…`/`cb906871…`; hist 68/124; sweep 194/0+5; markers argv 19; DEC 64/0; divcheck 9/9) → REAL `--update-inventory` (1323/190 +5) → census (3 msgs MOVE VERBATIM) → C380 measured-bytes-only BEFORE coverage → coverage row 101 + NEW entry/label rows + explicit IDS → FULL gate rc=0 `build/gate-e53p3-reg.log` → RESULTS §P3 + PLAN §4 row + §P3 CLOSED → durables+guard.
+
+**STATE:** bind.ml + codegen.ml ARMED; **codegen arm UNCOMMITTED at this checkpoint** (commit it verbatim first); ledger ENDS **C379**; inventory **1323/190** (stale-pending); coverage **146/96**; goldens `golden/e53p3/` `6b3dbef4` KEPT VERBATIM; config NEVER staged; no push; chain 7/12 cap 12.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 11 — **CODEGEN ARM ONLY — bind arm LANDED this chain (build rc=0, binary `9a6bccdb…` HALF-ARM NEVER a fingerprint); read LEARNINGS § “hop 10 (partial)” FIRST (pre-arm baseline + bind state), then hop-9 § (full design/anchors). EXECUTE item (3) below VERBATIM** — BINDING)
 
 **DONE hop 10 (partial, session 01a1ba17, chain renewal 6/12; ZERO oracle):** HEAD was `8087382f`; build rc=0 binary `cb906871…` == tree verified; **pre-arm deaths of ALL E527A..H measured into `build/e53p3/pre-arm-hop10/`** (all rc=2 ZERO .REL): A/G `undeclared x`; **B/H `undeclared e (no declaration in scope)`**; C/D/E `array of 0-byte elements [C159]`; **F `codegen: computed GOTO deferred [TBD]`** (catch text MUST survive verbatim for F). FULL bind.ml arm landed + `dune build` rc=0: bytes_of RTlabel→2; sizing shadow + allow-list; `bind_label_arrays` export; `Rk_val` + `rk_str` + `label_class_names` walker; lcs threaded through refs_stmts/refs_stmt/block_handler_refs (walker lives AFTER block_handler_refs — inserting it mid-chain breaks mutual recursion); Sassign case; demand fold + PADDEBUG `:val`; `Sgoto _ -> []` unchanged. Bind-only sanity: B death byte-identical; C passes bind, dies `undeclared z` in codegen (CORRECTION-1 mechanics confirmed).
 
@@ -3566,13 +3574,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 596
-checkpoint-id: g596-de1433086e63
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 597
+checkpoint-id: g597-a0f1fd2f39ad
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-08T08:03:07.399Z
+checkpointed: 2026-11-08T08:21:34.159Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: feb2fc9022c17cf35fba4748fcc44c4ab6fe5d6322d1590db2068275a2035acb
 source-handoff: 7bad7585fde870da53ecd912d8d96a8de86a7532d15b86621c8e0ba422ebda78
@@ -4268,9 +4276,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ba17-b03c-7124-92a5-845d2fe61af5
-readiness-at: 2026-11-08T08:03:07.448Z
-readiness-checkpoint: g596-de1433086e63
 <!-- guard:end checkpoint -->
 
 ## Blockers
