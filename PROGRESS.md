@@ -3618,16 +3618,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 617
-checkpoint-id: g617-cbf67b415b16
+checkpoint-generation: 619
+checkpoint-id: g619-a874a259e292
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-08T17:35:54.089Z
+guard-level: 4
+checkpointed: 2026-11-08T17:36:30.366Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: e51b4e303542e40bdbcd5789b0b45c7c5f83198a7ed73fb7c6252eb83ca523ca
-source-handoff: b5e5811db9a0060c117bbd9404616f3a72cc16fe51fbe022929481e399143231
+source-handoff: 2ea1ccec0a4dbe8965968b0b05c72e28b97b30eac4fd54ab90b7674fbf93c708
 source-learnings: 812a0f085be5ea678c65f73e7949d9ea16bf20debc182063c918478257629a96
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P0 hop 4…)` VERBATIM: adjudicate call-dump indent in hir.ml + F1 re-check + expected dumps + commit fixtures; tools/hir_test.py (CLI now `_build/default/hir/pli80hir.exe`; nested-comment stripper before F7/F8); backend.ml in `ocaml/hir/` + F1 re-check; FULL gate rc=0 `build/gate-e54p0-reg.log` FROZEN 1328/190/9/149/16-0-25-0/5 (any move = STOP+revert wiring); RESULTS + arch-doc + roadmap PROPOSED (P1 NOT authorized) + durables+guard. Ledger stays C380; drift evidence kept `ocaml/_build-e54p0h3` (= `ab02dbc5…`); config NEVER staged; no push; chain 2/12 cap 12.

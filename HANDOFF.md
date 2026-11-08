@@ -1705,22 +1705,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 617
-checkpoint-id: g617-cbf67b415b16
+checkpoint-generation: 619
+checkpoint-id: g619-a874a259e292
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6986, session 01a1bc21-b675-74f7-97ac-0a56b97bf444)
-checkpointed: 2026-11-08T17:35:54.089Z
+status: checkpoint (guard level 4, remaining ~4828, session 01a1bc21-b675-74f7-97ac-0a56b97bf444)
+checkpointed: 2026-11-08T17:36:30.366Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: e51b4e303542e40bdbcd5789b0b45c7c5f83198a7ed73fb7c6252eb83ca523ca
-source-handoff: b5e5811db9a0060c117bbd9404616f3a72cc16fe51fbe022929481e399143231
+source-handoff: 2ea1ccec0a4dbe8965968b0b05c72e28b97b30eac4fd54ab90b7674fbf93c708
 source-learnings: 812a0f085be5ea678c65f73e7949d9ea16bf20debc182063c918478257629a96
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -2428,5 +2428,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P0 hop 4: execute PROGRESS.md `## Next action (E2E-54/P0 hop 4 …)` EXACT order. State: F1 GREEN (exe 172595d5…, committed 10061276 + find_dcl fix bb8793aa + durables 0356c44e); UNTRACKED on disk: hir/fixtures/H01..H05.pli (CRLF+^Z, rc-verified; H01–H04 rc=0, H05 rc=2 HIR-E03 line 2 zero stdout). FIRST: adjudicate call-dump arg-indent in ocaml/hir/hir.ml dump_expr Call_e (~153; `arg N` and expression print at SAME indent in H03/H04 dumps), rebuild rc=0, F1 re-check sha256 ocaml/_build/default/bin/pli80c.exe == 17255d prefix 172595d5, regenerate all five dumps, finish §P0.3 line-by-line review, write hir/expected/, commit fixtures+expected ONE commit (paths hir/ only). Then tools/hir_test.py (CLI path ocaml/_build/default/hir/pli80hir.exe NOT bin/; determinism double-run cmp; rc/stdout contract; F4 hex audit; F7/F8 greps WITH python nested-(* *) comment stripper first; patterns concrete from measured text), ocaml/hir/backend.ml BACKEND+Null+Driver + add backend to hir/dune library (modules ...) + F1 re-check, FULL gate rc=0 → build/gate-e54p0-reg.log counts FROZEN 1328/190/9/149/16-0-25-0/5 (any move = STOP + revert wiring, F2), close: spec/lab-evidence/e2e54/RESULTS.md (deviations: pli80_hir name, CLI in ocaml/hir/, precision CLAMP, BEGIN-inline, find_dcl fix, CRLF law, full F1 attribution incl. Dune__exe exe-dir coupling LAW) + finalise docs/architecture/backend-boundary.md + roadmap PROPOSED (P1 NOT authorized), durables+guard. ZERO oracle; ledger stays C380; no claims/coverage/inventory/goldens/dir.txt touch; handoff.config.json NEVER staged; no push; ocaml/lib/ and ocaml/bin/ stay byte-clean vs HEAD; keep drift evidence ocaml/_build-e54p0h3 (ab02dbc5…); stray root S2..S5 debris untouched.
+E2E-54/P0 hop 4 COMPLETE — §P0 CLOSED. Next: operator decision (P1 NOT authorized). Repro set in PROGRESS/RESULTS; exe 172595d5...; gate log build/gate-e54p0-reg.log frozen counts all hit; ZERO oracle; config never staged; no push.
 <!-- guard:end checkpoint -->
