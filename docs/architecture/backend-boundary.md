@@ -1,7 +1,8 @@
 # DRPLi architecture — the backend boundary (E2E-54/P0 audit)
 
-Status: **FINAL — P0 CLOSED 2026-11-08** (audit pass opened session `01a1bbbd`, E2E-54/P0;
-finalised at hop 4 close; see `spec/lab-evidence/e2e54/RESULTS.md`). This document analyses
+Status: **FINAL — P0 CLOSED 2026-11-08; §7-1 added at P1-b CLOSE 2026-11-08** (audit pass
+opened session `01a1bbbd`, E2E-54/P0; finalised at hop 4 close; see
+`spec/lab-evidence/e2e54/RESULTS.md`). This document analyses
 the CURRENT pipeline; it does not change it. All line anchors were
 read from the tree at `b420fe01`/`c89a9df3` and are given as `module.ml:line`.
 
@@ -236,3 +237,25 @@ RESULTS §5. P0 adds no MIR/MADC dependency.)
 3. Extracting expression typing out of `lower_hl` guards — large, needs its own campaign.
 4. Replacing `Hir_build`'s subset refusals one at a time as oracle evidence for each construct
    shape arrives.
+
+### 7-1. E2E-54/P1-b LANDED — item 1 executed (CLOSED 2026-11-08)
+
+Item 1 is now real: **`ocaml/hir/semantic_env.ml`** (476 L) — a read-only, typed
+projection over `(Ast.block × Bind.prog_layout)`, transitional by design (lives in
+`pli80_hir`; the historical pipeline never references it; `pli80c.exe` never links it —
+S1 `172595d5…` held through every step and on a fresh build dir). Measured end state
+(RESULTS §P1-b): `Hir_build`'s ONLY remaining Bind references are the module alias
+(`hir_build.ml:41`) and the single `Bind.bind_program` call (`:557`), pinned by name in
+`tools/hir_test.py` (F10); the six table-reconstruction sites (§P1-b.1 audit 4/6/11/14/15/16)
+are owned by the env; **no offset, cell size, section size, pool address or relocation
+crosses the seam** (excluded by contract §P1-b.2, grepped by S8); the public interface
+references **no `Hir` type** — the subset gate `ty_of_rt` stays in the consumer and quotes
+bind's own `epr`/`sret_pr` renderings VERBATIM, so every diagnostic is byte-identical
+across the seam (S10) and H01–H05 dumps are byte-frozen (S2). Semantic authority is judged
+against the LIVE env by `ocaml/hir/semtest.exe` (7 invariants + `--corrupt` non-vacuity
+control), never against dump text. Honest audit result, re-confirmed at close: class [D]
+(duplicate resolution) was **NONE** — P1-b removed table-reconstruction machinery and made
+it testable, it did not delete a second binder. The six facts Bind still does not expose
+(§P1-b.6 / RESULTS §P1-b.4) remain documented gaps; per-`BEGIN` scoping is the one that
+BLOCKS the corresponding P1-a construct. Items 2–4 stay PROPOSED, untouched. **P1-a is NOT
+authorized.**

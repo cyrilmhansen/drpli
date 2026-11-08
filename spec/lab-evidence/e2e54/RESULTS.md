@@ -192,3 +192,187 @@ hop 3: `10061276` (F1 remedy — `ocaml/hir/` library), `bb8793aa` (find_dcl fix
 `0356c44e` + `349266d3` (durables + guard g614).
 hop 4: `65d21d47` (arg-indent adjudication), `2504633a` (fixtures + expected),
 `b607c156` (`tools/hir_test.py`), `e6946096` (`backend.ml`), this close-out.
+
+---
+
+# E2E-54/P1-b RESULTS — Semantic Environment Projection (zero-oracle slice)
+
+Phase **§P1-b** CLOSED **2026-11-08** at hop 4 (sessions `01a1bcc7` → `01a1bce0` →
+`01a1bd02` → `01a1bd21`, renewals 1–3 of a cap-12 chain
+`chain:01a1bcc7-fdf9-71ea-9e0a-5bfb1d8da449`). Pre-registered as PLAN §P1-b (operator
+brief VERBATIM as §P1-b.0; authorization 2026-11-08); executed against starting reference
+`aaf295f0257659c4b3bd8d070bd14a306cc36780`.
+
+**Oracle runs this phase: ZERO.** No probe, no CP/M, no cpmsim, no LINK-80. No claim was
+created or modified: `spec/CLAIMS.md` still has **203** `## C` headers, ending **C380**.
+`spec/COVERAGE.tsv`, `spec/INVENTORY.txt`, `spec/census/`, every `golden/` directory,
+`probes/`, `artefacts/`, `manuals/`, `extracted/`, `references/` and `oracle/disks/`
+were not touched (S4/S9, verified first-hand at close: `git status --porcelain` shows
+ZERO modified tracked file under those paths). `ocaml/lib/` and `ocaml/bin/` are
+byte-clean vs HEAD at every hop close. No push.
+
+## P1-b.1 What §P1-b delivered (brief Step 7 deliverables)
+
+| deliverable | measured form |
+|---|---|
+| documented `Semantic_env` API | `ocaml/hir/semantic_env.ml` (**476 L**): read-only projection over `(Ast.block × Bind.prog_layout)`; own `stype` (physical components dropped at the boundary), `symbol`/`proc_sig`/`block_env`/`entry_sig`; typed `Not_found of {scope}` vs `None`; `epr`/`sret_pr` carry `Bind.rty_str` VERBATIM; NO `Hir` type in the interface; full surface contract in PLAN §P1-b.2 (with the one documented amendment,
+§P1-b.5 note 1 below) |
+| migrated HIR construction path | `ocaml/hir/hir_build.ml` **625 L** (was 780 at `aaf295f0`; migration commit `dfe1435a` = +225/−380 = **−155 net**): all table-reconstruction machinery moved behind the env; only Bind reference left is the alias (`:41`) + one `Bind.bind_program` call (`:557`); subset gate `ty_of_rt : SE.stype -> ~pr -> …`, eager sid-ordered `Hir.sym` projection, all lowering, typing and diagnostic texts UNCHANGED |
+| semantic-authority tests | `ocaml/hir/semtest.exe` (**455 L**, in `pli80_hir` dir — P0 F1 exe-dir law): 7 invariants judged against the LIVE env and bind rows, never dump text; `--corrupt` non-vacuity control |
+| targeted negative fixtures | `hir/fixtures/H06.pli` (`dcl c char(3);` → `HIR-E02` quoting bind's own `CHAR(3)`) and `H07.pli` (formal `q` with no dcl → `HIR-E03` "produced no bind row"), both CRLF+`^Z`, rc-pinned negatives (`acd7955e`) |
+| before/after dependency map | §P1-b.2 below |
+| unexposed-fact list | §P1-b.4 below (PLAN §P1-b.6 carried VERBATIM) |
+| proposed P1-a order | §P1-b.5 below — **PROPOSED ONLY; P1-a is NOT authorized and was NOT started** |
+| test-runner extension | `tools/hir_test.py` (now **332 L**): semtest live+corrupt ×2 per positive fixture (S6/S7), F10 Bind-seam grep (pins the EXACT two lines), S8 env-independence grep |
+
+## P1-b.2 Before/after dependency map (audit §P1-b.1, measured outcome)
+
+| audit site | machinery at `aaf295f0` (before) | after migration |
+|---|---|---|
+| 4 `rows_of_block` | bind rows re-keyed per block, offset dropped in `hir_build` | deleted; `Semantic_env.create` owns row projection (`esyms`, bind order) |
+| 6 `find_dcl` | `Bind.frame_decls` scan + key policy in `hir_build` | deleted; `Semantic_env.find_dcl` (same bind channel, same `Bind.pl_l` key) |
+| 11 `resolve` | parent-chain walk over private `bi_syms` tables | deleted; `Semantic_env.resolve` (chain = AST nesting shape [O] over bind rows [P]) |
+| 14 `procs_by_name` | private name→pid registry assembled in `hir_build` | deleted; `Semantic_env.procedure` + `blocks`/`main_block`/`block_of_pid`/`enclosing` |
+| 15 `lower_call` bind reads | direct `pl_ptrs`/`pl_ret`/`pl_rec`/`pl_attr_rec` reads | deleted; `Semantic_env.signature` (`sptrs`/`sptr_count`/`sret`/`srec`/`sattr_rec`) |
+| 16 `params_of` | AST `bparams` → sids via private block tables | `block_env.eformals` + `esyms`; the HIR-E03 "explicit formal dcl required in P0" refusal stays in the CONSUMER (typed missing-information honouring, message unchanged) |
+| 1/2/3/9/10/17 | authority call, top-proc identity, guards, Auto/Static, `ty_of_rt`, `Sdcl` guards | unchanged classes: [P] facts now read through the env; the **subset gate stays in `Hir_build`** |
+| 18 literal/arith typing | `Language_rule` profile logic, NOT bind | unchanged in the consumer (§P1-b.5 audit: three layers stay separated; zero typing edits this phase) |
+
+**Class [D] result (stated honestly, as pre-registered): NONE.** P1-b removes
+*table-reconstruction machinery*, not duplicate semantic resolution — P0 F6 had already
+established no second resolver exists. The phase's measurable gain is ownership and
+testability: one module owns the reconstruction sites and is judged directly against bind
+by `semtest` (7 live invariants), with the dump/diagnostic bytes frozen across the seam
+(S2/S10).
+
+## P1-b.3 Falsifier panel (pre-registered §P1-b.7) — every measured value
+
+- **S1 historical binary — PASS.** `pli80c.exe` sha256
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` held after EVERY
+  build-touching step (after the `semantic_env` stanza, after the migration, after the
+  `semtest` exe stanza) AND at close on the FRESH build dir: `build/e54p1b-freshbuild.log`
+  (`dune build --build-dir _build-e54p1b`) rc **0**, ZERO `Error`, hist **122** warning
+  headers (baseline count), and `sha256sum
+  ocaml/_build-e54p1b/default/bin/pli80c.exe` re-computed first-hand at hop-4 close ==
+  `172595d5…` (identical to `_build/default`). The log itself records only rc + headers;
+  the sha is verified against the kept exe — a fresh-dir log never prints it.
+- **S2 expected dumps frozen — PASS.** `git diff --exit-code -- hir/expected/` rc **0**
+  THROUGH the migration and at close; H01–H05 stdout compared byte-for-byte every run:
+  H01 **1753 B**, H02 **1808 B**, H03 **1608 B**, H04 **1090 B**. The seam is
+  behaviour-preserving to the byte.
+- **S3 full gate — PASS, ZERO movement.** `python3 tools/e2e_gate.py` rc **0 DIRECT** →
+  `build/gate-e54p1b-reg.log`: sweep **1328/1328** byte-exact, negative **190/190**,
+  divergence **9/9**, coverage **149 rows 0 errors 0 warnings**, census **EXACT 16 /
+  DIFFERS 0 / REFUSED 25 / UNEXPECTED 0** (NO_ORACLE 3), prose **5**. All FROZEN counts
+  hit exactly (§P1-b.9 prediction confirmed; no wiring revert needed).
+- **S4 historical surfaces untouched — PASS.** `ocaml/lib/`, `ocaml/bin/`, `golden/`,
+  `spec/` ledgers, `probes/`, `artefacts/` show ZERO modified tracked files at close
+  (verified first-hand); ledger **203** headers ending **C380**; `handoff.config.json`
+  NEVER staged (operator edit stays dirty-in-tree).
+- **S5/F10 Bind seam — PASS.** After nested-comment strip, `hir_build.ml` references
+  `Bind` at EXACTLY two lines, pinned by name in `tools/hir_test.py`: `:41`
+  `module Bind = Pli80.Bind` (alias) and `:557`
+  `let plan = Bind.bind_program blk in` (the single authority call). `semantic_env.ml`
+  is the only HIR-path reader of bind layout fields.
+- **S6 semantic authority — PASS.** `semtest.exe` per positive fixture (run twice,
+  see S7): H01 `SEMANTIC-AUTHORITY OK 4 refs / 3 syms`, H02 `7 refs / 2 syms`,
+  H03 `7 refs / 4 syms`, H04 `4 refs / 2 syms` — all rc **0**. Non-vacuity control:
+  `--corrupt` FAILS loudly on every fixture — rc **1**, one `SEM-FAIL` line on stderr,
+  **ZERO stdout** (never prints OK).
+- **S7 determinism — PASS.** Every fixture AND every semtest run executes in two fresh
+  processes with byte-identical rc/stdout/stderr (subsumes the in-process dimension,
+  same contract as P0 F4).
+- **S8 env independence + purity — PASS.** `semantic_env.ml` code (comment-stripped)
+  contains no `\bHir\b` reference — the env is IR-independent — and passes all F8
+  byte-layout patterns; `tools/hir_test.py` F8 now sweeps **8** `ocaml/hir/*.ml` files,
+  all clean of 7 patterns; F7 separation re-verified (3 historical files, 5 patterns).
+- **S9 zero oracle / no promotion — PASS.** No oracle call; no claim; no coverage row;
+  no inventory/census/goldens touch (see header).
+- **S10 diagnostics byte-identical — PASS.** Positive fixtures produce NO diagnostics
+  (S2 covers their stdout bytes); negatives are byte-pinned stderr + rc 2 + ZERO
+  stdout: H05 `HIR-E03: line 2: array declaration for a is outside the P0 subset`,
+  H06 `HIR-E02: line 2: declared type CHAR(3) for c is outside the P0 HIR subset
+  (FIXED BINARY scalars only)` (bind wording via the carried `epr`), H07
+  `HIR-E03: line 5: explicit formal dcl required in P0: parameter q produced no bind
+  row`. `SEM-FAIL` texts come from the test binary, not the compiler path.
+- **Predicted drift (PLAN §P1-b.3 note) — NOT EXPOSED.** The adjudicated multi-refusal order
+  drift (registration guards now run in `env.create` before subset projection) requires
+  a program combining two independent refusals; none of H01–H07 does (each negative is
+  single-refusal). Every frozen byte held; nothing had to be re-adjudicated.
+
+## P1-b.4 Facts Bind still does NOT expose (PLAN §P1-b.6, carried VERBATIM)
+
+1. Parent/child procedure edges (flat `pl_procs`) — nesting shape read from the AST [O].
+2. Per-`BEGIN` scoping — bind merges BEGIN/DO declarations into the frame block (HIR-E11
+   refusal retained unchanged).
+3. Expression result typing (arch doc §1.3) — no bind function types an expression.
+4. Qualified/suffix use resolution — lives in codegen (`resolve_suffix`), out of env scope.
+5. INITIAL values, EXTERNAL static/varying descriptor detail, ON-unit facts (`pl_on` exists
+   in bind but is NOT projected by P1-b — documented exclusion).
+6. sid/scope/pid identity — an interface contract, not a bind fact.
+
+Each is a documented gap; none was inferred into the interface.
+
+## P1-b.5 Measured notes (recorded, NOT fitted)
+
+1. **`SFormat` amendment to the projection surface.** The pre-registered `stype` has no
+   constructor for `Bind.RTformat`, but `type_of_rt` must be TOTAL (a total projection is
+   the contract's own requirement). One constructor `SFormat` was added **by amendment**
+   — the mechanism §P1-b.2 itself prescribes ("additions only by amendment") — documented
+   at the module head and in the hop-2 commit (`512d939f`). No behaviour depends on it in
+   the P0/P1-b subset (formats still refuse through the subset gate).
+2. **OCaml record-field evaluation-order law (H07 measurement).** The first H07 draft
+   had the procedure BODY read the undeclared formal `q`; it died **`HIR-E06` (use line,
+   undeclared name) BEFORE** the intended `HIR-E03` — OCaml does not guarantee that
+   record fields evaluate left-to-right, so a `block_info` construction may lower `body`
+   before `params = params_of bi`. Measured IDENTICAL on the pre-migration `aaf295f0`
+   tree ⇒ pre-existing at P0 hop-2 code, NOT P1-b drift. Recorded, NEVER fitted: the
+   final H07 body does not reference `q`, so the typed missing-information refusal
+   (`HIR-E03 … produced no bind row`) is the honest first diagnostic. Consequence: on
+   this path, multi-defect programs can report either diagnostic first; which one is
+   OCaml-eval-order-dependent, and that is a *consumer* property, not a bind fact.
+3. **Bare BEGIN/DO blocks HANG `register_children` (pre-existing defect).** A
+   statement-level `begin; … end;` (parser `parse_begin_block` → `Ast.Sproc` with
+   `bkind = Bbegin`) makes the non-Bproc discovery branch recurse on the ENCLOSING
+   block's own statement list, re-reading the same `Sproc` forever: timeout rc **124**,
+   no stack growth; with a preceding Bproc sibling it first yields a bogus
+   `duplicate internal procedure name` refusal. Measured IDENTICALLY on the
+   pre-migration `aaf295f0` scratch build and the migrated path
+   (`build/e54p1b3-scratch/BEG1.pli`, ignored) ⇒ **PRE-EXISTING** (P0 hop-2 code,
+   carried verbatim through the migration), NOT P1-b drift. Recorded per the `nelem=1`
+   law — never silently fixed in a refactor slice; repair = proposed hygiene slice.
+
+## P1-b.6 P1-a proposed order (PROPOSED — NOT authorized, NOT started)
+
+Derived from §P1-b.1/§P1-b.4; each construct needs its own pre-registration and, where
+DR behaviour is in question, its own oracle campaign (PROTOCOL #1):
+
+1. **Arrays** — bind already carries element rows and dims through `esyms`/
+   `find_dcl`; needs an HIR `ty` extension + fixtures first (no new bind facts required).
+2. **PUT/GET statements** — statement surface only; word-by-word against existing
+   codegen evidence already claimed (C159..C380 family).
+3. **Per-block BEGIN scopes** — BLOCKED by unexposed fact 2; requires either a bind-side
+   projection of frame block structure (a separate pre-registered phase) or an explicit
+   [O] organization contract in `Semantic_env` read from the AST — never inference.
+4. The FIXED intermediate-typing question stays with P2 (oracle `$V` witnesses), NOT P1-a.
+
+## P1-b.7 Reproduction (the §P1-b regression set)
+
+```bash
+cd ocaml && eval "$(opam env)" && dune build              # rc 0, ZERO Error
+python3 tools/hir_test.py                                 # rc 0: H01–H07, semtest live+corrupt ×2, F4/F7/F8/F9/F10/S8
+sha256sum ocaml/_build/default/bin/pli80c.exe             # 172595d52be44c9ead…  (S1)
+cd ocaml && dune build --build-dir _build-e54p1b          # rc 0 (S1 fresh dir; log build/e54p1b-freshbuild.log)
+python3 tools/e2e_gate.py                                 # rc 0, frozen counts (S3; log build/gate-e54p1b-reg.log)
+grep -c '^## C' spec/CLAIMS.md                            # 203, last header C380 (S4/S9)
+```
+
+## P1-b.8 Commits (explicit paths, hop order)
+
+hop 1: `a2e4f62c` — §P1-b pre-registration in PLAN (operator brief VERBATIM, 19-site
+audit, API contract, S1–S10 falsifiers) at the `aaf295f0` baseline.
+hop 2: `512d939f` (`semantic_env.ml` + dune modules, SFormat amendment),
+`dfe1435a` (migration, −155 net, S1/S2/S5 green), `acd7955e` (H06/H07 measured pins).
+hop 3: `00a58a44` (`semtest.exe` + `hir_test.py` extension), gate + fresh-build logs
+(ignored evidence under `build/`), durables `3afdd9ee` + `00c7ade8`.
+hop 4: this close-out (RESULTS §P1-b + arch §7-1 + PLAN dashboard CLOSED) + durables.

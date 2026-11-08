@@ -994,5 +994,5 @@ multi-refusal-order note; any further deviation is recorded VERBATIM, never forc
 
 | slice | status | gate log | notes |
 |---|---|---|---|
-| P1-b | **OPEN 2026-11-08** (operator-authorized; §P1-b pre-registered this commit) | (close: `build/gate-e54p1b-reg.log`, FROZEN counts) | ZERO oracle; seam module `ocaml/hir/semantic_env.ml`; `ocaml/lib/`+`ocaml/bin/` byte-clean mandatory |
+| P1-b | **CLOSED 2026-11-08** (hop 4) | `build/gate-e54p1b-reg.log` (rc 0, FROZEN counts ALL HIT) | ZERO oracle; RESULTS §P1-b (S1–S10 measured panel, dependency map, §P1-b.6 list, THREE measured notes); arch doc §7-1; `ocaml/lib`+`ocaml/bin` byte-clean verified; **P1-a PROPOSED ONLY — NOT authorized, NOT started** |
 
