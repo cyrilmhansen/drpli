@@ -5,6 +5,17 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P0 hop 4 CLOSED — §P0 COMPLETE (2026-11-08, session 01a1bc21 renewal 3/12; ZERO oracle; ZERO historical ocaml/lib+bin byte)
+- **accepted:** arg-indent adjudication LANDED (nested `indent+2` under `arg N`, both `Call_e`/`Call_s`, `hir.ml` header documents the rule); expected dumps regenerated + reviewed line-by-line vs §P0.3 and committed with fixtures (`2504633a`); F1 re-verified GREEN after hir.ml edit AND after `backend.ml` (`172595d5…`).
+- **accepted (tooling LAW):** F8 grep patterns MUST be word-anchored — unanchored `op_` false-positives on `relop_name`/`top_authority`; concrete pattern set proven on measured text, and the nested-comment stripper verified NON-VACUOUS (code+strings kept, line numbers preserved; planted-violation control caught all 5 patterns). `address` is a documented NON-token (dump string “target address then value” = evaluation-order phrase; F4 audits dumps for hex-shaped tokens — zero hits, empty allowlist).
+- **accepted:** F6 audit method — every `List.assoc_opt`/`mem_assoc` in `hir_build.ml` reads bind-seeded tables (`bi_syms`, `procs_by_name`, `Bind.frame_decls`, key via `Bind.pl_l`); the single `List.mem key formals` consumes the AST syntactic param list only (type/existence still from bind rows). Rule holds.
+- **accepted:** F5 witness by scratch declaration-swap (renumbering deterministic; scratch NOT added to the pre-registered 5-fixture set).
+- **accepted:** FULL gate rc=0 `build/gate-e54p0-reg.log` with FROZEN counts 1328/1328, 190/190, 9/9, coverage 149 rows 0/0, census 16/0/25/0, prose 5 — F2 prediction “zero movement” CONFIRMED; backend witness `ocaml/hir/backend.ml` = brief §7 signature + `Null` + `Driver` compile-time test (`module _ = Driver(Null)` runs nothing).
+- **accepted:** `file_prose_check.py` scans ONLY the 5 enumerated spec files — new E2E-54 docs are outside the prose surface; re-run rc=0 after close docs.
+- **accepted:** §P0.10 MIR lab NOT reachable without network (no `*madc*` locally; `~/Téléchargements/mir-master*.zip` = unrelated upstream Mir) → recorded `[TBD — lab not reachable]`; personal downloads OUT of scope.
+- **proposed (NOT adopted):** migration roadmap P1-a/P1-b/P2/P3+ written in RESULTS §6; P1 requires explicit operator authorization + its own pre-registration.
+- **unresolved questions (recorded, not investigated):** DR internal expression typing still `Unknown` in profile (needs pre-registered `$V`-stream experiment, P2); per-block BEGIN scopes unexposed by bind (HIR-E11); no real BACKEND instance exists yet (Null only).
+
 ## E2E-52/P3-9 hop 2: PHASE A CLOSED — POLARITY PUZZLE RESOLVED (byte, not flags, travels via F5/C1), 2F=CMA PINNED BY DR'S OWN $C↔OBJECT PAIR, AND@120 == [C105]; FOLD-ORDER ASYMMETRY IS THE REAL OPEN QUESTION (2026-11-05, session 01a1ad11 renewal 1/12; ZERO `ocaml/` byte, ZERO oracle call, goldens untouched)
 
 **ACCEPTED (all from EXISTING evidence; raw bitstream + reldump-text + R812 $C; scratch `build/e52p9/phaseA-complete.txt`):**
