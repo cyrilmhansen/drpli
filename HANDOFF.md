@@ -1694,7 +1694,7 @@ checkpoint-generation: 588
 checkpoint-id: g588-9930d0fd68d2
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 3, remaining ~6582, session 01a1b9d8-1cab-7124-92a5-845038811969)
 checkpointed: 2026-11-08T06:48:56.232Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -1704,6 +1704,9 @@ source-learnings: af78a4039c481f811dd93559fcd287ab089882928f80b1707ea28f83763765
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b9d8-1cab-7124-92a5-845038811969
+readiness-at: 2026-11-08T06:49:23.854Z
+readiness-checkpoint: g588-9930d0fd68d2
 ### Last verified state
 guard level 3; checkpoint requested (auto at level 3)
 
