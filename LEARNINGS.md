@@ -9882,3 +9882,84 @@ project; S1 re-verified AFTER adding it — an extra scratch exe dir does NOT mo
 **Design drafted (PROPOSED, pre-registration content, NOT yet code):** `Hir.ty += Array1 of { elem : ty; lo : int; hi : int }`; `expr_kind += Elem_read of { base : int; subs : expr list }` (LOAD) and `Elem_ref of { base : int; subs : expr list }` (LVALUE designator) — two constructors so read-vs-designate can NEVER collapse (`x = a(i)` vs `a(i) = x`); `Assign.target` restricted to `Var`/`Elem_ref`; `Elem_read` in target position and `Elem_ref` in value position refuse loudly (no silent load/designate); dump lines print bounds, NEVER stride; `Semantic_env` gains `SArray1 of { elem : stype; lo : int; hi : int }` merged from `bind_rows`+`bind_arrays` with `esz` dropped at first touch; supported subset = 1-D FIXED BINARY(7..15) elements (band from A-7), everything else typed refusal; evaluation order recorded as an HIR representation choice with `[TBD]` wording, never as a DR law; the known BEGIN/DO hang stays unfixed, all test runs under `timeout`.
 
 **LESSON (tooling):** a `wc -l`/grep batch on `ocaml/lib/bind.ml` returned inconsistent numbers once in this session; re-verify any quoted line anchor with a single-purpose `grep -n` before writing it into a document (bind.ml is 2610 lines, `pl_arrays` at 1954/2560, `bind_arrays` at 1588, array sizing 1020-1095).
+
+### E2E-54/P1-a1 hop 2 addendum — band measurement COMPLETE (2026-11-09, session 01a1bd6f, renewal 1/12; ZERO oracle; ZERO `ocaml/lib`+`ocaml/bin` byte)
+
+Baseline re-verified FIRST-HAND at hop start: HEAD `aa7789d5`; `dune build` rc **0**; `pli80c.exe` sha256
+**`172595d5…`** (re-checked after the scratch exe was rebuilt — S1 holds); `tools/hir_test.py` rc **0**
+(H01 4refs/3syms, H02 7/2, H03 7/4, H04 4/2, H05–H07 pinned, F4/F7/F8/F9/F10/S8 all green).
+Same throwaway instrument (`ocaml/scratch-p1a1/`, untracked, never committed); new inputs A23..A33;
+raw record `build/p1a1-probe-2.log` (ignored) — including a FULL REPRODUCTION RUN of the 20 probe-1
+inputs, machine-compared: all 20 blocks **byte-identical** to `build/p1a1-probe-1.log`, all RCs equal
+(probe determinism itself is now a measured fact, not an assumption).
+
+**ACCEPTED (measured, A-nn = probe input):**
+- **A-10 bin(p<7) array band refusal MEASURED (was A-7 "owed").** `dcl a(3) fixed bin(p)` for
+  `p = 1, 3, 6` (A23/A24/A25) ⇒ `Failure "codegen: [TBD] array of 1-byte elements [C159] (only FIXED
+  BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECIMAL, FLOAT, BIT and CHARACTER
+  arrays refuse)"` and **`bind_rows` is EMPTY at the refusal point** — the row is not emitted when the
+  array-record stage dies. `bin(7)` (A19-class, probe-1) and `bin(8)`,`bin(15)` (A26/A27) ⇒ ACCEPTED:
+  `bin(8)` rows `FIXED BINARY(8,0)` + `(a,lb=1,ub=3,esz=2)`. Band for FIXED BINARY = {7} ∪ {8..15};
+  bin(1..6) refused, bin(16) dies EARLIER at the precision ceiling (A-7 unchanged).
+- **A-11 `bit(8)` refuses; the refusal PROSE is NOT the rule.** A28 ⇒ same `1-byte elements [C159]`
+  refusal — because `bytes_of (RTbit n) = (n+7)/8` (bind.ml:167) ⇒ `esz=1`, `RTbit` is not in the
+  `elem_sz_measured` class list, and the `_ -> elem_sz = 2` fallback fails (bind.ml:1074-1086).
+  `bit(9..15)` would size to 2 and pass the fallback — **UNMEASURED, `[TBD]`, never inferred.**
+- **A-12 `char(1)` refuses; `char(2)`/`char(3)` ACCEPTED — the prose over-claims.** A29 ⇒ same 1-byte
+  refusal (`bytes_of (RTchar(1,false)) = 1`). But probe-1 A07/A08 keep records `esz=3`/`esz=2`. The
+  refusal sentence *"DECIMAL, FLOAT, BIT and CHARACTER arrays refuse"* is therefore **inaccurate as
+  prose**: the real rule is the union of three MEASURED mechanisms — the class list
+  (`RTbin 7 | RTchar (3,false) | RTlabel | RTentry _`), the size-driven fallback `elem_sz = 2` (which
+  admits `char(2)` and `bin(8..15)`), and an earlier death for `bin(16)`. HIR must key the subset on
+  the RUNTIME TYPE + bounds the env can see, and may quote the refusal text VERBATIM but must not
+  repeat its prose as a language rule.
+- **A-13 nested procs OWN their array channel.** A30: `PL_PROC p pl_arrays=[b:1:2:2]` while the top
+  block holds `(a,1,4,2)` — per-block records confirmed with the child carrying its OWN entry
+  (complements A-8: the child does not inherit, the parent does not push).
+- **A-14 structure-member arrays NEVER reach `bind_arrays`.** A31 (`dcl 1 s fixed bin(15), 2 a(3)
+  fixed bin(15);`): `top bind_arrays` **EMPTY**; instead TWO rows `key=a` and `key=s.a`, both
+  `FIXED BINARY(15,0) MEMBER OF S@2`, `auto=false`, and NO subscript use recorded. The binder
+  flattens the member into the structure row space; arrayness of a member is invisible in the array
+  channel. ⇒ `Array1` must be produced ONLY by the top-level name × `bind_arrays` merge; a
+  member-shaped row never becomes an `Array1`. (The member-subscript *use* form is unmeasured here.)
+- **A-15 subscript on a SCALAR name is invisible to bind.** A32 (`dcl y fixed bin(15); … y(1) = 2;`):
+  normal scalar row (`off=2` for `i` after `y` at `off=0`), `bind_arrays` EMPTY; the AST shows the use
+  (`USE y [1 subscript(s)]: num(1)`). ⇒ "is this name even an array" is decided by the MERGE
+  (row without array record + subscripted use ⇒ HIR-side typed refusal, never a scalar collapse).
+- **A-16 WHOLE-ARRAY use records nothing either.** A33 (`a = 1;` with `dcl a(3)…`): array record
+  present, **ZERO subscript uses in the AST walker**. Bind gives no "array-in-value-context" fact; the
+  historical codegen behaviour for this form is `[TBD]`. HIR P1-a1 must refuse whole-array use as its
+  own explicit subset rule.
+- **A-17 (tooling law) probe determinism.** The identical instrument over identical inputs reproduced
+  all 20 probe-1 blocks byte-for-byte in a fresh process — the A-facts are a property of the binder,
+  not of the session.
+
+**STATE after hop 2:** HEAD = this durables commit; tree clean except dirty-never-staged
+`handoff.config.json` (operator cap 12 / window 145000, NEVER staged), untracked scratch
+(`ocaml/scratch-p1a1/` incl. NEW inputs A23..A33 — never committed) and pre-existing debris;
+build rc 0; exe `172595d5…`; hir_test rc 0; ledger **C380** (203 headers); ZERO oracle.
+**NEXT (contract step 3): pre-register `spec/lab-evidence/e2e54/PLAN.md` §P1-a1 and commit by
+EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** — then implement in the contract order.
+
+## E2E-54/P1-a1 hop 2 — band measurement COMPLETE; §P1-a1 pre-registered (2026-11-09, session 01a1bd6f, renewal 1/12; ZERO oracle; ZERO `ocaml/lib`+`ocaml/bin` byte)
+
+**ACCEPTED (verified first-hand this hop):** baseline trio (HEAD `aa7789d5`, build rc 0, exe
+`172595d5…`, hir_test rc 0); probe-2 measurements **A-10..A-17** (section above — bin(1..6) band
+refusal + empty-rows-at-refusal, bit(8) refusal mechanism, char-prose inaccuracy, per-block nested
+ownership, member-arrays-never-in-bind_arrays, scalar-subscript invisibility, whole-array
+invisibility, probe determinism law); ledger 203 `## C` headers ending C380 (count law: `grep -c "^## C"`);
+operator brief exists ONLY in the parent transcript and was recovered VERBATIM (stray leading `g`
+recorded honestly, not repaired).
+**PROPOSED (contract, written into PLAN §P1-a1, unexecuted):** the node/env/fixture/corrupt-mode
+design summarized in the PROGRESS hop-2 heading — notably the `target = T_var | T_elem` variant as
+an AMENDMENT beyond the predecessor contract's constructor list (static non-collapsibility; dump
+bytes stay frozen; semtest judges the tree, so a target node needs no dump line); codes E12/E13/E14;
+H05 flip disposition (`git mv` to `hir/expected/superseded/2026-11-09/` + dated README); fixtures
+H08/H09 positive, H10..H15 negatives, each single-refusal-path by design.
+**LAW (tooling, self-caught):** a programmatic markdown-quote pass must prefix EVERY line (a
+`s/# /…/` heading demotion silently broke blockquote continuity on first write — caught by a
+line-by-line compare against the source text, fixed, re-verified 186/186 equal); embed raw and
+compare, never transform-and-trust.
+**NEXT (BINDING):** PROGRESS hop-2 heading steps 1–6 — review tail of §P1-a1, COMMIT PLAN+LEARNINGS
+BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE (PROTOCOL #1), then implement semantic_env → hir →
+hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → STOP.

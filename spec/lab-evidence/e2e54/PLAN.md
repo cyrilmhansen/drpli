@@ -996,3 +996,543 @@ multi-refusal-order note; any further deviation is recorded VERBATIM, never forc
 |---|---|---|---|
 | P1-b | **CLOSED 2026-11-08** (hop 4) | `build/gate-e54p1b-reg.log` (rc 0, FROZEN counts ALL HIT) | ZERO oracle; RESULTS §P1-b (S1–S10 measured panel, dependency map, §P1-b.6 list, THREE measured notes); arch doc §7-1; `ocaml/lib`+`ocaml/bin` byte-clean verified; **P1-a PROPOSED ONLY — NOT authorized, NOT started** |
 
+
+
+---
+
+## §P1-a1 — Pre-registration: Arrays and Addressable References (committed BEFORE any `ocaml/hir/` byte)
+
+**Authorized by the operator 2026-11-08** (message reproduced VERBATIM as §P1-a1.0 below).
+Campaign slice **E2E-54/P1-a1** — the arrays/addressable-refs slice of the P1-a roadmap
+family (RESULTS §P1-b.6 proposed order, item 1: arrays), promoted to an authorized phase by
+that explicit operator decision. Type of work: **backend architecture, ZERO oracle calls**
+(none planned or authorized). Starting reference:
+`9174ad441a33e49499b8fffa30054290f540242b` (verified first-hand at hop-1 session start and
+re-verified first-hand at hop-2 start: `dune build` rc 0; `pli80c.exe` sha256 `172595d5…`;
+`tools/hir_test.py` rc 0 H01–H07 + semtest live/corrupt + F4/F7/F8/F9/F10/S8).
+
+PUT/GET, the BEGIN/DO hygiene repair, MIR code generation and any historical-compiler
+refactor are explicitly NOT started or authorized by this slice (brief close clause).
+
+**Transcription note (honest):** the brief below is reproduced character-for-character from
+the operator message as stored in the session transcript
+(`01a1bd4d-a12c-73ad-8fbc-6a67fb7548e7`); the stored text begins with a stray leading `g`
+immediately before the title, which is reproduced as received rather than silently repaired.
+
+### P1-a1.0 Operator brief (verbatim)
+
+> g# DRPLi — E2E-54/P1-a1: Arrays and Addressable References
+>
+> ## Operator authorization
+>
+> The operator authorizes the next architectural slice, **E2E-54/P1-a1**, focused on one-dimensional arrays and addressable references in the new HIR.
+>
+> Starting Git reference: `9174ad441a33e49499b8fffa30054290f540242b`.
+>
+> E2E-54/P0 and P1-b are CLOSED.
+>
+> This campaign does not modify the historical PL/I-80 compiler or implement MIR code generation.
+>
+> ## Objective
+>
+> Extend the backend-neutral HIR with a sound model of:
+>
+> - One-dimensional array declarations.
+> - Semantic element types.
+> - Declared lower and upper bounds.
+> - Constant and variable subscripts.
+> - Array-element reads.
+> - Array-element assignments.
+> - Addressability of scalar variables versus array elements.
+>
+> Establish the abstraction that a future backend will use for memory access without importing DR's physical layout.
+>
+> ## Phase 1 — Preregister and verify semantic authority
+>
+> Read the existing P0/P1-b architecture and scientific results.
+>
+> Inspect `Ast.dim`, `Bind.bind_arrays`, `Bind.bind_rows`, `Bind.frame_decls`, `Semantic_env` and existing array tests.
+>
+> Preregister a specific P1-a1 contract in `spec/lab-evidence/e2e54/PLAN.md` before changing source files.
+>
+> Verify first-hand which facts the binder actually produces:
+>
+> 1. Array identity and element type.
+> 2. Lower and upper bounds.
+> 3. Number of dimensions.
+> 4. Index-expression types.
+> 5. Array versus scalar resolution.
+>
+> **Do not assume that a dimension written in the AST has already been semantically validated by Bind.**
+>
+> Distinguish bind-established facts from syntactic facts and unmeasured behavior.
+>
+> If the binder lacks a required semantic fact, document that gap and restrict the subset. Do not construct a competing array binder.
+>
+> ## Phase 2 — Semantic_env projection
+>
+> Extend `ocaml/hir/semantic_env.ml` with the smallest array-description interface justified by the verified binder.
+>
+> Keep the projection:
+>
+> - Typed.
+> - Deterministic.
+> - Independent of HIR.
+> - Free of physical byte offsets and element strides.
+>
+> Do not expose storage-layout tuples as semantic array descriptors.
+>
+> Support one-dimensional arrays only in this slice.
+>
+> Explicitly refuse unsupported dimension expressions and multidimensional forms rather than guessing their semantics.
+>
+> ## Phase 3 — HIR extension
+>
+> Introduce a backend-neutral representation of:
+>
+> - Array types or array-shaped symbols.
+> - Bounds as semantic quantities.
+> - Indexed element references.
+> - Addressable assignment targets.
+> - Reads of array-element values.
+>
+> Keep the distinction between an *lvalue* and its loaded value explicit enough for later backend lowering.
+>
+> For example, these operations must not collapse into the same HIR node:
+>
+> ```pli
+> x = a(i);
+> a(i) = x;
+> ```
+>
+> The first reads an element. The second designates an element as an assignment target.
+>
+> A physical address, byte stride, `LXI`, pointer cell or LINK-80 relocation is not a valid HIR representation of this distinction.
+>
+> Preserve evaluation-order and side-effect information explicitly. Do not assert a historical evaluation-order law without evidence.
+>
+> No SSA conversion is required.
+>
+> ## Phase 4 — HIR construction
+>
+> Extend `Hir_build` for the measured subset only.
+>
+> Use `Semantic_env` as the exclusive semantic lookup interface.
+>
+> Do not add direct Bind layout access in `Hir_build`.
+>
+> Start with FIXED BINARY arrays, with a conservative supported precision band.
+>
+> Include:
+>
+> - A fixed lower-bound array.
+> - An array with a non-default lower bound.
+> - A constant index.
+> - An index held in a scalar variable.
+> - An element read.
+> - An element assignment.
+>
+> Preserve scalar behavior and existing diagnostics.
+>
+> Out-of-range constant indices, unsupported dimensions and unsupported element types require explicit, deterministic handling.
+>
+> Do not manufacture runtime bounds checks or assume their historical behavior. Record the intended future backend policy separately.
+>
+> ## Phase 5 — Tests and falsification
+>
+> Add focused fixtures and expected HIR dumps.
+>
+> Test:
+>
+> - Symbol identity and array-element type.
+> - Bound preservation.
+> - Variable-subscript resolution.
+> - Read versus write semantics.
+> - Deterministic evaluation structure.
+> - Unsupported arrays and invalid references.
+> - No silent lowering.
+> - Cross-checks against the live Semantic_env and Bind authority.
+>
+> Extend `semtest` where necessary.
+>
+> Preserve H01–H07 and their expected outputs and diagnostic bytes.
+>
+> Ensure the tests are non-vacuous by deliberately corrupting an array descriptor or reference and observing a failure.
+>
+> ### Known BEGIN hang
+>
+> The pre-existing infinite recursion in BEGIN discovery remains a documented defect.
+>
+> Do not fix it incidentally in this array slice.
+>
+> Use bounded test execution so a regression or known hang cannot stall the campaign indefinitely. Record the behavior and preserve its classification.
+>
+> A separate, preregistered hygiene repair can follow P1-a1.
+>
+> ## Historical invariance
+>
+> Mandatory:
+>
+> - `pli80c.exe` SHA-256 unchanged:
+>   `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+> - Full historical gate RC 0.
+> - 1328/1328 byte-exact specimens.
+> - 190/190 negative tests.
+> - 9/9 divergence controls.
+> - Coverage unchanged at 149 contracts.
+> - Ledger unchanged, ending C380.
+> - No historical `.REL` or oracle regeneration.
+> - No edits under `ocaml/lib/` or `ocaml/bin/`.
+>
+> No new DR claim, COVERAGE promotion or corpus reclassification is authorized.
+>
+> ## Deliverables and closure
+>
+> Produce:
+>
+> - P1-a1 preregistration and measured RESULTS.
+> - Extended Semantic_env array projection.
+> - Extended HIR addressability representation.
+> - Updated HIR construction path.
+> - Positive and negative fixtures.
+> - Semantic-authority tests.
+> - Updated backend-boundary architecture document.
+> - Full regression evidence.
+> - A proposed next-step roadmap.
+>
+> Use explicit-path commits. Never stage `handoff.config.json`. Do not push.
+>
+> Continue through safe Handoff renewals if available.
+>
+> **Close P1-a1 and STOP. Do not automatically begin PUT/GET, the BEGIN repair or MIR code generation.**
+>
+> Success means a future backend can distinguish scalar storage, array storage, indexed references and loaded values using portable HIR semantics, with every fact traceable to the existing frontend authority and no historical compiler regression.
+
+(Verbatim law: the brief above is the operator message EXACTLY as stored, including the
+stray leading `g` on the first line; headings are un-demoted so the quote renders the
+received text character-for-character.)
+
+### P1-a1.1 Measured semantic authority (Phase 1 — ACCEPTED facts, hop 1 + hop 2)
+
+Every fact below was measured FIRST-HAND against the LIVE binder with the throwaway
+instrument `ocaml/scratch-p1a1/` (untracked, NEVER committed; it builds with the project and
+does NOT move `pli80c.exe` — S1 re-verified with it present). Raw records:
+`build/p1a1-probe-1.log` (20 programs A01..A22) and `build/p1a1-probe-2.log` (11 new
+programs A23..A33 PLUS a full reproduction run of the 20 probe-1 inputs — all 20 blocks
+machine-compared BYTE-IDENTICAL, all RCs equal). Nothing is read from codegen; nothing is
+quoted from the manual. Facts are the LEARNINGS record § "E2E-54/P1-a1 hop 1" + hop-2
+addendum; this table is the contract's summary and the probe inputs are their evidence.
+
+| fact | statement | evidence |
+|---|---|---|
+| A-1 | `bind_rows` carries the **ELEMENT** type; an array row is shape-identical to a scalar row; arrayness lives ONLY in the separate channel `bind_arrays` / `proc_layout.pl_arrays = (lower name, lb, ub, elem_bytes)` (`bind.ml:1588`, `:1954`, `:2560`) | A01 |
+| A-2 | Single bound ⇒ `lb = 1` default; `lo:hi` pair preserved verbatim (`a(0:4)` ⇒ `(0,4)`) | A01, A02, A16 |
+| A-3 | **Dimensionality is a BINDER PRECONDITION, never a recorded count** — no dims field exists; `a(3,4)` ⇒ `Failure "codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, last subscript fastest -- characterized, not implemented)"`; `a(*)` ⇒ `Pli80.Parser.Parse_error(_, "expected expression")` (does not even parse) | A09, A10 |
+| A-4 | Bind records **NOTHING** about index expressions in uses — constant, variable and compound subscripts are equally invisible; subscript text exists only in the AST (`Esuffix`) ⇒ index typing is an HIR-side documented rule, never a bind fact (gap §P1-b.6 item 4) | A16, A22 |
+| A-5 | **FALSIFIED: "a written `ddims` is a validated array."** `dcl a(1)` gets NO array record — the `nelem > 1` gate (`bind.ml:1058`) drops single-element arrays into scalar-indistinguishability; THIS is the recorded codegen crash class. HIR law: dims written + no array record ⇒ loud typed refusal, never a silent scalar collapse | A11 |
+| A-6 | Bounds must be NON-NEGATIVE DECIMAL LITERALS: `a(n)` ⇒ `Failure "codegen: [TBD] non-constant array dimension [C159] (only literal bounds are sizeable at bind time)"`; `a(-1:1)` same (a minus is `Eprefix`, not `Enumber`); `a(5:1)` ⇒ `Failure "codegen: [TBD] array upper bound below lower bound"`; `static` ⇒ `Failure "codegen: [TBD] STATIC array is not independently characterized [C159/AB5] ..."` — all reach the CLI unchanged as **HIR-E01** (bind refusal channel) | A12, A13, A14, A18 |
+| A-7 | Element band bind RECORDS for FIXED BINARY: **p = 7** (esz 1, the `RTbin 7` class arm) and **p = 8..15** (esz 2, the `elem_sz = 2` size arm); typeless `fixed` ⇒ element row `FIXED BINARY(15,0)`; `bin(16)` dies EARLIER at the precision ceiling `bind: FIXED BINARY(16) exceeds DR's FIXED precision limit 15 (PL/I-80 V1.4 says NOT IMP) [TBD]` | probe-1 A21, A17, A05 |
+| A-8 | Array facts are **PER-BLOCK**: a nested proc's `pl_arrays` lists only its OWN arrays; an enclosing array is NOT copied into the child layout — it must resolve through the env's AST-nesting chain (eparent walk), exactly as enclosing scalars do | A15 |
+| A-9 | Bind performs **NO out-of-range subscript check**: `a(9)` with `dcl a(3)` and `a(0)` with `lb=1` both pass bind untouched ⇒ no bounds law exists in the authority; HIR's handling is its OWN explicit deterministic rule; DR's historical behaviour stays `[TBD]` (future-backend policy recorded separately, brief Phase 4) | A22 |
+| A-10 | bin(p<7) refusal MEASURED (closes the A-7 owed re-measure): `dcl a(3) fixed bin(p)`, p = 1, 3, 6 ⇒ `Failure "codegen: [TBD] array of 1-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECIMAL, FLOAT, BIT and CHARACTER arrays refuse)"`, and **`bind_rows` is EMPTY at the refusal point** (the row is not emitted) | A23, A24, A25 |
+| A-11 | `bit(8)` refuses with the SAME 1-byte text — `bytes_of (RTbit n) = (n+7)/8` (`bind.ml:167`) ⇒ esz 1, `RTbit` not in the class list, size fallback fails. `bit(9..15)` would size 2 — **UNMEASURED, `[TBD]`, never inferred** | A28 |
+| A-12 | `char(1)` refuses (1-byte text); `char(2)`/`char(3)` are **ACCEPTED** with records `esz=2`/`esz=3` — the refusal PROSE ("CHARACTER arrays refuse") is **inaccurate as prose**: the real rule is the UNION of three measured mechanisms — the class list `RTbin 7 | RTchar (3,false) | RTlabel | RTentry _`, the size-driven fallback `elem_sz = 2`, and an earlier death for `bin(16)`. HIR keys the subset on the projected RUNTIME TYPE + bounds; it may quote the refusal text verbatim but must NOT restate its prose as a language rule | A29 vs A07, A08 |
+| A-13 | Nested procs OWN their array channel: `PL_PROC p pl_arrays=[b:1:2:2]` while the top block holds `(a,1,4,2)` | A30 |
+| A-14 | **Structure-member arrays NEVER reach `bind_arrays`.** `dcl 1 s fixed bin(15), 2 a(3) fixed bin(15);` ⇒ `bind_arrays` EMPTY; two rows `key=a` and `key=s.a` typed `FIXED BINARY(15,0) MEMBER OF S@2`, `auto=false`; no subscript use recorded. ⇒ `Array1` is produced ONLY by the top-level-name × array-record merge; a member-shaped row never becomes an `Array1`. (The member-subscript USE form is unmeasured here.) | A31 |
+| A-15 | **Subscript on a SCALAR name is invisible to bind:** `dcl y fixed bin(15); … y(1) = 2;` ⇒ ordinary scalar row, `bind_arrays` EMPTY, the use exists only in the AST ⇒ "is this name even an array" is decided by the MERGE (row without array record + subscripted use ⇒ HIR-side typed refusal, never a scalar collapse) | A32 |
+| A-16 | **WHOLE-ARRAY use records nothing:** `a = 1;` with `dcl a(3)…` ⇒ array record present, ZERO subscript uses; bind gives no array-in-value-context fact; historical codegen behaviour `[TBD]`. HIR refuses whole-array use as its own explicit subset rule | A33 |
+| A-17 | (tooling law) **probe determinism:** the identical instrument over the identical 20 probe-1 inputs reproduced every block byte-for-byte in fresh processes — the A-facts are a property of the binder, not of the session | probe-2 reproduction section |
+
+### P1-a1.2 Subset contract (what P1-a1 LOWERS; everything else refuses LOUDLY)
+
+One construct class is added: **one-dimensional arrays of FIXED BINARY elements**, lowerable
+in read and designate position, exactly where the binder produced a record for them.
+
+Admitted (ALL conditions necessary; each traces to a measured fact):
+1. **1-D only.** `ddims = [Dim_bound (lo, Some hi)]` or `[Dim_bound (ub, None)]` — a second
+   dimension cannot even reach bind (A-3), so every array symbol HIR can see is 1-D by
+   construction; a **2-subscript USE** of an array name is a source defect and refuses (§P1-a1.7 E14).
+2. **Element `FIXED BINARY` within the MEASURED band:** `SFixed_bin p` with **p ∈ {7} ∪ {8..15}
+   = 7..15** (A-7, A-10: bin(1..6) never produces a record; bin(16) dies in bind). Typeless
+   `fixed` is in-band because bind gives it the element row `FIXED BINARY(15,0)` (A-7).
+3. **Bounds are the binder's own** non-negative decimal literals (A-6 — anything else is
+   already a HIR-E01 bind death before HIR sees the program); `lo`/`hi` are carried as
+   SEMANTIC quantities (declared index limits), never as sizes, strides or offsets.
+4. **`nelem > 1` holds** — guaranteed because bind records an array ONLY under that gate
+   (A-5); dims-without-record therefore REFUSES (rule below), it cannot silently pass.
+5. **Array identity is the merge** `bind_rows` key × `bind_arrays`/`pl_arrays` lowered name
+   (A-1, A-8); member-shaped rows never merge (A-14).
+
+Refused loudly (typed, deterministic, line-carrying; NEW codes where the class is new):
+- dims written + NO array record (`a(1)`, `a(1:1)`, member arrays) → **existing `HIR-E03`
+  kept byte-identical in wording** for the declaration path (A-5/A-14): `array declaration
+  for <name> is outside the P0 subset` (the guard branch now means "outside the admitted
+  array subset"; the text stays because it remains TRUE of these shapes);
+- subscripted use of a name whose merged symbol is NOT an array (scalar A-15) → **E12**;
+- whole-array use of an array name (bare `a` in value or target position, A-16) → **E13**;
+- use with a subscript-count ≠ 1 → **E14**;
+- constant subscript outside `[lo, hi]` (A-9 — HIR's OWN law, DR behaviour `[TBD]`) → **E12**;
+- array whose ELEMENT type is outside the band (e.g. `char(2)`/`char(3)` arrays, which bind
+  DOES record — A-12) → the existing `HIR-E02` channel with an array-specific wording (§P1-a1.5);
+- any array reaching HIR through a record with no matching row (defensive split-channel
+  inconsistency guard) → **E14**;
+- `esz` (element BYTES) is physical and is **DROPPED at first touch** — like the row offset
+  (T1 law), it crosses NOTHING (A-1, brief Phase 2: "free of physical byte offsets and element strides").
+
+No bounds CHECK is manufactured: the out-of-range CONSTANT refusal is a compile-time subset
+decision, not a runtime check; the record-not-vs-value policy is stated in §P1-a1.5 and the
+historical behaviour stays `[TBD]` (brief Phase 4 — "do not manufacture runtime bounds checks
+or assume their historical behavior").
+
+### P1-a1.3 HIR node contract (Phase 3 — `ocaml/hir/hir.ml`)
+
+```ocaml
+type ty += Array1 of { elem : ty; lo : int; hi : int }
+    (** 1-D array: element type + declared LOWER/UPPER index bounds (A-2); NO stride,
+        NO element size, NO placement — those are layout (T6). *)
+
+type expr_kind +=
+  | Elem_read of { base : int; subs : expr list }
+      (** LOAD of element [base(subs)]; [ex_ty] = the element type; [subs] has EXACTLY
+          ONE element (subset gate); effect = union of the subscript effects. *)
+  | Elem_ref  of { base : int; subs : expr list }
+      (** LVALUE designator of element [base(subs)]; [ex_ty] = the element type; legal
+          ONLY as an `Assign.target`. *)
+```
+
+- **Read vs designate can NEVER collapse:** two distinct constructors. The node is made
+  statically honest by a new `target` variant (same adjudicated pattern as the P0 hop-2
+  `effect`→`ef_kind` rename: an internal representation rename, dumps and diagnostic bytes
+  unchanged — §P1-a1.5 proves H01–H04/H06/H07 byte-frozen):
+
+```ocaml
+type target = T_var of { sid : int } | T_elem of { base : int; subs : expr list }
+(* Assign.target : expr  becomes  Assign.target : target  (constructor name unchanged) *)
+```
+
+  `Elem_read` in target position is UNEXPRESSIBLE; `Elem_ref` in value position cannot be
+  produced by the lowering (value path never constructs it) and semtest I8 rejects it anyway.
+- **Bounds live on the TYPE, not on the node:** `base` is a sid whose projected `Hir.sym.sty`
+  is `Array1 { elem; lo; hi }` — nodes stay minimal, no duplicated state, dumps recover the
+  bounds through `Hir.program` when printing (dump gains a symbols argument; this is
+  rendering, not representation).
+- **Addressability (brief "scalar vs array element"):** scalars stay `Var { sid; addressable =
+  true }` (existing field, existing value); an array element's addressability IS the
+  `Elem_ref` designator node — a designated lvalue that is never a loaded value. The `stype`
+  classification question (arch §1.4) is NOT re-opened here.
+- **Dump wording (MEASURED pins, never hand-written; §P1-a1.5 review law):**
+  - `elem_read sym(<base>)[<lo>:<hi>] : <elem-ty>  [<eff>, line <n>]`
+  - `elem_ref sym(<base>)[<lo>:<hi>] : <elem-ty>  [<eff>, line <n>]`
+  with the subscript expression nested one level below (same indent law as call args);
+  **the dump prints BOUNDS, never a byte count, stride or size** (T6); the F4 hex-shaped-token
+  audit still applies (bounds are decimal).
+- **Evaluation order:** subscripts evaluate left-to-right (trivially, the single element);
+  the assign line keeps its existing `order: target address then value` wording — for an
+  `Elem_ref` target "address" designates computing the element designation from the base
+  row and the evaluated subscript. This ordering is an **HIR representation choice, NOT a
+  DR law** — DR's historical evaluation order is UNMEASURED `[TBD]` (brief Phase 3: do not
+  assert an order law without evidence). No SSA (brief Phase 3).
+- `Convert` and the language-rule typing are UNTOUCHED: element assignment reuses the scalar
+  fixed→fixed `Convert` machinery with the same `reason` wording.
+
+### P1-a1.4 `Semantic_env` API additions (Phase 2 — `ocaml/hir/semantic_env.ml`)
+
+Amendments to the §P1-b.2 surface (the contract's own amendment mechanism; additions only,
+no existing field or function changes):
+
+```ocaml
+type stype += SArray1 of { elem : stype; lo : int; hi : int }
+    (* AMENDMENT (P1-a1): arrayness is a SEPARATE symbol field below; this constructor is
+       never produced by `type_of_rt` (bind array rows carry the ELEMENT type — A-1); it
+       exists for `pp_stype` rendering of merged array symbols. *)
+
+type array1 = { a_elem : stype; a_lo : int; a_hi : int }
+    (* `esz' is DROPPED at the first touch (like the row offset, T1/S8-class law). *)
+
+type symbol += { … ; e_array : array1 option }   (* None = bind gave no array record *)
+```
+
+- **Merge law:** inside `register_block`, the block's `bind_arrays` list (the same channel
+  probe-1/probe-2 read: `Bind.bind_arrays blk` — per-block, A-8/A-13) is joined to the
+  projected rows by the lowered key. A row with a matching array record gains
+  `e_array = Some { a_elem = <row stype>; a_lo = lb; a_hi = ub }`; its `epr` stays bind's
+  VERBATIM element-type rendering (A-1); `eline`/`estorage`/`esid` assignment are UNCHANGED
+  (scalar dumps must not move — T2).
+- **Guard law (split-channel inconsistency):** an array record whose lowered name matches NO
+  row of the same block raises the typed refusal **E14** (defensive; no probe produced this
+  shape — recorded as unexercised, like the P0 dup_free witness); duplicate array records for
+  one name refuse on the same channel. Member-shaped rows never merge because members never
+  enter `bind_arrays` (A-14 measured).
+- `resolve`/`symbol`/`scope_syms` need NO change: the array record rides the symbol through
+  the eparent chain (A-8 ⇒ enclosing arrays resolve exactly as enclosing scalars).
+- `pp_stype (SArray1 {elem; lo; hi})` = `<pp elem> ARRAY[<lo>:<hi>]` — semantic wording, no
+  byte vocabulary (T6).
+- **NO `Hir` type enters this interface** (S8/T6 unchanged); no offset/stride/`bytes_of`/size
+  word appears in CODE (comment strip) in `semantic_env.ml` or `hir.ml`.
+
+### P1-a1.5 `Hir_build` changes (Phase 4 — the consumer keeps the subset gate)
+
+- `project_syms`: for `e_array = None`, the scalar gate and its message are **byte-identical**
+  (T10 — H06's `declared type CHAR(3) for c is outside the P0 HIR subset (FIXED BINARY scalars
+  only)` must not move). For `e_array = Some { a_elem; a_lo; a_hi }`: map `a_elem` through the
+  EXISTING `ty_of_rt` gate; in-band ⇒ `sty = Array1 { elem; lo; hi }`; out-of-band ⇒
+  `HIR-E02` with the array wording `array element type <epr> for <key> is outside the P1-a1
+  array subset (1-D FIXED BINARY(7..15) elements only)` — a NEW message on an EXISTING code.
+- `Sdcl` path: the existing `ddims <> []` guard STAYS and keeps its exact text (E03); the
+  **adjudication:** the guard is NARROWED to fire only when `ddims <> []` AND the resolved
+  symbol carries `e_array = None` (dims-without-record — A-5/A-14), so an admitted array
+  declaration lowers to the existing `Declare sid` node (its `Hir.sym.sty` is already the
+  `Array1` projection); dims-without-record still dies with the UNCHANGED text (H10 pins it).
+- Value path (`lower_expr`): `Esuffix(Eident n, [arg])` where `resolve` yields an array symbol
+  ⇒ `Elem_read` (constant subscript: range-checked per §P1-a1.2, E12; variable subscript:
+  lowered through the existing `lower_arith` FIXED BINARY gate); `Esuffix(Eident n, _)` with
+  `n` a non-array symbol ⇒ E12; with `n` a procedure ⇒ existing `lower_call` UNCHANGED; with
+  `n` unresolved ⇒ existing E04 wording UNCHANGED; subscript count ≠ 1 on an array ⇒ E14.
+- Target path (`Sassign`): `lhs = Esuffix(Eident n, [ix])` on an array ⇒ `T_elem`; scalar ⇒
+  E12; bare array name ⇒ E13. Bare-name scalar targets keep the existing path byte-identically.
+- Whole-array use in value/argument position ⇒ E13. Calls with array actuals are OUT of the
+  P1-a1 subset (descriptor passing is a future slice — brief Phase 4 lists only the six
+  positive capabilities).
+- **F10/T5 unchanged:** `Bind` still appears ONLY at the alias line and the one
+  `bind_program` call; every array fact crosses via `Semantic_env` (`bind_arrays` is read
+  EXCLUSIVELY inside `semantic_env.ml`).
+
+New diagnostic codes, appended to the stable list in `diagnostic.ml` (existing codes NEVER
+change meaning; T10):
+
+| code | name | issued for | wording (deterministic, `[TBD]`-honest) |
+|---|---|---|---|
+| `HIR-E12` | `e_index` | subscript on a non-array symbol; out-of-range CONSTANT subscript | `subscript on <orig> … is not a 1-D array reference in the P1-a1 subset` / `constant subscript <k> for array <orig> is outside the declared bounds [<lo>:<hi>] (compile-time HIR subset rule; DR out-of-range behaviour unmeasured [TBD])` |
+| `HIR-E13` | `e_whole_array` | array name used whole (value or target) | `whole-array use of <orig> is outside the P1-a1 subset (element references only)` |
+| `HIR-E14` | `e_dims` | subscript count ≠ 1; orphan/duplicate array record (split-channel guard) | `subscript form for <orig> is outside the 1-D P1-a1 subset (n subscript(s))` / `bind array record for <key> has no matching row (split-channel inconsistency)` |
+
+(The exact final strings are MEASURED from the implementation and pinned from actual output;
+this table is the intent, the fixture pins are the evidence — measurement law.)
+
+### P1-a1.6 Fixture plan (MEASURED pins — expected files are generated by running, reviewed line-by-line, never hand-written)
+
+Format law (P0): CRLF line endings + `^Z` terminator (bare LF shifts every line −1 — measured
+P0 law). Existing H01–H07 stay on disk; ids H08..H15 verified unused this session (`hir/`
+holds only H01..H07; no `HIR-E12..14` anywhere; `spec/INVENTORY.txt` names are `E36H*`, not
+`H*`).
+
+| fixture | kind | content (capabilities covered) | expected |
+|---|---|---|---|
+| **H05** | **FLIPPED negative→positive** (adjudication below) | `dcl a(5) fixed bin(15); a(1) = 2;` | rc 0 dump with `elem_ref sym(0)[1:5]` + const 2; positive semtest + all corrupt modes |
+| **H08** | positive | fixed lb, variable index, element READ + element WRITE: `dcl a(4) fixed bin(15);` `dcl i fixed bin(15);` `dcl t fixed bin(15);` `i = 2;` `t = a(i);` `a(i) = t + 1;` (ONE dcl item per statement — comma-continued item lists are unmeasured in the HIR path and stay out of fixture syntax) | `Elem_read`/`Elem_ref` with `Var i` subscript, Convert on assign |
+| **H09** | positive | non-default lower bound + constant index + in-band bin(8) element + element read into a declared scalar: `dcl b(0:4) fixed bin(8);` `dcl y fixed bin(8);` `b(0) = 3;` `y = b(2);` | bounds `[0:4]` in dumps; const subscript accepted |
+| **H10** | negative | dims-without-record (A-5): `dcl a(1) fixed bin(15);` | pinned stderr, E03 unchanged text |
+| **H11** | negative | element type outside band but bind-RECORDED (A-12): `dcl a(3) char(2);` | pinned stderr, E02 array wording |
+| **H12** | negative | subscript on a SCALAR (A-15): `dcl y fixed bin(15); y(1) = 2;` | pinned stderr, E12 |
+| **H13** | negative | WHOLE-ARRAY use (A-16): `dcl a(3) fixed bin(15); a = 1;` | pinned stderr, E13 |
+| **H14** | negative | 2-subscript use: `dcl a(3) fixed bin(15); a(1,2) = 3;` (parses; bind records nothing — A-3/A-4) | pinned stderr, E14 |
+| **H15** | negative | out-of-range CONSTANT subscript (A-9): `dcl a(3) fixed bin(15);` `dcl i fixed bin(15);` `i = a(9);` | pinned stderr, E12 |
+
+Every negative fixture must carry EXACTLY ONE refusal path (review before pinning) so no
+multi-diagnostic order ambiguity can arise inside a fixture (the §P1-b.3 drift lesson).
+Every fixture run under the existing `timeout=60` (T9).
+
+**H05 flip adjudication (Phase-1 open item from hop 1, now EXECUTED as planned):** H05 IS the
+P1-a1 core positive shape; behaviour is a function of input, so its negative pin cannot
+survive. Disposition: `git mv hir/expected/H05.stderr.txt hir/expected/H05.rc
+hir/expected/superseded/2026-11-09/` (same command moves the dated note file
+`hir/expected/superseded/2026-11-09/README.md` — a one-paragraph dated record of WHY,
+pointing here); the flipped fixture keeps its bytes (same input), the NEW `H05.txt` expected
+dump is MEASURED and reviewed; H01–H04/H06/H07 expected bytes stay frozen and are verified
+untouched by `git diff --exit-code` at every step (T2).
+
+### P1-a1.7 Semantic-authority extension (`semtest.exe`, Phase 5)
+
+New invariants, judged against the LIVE env + bind rows (never dump text), run on every
+positive fixture (H01–H04, H05, H08, H09):
+
+- **I8 (reference soundness):** every `Elem_read`/`T_elem` base sid resolves (from the
+  REFERRING procedure's scope) to a symbol whose env `e_array` is `Some`, with the node's
+  `ex_ty` equal to the env element projection mapped through `ty_of_rt`; no `Var` node ever
+  carries an `Array1` type (whole-array silence is impossible).
+- **I9 (bound preservation):** every array symbol's `(lo, hi)` equals the live
+  `Bind.bind_arrays` triple for its block name — compared with `esz` DROPPED (the comparison
+  would also catch an esz-leak by construction).
+- **I10 (projection completeness):** every `bind_arrays` entry of every block appears as
+  `Some e_array` on the env symbol with the matching key, and (subset) every `e_array` has an
+  `Array1` `Hir.sym` type — never a silent drop.
+
+Corrupt controls (non-vacuity, S6/T7): keep `--corrupt` (wrong sid) EXACTLY as at P1-b; add
+`--corrupt-array-hi` (perturb one `a_hi` before the I9 comparison — the very same comparison
+must reject it) and `--corrupt-array-base` (point one `Elem_read` base at a non-array sid —
+I8 must reject it). Every corrupt mode prints only `SEM-FAIL:` lines, rc 1, zero stdout.
+`tools/hir_test.py` runs each positive fixture through live + ALL corrupt modes, twice, fresh
+processes (T8).
+
+### P1-a1.8 Falsification criteria (each a STOP-and-fix gate, modelled on §P1-b.7)
+
+- **T1** `pli80c.exe` sha256 stays `172595d5…` after EVERY build step, checked DIRECT (dune
+  logs never print the sha — tooling law). Moved = attribute first-hand; never accept.
+- **T2** `hir/expected/H01..04` + `H06/H07` (stderr+rc) byte-UNCHANGED at every step
+  (`git diff --exit-code`); the ONLY adjudicated change is the H05 flip with its archived
+  superseded bytes; `superseded/` is `git add`ed once and never rewritten.
+- **T3** FULL `python3 tools/e2e_gate.py` rc 0 with FROZEN counts **1328/1328, 190/190, 9/9,
+  coverage 149 rows 0/0, census 16/0/25/0, prose 5** → `build/gate-e54p1a1-reg.log`; ANY
+  move = STOP, record VERBATIM, never force (the §P1-b gate law).
+- **T4** `ocaml/lib/`, `ocaml/bin/`, `golden/`, ledgers byte-clean vs HEAD: ledger stays
+  **C380** (203 `## C` headers); NO claim, NO coverage promotion, NO inventory touch; ZERO
+  oracle calls in the whole slice.
+- **T5** Bind seam: `hir_build.ml` (comment strip) mentions `Bind` ONLY at the EXACTLY two
+  pinned lines (F10); `bind_arrays` is read ONLY inside `semantic_env.ml` (grep law extended
+  this slice: `grep -rn "bind_arrays" ocaml/hir/ ocaml/bin/` → semantic_env.ml + semtest.ml
+  ONLY — the test binary is an intentional authority reader, §P1-b.4 law).
+- **T6** vocabulary: after the comment strip, `semantic_env.ml` and `hir.ml` contain NO
+  `stride|offset|bytes|esz|size|reloc|pool|0x` match (extended F8 strip-grep; the F4 dump
+  audit proves no byte count ever PRINTS); dump array lines carry bounds only.
+- **T7** semtest array invariants I8/I9/I10 live on every positive fixture AND every corrupt
+  mode fails loudly (wrong-`hi` descriptor, wrong reference base, plus the surviving sid
+  control) — rc 1, zero stdout, all-`SEM-FAIL` stderr.
+- **T8** determinism: every fixture and every semtest invocation run TWICE in fresh
+  processes, byte-identical (rc, stdout, stderr).
+- **T9** bounded execution: `timeout 60` per fixture run (the runner already does); the
+  pre-existing BEGIN/DO discovery hang stays DOCUMENTED, classified pre-existing, and is
+  NEVER fixed in this slice (brief "Known BEGIN hang").
+- **T10** diagnostic stability: every code/wording for EXISTING paths byte-identical
+  (HIR-E01..E11 on H01–H04/H06–H07 + the unchanged E03 array-decl text on H10); every NEW
+  refusal gets a NEW stable code (E12/E13/E14) documented in `diagnostic.ml`; the brief's
+  "H05 flipped" adjudication is the ONLY behaviour change to a previously pinned input.
+
+### P1-a1.9 Work order (exact order — the successor contract)
+
+1. (this commit) §P1-a1 pre-registration, by explicit paths, BEFORE any `ocaml/hir/` byte.
+2. `ocaml/hir/semantic_env.ml` (§P1-a1.4) → `dune build` rc 0 → T1 → commit.
+3. `ocaml/hir/hir.ml` (§P1-a1.3) → build rc 0 → T1 → commit.
+4. `ocaml/hir/hir_build.ml` + `diagnostic.ml` (§P1-a1.5) → build rc 0 → T1 → commit.
+5. Fixtures H08..H15 + the H05 flip (§P1-a1.6): MEASURE actual outputs, review every dump
+   line against §P1-a1.3 BEFORE pinning; expected files copied from measured output, never
+   hand-written; hir_test partial green; commit.
+6. `ocaml/hir/semtest.ml` (I8/I9/I10 + new corrupt modes) + `tools/hir_test.py` extension →
+   full `timeout 600 python3 tools/hir_test.py` rc 0 → commit.
+7. FULL gate rc 0 → `build/gate-e54p1a1-reg.log` (T3); fresh `dune build --build-dir
+   _build-e54p1a1` rc 0 with ZERO `Error` + sha check of the kept exe against `172595d5…`.
+8. CLOSE: `RESULTS.md` §P1-a1 (T1–T10 panel WITH measured values; dependency notes; any drift
+   recorded VERBATIM, never fitted), `docs/architecture/backend-boundary.md` §7-2
+   (addressability/array projection), PLAN dashboard row P1-a1 **CLOSED**, proposed next
+   roadmap (PUT/GET, BEGIN hygiene, MIR) as **PROPOSED ONLY**; durables + guard checkpoint.
+9. **STOP — close P1-a1 only. Do NOT begin PUT/GET, the BEGIN repair or MIR.**
+
+### P1-a1.10 Expected outcomes (pre-registered, falsified-not-forced)
+
+Frozen numbers stay frozen (T1/T3/T4 — nothing the gate touches moves). H01–H04/H06/H07
+byte-stable through all five code steps; H05 flips EXACTLY as adjudicated. Six positive
+fixtures, six negative pins, three new semtest invariants, three new corrupt controls, three
+new diagnostic codes. Deviations predicted and honestly open:
+- the OCaml **record-field evaluation order** law (§P1-b hop-2 measurement) may reorder two
+  independent refusals inside a single construct — every fixture is designed to carry ONE
+  refusal path to keep this unexposed; if exposed, record VERBATIM;
+- the `Assign.target` type change is an internal refactor: any dump-byte movement is a
+  STOP-and-attribute event (T2), not a re-pin;
+- `char(2)`/`char(3)` arrays get `e_array = Some` from bind but refuse at the element gate:
+  if a fixture exposes a DIFFERENT first refusal, that is the §P1-b.3 registration-order
+  drift class again — record, never fit.
+
+### P1-a1.11 Dashboard update
+
+| slice | status | gate log | notes |
+|---|---|---|---|
+| P1-a1 | **PRE-REGISTERED 2026-11-09** (hop 2) | owed: `build/gate-e54p1a1-reg.log` | ZERO oracle; Phase 1 authority A-1..A-17 MEASURED first-hand; contract §§P1-a1.2–.8; H05 flip adjudicated |

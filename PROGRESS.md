@@ -54,7 +54,19 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a1 hop 1 LANDED — Phase 1 semantic authority MEASURED; Phase 0.5 = PRE-REGISTER PLAN §P1-a1, THEN code — BINDING)
+## Next action (E2E-54/P1-a1 hop 2 IN FLIGHT — band measurement DONE; §P1-a1 WRITTEN, REVIEW+COMMIT OWED BEFORE any `ocaml/hir/` byte — BINDING)
+**DONE hop 2 (session 01a1bd6f, renewal 1/12; ZERO oracle; ZERO `ocaml/lib`+`ocaml/bin` byte):** (1) contract step 1 VERIFIED FIRST-HAND: HEAD `aa7789d5`, `dune build` rc 0, exe sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`, `timeout 600 python3 tools/hir_test.py` rc 0 (H01 4refs/3syms, H02 7/2, H03 7/4, H04 4/2, H05–H07 pinned, F4/F7/F8/F9/F10/S8 green). (2) contract step 2 COMPLETE: probe-2 inputs A23..A33 written (CRLF+^Z) and run; raw record `build/p1a1-probe-2.log` (ignored) INCLUDING a full reproduction run of the 20 probe-1 inputs — machine-compared, **all 20 blocks byte-identical, all RCs equal**; results appended to `LEARNINGS.md` as **A-10..A-17** (UNCOMMITTED): bin(1,3,6) refuse `array of 1-byte elements [C159]` with `bind_rows` EMPTY at the refusal point; `bit(8)` refuses (esz=(n+7)/8=1; bit(9..15) UNMEASURED `[TBD]`); `char(1)` refuses, `char(2)`/`char(3)` ACCEPTED — the refusal PROSE is inaccurate, the real rule = class list ∪ `elem_sz=2` fallback ∪ earlier bin(16) death; nested procs OWN `pl_arrays` (A30 `b:1:2:2`); **structure-member arrays NEVER reach `bind_arrays`** (A31: rows `a`/`s.a` MEMBER OF S@2, `auto=false`, no record); scalar-subscript invisible to bind (A32); whole-array use records nothing (A33). S1 re-held after scratch rebuild. (3) operator P1-a1 brief recovered VERBATIM from the parent transcript `01a1bd4d…jsonl` (starts with a stray leading `g` — reproduced as received); `spec/lab-evidence/e2e54/PLAN.md` **§P1-a1 WRITTEN** (UNCOMMITTED): .0 brief verbatim in a blockquote (programmatically verified 186/186 lines equal), .1 A-1..A-17 table, .2 subset contract (1-D; element `SFixed_bin p` p∈7..15 measured band; binder-literal non-negative bounds; merge-law identity; dims-without-record → E03 unchanged text), .3 HIR nodes `Array1{elem;lo;hi}` + `Elem_read`/`Elem_ref` + **new `target = T_var|T_elem` variant (internal representation change — an AMENDMENT beyond the predecessor contract's constructor list; dump bytes stay frozen; same precedent as the P0 `effect`→`ef_kind` rename)**, .4 env additions `SArray1`/`array1{a_elem;a_lo;a_hi}`/`e_array` merged from `bind_arrays` with esz dropped at first touch, .5 `hir_build` gate/lowering + NEW codes **HIR-E12 e_index / HIR-E13 e_whole_array / HIR-E14 e_dims**, .6 fixtures **H08,H09 positive; H10 dims-without-record, H11 char(2) element, H12 scalar-subscript, H13 whole-array, H14 2-subscript, H15 out-of-range constant** + **H05 flip adjudication** (`git mv H05.stderr.txt H05.rc hir/expected/superseded/2026-11-09/` + README dated record; H01–H04/H06/H07 frozen), .7 semtest I8/I9/I10 + `--corrupt-array-hi`/`--corrupt-array-base`, .8 falsifiers T1–T10 VERBATIM per the predecessor contract, .9 work order, .10 expected outcomes, .11 dashboard row.
+**EXECUTE (successor), exact order:**
+1. Re-verify baseline first-hand (HEAD, build rc 0, exe sha `172595d5…`, `timeout 600 python3 tools/hir_test.py` rc 0); `git status` must show ONLY dirty `HANDOFF.md`/`PROGRESS.md`/`handoff.config.json` + untracked scratch/debris.
+2. **FINISH the §P1-a1 review** (read `spec/lab-evidence/e2e54/PLAN.md` from `## §P1-a1` to EOF; defect-check the §§.5–.8 halves not yet re-read) — any correction lands in the SAME commit as the pre-registration.
+3. **COMMIT BY EXPLICIT PATHS — THIS IS THE PROTOCOL #1 GATE, NOTHING IN `ocaml/hir/` MAY BE TOUCHED BEFORE IT:** `git add spec/lab-evidence/e2e54/PLAN.md LEARNINGS.md` (+ the guard-refreshed durables `HANDOFF.md PROGRESS.md` if their managed blocks are current) — NEVER `handoff.config.json`; commit message names §P1-a1 pre-registration; then re-verify `git status` clean of staged config.
+4. Implement in the contract order with `eval "$(opam env)" && dune build` rc 0 + T1 exe sha `172595d5…` DIRECT after EACH step, commit explicit paths each step: `ocaml/hir/semantic_env.ml` → `ocaml/hir/hir.ml` → `ocaml/hir/hir_build.ml`+`ocaml/hir/diagnostic.ml` → fixtures H08..H15 + H05 flip MEASURED (expected files are copies of actual reviewed output, NEVER hand-written) → `ocaml/hir/semtest.ml` → `tools/hir_test.py`.
+5. FULL gate rc 0 → `build/gate-e54p1a1-reg.log` (FROZEN 1328/1328, 190/190, 9/9, coverage 149 rows 0/0, census 16/0/25/0, prose 5); fresh `dune build --build-dir _build-e54p1a1` rc 0 ZERO `Error` + sha vs kept exe (law: dune logs never print the sha).
+6. CLOSE: `RESULTS.md` §P1-a1 (T1–T10 panel WITH measured values), `docs/architecture/backend-boundary.md` §7-2, PLAN dashboard P1-a1 **CLOSED**, proposed roadmap (PUT/GET, BEGIN hygiene, MIR) PROPOSED ONLY; durables + guard; **STOP — no PUT/GET, no BEGIN repair, no MIR.**
+**CONSTRAINTS (all hops):** ZERO oracle; ledger stays **C380** (203 `## C` headers — verified this hop); `ocaml/lib`+`ocaml/bin` byte-clean; NO claim/coverage/inventory/golden touch; `handoff.config.json` NEVER staged; no push; explicit-path commits only; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; never glue `rm`; every fixture under `timeout` (BEGIN/DO hang documented pre-existing, NEVER fixed here); scratch `ocaml/scratch-p1a1/` NEVER committed; stray root S2..S5 + golden dir.txt debris untouched.
+**STATE:** HEAD = aa7789d5 + this durables commit; UNCOMMITTED: `LEARNINGS.md` (A-10..A-17) + `spec/lab-evidence/e2e54/PLAN.md` (§P1-a1) + guard-refreshed durables; build rc 0; exe `172595d5…`; hir_test rc 0; §P0 CLOSED; §P1-b CLOSED; §P1-a1 PRE-REGISTRATION WRITTEN, COMMIT OWED.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-a1 hop 1 LANDED — Phase 1 semantic authority MEASURED; Phase 0.5 = PRE-REGISTER PLAN §P1-a1, THEN code — BINDING)
 **DONE hop 1 (session 01a1bd4d; ZERO oracle; ZERO `ocaml/lib`+`ocaml/bin` byte):** baseline verified first-hand (HEAD `9174ad44`, build rc 0, `pli80c.exe` `172595d5…`, `tools/hir_test.py` rc 0 H01–H07 + semtest live/corrupt). Scratch live-binder probe built and run over 20 array programs (`ocaml/scratch-p1a1/`, untracked; raw record `build/p1a1-probe-1.log`); S1 re-held AFTER adding the scratch dir. Every Phase-1 fact is ACCEPTED and written up as `LEARNINGS.md` § "E2E-54/P1-a1 hop 1" (A-1..A-9 + falsified `ddims`-implies-validated + `esz`-is-physical + the H05 flip adjudication + the proposed `Array1`/`Elem_read`/`Elem_ref` design).
 **EXECUTE (successor), exact order:**
 1. **Re-verify baseline first-hand** (HEAD, build rc 0, exe sha `172595d5…`, `timeout 600 python3 tools/hir_test.py` rc 0) and re-read `LEARNINGS.md` § P1-a1 hop 1 + `spec/lab-evidence/e2e54/PLAN.md` §P1-b (style template) + `docs/architecture/backend-boundary.md` §1.4/§7-1.
@@ -3649,19 +3661,21 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 628
-checkpoint-id: g628-d631abf16860
-checkpoint-kind: auto
+checkpoint-generation: 630
+checkpoint-id: g630-30f0f8842574
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-08T23:10:37.553Z
+guard-level: 1
+checkpointed: 2026-11-08T23:35:06.485Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3ab391fd3d854a7bfd33384cb379e1e6a95fe9b1d4b8ebfea7f98747fc39930d
-source-handoff: 74d7187f21ff490aa5c2d34a027d38919a40bcd5000b3c2e1dc0ed03191ea58e
-source-learnings: 9f0a9e4d514da7f2491f990256b7d4f11a8551ab8ceddb434990bf78e2e07d2d
+source-progress: 0e5ae16aece5b8b0826a627b186ee46d45677af471c9a5ad17d6d083f3b61dc1
+source-handoff: 9b52a82c8e0ea143efb245dff2dea4686fec19c63d10e974cf59464501bf3aa8
+source-learnings: 32dbfbee10bef37c3e244d716103a425b204a8cee0530d18dcc482e5de2832c2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED…)` — NOTHING IS AUTHORIZED: report closure, await the OPERATOR. P1-a/P2/P3+ and the recorded-defect repairs are PROPOSED ONLY (RESULTS §P1-b.6, §P0 §6); each slice needs its own pre-registration (PROTOCOL #1).** Ledger stays **C380** (203 headers); config never staged; no push; explicit-path commits.
+next-action: (E2E-54/P1-a1 hop 1 LANDED…)` steps 1–6 VERBATIM** — (2) finish the band measurement (bin(1,3,6), bit(8), char(1), member/nested-proc arrays, scalar-subscript and whole-array uses), (3) **PRE-REGISTER `spec/lab-evidence/e2e54/PLAN.md` §P1-a1 + falsifiers T1–T10 and COMMIT BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1), (4) semantic_env → hir → hir_build → measured fixtures → semtest → hir_test, (5) FULL gate rc 0 → `build/gate-e54p1a1-reg.log` (FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5) + fresh `--build-dir`, (6) RESULTS §P1-a1 + arch §7-2 + PLAN dashboard CLOSED + durables, then **STOP — P1-a1 close ONLY: no PUT/GET, no BEGIN repair, no MIR**. Ledger stays **C380** (203 headers); no new claim/coverage promotion authorized; config NEVER staged; no push; explicit-path commits; every fixture under `timeout` (pre-existing BEGIN/DO hang documented, never fixed in this slice).
+
+0b-e54p1b-4. **E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED 2026-11-08 (session 01a1bd21, renewal 3/12; ZERO oracle; ocaml/lib+bin byte-clean):** S1-fresh verified first-hand (`build/e54p1b-freshbuild.log` rc 0, ZERO `Error`, hist 122; `_build-e54p1b` exe == `172595d5…` — law: fresh-dir logs record only rc+headers, sha checked against the kept exe). CLOSE `78348582`: `RESULTS.md` §P1-b (S1–S10 panel WITH values — semtest H01 4refs/3syms H02 7/2 H03 7/4 H04 4/2, corrupt rc1, gate FROZEN 1328/1328-190/190-9/9-149rows-0/0-16/0/25/0-prose5, F10 pinned lines `hir_build.ml:41`+`:557`, S8/S2/S10 clean, predicted multi-refusal drift NOT exposed; dependency map sites 4/6/11/14/15/16 → `Semantic_env`, **class [D] = NONE honest**, −155 net lines; §P1-b.6 VERBATIM; THREE measured notes recorded NOT fitted: SFormat amendment, OCaml record-eval-order law, BEGIN/DO hang PRE-EXISTING at `aaf295f0`); arch doc §7-1; PLAN dashboard **P1-b CLOSED**. Regression re-run first-hand: `dune build` rc 0; `tools/hir_test.py` rc 0 H01–H07+semtest+F10/S8. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED…)` — NOTHING IS AUTHORIZED: report closure, await the OPERATOR. P1-a/P2/P3+ and the recorded-defect repairs are PROPOSED ONLY (RESULTS §P1-b.6, §P0 §6); each slice needs its own pre-registration (PROTOCOL #1).** Ledger stays **C380** (203 headers); config never staged; no push; explicit-path commits.
 
 0b-e54p1b-3. **E2E-54/P1-b hop 3 LANDED steps 4–5(gate) (session 01a1bd02; ZERO oracle; ocaml/lib+bin byte-clean):** `semtest.exe` + hir_test extension (F10/S8/semtest×2) `00a58a44`; 7 live invariants GREEN H01 4refs/3syms, H02 7/2, H03 7/4, H04 4/2; `--corrupt` rc 1 SEM-FAIL zero stdout (S6); S1 `172595d5…` held after new exe stanza; hir_test rc 0 H01–H07, S2 frozen; **FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5**; fresh `--build-dir _build-e54p1b` rc 0 ZERO Error (verify sha line); MEASURED (recorded, NOT fitted): bare BEGIN/DO block hangs `register_children` rc 124 — identical pre-migration `aaf295f0` — pre-existing, not P1-b drift. Durables `3afdd9ee`. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)` EXECUTE (hop 4) VERBATIM: CLOSE ONLY — RESULTS §P1-b (panel + dependency map + §P1-b.6 + THREE measured notes) + arch §7-1 + PLAN dashboard CLOSED + durables/guard. STOP after P1-b; P1-a NOT authorized.** Ledger C380 (203 headers); config never staged; no push; explicit-path commits.
 
@@ -4371,9 +4385,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1bd4d-a12c-73ad-8fbc-6a67fb7548e7
-readiness-at: 2026-11-08T23:11:07.413Z
-readiness-checkpoint: g628-d631abf16860
+readiness-by: session:01a1bd6f-07da-73ad-8fbc-6a6a29a24970
+readiness-at: 2026-11-08T23:35:06.525Z
+readiness-checkpoint: g630-30f0f8842574
 <!-- guard:end checkpoint -->
 
 ## Blockers
