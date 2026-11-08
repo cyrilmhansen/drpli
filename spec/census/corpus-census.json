@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "e6e9bbf05abdfba7f24251818cd48167",
+ "binary_md5": "d5e89db28db7bf8b8a73827222c03e32",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,11 +15,9 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-08T10:47:12",
+ "generated": "2026-11-08T13:46:15",
  "git_dirty_paths": [
-  "M HANDOFF.md",
-  " M PROGRESS.md",
-  " M handoff.config.json",
+  "M handoff.config.json",
   " M ocaml/lib/codegen.ml",
   "?? S2.PLI",
   "?? S2.log",
@@ -60,8 +58,10 @@
   "?? ocaml/_build-e53p1h3/",
   "?? ocaml/_build-e53p1hist/",
   "?? ocaml/_build-e53p2b/",
+  "?? ocaml/_build-e53p3fp/",
   "?? ocaml/_build-e53p3h11/",
   "?? ocaml/_build-e53p3h12/",
+  "?? ocaml/_build-e53p3h13/",
   "?? ocaml/_build-p312hist/",
   "?? ocaml/_build-p313arm/",
   "?? ocaml/_build-p313arm2/",
@@ -94,7 +94,7 @@
   "?? ocaml/scratch-p314/",
   "?? ocaml/scratch-p318/"
  ],
- "git_head": "d0937b14b9d0aef469a1d210b36210737ca91f45",
+ "git_head": "eb8592ff6dceea094373b66dd9bab7cccd6f7dac",
  "rows": [
   {
    "dir_present": true,
