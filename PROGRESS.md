@@ -3623,19 +3623,23 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 619
-checkpoint-id: g619-a874a259e292
+checkpoint-generation: 620
+checkpoint-id: g620-bc9b5fb0159a
 checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-guard-level: 4
-checkpointed: 2026-11-08T17:36:30.366Z
+content-delta: new
+readiness: attested
+guard-level: 3
+checkpointed: 2026-11-08T20:36:09.971Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e51b4e303542e40bdbcd5789b0b45c7c5f83198a7ed73fb7c6252eb83ca523ca
-source-handoff: 2ea1ccec0a4dbe8965968b0b05c72e28b97b30eac4fd54ab90b7674fbf93c708
-source-learnings: 812a0f085be5ea678c65f73e7949d9ea16bf20debc182063c918478257629a96
+source-progress: b880e596aeb97f35f2518187ea1100b909a34aea9669dc925df70111ba3ccce3
+source-handoff: 665d560ff01ac2e7302d82f347c26fff94c051f44ecbad9d2635d109d46e2f94
+source-learnings: 9641b6d57641cc55110fc3f634bdb820a97bdc0134ca4ae67d8907604d11e11d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (E2E-54/P0 hop 4…)` VERBATIM: adjudicate call-dump indent in hir.ml + F1 re-check + expected dumps + commit fixtures; tools/hir_test.py (CLI now `_build/default/hir/pli80hir.exe`; nested-comment stripper before F7/F8); backend.ml in `ocaml/hir/` + F1 re-check; FULL gate rc=0 `build/gate-e54p0-reg.log` FROZEN 1328/190/9/149/16-0-25-0/5 (any move = STOP+revert wiring); RESULTS + arch-doc + roadmap PROPOSED (P1 NOT authorized) + durables+guard. Ledger stays C380; drift evidence kept `ocaml/_build-e54p0h3` (= `ab02dbc5…`); config NEVER staged; no push; chain 2/12 cap 12.
+next-action: (E2E-54/P1-b hop 1 IN PROGRESS…)` EXECUTE (hop 2) VERBATIM: implement `ocaml/hir/semantic_env.ml` → migrate `hir_build.ml` → H06/H07 measured pins → semtest+hir_test extension → FULL gate → RESULTS §P1-b + arch doc + close; STOP, P1-a NOT authorized.** Ledger stays **C380** (203 headers); config NEVER staged; no push; explicit-path commits; chain renewals 0→? of cap 12 — check `/guard status`; S2..S5 debris untouched.
+
+0b-e54-4. **E2E-54/P0 hop 4 LANDED — §P0 CLOSED (session 01a1bc21, renewal 3/12; ZERO oracle; ZERO historical `ocaml/lib/`+`ocaml/bin/` byte):** arg-indent ADJUDICATED (nest `indent+2` under `arg N`, `Call_e`+`Call_s`, hir.ml header documents it) → fixtures + reviewed `hir/expected/` committed `2504633a`; `tools/hir_test.py` `b607c156` (double-run determinism, rc/stdout contract, F4 hex audit clean w/ EMPTY allowlist, F7/F8 greps after nesting-aware comment strip — stripper proven non-vacuous, patterns word-anchored: unanchored `op_` FALSIFIED on `relop_name`/`top_authority`); `backend.ml` `e6946096` (brief §7 BACKEND + Null + Driver compile-time test; in `pli80_hir`, never in pli80c); F1 re-verified GREEN after EVERY step (`172595d5…`); **FULL gate rc=0 `build/gate-e54p0-reg.log` — FROZEN counts ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 (F2 zero movement, prediction confirmed)**; F3/F5/F6/F9 all measured PASS (F6: every lookup reads bind-seeded tables; F5 scratch dcl-swap witness; H05 rc2 HIR-E03 zero stdout byte-pinned); MIR lab `[TBD — not reachable]` (no local clone; Téléchargements zips = upstream Mir, unrelated, out of scope). CLOSE `0b3d7e09`: `spec/lab-evidence/e2e54/RESULTS.md` (F1–F9 panel + 9 deviations + §P0.7 repro + §6 roadmap PROPOSED), PLAN dashboard CLOSED, `docs/architecture/backend-boundary.md` FINAL (§4 CLAMP amendment replaces “uncapped”, §5 real proc fields). **P1 IS NOT AUTHORIZED: successor acts ONLY on an explicit operator decision; any P1 slice needs its own pre-registration (PROTOCOL #1). Repro set: `dune build` rc=0; `python3 tools/hir_test.py` rc=0; gate rc=0 frozen counts; exe `172595d5…`.** Ledger stays **C380** (203 headers); config NEVER staged; no push; `ocaml/lib`+`ocaml/bin` byte-clean; drift evidence kept `ocaml/_build-e54p0h3` (`ab02dbc5…`); S2..S5 debris untouched; chain 3/12 cap 12.
+
+0b-e54-3. **E2E-54/P0 hop 3 LANDED — F1 GREEN + COMMITTED (session successor of 01a1bbe1, renewal 2/12; ZERO oracle; ZERO historical `ocaml/lib/`+`ocaml/bin/` byte):** F1 FULLY ATTRIBUTED first-hand (scratch T0–T3 from `git archive HEAD`): extra LIBRARY harmless (`172595d5…` held; pli80.cma/.cmxa byte-identical); extra EXECUTABLE STANZA in `ocaml/bin/` moves EVERY bin exe — dune's per-scope `Dune__exe` alias lists all exe roots of the directory, changing `pli80c.ml`'s own `.cmx/.o` (+32 B); hop-1/2 "unused units never linked" **FALSIFIED for exe dirs**. Remedy: ALL new units + CLI live in `ocaml/hir/`, library **`pli80_hir`** (name forced — an exe cannot reference a same-named wrapped library; mixed dir needs explicit `(modules …)`); `ocaml/bin/dune` back to HEAD exactly; fresh-build F1 rc=0 ZERO Error, hist 122, exe == `172595d5…`; committed **`10061276`**. Fixtures `hir/fixtures/H01..H05.pli` (CRLF+^Z — bare LF shifts every line −1, LF-only FALSIFIED; IF/ELSE takes NO `end;`) rc-verified: H01–H04 dump rc=0, H05 `HIR-E03: line 2` rc=2 zero stdout (ddims guard — hop-2 prediction CONFIRMED). REAL DEFECT fixed in hir_build: `find_dcl` read `blk.bdecls` (`[]` for corpus shape — codegen.ml:15729 trap) ⇒ all SYM lines/names silently wrong; fixed via `Bind.frame_decls`. SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P0 hop 4…)` VERBATIM: adjudicate call-dump indent in hir.ml + F1 re-check + expected dumps + commit fixtures; tools/hir_test.py (CLI now `_build/default/hir/pli80hir.exe`; nested-comment stripper before F7/F8); backend.ml in `ocaml/hir/` + F1 re-check; FULL gate rc=0 `build/gate-e54p0-reg.log` FROZEN 1328/190/9/149/16-0-25-0/5 (any move = STOP+revert wiring); RESULTS + arch-doc + roadmap PROPOSED (P1 NOT authorized) + durables+guard. Ledger stays C380; drift evidence kept `ocaml/_build-e54p0h3` (= `ab02dbc5…`); config NEVER staged; no push; chain 2/12 cap 12.
 
 0b-e54-2. **E2E-54/P0 hop 2 LANDED IN-PROGRESS (build rc=0; F1 MOVED — restructure OWED; session successor of 01a1bbbd, renewal 1/12; ZERO oracle; ZERO historical `ocaml/lib/` byte):** `ocaml/lib/hir_build.ml` head defects (a)-(f) + SIX OCaml-5.4/syntax blockers fixed; top-level section REWRITTEN per contract (explicit parent-block threading, procs_by_name complete before lowering, second-authority guards); `ocaml/bin/pli80hir.ml` + bin/dune stanza added; `dune build` rc=0; SMOKE: deterministic HIR dump rc=0 on H01-shape source. **F1 FAILED:** `pli80c.exe` moved to `81d6122f…` (+40 B, nm count identical, ZERO Hir/Target/Diagnostic symbols — cause UNATTRIBUTED; old exe kept `ocaml/_build-e53p4h15/…` = `172595d5…`). NOTHING compiler-side committed (F1 gate). SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P0 hop 3…)` VERBATIM: move `ocaml/lib/{diagnostic,target,hir,hir_build}.ml` (all untracked) to NEW `ocaml/hir/` library `pli80hir` (aliases `module Bind = Pli80.Bind` etc.), re-verify F1 `172595d5…` (if still moved: STOP+record), then fixtures/expected (H04 P401-shape CONFIRMED supportable; bare `fixed` = RTbin 15)/hir_test.py/backend.ml-in-hir/gate `build/gate-e54p0-reg.log` frozen 1328-190-9-149-16-0-25-0-5/RESULTS+roadmap PROPOSED/durables+guard. Design amendments adopted-in-code (record in RESULTS): precision-ceiling CLAMP (no refuse) + BEGIN-inline lowering (F9). Ledger stays C380; config NEVER staged; no push.
 
@@ -4335,6 +4339,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1bcc7-fdf9-71ea-9e0a-5bfb1d8da449
+readiness-at: 2026-11-08T20:36:18.656Z
+readiness-checkpoint: g620-bc9b5fb0159a
 <!-- guard:end checkpoint -->
 
 ## Blockers
