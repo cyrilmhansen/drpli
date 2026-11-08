@@ -1713,31 +1713,33 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 626
-checkpoint-id: g626-f46e14710b81
+checkpoint-generation: 627
+checkpoint-id: g627-b98efa8f741d
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-6122, session 01a1bd02-1dd5-71ea-9e0a-5c02765d2348)
-checkpointed: 2026-11-08T21:47:39.855Z
+status: checkpoint (guard level 0, remaining ~26009, session 01a1bd21-a020-71ea-9e0a-5c06e546de63)
+checkpointed: 2026-11-08T22:09:16.722Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 99c66a5643c242aa3b355ec565b0cec83faf2adbf3f7b89a4b5bb61064e6794c
-source-handoff: b2839236387721192ec13d90c023ed750f665fb77e4554e68f5a2b5bb66bdabb
-source-learnings: 2ff52e6550b9adade7345b5f8eba9d52f91231f360dc675a892b994f1c72e0d7
+source-progress: 3ee7bb24f869dd54b4696e4f8b89dcfbd657f1259eaf8b7cd2d5b01fd11f74b8
+source-handoff: 74d7187f21ff490aa5c2d34a027d38919a40bcd5000b3c2e1dc0ed03191ea58e
+source-learnings: 5522be5ddadb5fbd92c3b15c1635a1b749346e135948ae79f12c6958aae5ea4c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bd02-1dd5-71ea-9e0a-5c02765d2348
-readiness-at: 2026-11-08T21:47:39.905Z
-readiness-checkpoint: g626-f46e14710b81
+readiness-by: session:01a1bd21-a020-71ea-9e0a-5c06e546de63
+readiness-at: 2026-11-08T22:09:16.758Z
+readiness-checkpoint: g627-b98efa8f741d
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 0; checkpoint requested (finalize: E2E-54/P1-b CLOSED 2026-11-08 at hop 4 (docs 78348582, durables dc2b0705). NOTHING FURTHER AUTHORIZED: successor/opportunities — report closure to operator and STOP; P1-a (proposed order RESULTS §P1-b.6), P2, P3+, and recorded-defect repairs (BEGIN/DO hang, nelem=1, char(2) twins) are PROPOSED ONLY, each needing its own pre-registration (PROTOCOL #1). Durable state: ledger C380 (203 headers); build rc 0; pli80c.exe == 172595d5… (fresh _build-e54p1b verified first-hand); gate FROZEN build/gate-e54p1b-reg.log; hir_test rc 0 H01–H07+semtest; ocaml/lib+bin byte-clean; config never staged; no push.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-(E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)` EXECUTE (hop 4) VERBATIM: CLOSE ONLY — RESULTS §P1-b (panel + dependency map + §P1-b.6 + THREE measured notes) + arch §7-1 + PLAN dashboard CLOSED + durables/guard. STOP after P1-b; P1-a NOT authorized.** Ledger C380 (203 headers); config never staged; no push; explicit-path commits.
+(E2E-54/P1-b hop 4 LANDED — §P1-b CLOSED…)` — NOTHING IS AUTHORIZED: report closure, await the OPERATOR. P1-a/P2/P3+ and the recorded-defect repairs are PROPOSED ONLY (RESULTS §P1-b.6, §P0 §6); each slice needs its own pre-registration (PROTOCOL #1).** Ledger stays **C380** (203 headers); config never staged; no push; explicit-path commits.
+
+0b-e54p1b-3. **E2E-54/P1-b hop 3 LANDED steps 4–5(gate) (session 01a1bd02; ZERO oracle; ocaml/lib+bin byte-clean):** `semtest.exe` + hir_test extension (F10/S8/semtest×2) `00a58a44`; 7 live invariants GREEN H01 4refs/3syms, H02 7/2, H03 7/4, H04 4/2; `--corrupt` rc 1 SEM-FAIL zero stdout (S6); S1 `172595d5…` held after new exe stanza; hir_test rc 0 H01–H07, S2 frozen; **FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5**; fresh `--build-dir _build-e54p1b` rc 0 ZERO Error (verify sha line); MEASURED (recorded, NOT fitted): bare BEGIN/DO block hangs `register_children` rc 124 — identical pre-migration `aaf295f0` — pre-existing, not P1-b drift. Durables `3afdd9ee`. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)` EXECUTE (hop 4) VERBATIM: CLOSE ONLY — RESULTS §P1-b (panel + dependency map + §P1-b.6 + THREE measured notes) + arch §7-1 + PLAN dashboard CLOSED + durables/guard. STOP after P1-b; P1-a NOT authorized.** Ledger C380 (203 headers); config never staged; no push; explicit-path commits.
 
 0b-e54p1b-2. **E2E-54/P1-b hop 2 LANDED steps 1–3 (session 01a1bce0; ZERO oracle; ocaml/lib+bin byte-clean):** `semantic_env.ml` `512d939f` (SFormat amendment documented; epr/sret_pr verbatim); `hir_build.ml` migrated `dfe1435a` (−155 net; Bind ref = alias + one `bind_program`; S1 `172595d5…` + S2 H01–H05 byte-frozen THROUGH migration); H06/H07 pins `acd7955e` (H06 `HIR-E02 … CHAR(3)`; H07 `HIR-E03 line 5`; MEASURED: body-reading undeclared formal dies HIR-E06 FIRST — OCaml record-field eval order, pre-existing, recorded not fitted); hir_test rc 0 H01–H07; durables `a5b4d16a`. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-b hop 2 LANDED steps 1–3…)` EXECUTE (hop 3) VERBATIM: (4) `ocaml/hir/semtest.ml` + hir_test.py extension (semtest ×2 per positive fixture, F10, S8) → (5) FULL gate rc 0 `build/gate-e54p1b-reg.log` FROZEN counts + S1 fresh `--build-dir` → (6) RESULTS §P1-b + arch §7-1 + PLAN CLOSED + durables. STOP; P1-a NOT authorized.** Ledger stays C380; config never staged; no push.
 
@@ -2447,5 +2449,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-b hop 4 = CLOSE ONLY, execute PROGRESS.md "## Next action (E2E-54/P1-b hop 3 LANDED steps 4–5(gate)…)" VERBATIM: (a) verify fresh --build-dir sha in build/e54p1b-freshbuild.log (expect 172595d5…; log rc 0, ZERO Error already confirmed); (b) RESULTS §P1-b (S1–S10 panel with measured values: semtest H01 4refs/3syms H02 7/2 H03 7/4 H04 4/2, corrupt rc1, gate FROZEN 1328/1328-190/190-9/9-149rows-16/0/25/0-prose5, F10 two pinned Bind lines, S8 clean, S2 frozen; dependency map; §P1-b.6; THREE notes: SFormat amendment, record-eval-order law, BEGIN/DO hang PRE-EXISTING at aaf295f0 rc124 both trees — recorded not fitted); arch doc §7-1; PLAN dashboard P1-b CLOSED; P1-a PROPOSED only, NOT authorized. Durables+guard, STOP. ZERO oracle; ledger C380 (203 headers); lib+bin byte-clean; config never staged; no push; explicit paths only.
+E2E-54/P1-b CLOSED 2026-11-08 at hop 4 (docs 78348582, durables dc2b0705). NOTHING FURTHER AUTHORIZED: successor/opportunities — report closure to operator and STOP; P1-a (proposed order RESULTS §P1-b.6), P2, P3+, and recorded-defect repairs (BEGIN/DO hang, nelem=1, char(2) twins) are PROPOSED ONLY, each needing its own pre-registration (PROTOCOL #1). Durable state: ledger C380 (203 headers); build rc 0; pli80c.exe == 172595d5… (fresh _build-e54p1b verified first-hand); gate FROZEN build/gate-e54p1b-reg.log; hir_test rc 0 H01–H07+semtest; ocaml/lib+bin byte-clean; config never staged; no push.
 <!-- guard:end checkpoint -->
