@@ -218,3 +218,105 @@ compiler edits authorized; the fix is PRE-REGISTERED in `LEARNINGS.md` § "hop 1
 at every consumer, plus the histogram repair, ZERO oracle needed for the message sites but the byte-tier
 falsifier suite is mandatory since `vk_name` text appears in refusal markers the gate pins).
 BYTE TIER ONLY — nothing linked or run.
+
+## §P4 — label-kind hygiene: fail-loud closure of the §P3 `Vlbl` my-gap — **CLOSED** (2026-11-09, sessions 01a1bb05 hop 14 / 01a1bb21 hop 15 / this successor hop 16; **ZERO oracle — the pre-registered tag `e53p4` and ids `E528*` were verified UNUSED and stayed UNUSED, no probe, no golden**) — PRE-REGISTERED in `PLAN.md` §P4 BEFORE any `ocaml/lib/` byte
+
+**What P4 is, and what it deliberately is not.** §P3 introduced the `Vlbl` value kind and §P3's own tail
+found the cost: the kind reached lowering through paths that had never been written for it, so a label
+variable either crashed with OCaml's `Pattern matching failed` or — worse — compiled SILENTLY into an
+object with no DR witness behind the operation. P4 closes exactly that. It is **internal failure-mode
+hygiene, not a reproduction result**: it adds no DR law, so there is **no claim** (the ledger stays at
+**C380**, 203 headers), **no inventory change** (1328 specimens / 190 refusals, verified UNCHANGED by the
+gate rather than regenerated), **no coverage touch** (149 rows, `SUPPORTED 99`), and **no Goal A payoff**
+(no corpus program moved). `ocaml/lib/codegen.ml` is the ONLY file edited, in hop 15; hops 14 and 16 wrote
+zero compiler bytes.
+
+**Arm (committed `39c7919e`; edits (a)–(j) exactly as pre-registered in `PLAN.md` §P4, every one guarded on
+`vk = Vlbl` so no other kind's behaviour can move).** (a) `vk_name` gains `| Vlbl -> "label"`, making that
+match EXHAUSTIVE again — the nine refusal-formatting call sites now name the variable class instead of
+crashing; (b) the unused `idx` of the dynamic computed-goto guard becomes `_idx`; (c) an OUTER `| Vlbl ->`
+arm in the PUT-item dispatch refuses `codegen: PUT of a LABEL value is unsampled [TBD] (no DR golden prints
+a label variable through a LIST, EDIT or skip item; E527 measures only store/goto/call-use of a label cell)`;
+(d) `store_char` gains `| Vlbl -> failwith "codegen: character store into a LABEL cell is unsampled [TBD]
+(E527 measures only label-value stores; a ?SMCVM/?SMCCM string never lands in a label cell)"` (the OTHER
+missing kinds of that pre-existing partial were left alone — not label scope); (e)/(f) `val_addr` and
+`cmp_load_deref` refuse via `List.assoc_opt … st.vars` on `vk = Vlbl` (`comparing a LABEL variable is
+unsampled [TBD]`), deliberately NOT via `vk_of`, so no new failure mode appears for any other name;
+(g) the DEC->INT store arm refuses `vi.vk = Vlbl` (`DEC->INT conversion store into a LABEL cell is
+unsampled [TBD]`); (h) an internal call actual that is a bare `Eident` with a `Vlbl` row is admitted ONLY
+when the callee's formal at that position has rt `Bind.RTlabel` — the single pair E527G measures — else
+`passing the LABEL variable x as a call argument is unsampled [TBD]`; (i) an EXTERNAL entry actual of that
+shape refuses (no external golden passes a label); (j) a bare-`Eident` array SUBSCRIPT with a `Vlbl` row
+refuses (`array subscript is a LABEL variable [TBD]`). Every text is NEW wording containing `[TBD]`; no
+pinned marker or census string was touched, which is why the markers harness was re-run FIRST.
+
+**Post-fix matrix (FRESH `build/e53p4/post/run.log` vs the pre-arm witnesses `build/e53p4/sanity/`, binary
+`172595d5…`; 34 programs + the 13 hop-13 SNSL witnesses).**
+
+| Pre-arm state | Witness(es) | Post-arm state (rc DIRECT) |
+|---|---|---|
+| CRASH `Pattern matching failed` at `vk_name` (was 7076) | SANL3, SANL27, SNSL6 | LOUD rc=2, ZERO `.REL`: `mixing label into a FLOAT expression is unsampled [TBD]` |
+| CRASH at PUT-item inner match (13455, pre-existing partial newly REACHED) | SANL4, SANL17, SANL25, SNSL8 | LOUD rc=2, ZERO `.REL`: `PUT of a LABEL value is unsampled [TBD]` |
+| CRASH at `store_char` (6095, pre-existing partial newly REACHED) | SANL5 | LOUD rc=2, ZERO `.REL`: `character store into a LABEL cell is unsampled [TBD]` |
+| SILENT object, no DR sample — DEC->INT store | SANL14 (pre: rc=0, 256 B) | LOUD rc=2, ZERO `.REL` |
+| SILENT object — fixed compare ladder | SANL21 (pre: rc=0, 256 B) | LOUD rc=2, ZERO `.REL` |
+| SILENT object — label actual to FIXED / POINTER formal | SANL22, SANL32 (pre: rc=0, 256 B) | LOUD rc=2, ZERO `.REL` |
+| SILENT object — label as array SUBSCRIPT (read and write) | SANL23, SANL24 (pre: rc=0, 128 B) | LOUD rc=2, ZERO `.REL` |
+| ARMED shapes must not move | SANL19 `goto x;`, SNSLC float control | rc=0 and **byte-IDENTICAL** (`SANL19.REL` 128 B code=33 data=18; `SNSLC.REL` 256 B code=43 data=4, `cmp` rc=0) |
+| Loud-and-correct controls | the other 29 `SANL*.err` | **byte-identical** to the kept pre-arm files (incl. `addr(x)`, `if x then`, DO bound/index, `x = f`, `char store from non-literal`) |
+
+**Parity.** FRESH POSITIONAL whole-file `cmp` against the KEPT goldens VERBATIM — **16/16 rc=0**
+(`build/e53p4/parity/cmp.log`, `PARITY_CMP_FAILS: 0`): e53p1 E525A–D 4/4, e53p2 E526A–G 7/7, e53p3
+E527A/C/D/E/G 5/5, with the §P3 refusals preserved exactly — E527B/H `undeclared e (no declaration in
+scope)` and E527F `computed GOTO deferred [TBD]` (the N6 phrase).
+
+**Falsifiers.** Markers harness argv-19 **`MARKER_FAILS: 0`** (`build/e53p4/markers.log`) — run first,
+because nine refusal sites embed `vk_name` output. Corpus deaths UNMOVED: the seven recorded blockers
+(EXPR1, REPORT, COPYLPT, LABELS, DEPREC, MPMCALLA, OPTIMIST) are **byte-identical** to the kept
+`build/e53p3/fals/*.log`. Census `--check` **rc=0** with counts **16/0/25/0** unchanged
+(`build/e53p4/census-check.log`). **DATED site quotation:** the separately recorded, OUT-OF-SCOPE
+`nelem=1`/scalar-subscript crash (`SANL33`, SNSLD — `x(2) = lab1;`) is **UNCHANGED in kind** — still
+`Pattern matching failed`, still the same recorded site — but its quoted LINE moved **10189 → 10248**
+by the +59-line shift the P4 arms introduced above it; any later prose must quote **10248**. It stays
+recorded and unfixed.
+
+**Fingerprint and histogram.** Armed fingerprint **`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`**
+— fresh `--build-dir _build-e53p4h15`, **ZERO `Error`** (`build/e53p4/build-fresh-h15.log`), IDENTICAL to
+the default-build tree binary re-checked at hop 16; it **SUPERSEDES `fed67d24…`**. Warning histogram
+**FALSIFIED its own prediction:** §P4 predicted **68/124**, measured **codegen 66 / total 122** — and the
+delta is attributed first-hand to **THREE** sites, each −2 (the build runs two passes), by header-set
+comparison against `build/e53p3/build-fresh-h13.log`: (1) the predicted `14789` unused-`idx` W27 (edit (b));
+(2) the predicted `vk_name` W8 header `lines 7076-7091` (edit (a)) — the match became EXHAUSTIVE because
+`Vlbl` was the last missing `vkind` constructor, which is why it costs 2 headers, not the 0 a single-arm
+edit would; and (3) **UNPREDICTED** `resolve_suffix` `1067 characters 30-31` W27 (shadowed unused `h`) —
+consumed legitimately by edit (j), whose guard uses `h.Ast.orig`. No other header moved. Nothing was forced.
+Lesson kept: removing a partial match can silence a `partial-match` header AND expose or consume
+unrelated per-variable warnings at the same address range; a histogram prediction is a signal, not a target.
+
+**Close-out tail (hop 16, all rc DIRECT, ZERO oracle, ZERO further `ocaml/lib/` byte).** Sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` **rc=0, 206 specimens byte-exact / 0 FAILS /
+28 refusals** (`build/e53p4/sweep.log`); DEC `R5 R6 R7 R8 LOAN1` **64 byte-exact / 0 FAILS**
+(`build/e53p4/dec.log`); divergence **9/9** (`build/e53p4/divcheck.log`). **The carried sweep expectation of
+201 MOVED to 206 and is recorded, not forced** — attribution first-hand: the §P3 close-out quoted the sweep
+number measured against the PRE-registration inventory (1323 rows), while §P3 then registered the five
+E527 specimens in `b7544b61` (1328). Counting the same six prefixes in the pre-registration inventory gives
+exactly **201**, in the current one exactly **206**, the difference being precisely
+E527A/C/D/E/G, each re-verified individually byte-exact against `golden/e53p3/` on `172595d5…`. Refusal
+count 28 and `FAILS: 0` are unchanged; the compiler's behaviour did not move — the STALE EXPECTATION did.
+**FULL compile-tier gate rc=0** DIRECT `build/gate-e53p4-reg.log`: **1328 byte-exact / 0 fail of 1328**,
+negative panel **190/190**, divergence **9/9**, `coverage_check` **149 rows, 0 errors, 0 warnings**, census
+`{EXACT 16, DIFFERS 0, REFUSED 25, NO_ORACLE 3}`, prose **5 active files clean**.
+
+**Tooling law re-confirmed (SNS4 name collision).** `build/e53p4/fals/run.log` carries a stale
+`SNS4 rc= 2` line from a first pass that resolved the colliding name to `build/e53p3/sanity/SNS4.PLI`
+(the `dcl e(2) entry;` probe). The legacy array witness is `build/e53p2/sanity/SNS4.PLI`; the held artifact
+`build/e53p4/fals/SNS4.REL` is correct, and the hop-16 re-check (`build/e53p4/fals/sns4-recheck-h16.log`)
+re-compiled that pinned source rc=0 with `cmp` rc=0 against the pre-P2 reference
+`build/e53p2/sanity/SNS4.out.rel` (sha `c6ad9b56…`, all three identical). Pin the SOURCE PATH, never the
+directory name.
+
+**Explicitly NOT done in P4 (queued, never silently improved).** The `char(2)` twins of the store and
+compare holes are pre-existing kind-agnostic looseness and were recorded, not touched — fixing them would
+put 900+ specimens at risk with no label authority; the `nelem=1`/scalar-subscript crash at `10248` stays
+recorded; A3/A4 (char builtins, FLOAT-expression-as-actual) and the B1 static-varying residue ride future
+oracle campaigns. BYTE TIER ONLY — nothing linked or run.

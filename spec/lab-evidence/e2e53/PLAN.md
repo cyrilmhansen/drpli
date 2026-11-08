@@ -73,6 +73,7 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
 | P1 **CLOSED** | GET SKIP family (console) | +4 (E525A-D, whole-file cmp rc=0) | 0 (blockers moved VERBATIM past GET lines in EXPR1/REPORT/DEPREC/COPYLPT, never fixed) | 0 | C378 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p1-reg.log (1316/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5) |
 | P2 **CLOSED** | non-2-byte array elements (stride 1/3 class) | +7 (E526A-G, whole-file cmp rc=0) | 0 (four B1 blockers re-held VERBATIM 0-byte/9-byte [C159], never fixed) | 0 | C379 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p2-reg.log (1323/0, 190/190, 9/9, 146 rows SUPPORTED 96, census 16/0/25/0, prose 5) |
 | P3 **CLOSED** | entry/label VALUE class (LABELS/DEPREC/MPMCALLA family) | +5 (E527A/C/D/E/G, whole-file cmp rc=0) | 0 (three blockers MOVED to new refusals VERBATIM, never fixed; OPTIMIST `9-byte` unmoved) | 0 | C380 (measured-bytes-only, BEFORE COVERAGE; stop-window law + its two falsified bounds) | rc=0 build/gate-e53p3-reg3.log (1328/0, 190/190, 9/9, 149 rows SUPPORTED 99, census 16/0/25/0, prose 5) |
+| P4 **CLOSED** | label-kind hygiene: fail-loud closure of the §P3 `Vlbl` crash my-gap (PLAN §P4 edits (a)-(j)) | 0 (ZERO oracle: no probe, no golden, tag `e53p4` and ids `E528*` verified UNUSED and stayed UNUSED; inventory 1328/190 VERIFIED unchanged by the gate, never regenerated) | 0 (seven recorded corpus deaths byte-identical; recorded `nelem=1`-family crash UNCHANGED in kind, its quoted line moved 10189 to 10248 by the +59-line shift) | 0 (Goal A untouched; Goal B numbers frozen: coverage 149 rows SUPPORTED 99, NOT touched) | none (refusal-text hygiene is not a DR law; ledger stays **C380**, 203 headers) | rc=0 build/gate-e53p4-reg.log (1328/0, 190/190, 9/9, 149 rows SUPPORTED 99, census 16/0/25/0, prose 5); fingerprint `172595d5…` SUPERSEDES `fed67d24…`; hist 66/122 — predicted 68/124 **FALSIFIED**, attributed to THREE sites; sweep 206/0 (carried 201 was stale, attributed +5 to the E527 registration) |
 
 ## 5. Re-ranking at P3 open (2026-11-08, successor session of `c3b54516`; ZERO oracle; binary `cb906871…` == tree)
 
@@ -451,7 +452,7 @@ by what the goldens pin, NEVER `coverage_gen.py`); FULL compile-tier gate rc=0 D
 §P2 CLOSED. Goldens committed VERBATIM before any arm byte; `handoff.config.json` never staged;
 no push.
 
-## P4 — label-kind hygiene (fail-loud closure of the hop-13 my-gap) — PRE-REGISTERED (2026-11-09, session 01a1bb05, chain renewal 8/12, BEFORE any `ocaml/lib/` byte)
+## P4 — label-kind hygiene (fail-loud closure of the hop-13 my-gap) — **CLOSED** (hop 16, 2026-11-09; results `RESULTS.md` §P4; ZERO new claim — ledger stays [C380]; gate rc=0 `build/gate-e53p4-reg.log`; armed fingerprint `172595d5…`) — originally PRE-REGISTERED (2026-11-09, session 01a1bb05, chain renewal 8/12, BEFORE any `ocaml/lib/` byte)
 
 **Scope (adopted from the hop-13 PROPOSAL, LEARNINGS § "E2E-53/P3 hop 13", EXTENDED by this hop's
 first-hand audit).** Close the recorded `Vlbl` crash my-gap: every path by which a LABEL variable
@@ -508,3 +509,26 @@ stays 149/99 (verify by the gate, do not regenerate either). FULL gate rc-0 DIRE
 `build/gate-e53p4-reg.log`; then RESULTS §P4 + PLAN §4 row + §P4 CLOSED; durables + guard. NO new
 claim, NO `--update-inventory`, NO coverage touch unless something unexpected moves — then STOP and
 record VERBATIM.
+
+### P4.6 DATED close-out (hop 16, 2026-11-09, successor session; ZERO oracle; ZERO further `ocaml/lib/` byte)
+
+The §P4 contract above is kept AS WRITTEN (PROTOCOL #2); three of its predictions moved and each is
+attributed rather than forced. (1) **Sweep 201 -> 206 byte-exact / 0 FAILS** (`build/e53p4/sweep.log`,
+28 refusals unchanged). The 201 was STALE, not a behaviour change: §P3's close-out quoted the sweep
+number taken against the PRE-registration inventory (1323 rows) and then registered the five E527
+specimens at `b7544b61` (1328). Counting the same six prefixes in `git show b7544b61^:spec/INVENTORY.txt`
+gives exactly 201, in the current inventory exactly 206, and the difference is precisely
+E527A/C/D/E/G — each re-verified individually byte-exact against `golden/e53p3/` on the armed binary.
+(2) **Histogram 68/124 -> measured 66/122** (codegen 66, bind 30, parser 12, ir 8, token 4, plus 2
+`bin/` headers; ZERO `Error`). Attributed by header-set comparison with
+`build/e53p3/build-fresh-h13.log` to THREE sites at −2 each (two build passes): the predicted unused
+`idx` W27 at `14789`; the predicted `vk_name` W8 header `lines 7076-7091` (edit (a) made the match
+EXHAUSTIVE, so the whole partial-match header disappears rather than shrinking); and an UNPREDICTED
+`resolve_suffix` `1067` W27 shadowed-`h`, consumed legitimately by edit (j)'s `h.Ast.orig` guard.
+(3) **DATED site quotation:** the out-of-scope recorded `nelem=1`/scalar-subscript crash is unchanged in
+kind but its quoted line moved **10189 -> 10248** (the +59-line shift above it); later prose quotes 10248.
+Everything else held exactly as pre-registered: parity 16/16 `cmp` rc=0, markers argv-19
+`MARKER_FAILS: 0`, DEC 64/0, divcheck 9/9, corpus deaths byte-identical, census `--check` rc=0
+16/0/25/0, inventory 1328/190 and coverage 149/99 verified UNCHANGED through the gate (neither
+regenerated), no claim written (ledger stays **C380**). **FULL gate rc=0** DIRECT
+`build/gate-e53p4-reg.log`. **§P4 CLOSED**; results narrative in `RESULTS.md` §P4.
