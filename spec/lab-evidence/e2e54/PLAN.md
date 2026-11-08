@@ -650,3 +650,349 @@ modification to the lab.
 | slice | status | gate log | notes |
 |---|---|---|---|
 | P0 | **CLOSED 2026-11-08** (hop 4) | `build/gate-e54p0-reg.log` (rc 0, frozen counts) | zero oracle; RESULTS.md §1–§8; P1 NOT authorized |
+
+---
+
+## §P1-b — Pre-registration: Semantic Environment Projection (committed BEFORE any code change)
+
+**Authorized by the operator 2026-11-08** (message reproduced VERBATIM as §P1-b.0 below).
+Campaign slice **E2E-54/P1-b** — roadmap item 2 of RESULTS §6, promoted to an authorized
+phase by that explicit operator decision. Type of work: **backend architecture, ZERO oracle
+calls** (none planned or authorized). Starting reference:
+`aaf295f0257659c4b3bd8d070bd14a306cc36780` (verified first-hand at session start:
+`dune build` rc 0; `pli80c.exe` sha256 `172595d5…` == P0 baseline; `tools/hir_test.py`
+rc 0 H01–H05; `ocaml/lib`+`ocaml/bin` byte-clean).
+
+P1-a (subset extension), P2, any MIR backend, and any historical-compiler refactor are
+explicitly NOT started or authorized by this slice.
+
+### P1-b.0 Operator authorization (verbatim)
+
+> ## DRPLi — E2E-54/P1-b: Semantic Environment Projection
+>
+> ### Operator authorization
+>
+> E2E-54/P0 is CLOSED. The operator authorizes **P1-b: a read-only Semantic_env projection over the existing binder**.
+>
+> Starting reference: `aaf295f0257659c4b3bd8d070bd14a306cc36780`.
+>
+> This is a ZERO-oracle, backend-architecture campaign.
+>
+> Do not start P1-a, P2, a MIR backend, or a historical compiler refactor.
+>
+> ### Objective
+>
+> Make semantic information produced by the existing Bind implementation available through one coherent, typed, backend-independent interface.
+>
+> Reduce the number of places where HIR construction must reconstruct symbol tables, lexical lookup, procedure relationships and type information.
+>
+> The new interface must remain a projection of existing semantic evidence, not a competing binder.
+>
+> ### Step 1 — Preregister and audit
+>
+> Read: `AGENTS.md`, `PROTOCOL.md`, `spec/lab-evidence/e2e54/PLAN.md` and `RESULTS.md`, `docs/architecture/backend-boundary.md`, `ocaml/hir/hir_build.ml`, Existing `Bind.prog_layout`, `proc_layout`, `bind_rows` and associated helpers.
+>
+> Preregister P1-b in `spec/lab-evidence/e2e54/PLAN.md` and commit before code changes.
+>
+> Identify every current lookup, mapping or reconstruction performed by `Hir_build`. Classify each as: (1) Direct projection of bind-produced data. (2) Necessary lexical organization using facts from AST and Bind. (3) Duplicate semantic resolution or typing. (4) Unknown or unsupported.
+>
+> Do not claim that Bind provides a fact which is actually reconstructed from syntax.
+>
+> ### Step 2 — Implement Semantic_env
+>
+> Prefer an isolated module: `ocaml/hir/semantic_env.ml`. This module is transitional: it is consumed by the independent HIR path, while the historical compiler remains unchanged.
+>
+> Provide a minimal typed interface for: stable symbol identity; declaration type and source position; symbol ownership and scope; scoped name lookup; procedure identity and signatures; formal parameter identity and type; parent/child procedure relationships.
+>
+> Build the projection deterministically from the parsed AST and the existing Bind result. Keep the original Bind layout authoritative. Exclude physical offsets, frame sizes, relocation records, data-pool addresses and 8080-specific storage details from the public semantic interface. Do not perform a second independent declaration analysis. Do not duplicate existing Bind type-interpretation functions. Where Bind does not expose sufficient information, return a typed unsupported/unknown result or document the missing capability. Do not silently infer it.
+>
+> ### Step 3 — Migrate Hir_build
+>
+> Make `Hir_build` consume `Semantic_env` for supported symbol and procedure lookups. Eliminate redundant local tables and lookup code only where equivalent behavior is demonstrated. Avoid moving code merely to rename it: the objective is a stable semantic contract, not a cosmetic refactor. Preserve deterministic symbol identifiers and dump ordering. Retain all existing HIR diagnostics unless an explicitly documented bug is corrected. Do not widen the supported PL/I language subset during P1-b.
+>
+> ### Step 4 — Semantic authority tests
+>
+> Test against the actual Bind-produced facts, not merely the text of existing HIR dumps. Include: declaration order and symbol identity; local versus enclosing-scope references; procedure/formal relationships; shadowed names; unresolved names; unsupported declaration types; Bind/AST inconsistencies or missing information. Re-run H01–H05 unchanged. Add targeted fixtures for newly exposed semantic-environment behavior where necessary, without promoting additional HIR language constructs. Assert that every successfully resolved HIR identifier can be traced to an existing bind-produced authority. A wrapper that internally reimplements the same independent name-resolution rules is not sufficient.
+>
+> ### Step 5 — Keep unmeasured typing explicit
+>
+> Audit the current FIXED arithmetic rule: addition/subtraction `max(p1,p2)+1`; multiplication `p1+p2`; profile ceiling and clamping. `Target.fixed_arithmetic_typing` currently does not contain a verified DR intermediate-typing rule. Preserve the distinction between: language-level proposed typing; prototype normalization; oracle-backed historical behavior. Do not promote the current arithmetic rule to verified DR semantics. Do not change arithmetic typing or expected HIR dumps merely to simplify the new API. If a structural issue is found, document it for a separate phase.
+>
+> ### Step 6 — Regression and separation gates
+>
+> Mandatory: `dune build` RC 0; `tools/hir_test.py` RC 0; all existing HIR outputs and diagnostics unchanged unless explicitly adjudicated; fresh historical binary SHA-256 equal to the P0 baseline `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; full `tools/e2e_gate.py` RC 0; historical parity 1328/1328; negative panel 190/190; divergence panel 9/9; no change to golden objects, historical sources, claims, coverage, inventory or census. Do not introduce references from the historical compiler into the new HIR modules. Do not modify `ocaml/lib/` or `ocaml/bin/`. No oracle calls, no MIR dependency, no push.
+>
+> ### Step 7 — Close and report
+>
+> Deliver: a documented `Semantic_env` API; a migrated HIR construction path; explicit semantic-authority tests; a before/after dependency map; all measured test results; a list of semantic facts that Bind still does not expose; a proposed P1-a subset-extension order. Update `docs/architecture/backend-boundary.md`, `spec/lab-evidence/e2e54/RESULTS.md` and the durable Handoff documents. Commit scoped changes, verify the checkpoint, and close P1-b.
+>
+> **STOP after P1-b closure. Do not begin P1-a automatically.**
+>
+> Success means that HIR construction consumes a clearer, testable projection of the existing binder, with less duplicated semantic logic and no change to historical compilation.
+>
+> **Operator decision: E2E-54/P1-b is authorized. Preregister and proceed.**
+
+### P1-b.1 Audit — every lookup / mapping / reconstruction in `Hir_build` at `aaf295f0`
+
+Classified per the brief. Classes: **[P]** direct projection of bind-produced data;
+**[O]** necessary lexical organization using facts from the AST and Bind (organization the
+interface must own, NOT claimed as a Bind fact); **[D]** duplicate semantic resolution or
+typing; **[U]** unknown / unsupported. Anchors are the file as committed at the starting
+reference (780 lines).
+
+| # | Site | Operation | Class |
+|---|---|---|---|
+| 1 | `build` | `Bind.bind_program blk` — THE single semantic-authority call | authority (not a reconstruction) |
+| 2 | `build` | `Bind.top_is_proc blk` + `plan.pl_top` → main-block procedure identity; main name enters `procs_by_name` only when bind itself laid the top block out as a procedure | [P] |
+| 3 | `check_top_authority` | consistency check: every `Bind.bind_rows blk` name must appear in `pl_top.pl_rows` (mirror of codegen `rows_of`; two bind views, no resolution) | [P] guard |
+| 4 | `rows_of_block` | `Bind.bind_rows blk` → `(lower name, rt, auto)`; **the physical offset component is dropped at this first touch** | [P] |
+| 5 | `register_block` `dup_free` | refuse if bind produced two rows with the same name for one block (guard over bind data; a defensive witness, no fixture reaches it — see §P1-b.4 H07 measurement) | [P] guard |
+| 6 | `find_dcl` | name → (source spelling, declare-statement line) through `Bind.frame_decls` (bind's OWN flattener) keyed by `Bind.pl_l` | [P] (bind owns both the flattening and the key policy; the scan itself is trivial deterministic lookup) |
+| 7 | `register_block` formal set | lowercased `binfo_formals` (from AST `bparams` via `Bind.pl_l` at the call site) — `storage = Formal` is derived from **AST parameter-list membership**; TYPE and row existence stay bind facts | [O] (also a redundant double `String.lowercase_ascii` over an already-`pl_l` list — removed in migration; behaviour identical) |
+| 8 | sid / scope / pid allocation in `register_block` + `build` | pre-order ids; WITHIN a block the order is bind's row order (bind measurement, hop 1); the block-tree WALK order is AST nesting order | [O] (the identity scheme is the interface's contract; it must stay deterministic and is NOT claimed to be a Bind fact — Bind has no sid/scope/pid) |
+| 9 | storage Auto vs Static | the `auto` flag of the bind row | [P] |
+| 10 | `ty_of_rt` | `Bind.rt → Hir.ty` map; only `RTbin p → Fixed_bin(p,0)` accepted, everything else refused (the refusal is the HIR **subset gate**, the map is a projection) | [P] + subset gate stays in the consumer |
+| 11 | `resolve` | name lookup walking the `bi_syms` parent chain | [O] over [P] data — the CHAIN shape is read from the AST (hop-1 measurement: bind's `pl_procs` registry is FLAT and carries NO parent pointer); every table it walks is bind rows |
+| 12 | `register_children` | AST walk over `Sproc`/`Bproc` to discover the block-tree shape; each discovered proc is then looked up in `plan.pl_procs` by `pl_name` — a Bproc child WITHOUT a `pl_procs` entry is a hard refusal (second-authority guard), never an invented block | [O] (shape) + [P] (identity/signature) |
+| 13 | `register_children` guards | anonymous procedure block (no `bname`); proc not in bind registry; duplicate internal proc name | guard [O]/[P] — all refuse loudly |
+| 14 | `procs_by_name` | name→pid registry assembled from bind-registered procs (+ main when `top_is_proc`) | [O] organizing [P] facts |
+| 15 | `lower_call` | callee identity via `procs_by_name`; arity checked against `List.length pl.Bind.pl_ptrs` (bind's formal pointer cells; names are `List.map pl_l bparams` in bind — measured `bind.ml:2557`, so formal NAMES+ORDER are bind-produced); recursion via `pl_rec`/`pl_attr_rec`; result type via `pl_ret` | [P] (fallback: a callee with no `proc_layout` would use AST `bparams` length — reachable only for pid 0 of a MAIN program, which is never in `procs_by_name`; defensive branch kept) |
+| 16 | `params_of` (in `build`) | AST `bparams` → sids via the block's bind rows; an AST formal with NO bind row refuses `HIR-E03` "explicit formal dcl required in P0" (bind gives an undeclared formal no row — hop-1 measurement; the refusal is the interface honouring missing bind data, NOT inferring a signature) | [P] + typed missing-information refusal |
+| 17 | `Sdcl` lowering guards | `dlevel/ddims/dinit/dattrs/dpre` subset refusals; then existence via the block's bind rows (`List.assoc_opt key bi.bi_syms`) | guards (subset) + [P] |
+| 18 | `lower_lit` / `lower_arith_node` | literal typing + `+ - *` result-precision rules + profile-ceiling clamp | **NOT bind** — target-profile language rules (`Language_rule` provenance, RESULTS §3.3, arch doc §4); stay in the consumer; audited in §P1-b.5 |
+| 19 | `bind_and_dump`-adjacent | none — the HIR path never calls `$S` dumping | — |
+
+**Class [D] finding (honest audit):** NONE. P0 falsifier F6 already established that every
+name→meaning channel reads bind-seeded structures; no second resolver and no duplicate typing
+function exists in `Hir_build` to delete. What P1-b reduces is the **number of places that
+reconstruct the tables themselves** (rows re-keying, the dcl channel, the parent-chain
+lookup, the proc registry, the formal/return/arity/recursive lookups — sites 4, 6, 11, 14,
+15, 16): one module owns them and is directly testable against bind. Moving code merely to
+rename it is NOT progress; the migration must therefore (a) delete exactly the table-building
+and lookup machinery listed above from `hir_build.ml`, (b) add capability the old private
+tables did not have (procedure signature by pid, formal typed identities, entry signatures,
+parent/child edges as data, a `not_declared`/`not_visible`-typed lookup that distinguishes
+"unknown scope" from "not found"), and (c) prove equivalence by test (§P1-b.4).
+
+**Explicit anti-overclaim list (bind facts vs AST-reconstructed):** the block-tree NESTING
+shape (parent/child edges), which statement is the proc definition, the parameter-name list,
+and the anonymous-block detection are read from the **AST**, because Bind exposes none of them
+(`pl_procs` flat, no parent pointer — hop-1 measurement). Symbol identity numbering (sid/scope/
+pid integers) is the interface's own deterministic contract. Everything named [P] above is a
+bind-produced fact, read through a bind-exported function or field.
+
+### P1-b.2 `Semantic_env` contract (new module `ocaml/hir/semantic_env.ml`)
+
+A **read-only projection** over `(Ast.block × Bind.prog_layout)`, transitional (lives in
+`pli80_hir`; the historical pipeline never references it; `pli80c.exe` never links it). It is
+NOT a binder: `create` performs no name resolution of uses, no type interpretation of
+declarations (that is bind's `resolve_type`), no storage computation.
+
+Public surface (exact names fixed at pre-registration; additions only by amendment):
+
+```ocaml
+type stype =            (* faithful projection of Bind.rt; physical components DROPPED *)
+  | SFixed_bin of int | SFixed_dec of int * int | SFloat of int
+  | SChar of int * bool | SBit of int | SPointer | SLabel
+  | SFile of { internal : bool }
+  | SBased of string * stype                       (* view through a named pointer cell *)
+  | SMember of { owner : string; based : bool; ty : stype }  (* record-relative position dropped *)
+  | SStruct of { level : int; members : int }
+  | SStructrec of { ptr : string }                 (* record byte extent dropped *)
+  | SBuiltin
+  | SEntry of { params : int; external_ : bool; ret : stype option
+              ; ptypes : stype list }
+val type_of_rt  : Bind.rt -> stype        (* total, deterministic projection; not interpretation *)
+val pp_stype    : stype -> string
+type storage = S_auto | S_static | S_formal
+type symbol = { esid : int; ekey : string; eorig : string; escope : int
+              ; ety : stype; epr : string; estorage : storage; eline : int }
+              (* epr = Bind.rty_str of the source row, carried VERBATIM so type-naming
+                 diagnostics quote bind's own words and stay byte-identical across the seam *)
+type proc_sig = { sptrs : string list; sret : stype option; sret_pr : string option
+                ; sptr_count : int; srec : bool; sattr_rec : bool }
+                (* sptrs = formal names in bind's own order (pl_ptrs keys, bind.ml:2557) *)
+type block_env = { epid : int; escope : int; eparent : int option
+                 ; ename : string option; ekey : string option   (* lowered proc key when named *)
+                 ; esyms : (string * symbol) list                (* bind row order *)
+                 ; eformals : string list                        (* lowered AST bparams *)
+                 ; esig : proc_sig option; east : Ast.block }
+type entry_sig = { en_params : int; en_external : bool
+                 ; en_ret : stype option; en_ptypes : stype list }
+type t   (* main block, pre-order block list, procs_by_name, entry decls *)
+exception Not_found of { scope : int }   (* typed unsupported: NOT a silent None *)
+val create                : Ast.block -> Bind.prog_layout -> (t, Diagnostic.t list) result
+val key_of                : Ast.name -> string            (* = Bind.pl_l, the one alias policy *)
+val find_dcl              : t -> block_env -> string -> (Ast.dcl * int) option (* Bind.frame_decls channel *)
+val block_line            : Ast.block -> int              (* moved here; hir_build keeps one call site *)
+val blocks                : t -> block_env list           (* pid-ascending = pre-order *)
+val main_block            : t -> block_env
+val block_of_pid          : t -> int -> block_env
+val block_of_scope        : t -> int -> block_env         (* raises Not_found — typed unknown *)
+val scope_syms            : t -> int -> (string * symbol) list (* raises Not_found *)
+val symbol                : t -> int -> symbol option     (* esid lookup across ALL blocks *)
+val resolve               : t -> int -> string -> symbol option
+                          (* NEAREST lexical binding; the chain is AST nesting over bind rows *)
+val procedure             : t -> string -> int option     (* lowered key -> pid *)
+val signature             : t -> int -> proc_sig option   (* pid -> bind facts; None = not bind-laid *)
+val enclosing             : t -> int -> int option        (* pid -> enclosing proc pid (main = 0 None) *)
+val entry_decls           : t -> (string * entry_sig) list
+```
+
+Excluded from the public surface by contract (brief Step 2; falsifier F8 extended to this
+module): frame/DATA offsets, `bytes_of` values, section sizes (`pl_secs`), `pl_total`,
+`pl_top_cell`, `pl_sp_cell`, relocation records, data-pool addresses, 8080 vocabulary. The
+offset components of `bind_rows`/`pl_ptrs`/`pl_rows`/`RTbmem`/`RTimem`/`RTstructrec` are
+dropped at the projection boundary.
+
+The public interface references **no `Hir` type**: the env is backend-independent; `Hir_build`
+remains the only module mapping `stype → Hir.ty` (the subset gate). `Hir.storage` and
+`Semantic_env.storage` stay parallel-by-hand by design (P0 deviation-1 precedent).
+
+Typed unsupported/unknown policy (brief Step 2): a lookup against a scope pid never returns a
+silent `None` — an out-of-range scope raises `Not_found` (caller bug, loud); a name absent
+from the whole visible chain returns `None` (bind registered no row: THE one authority says
+it does not exist); an AST formal with no bind row stays a refusal *in the consumer* (P0
+message preserved). Missing Bind capabilities are listed in §P1-b.6 and RESULTS (no silent
+inference): per-BEGIN scoping, expression typing, qualified/suffix resolution, INITIAL
+values, static/varying descriptor detail, ON-unit facts (bind HAS `pl_on` but the env does
+not expose it in P1-b — documented exclusion, not an invention).
+
+Determinism: pre-order walk identical to today (main pid 0 scope 0, then AST-nested Bproc
+children in source order; rows in bind declaration order). sids/scopes/pids assigned exactly
+as at `aaf295f0`, so every existing dump byte is preserved (falsifier S2).
+
+### P1-b.3 Migration contract for `ocaml/hir/hir_build.ml`
+
+- DELETE: `ctx` mutable tables (`next_sid/next_scope/next_pid/blocks/procs_by_name`),
+  `rows_of_block`, `dup_free` (now in env), `find_dcl` (env channel), `block_line`,
+  `register_block`, `register_children`, `resolve`, the `procs_by_name`/arity/return-type
+  direct bind reads in `lower_call`/`Sprocedure_stmt`/`params_of`/`ret_of`.
+- KEEP in `Hir_build`: `ty_of_rt : Semantic_env.stype -> (Hir.ty, string) error` (the HIR
+  subset gate, message text unchanged — it quotes the carried bind `epr` rendering), the
+  sid-ordered eager projection of env symbols into `Hir.sym` (preserves today's refusal
+  ORDER within registration), the statement/expression lowering, the profile language-rule
+  typing (§P1-b.5), `Hir_error` plumbing, and the CLI contract.
+- The ONLY remaining `Bind` reference in `hir_build.ml` is `Bind.bind_program` (plus its
+  module alias): every other bind read moves behind `Semantic_env` (falsifier S5).
+- No HIR construct, diagnostic code, dump format, message text, refusal, or subset rule
+  changes. H01–H05 dumps and pinned stderr are byte-frozen (falsifier S2).
+- Known adjudicated drift (predicted, not forced): guards that ran DURING registration now
+  run in `env.create` BEFORE any subset projection — for a program carrying BOTH a nested
+  registry guard violation AND an outer-block out-of-subset type, the FIRST reported
+  diagnostic may differ. Both outcomes remain loud, rc 2, zero stdout; no P0/P1 fixture
+  combines two independent refusals (measured in §P1-b.4). Recorded here so a future
+  adjudication cannot be retro-fitted silently.
+
+### P1-b.4 Semantic-authority tests (brief Step 4)
+
+New fixtures (format law: CRLF + bare `^Z`; ids verified unused — `hir/fixtures` holds only
+H01..H05; no `H6`/`H06`/`H07` anywhere in `hir/`, `probes/`, `spec/INVENTORY.txt`):
+
+- **H06** unsupported declaration type: `dcl c char(3);` in main → `HIR-E02` quoting bind's
+  own rendering `CHAR(3)`, rc 2, zero stdout (pinned stderr + rc, data-driven negative form).
+- **H07** missing bind information: internal proc whose formal `q` has no explicit dcl →
+  `HIR-E03` "explicit formal dcl required in P0", rc 2, zero stdout (bind gives an
+  undeclared formal NO row — the typed missing-information channel, not an inference).
+- H01–H05 re-run UNCHANGED (same expected files, byte-compare).
+
+New in-repo semantic-authority test binary `ocaml/hir/semtest.ml` (executable in the
+`pli80_hir` directory, never in `ocaml/bin/`; links `pli80` + `pli80_hir` only — the P0 F1
+exe-dir law says extra stanzas in `ocaml/hir/` do not move `pli80c.exe`; re-verified S1):
+for each POSITIVE fixture it asserts, against the LIVE bind-produced env (never against dump
+text):
+1. every `Hir.sym` field equals the env symbol projection (sid/key/orig/scope/storage/line/type);
+2. every `Var sid` in a body resolves, from the REFERRING procedure's scope, through
+   `Semantic_env.resolve` to exactly that symbol — nearest-binding/shadowing is checked
+   against bind rows, not dump strings (H03: `g(x)`'s `sym(0)` must be the OUTER x;
+   inner x `sym(3)` must NOT be reachable by that reference);
+3. declaration order: env `esym`s of every block are in bind row order; sids ascend in the
+   documented pre-order;
+4. procedure/formal relationship: `Hir.proc.params` equals the sids of the block's formal
+   set resolved in the proc's own scope, in bind `sptrs` order; formal storage flag set;
+5. return type: `Hir.proc.ret` equals `type_of_rt` of the block's bind `pl_ret` rendering
+   agreement checked;
+6. parent/child: every env block's `eparent`/`enclosing` matches the AST nesting of the
+   fixture (checked from env data itself against the parsed AST shape);
+7. every `Call_e/Call_s` pid has a bind signature with arity = number of args (bind cells).
+Output contract: success prints ONE line `SEMANTIC-AUTHORITY OK <n> refs / <m> syms` rc 0;
+any violated invariant prints `SEM-FAIL …` lines to stderr, rc 1, zero stdout.
+Negative control (proves the checks are not vacuous): `--corrupt` runs a deliberate wrong-sid
+query and must print SEM-FAIL, never OK.
+`tools/hir_test.py` gains: run `semtest.exe` twice per positive fixture (determinism S7), rc
+must be 0; F10 grep (S5): after comment strip, `hir_build.ml` contains `Bind` only at the
+alias line and the single `bind_program` call; S8 grep: `semantic_env.ml` contains no `\bHir\b`
+reference (env independent of the IR) and passes the same F8 purity patterns.
+
+### P1-b.5 FIXED arithmetic typing audit (brief Step 5 — no change authorized)
+
+Measured state at `aaf295f0` (`hir_build.ml lower_arith_node` + `target.ml` + arch doc §4):
+- language-level proposed rule: `+`/`-` → `max(p1,p2)+1`, `*` → `p1+p2`, scale 0, carried as
+  the `typing` string `language-rule:max+1` / `language-rule:prec-sum`;
+- prototype normalization: result above `profile.max_fixed_precision` (15, Oracle_backed for
+  DECLARATIONS only, E1415..E1432) is CLAMPED to the ceiling and the node string names both
+  the rule and the clamp plus `DR intermediate typing unmeasured [TBD]` (P0 hop-2 amendment,
+  RESULTS §3.3);
+- oracle-backed historical behavior: NONE of the intermediate-typing fields is oracle-backed;
+  `Target.fixed_arithmetic_typing.value = None`, source `Language_rule …` (NOT promoted).
+The three layers stay strictly separated; P1-b changes NO typing code, NO rule strings, NO
+expected dumps. Any structural issue found during the migration is documented for a separate
+phase, not folded into this seam.
+
+### P1-b.6 Facts Bind does NOT expose (carried into RESULTS; each is a documented gap, never inferred)
+
+1. Parent/child procedure edges (flat `pl_procs`) — nesting shape read from the AST [O].
+2. Per-`BEGIN` scoping — bind merges BEGIN/DO declarations into the frame block (HIR-E11
+   refusal retained unchanged).
+3. Expression result typing (arch doc §1.3) — no bind function types an expression.
+4. Qualified/suffix use resolution — lives in codegen (`resolve_suffix`), out of env scope.
+5. INITIAL values, EXTERNAL static/varying descriptor detail, ON-unit facts (`pl_on` exists
+   in bind but is NOT projected by P1-b — documented exclusion).
+6. sid/scope/pid identity — an interface contract, not a bind fact.
+
+### P1-b.7 Falsification criteria (each a STOP-and-fix gate, mirroring §P0.8)
+
+- **S1** `pli80c.exe` sha256 stays `172595d5…` after EVERY build-touching step (fresh
+  `--build-dir` at close). Moved = attribute first-hand; never accept silently.
+- **S2** `hir/expected/*` files byte-UNCHANGED (git diff empty); H01–H05 pass unchanged.
+- **S3** full `python3 tools/e2e_gate.py` rc 0 with FROZEN counts 1328/1328, 190/190, 9/9,
+  coverage 149 rows 0/0, census 16/0/25/0, prose 5 → `build/gate-e54p1b-reg.log`.
+- **S4** `ocaml/lib/`, `ocaml/bin/`, `golden/`, `spec/` ledgers (claims 203 headers ending
+  C380, inventory, coverage, census), `probes/`, `artefacts/` untouched; ZERO oracle.
+- **S5** seam audit: post-migration `hir_build.ml` (comments stripped) references `Bind` only
+  via the alias + one `bind_program` call; `semantic_env.ml` is the only HIR-path reader of
+  bind layout fields.
+- **S6** semtest rc 0 on every positive fixture; `--corrupt` control FAILS loudly (tool not
+  vacuous).
+- **S7** every new binary output deterministic across two fresh processes.
+- **S8** `semantic_env.ml` free of F8 byte-layout vocabulary and of `\bHir\b`; no `Hir` type
+  in any public signature; no offset/cell-size/section/pool/reloc value crosses the seam.
+- **S9** ZERO oracle calls / no new claim / no coverage promotion.
+- **S10** every `SEM-FAIL`/`HIR-E*` diagnostic text and code produced by the migrated path
+  is byte-identical to the `aaf295f0` path for the same input (checked on all fixtures;
+  predicted order-drift case in §P1-b.3 stays loud and is recorded, not hidden).
+
+### P1-b.8 Work order (exact order)
+
+1. (this commit) §P1-b pre-registration.
+2. Implement `ocaml/hir/semantic_env.ml` + `dune` `(modules …)`; build rc 0; S1.
+3. Migrate `hir_build.ml`; build rc 0; S1; H01–H05 unchanged via hir_test (S2).
+4. Measure H06/H07 behaviour, write fixtures + pinned negatives; S6/S7.
+5. `semtest.ml` + `tools/hir_test.py` extension; full hir_test rc 0 (S2/S5/S6/S8).
+6. FULL gate rc 0 → `build/gate-e54p1b-reg.log` (S3); re-check S1 on a FRESH build dir.
+7. Close: RESULTS §P1-b (+ before/after dependency map + unexposed-fact list + P1-a
+   proposed order), arch doc update, durables + guard checkpoint. STOP — P1-a NOT started.
+
+### P1-b.9 Expected outcomes (pre-registered, falsified-not-forced)
+
+All frozen numbers stay frozen (S1/S3 — nothing the gate touches moves). H01–H05 byte-stable.
+Two new pinned negative fixtures. One new tested seam module. Zero historical bytes, zero
+oracle, ledger stays C380. Deviations (predicted): none in behaviour EXCEPT the §P1-b.3
+multi-refusal-order note; any further deviation is recorded VERBATIM, never forced away.
+
+### Dashboard update
+
+| slice | status | gate log | notes |
+|---|---|---|---|
+| P1-b | **OPEN 2026-11-08** (operator-authorized; §P1-b pre-registered this commit) | (close: `build/gate-e54p1b-reg.log`, FROZEN counts) | ZERO oracle; seam module `ocaml/hir/semantic_env.ml`; `ocaml/lib/`+`ocaml/bin/` byte-clean mandatory |
+

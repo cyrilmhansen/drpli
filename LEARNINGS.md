@@ -9804,3 +9804,31 @@ after the new files landed. Next session runs it at hop-2 step (4)-(5).
 **REAL DEFECT FOUND+FIXED (first-hand, new-code only): every `SYM … line=` was silently the BLOCK line and `name=` was the lowered key.** Cause: `find_dcl` consulted `blk.Ast.bdecls`, which is `[]` for corpus-shaped programs — the parser keeps declarations as `Sdcl` statements in `bstmts`; the historical law is recorded at codegen.ml:15729 ("iterating bdecls instead silently yields an empty list — exactly how E20C…" trap) and hop-2 did not connect it. Fix = reuse **`Bind.frame_decls : block -> (dcl * int) list`** (bind's OWN flattener; line = DECLARE-keyword statement line) per the §P0.4 semantic-reuse rule; witness `dcl Zz` → `SYM 0 name=Zz key=zz … line=2` (was `name=zz … line=1`).
 
 **OPEN review item at checkpoint:** `call` dump prints `arg N` and the argument expression at the SAME indent (`  arg %d` at pad vs dump_expr indent+1 — measured in H03/H04 outputs); adjudicate dumper shape in hir.ml (new file), regenerate ALL five dumps, finish line-by-line review, THEN commit fixtures+expected. Next steps unchanged per PROGRESS `## Next action`: hir_test.py (nested-comment stripper before F7/F8 greps; CLI path is now `_build/default/hir/pli80hir.exe` NOT bin/), backend.ml in ocaml/hir/ (+ modules field + F1 re-check), FULL gate frozen counts 1328/190/9/149/16-0-25-0/5 → `build/gate-e54p0-reg.log`, RESULTS + arch-doc + roadmap PROPOSED, durables+guard.
+
+## E2E-54/P1-b hop 1 — seam-design measurements (2026-11-08, session 01a1bcc7, ZERO oracle)
+
+- **ACCEPTED (verified first-hand in `bind.ml` at `aaf295f0`):** `pl_ptrs` is
+  `List.mapi (fun i f -> (f, base + 2*i)) formals` (`bind.ml:2557`) with `formals =
+  List.map pl_l bparams` — formal NAMES in formal ORDER are bind-produced; only the cell
+  OFFSET must be dropped at the semantic seam. `pl_exts` = top-block `RTentry` rows projected
+  (params, external_, ret, ptypes) — a real signature source for later ENTRY support.
+  `bind_rows` row shape `(lower name, rt, offset, auto)`; `Bind.bind_rows` = second-view of
+  the ONE `layout` walk (bind.ml:1577); `frame_decls` flattens DO/BEGIN/IF bodies but NOT
+  nested procs. `pl_procs` is FLAT — no parent/child edge (hop-1 law re-confirmed).
+- **ACCEPTED (audit law):** `Hir_build` contains NO class-[D] duplicate resolution — the P1-b
+  honest framing is "remove table RECONSTRUCTION, not a second resolver". `String.lowercase_ascii`
+  applied to an already-`pl_l` list in `register_block` is a harmless redundancy, removed in
+  migration (behaviour identical).
+- **PROPOSED (design, to be proved by S2–S10):** carrying `epr = Bind.rty_str` verbatim on every
+  env symbol keeps type-naming diagnostics byte-identical across the seam without letting
+  `Bind.rt` leak into the public interface; the `stype` projection drops RTimem/RTbmem offsets
+  and RTstructrec extent (F8-safe).
+- **ACCEPTED (tooling lesson, self-caught):** appending a long section to a committed doc with a
+  trailing heredoc copied stale source prose (a P0 RESULTS header) INTO the file — the fix
+  commit must re-`tail` the appended region; write targeted sections, never bulk-copy text you
+  did not just author.
+- **PENDING QUESTIONS (unresolved, successor answers by measurement, never fit):** H06 char dcl —
+  does the refusal really come from registration e_type (message quotes bind `CHAR(3)`), or does
+  bind/codegen-irrelevant machinery die first? H07 undeclared formal — confirm HIR-E03 site is
+  `params_of` post-migration. Multi-refusal order drift (§P1-b.3) — record actual first
+  diagnostic if ever exercised.
