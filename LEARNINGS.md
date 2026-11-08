@@ -9245,3 +9245,117 @@ SUPERSEDED-BY-ABOVE: ## P3-13 Phase A IN FLIGHT (session 01a1b1d9, chain 01a1b1b
 - **accepted (ids/paths)** — `E526*` + tag `e53p2` VERIFIED UNUSED again this session (grep tools/spec/probes/golden/oracle: zero hits outside forward prose). `probes/E526A..G.PLI` written (CRLF + bare `^Z`, endings `3b0d 0a1a` == E525 house form); UNARMED sanity2: 7/7 rc=2 at the bind guard, zero `.REL`.
 - **PRE-REGISTERED + COMMITTED BEFORE any oracle/`ocaml/lib/` byte** — PLAN §P2 §P2.1–§P2.5 (`spec/lab-evidence/e2e53/PLAN.md`): blockers VERBATIM, sanity table, H-A..H-G each with falsifiers, arm plan (3 edit sites), validation/registration contract (B1 blockers MUST NOT move — a move = leaked arm, revert).
 - **successor contract (BINDING)** — campaign steps (4)-(6) of PROGRESS.md `## Next action`: (4) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E526A E526B E526C E526D E526E E526F E526G --tag e53p2 --switches '$L$D'` rc DIRECT; EVERY `.PRN` NO ERROR(S) BOTH passes; commit `golden/e53p2/` VERBATIM (NOT `dir.txt`) BEFORE any arm byte. (5) decode FIRST-HAND via `build/p3-13/p13dump.py` explicit HEX ranges into `build/e53p2/decode/` (laws: ext/addr slots HEX; CALL slot = opcode+1); adjudicate H-A..H-G; arm measured ONLY per PLAN §P2.4; probe parity whole-file `cmp` FRESH POSITIONAL; corpus rerun DEPREC/LABELS/MPMCALLA/OPTIMIST/EXPR1/REPORT/COPYLPT UNMODIFIED, blockers VERBATIM (the four MUST stay `0-byte`/`9-byte [C159]`). (6) tail (fingerprint fresh `--build-dir` grep `Error`; hist re-count baseline codegen 68/total 124 but COMPUTE; sweep FAILS 0 count COMPUTED vs 194/0 + 7; markers argv incl 16 P1 markers, N6/N45_GETSUB/E46K15 survive; DEC 64/0; divcheck 9/9) → REAL `--update-inventory` OWN output (baseline 1316/190, +7 expected) → census OWN path (`--check spec/census/corpus-census.json`, expect 16/0/25/0, never force) → **C379 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** → coverage FIRST-HAND (row 7 `AGG.ARRAY_1D_FIXED` EXTEND vs NEW `AGG.ARRAY_1D_STRIDED` + `spec/COVERAGE-IDS.txt` explicit; NEVER coverage_gen.py; coverage_check 145/0/0 or +1 row by adjudication) → FULL gate rc=0 DIRECT `build/gate-e53p2-reg.log` → RESULTS §P2 + PLAN §4 row (7 unescaped-pipe assert RUN IN CODE) + §P2 CLOSED → durables + guard blocks VERBATIM.
+
+## E2E-53/P2 hop 2 — CAMPAIGN e53p2 LANDED 7/7 DR-ACCEPTED + GOLDENS COMMITTED `d55ec7b5` + FULL FIRST-HAND DECODE + H-A..H-G VERDICTS; ARM OWED (2026-11-08, session 01a1b875, chain renewal 5/12; oracle ran ONCE for the pre-registered campaign; ZERO `ocaml/lib/` byte this hop; goldens NEVER re-derived; config NEVER staged; no push; rc DIRECT; byte-tier)
+
+**ACCEPTED (verified first-hand this hop).**
+
+Campaign (EXACTLY as pre-registered in PLAN §P2.5): `PLI_SRC=probes timeout 900 python3
+oracle/batch.py E526A E526B E526C E526D E526E E526F E526G --tag e53p2 --switches '$L$D'` rc=0,
+**7 ok/7**, every `.PRN` carries `NO ERROR(S) IN PASS 1` + `NO ERROR(S) IN PASS 2` (grep-verified
+per file; zero other error/severe/warning lines). Goldens committed VERBATIM `d55ec7b5` BEFORE any
+arm byte (17 files: 7 `.REL` + 7 `.PRN` + summary + 2 transcripts; `dir.txt` NEVER staged). REL
+sizes/sha256: A 128 `0bf4cdba…`, B 256 `7098c708…`, C 256 `8afd6f04…`, D 128 `db5ccbe2…`,
+E 256 `40815cb7…`, F 128 `4a697f5c…`, G 256 `e7e5f7a9…`. Decode into `build/e53p2/decode/`
+(`sizes.txt`, `code.txt`, `reldump.txt`) with `build/p3-13/p13dump.py` EXPLICIT HEX ranges +
+`tools/reldump.py` record stream — every byte below re-read from those two files.
+
+**THE FIVE NEW DR LAWS (all first-hand; CALL slot = opcode+1):**
+
+1. **Stride 1 = NO scaling AT ALL.** E526C read (bias≠0, lb=1): `21 FF FF(RELOC data -1) / E5 /
+   2A 04 00(LHLD i) / D1 / 19(DAD D) / 7E(MOV A,M)` — the `DAD H` doubling of [C172] is simply
+   ABSENT, no `?IM22N`. E526G (bias=0, lb=0): `2A 04 00 / 11 00 00(RELOC data base) / 19 / 7E` —
+   the bias-0 7-byte form minus the doubling. **H-A/H-C/H-G multiply predictions FALSIFIED** (see
+   below); store E526D = same ladder + `36 04 (MVI M,4)`.
+2. **Byte→word SIGN-EXTEND ladder `6F 87 9F 67`** = `MOV L,A / ADD A / SBB A / MOV H,A` (L = the
+   byte; `ADD A` sets CY from bit 7; `SBB A` gives 00/FF; H = that) — appears after EVERY 1-byte
+   element read: E526B const `3A 01 00(LDA *D(a+1)) / 6F 87 9F 67 / 22 04 00(SHLD b)`, E526B/C/G
+   PUT items, E526C/G computed reads. E526B DEF-DATA-SIZE 0006 = a(4)×1 + b×2 → **the array occupies
+   its `nelem × elem_sz` bytes and the next scalar lands directly above it, exactly [C159]'s sizing
+   law at stride 1.**
+3. **1-byte STORES split by offset, mirroring [C159]'s 2-byte split:** offset 0 → `3E 03 / 32 <RELOC
+   data 0000>` (`MVI A,val / STA abs`) [E526A]; offset ≠ 0 → `21 <RELOC data 0002> / 36 05`
+   (`LXI H,*D / MVI M,val`) [E526A]. NO `INX H / MVI M,hi` half of the 2-byte pair form.
+4. **Stride 3 (char(3) array) variable subscript = the OPTIMIST IM22N ladder VERBATIM with operand
+   `0003`** [E526F]: `21 FF FF / E5 / 2A 0B 00 / 11 03 00 / CD <?IM22N> / D1 / 19` then the store
+   tail. Bias `0xFFFF` = `base(0002) − lb(1)×esz(3)` ✓ [C172] formula holds at both strides.
+5. **char(3) ELEMENT store/read ride the scalar encoders with the ELEMENT address** — E526E store
+   `21 <RELOC data 0002> / 11 <RELOC data 0000> / 3E 03(cap) / 06 02(len) / CD <?SMCCM>`; E526E PUT
+   item `21 <RELOC data 0005> / 3E 03 / CD <?SLCTS> / CD <?PNCOP> / CD <?QIOOP>`. DATA: pool literal
+   `41 42` FIRST at 0000-0001, array cells 0002-000A (d(2)=0005 ✓ = base+(2−1)×3), E526F adds `i` at
+   000B (DEF-DATA-SIZE 000D) — the prescan char-store demand is already class-independent so no
+   prescan edit is needed.
+
+**§P2.3 VERDICT TABLE.** H-A **CONFIRMED with the predicted `MVI M` form** (and DR chose `STA abs`
+at offset 0, the other predicted family — both predictions were listed, so nothing is fitted
+retroactively). H-B **CONFIRMED** (folded `LDA abs`-class load, no ladder; the sign-extend ladder
+is NEW knowledge). H-C **PARTLY FALSIFIED**: predicted `LXI DE,0001 / CALL ?IM22N` inside the ladder
+— DR emits **no multiply and no DE pair** at stride 1. H-D **CONFIRMED tail / FALSIFIED ladder
+prediction** (`MVI M,val`; ladder as in H-C). H-E **CONFIRMED** (`?SMCCM` with element destination,
+`?SLCTS + MVI A,03` + `?PNCOP` for the read). H-F **CONFIRMED VERBATIM** with `LXI DE,0003`.
+H-G **PARTLY FALSIFIED**: bias-0 form structure confirmed, the substituted multiply is NOT emitted.
+Zero §4-style misses; campaign ran once, as pre-registered.
+
+**ACCEPTED — implementation reconnaissance (zero `ocaml/` byte, all read first-hand this hop).**
+- `Bind` rows carry the ELEMENT type under the array's own name (`bind.ml:1091 rows := (name, rt,
+  o, …)`), so codegen's `st.vars` entry for `a` is `{size=1; vk=Vint; w=binw 7}` — `binw 7 = 7`,
+  i.e. **`num_width`/the numeric PUT-item arm already produce DR's `MVI A,07` for a `fixed bin(7)`
+  element with NO change** (same route RD1 uses for 2-byte elements).
+- `store_char` (`codegen.ml:5900`) already takes `?(dst : (unit -> unit) option)` — the V106/C321
+  `?SMCCM` tail is shared, so a char ELEMENT destination is `~dst:(fun () -> LXI H,*D(elem))` or
+  `~dst:(fun () -> dyn_addr …)`; no second encoder (C179 rule).
+- The `PInum` PUT-item arm (`~13290`) ALREADY re-dispatches a character class from the binder's
+  `vk_of` (`vbvar_item` precedent), so the `put list(d(2))` item lands there with `tail true ()`
+  giving `?SLCTS / ?PNCOP / ?QIOOP` — the measured bytes.
+- `dyn_ref` (`~985`) has no stride field; `resolve_suffix` builds `dyn_bias = −lb × ez`, so the arm
+  needs `dyn_esz` added and threaded (one constructor, ~4 sites).
+
+**PROPOSED (the arm, per PLAN §P2.4 — successor executes, NOTHING armed yet).**
+1. `bind.ml ~1046`: allow the **rt FORM**, not just the size: `RTbin 7 → elem_sz 1` and
+   `RTchar (3, false) → elem_sz 3`; everything else keeps the EXISTING refusal. Critical trap
+   recorded here so the successor does not repeat my analysis error: `RTchar (2, true)` (VARYING
+   char(2)) ALSO sizes to `1+2 = 3` — testing `elem_sz = 3` alone would silently arm the
+   static-varying descriptor class the scope decision refuses BY NAME and could move OPTIMIST.
+   The existing message string stays BYTE-IDENTICAL (the census pins DEPREC `0-byte`/OPTIMIST
+   `9-byte [C159]` texts INCLUDING the parenthetical); its parenthetical is now dated — record that
+   in C379 rather than editing the text.
+2. `dyn_addr`: dispatch on `dyn_esz` — `2` = existing [C172] paths untouched; `1` = no doubling
+   (bias≠0 `LXI H,*D/PUSH H/LHLD/POP D/DAD D`, bias=0 `LHLD/LXI D,*D/DAD D`); `3` = the measured
+   bias≠0 IM22N form only; `dyn_adj ≠ 0` at strides 1 and 3 REFUSES (the `i+1` ladder is measured
+   ONLY at stride 2), bias=0 at stride 3 REFUSES, every other stride REFUSES.
+3. Element read (`lower_hl ~4562`): `ez=2` untouched; `ez=1` const → `LDA *D(addr)` + `6F 87 9F 67`;
+   `ez=1` dyn → ladder + `7E` + `6F 87 9F 67`; anything else (e.g. char element as a numeric value)
+   keeps refusing.
+4. Element store (`~10838`): `ez=2` untouched (legacy falsifier); `ez=1` literal → offset 0
+   `MVI A,v / STA`, offset ≠ 0 `LXI H,*D / MVI M,v`, dyn → ladder + `MVI M,v`, literals **armed only
+   for `0 ≤ v ≤ 127`** (the signed `bin(7)` range the campaign pinned; negatives and >127 are two's-
+   complement/truncation behaviour DR never emitted in a 1-byte cell here — refuse, never extrapolate);
+   computed-value and self-update stores at ez≠2 REFUSE. `ez=3` string literal → `store_char ~dst`,
+   char store `len = cap` and `len = 0` keep their existing refusals (SNS3).
+5. PUT item: add the char-element re-dispatch in the `PInum` arm mirroring `vbvar_item`.
+
+**SUCCESSOR CONTRACT (BINDING; execute in EXACT order).**
+(a) Implement per the PROPOSED list above; `cd ocaml && eval "$(opam env)" && dune build` rc=0 with
+ZERO `Error` lines. (b) Parity: FRESH POSITIONAL `pli80c.exe probes/E526X.PLI build/e53p2/arm-out/
+E526X.REL` (NO `-o`) for A..G — whole-file `cmp` vs `golden/e53p2/` is the verdict, 7/7 rc=0; ANY
+mismatch ⇒ do NOT widen the arm by fitting bytes, record and stop. (c) Legacy falsifiers: SNS4 +
+the four B1 corpus users DEPREC/LABELS/MPMCALLA/OPTIMIST + EXPR1/REPORT/COPYLPT rerun UNMODIFIED —
+the four MUST still say `array of 0-byte elements [C159]` / `array of 9-byte elements [C159]`; if
+any moves, the arm LEAKED — revert, do not celebrate. (d) Tail: fingerprint determinism default ==
+fresh `--build-dir` + grep `Error`; histogram codegen 68 / total 124 COMPUTED; sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 with count COMPUTED vs the 194/0
+baseline + 7; markers argv (the 16 P1 names + `N6`, `N45_GETSUB`, `E46K15` must survive); DEC 64/0;
+divcheck 9/9. (e) REAL `python3 tools/e2e_gate.py --update-inventory` adjudicated by its OWN output
+(baseline 1316/190, +7 expected) then census OWN path `python3 tools/corpus_census.py --check
+spec/census/corpus-census.json` (expect 16/0/25/0). (f) **C379 measured-bytes-only BEFORE ANY
+`spec/COVERAGE.tsv` touch** — reproduce every cited byte first-hand from `build/e53p2/decode/`
+(P3-16 lesson: never carry a label). (g) Coverage FIRST-HAND: adjudicate EXTEND row 7
+`AGG.ARRAY_1D_FIXED` (DATED stride-generalization clause) vs a NEW `AGG.ARRAY_1D_STRIDED` row +
+explicit `spec/COVERAGE-IDS.txt` entry; NEVER `coverage_gen.py`; `coverage_check` + prose rc=0.
+(h) FULL gate rc=0 DIRECT → `build/gate-e53p2-reg.log`; (i) `spec/lab-evidence/e2e53/RESULTS.md`
+§P2 + PLAN §4 dashboard row (7-unescaped-pipe assert RUN IN CODE, escape raw `|` in code spans,
+LINE-anchor the insert) + §P2 heading CLOSED; (j) durables + guard blocks VERBATIM.
+Standing constraints per PROTOCOL Part 2 anchor (POSITIONAL `pli80c.exe IN OUT` NO `-o`; `eval
+"$(opam env)"` EVERY shell; rc DIRECT; never glue `rm`; never parallelize dependent bash; byte-tier;
+`build/`+`ocaml/_build-*`+`ocaml/scratch-*` NEVER staged; `handoff.config.json` NEVER staged; no
+push; ledger ENDS C378, next id C379; the `nelem=1` crash stays RECORDED-not-fixed, out of P2).
