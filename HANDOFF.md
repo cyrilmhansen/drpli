@@ -1688,23 +1688,23 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 577
-checkpoint-id: g577-7d9670bd541f
+checkpoint-generation: 578
+checkpoint-id: g578-508050d814a6
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 2, remaining ~9125, session 01a1b8dd-8beb-7516-b7cf-3b0258b67bc4)
-checkpointed: 2026-11-08T02:21:26.875Z
+status: checkpoint (guard level 2, remaining ~8968, session 01a1b8f6-53de-7516-b7cf-3b06fea94e75)
+checkpointed: 2026-11-08T02:49:19.781Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9de266a55185ec60c8921944e3dcee76fc881d4cf73dd47406e26518e5cc3691
+source-progress: 04a4527898abb9515d36c01a36d868e69d0dda772e9cdee6f319be43e48583ec
 source-handoff: 34c2e593fd2cb7ad901a472ac34ff1fd3a98b446d01a0230d7a0b2e10d68ac59
-source-learnings: a4e3060e332252f4ee9605abf40439a3f2d511f2e1572e190050a9f8927300d5
+source-learnings: b275a5b5a89bbf23c70a28700913329a9845f157d8f2c497a8325e819ffed5c3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1b8dd-8beb-7516-b7cf-3b0258b67bc4
-readiness-at: 2026-11-08T02:21:26.905Z
-readiness-checkpoint: g577-7d9670bd541f
+readiness-by: session:01a1b8f6-53de-7516-b7cf-3b06fea94e75
+readiness-at: 2026-11-08T02:49:19.827Z
+readiness-checkpoint: g578-508050d814a6
 ### Last verified state
 guard level 2; checkpoint requested (renewal tool refresh)
 
@@ -2399,5 +2399,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-53/P3 hop 2 DONE: matrix re-ranked, PLAN §6 P3 pre-registered c02aa9ee BEFORE oracle; campaign e53p3 5 ok (A/C/D/E/G) + 3 dr-refuses (B/H TYPES NOT= scalar-entry both dirs FALSIFY H-A/H-B; F ARG COUNT falsifies H-F); goldens VERBATIM 6b3dbef4; first-hand decode LANDED (backward=plain-RELOC LXI H/SHLD; forward array-cell=SELF-ADDRESS pair 21/11/73/23/72; forward scalar=CHAIN-ADDR SHLD; computed goto=LHLD/E9 PCHL; label-var actual descriptor LXI H,*A(cell)/CALL + formal LHLD/E9; stride-2 ladder EXISTING law; 2-byte cells decl order). SUCCESSOR (BINDING = PROGRESS.md ## Next action): ARM bind+codegen measured forms ONLY (bind sizing label/entry arrays elem=2 + scalar label VAR cells; store-source resolution; backward/forward operand classes; const+dyn subscripts; Sgoto label-var PCHL — N6 MUST keep refusing; label-var actual descriptor), parity 5/5 FRESH POSITIONAL cmp, falsifiers (SNS4/sweep byte-identical, OPTIMIST 9-byte UNMOVED, DEPREC/LABELS/MPMCALLA move past bind to NEW VERBATIM refusal never suddenly EXACT, B/F/H keep refusing), tail (hist 68/124, sweep 194/0+5 COMPUTED, markers 19, DEC 64/0, divcheck 9/9) -> inventory OWN (1323/190 +5) -> census OWN -> C380 measured-bytes-only BEFORE COVERAGE -> coverage FIRST-HAND (row 101 TRAN.COMPUTED_GOTO adjudication + NEW entry/label rows, COVERAGE-IDS explicit, NEVER coverage_gen) -> gate build/gate-e53p3-reg.log rc=0 -> RESULTS §P3 + PLAN §4 row + CLOSED -> durables. Chain will be 11/12 of cap 12: if another switch is needed, finalize at cap and STOP for operator chain reset. Never stage handoff.config.json; no push; goldens NEVER re-derived; dir.txt NEVER staged.
+E2E-53/P3 hop 3 DONE: g577 blocks VERBATIM f6e8ec41; all 5 goldens re-decoded FIRST-HAND with NEW E527D/E/G reldump dumps; hop-2 wording FALSIFIED twice (forward array-cell value = label PAD address via CHAIN-ADDR, NOT self-address; E527E ladder bias = 21+RELOC data 0 while 0006 LXI H,0002 is i=2). Exact arm blueprint + pad-demand class (pad+SP-save ONLY where a label VALUE is materialized; E527E has neither) + E527G hidden-descriptor bytes + full arm-site map in LEARNINGS § E2E-53/P3 hop 3; BINDING contract in PROGRESS ## Next action. SUCCESSOR (hop 4, CAP SESSION 12/12, NO renewals left): read LEARNINGS hop 3 § + build/e53p3/decode/* VERBATIM FIRST; arm ONLY measured forms in ocaml/lib/{bind,codegen}.ml (bind bytes_of + sizing allow-list ADD RTlabel|RTentry with elem_sz forced 2, keep [C159] strings byte-identical and STATIC [C159/AB5] refusal ahead; extend pad machinery emit_sp_save/emit_pad/label_def/fwd_ref + bind on_facts for value-materialization demand; stores scalar LXI H value+SHLD vs array-cell pair 21/11/73/23/72, backward=PLAIN RELOC code, forward=CHAIN-ADDR to pad; stride-2 dyn ladder EXISTING law incl bias-word data-reloc; computed goto scalar 2A/E9 and element ladder+5E 23 56 EB/E9 — N6 keeps refusing, forward-DYNAMIC store pair UNMEASURED refuse; label-var actual hidden-cell descriptor + callee deref per LEARNINGS); parity 5/5 FRESH POSITIONAL cmp build/e53p3/arm-out/; falsifiers SNS4/sweep byte-identical, OPTIMIST 9-byte UNMOVED, DEPREC/LABELS/MPMCALLA move past bind to NEW VERBATIM refusal never suddenly EXACT, B/F/H keep refusing, nelem=1 crash unchanged; tail hist 68/124, sweep 194/0+5 COMPUTED, markers argv 19 incl N6, DEC 64/0, divcheck 9/9, fingerprint fresh --build-dir; inventory OWN 1323/190+5; census OWN; C380 measured-bytes-only BEFORE COVERAGE; coverage FIRST-HAND row 101 TRAN.COMPUTED_GOTO adjudication + NEW entry/label rows, COVERAGE-IDS explicit, NEVER coverage_gen; gate build/gate-e53p3-reg.log rc=0; RESULTS §P3 + PLAN §4 row + CLOSED. IF THE CLOSE CANNOT LAND THIS SESSION: commit durables, handoff_finalize, STOP and request operator chain reset — the cap is exhausted. Never stage handoff.config.json; goldens NEVER re-derived; dir.txt NEVER staged; no push.
 <!-- guard:end checkpoint -->
