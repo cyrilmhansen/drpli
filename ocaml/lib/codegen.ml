@@ -1065,6 +1065,17 @@ let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
                             ("codegen: [TBD] array subscript '" ^ t
                              ^ "' is not a decimal literal [C159]"))
                  | Ast.Eident h ->
+                     (* [E2E-53/P4 (j)] hop-14 witnesses SNSL23/24 (`y = arr(x)',
+                        `arr(x) = 1'): the stride ladder would load the LABEL cell's CODE
+                        address as an index and produce an rc=0 object.  No DR sample uses
+                        a label value as an array subscript. *)
+                     (match List.assoc_opt (String.lowercase_ascii h.Ast.orig) st.vars with
+                      | Some { vk = Vlbl; _ } ->
+                          failwith
+                            ("codegen: array subscript is a LABEL variable [TBD] (no DR object \
+                             indexes an array with a label value; the ladder is pinned for \
+                             numeric index variables)")
+                      | _ -> ());
                      (* simple variable index: `a(i)' [AB2 AB10 VB1 VB2] *)
                      Suf_element_dyn
                        { dyn_base = addr_of_raw st name; dyn_bias = -lb * ez;
@@ -5148,6 +5159,25 @@ let rec lower_hl st (e : Ast.expr) =
                              let vn =
                                String.lowercase_ascii v.Ast.orig
                              in
+                             (* [E2E-53/P4 (h)+(i)] a bare-Eident LABEL actual rides the
+                                by-reference descriptor to ANY formal today (hop-14 witnesses
+                                SNSL22 `call sub(x)' to a fixed formal, SNSL32 `call q(x)' to
+                                a pointer formal -- both produced rc=0 objects).  The ONLY
+                                measured pair is E527G: label actual against a LABEL formal.
+                                An EXTERNAL entry never receives a label in any golden. *)
+                             (match List.assoc_opt vn st.vars with
+                              | Some { vk = Vlbl; _ } ->
+                                  (match ext, formal_rt_at i with
+                                   | None, Some Bind.RTlabel -> ()
+                                   | _ ->
+                                       failwith
+                                         (Printf.sprintf
+                             "codegen: passing the LABEL variable %s as a call argument is \
+                              unsampled [TBD] (E527G measures a label actual ONLY against a \
+                              label formal; fixed/pointer formals and EXTERNAL entries have \
+                              no DR object) (line %d)"
+                             v.Ast.orig arg.Ast.epos.Source.line))
+                              | _ -> ());
                              if List.mem vn st.deref then begin
                                (* [E2E-11 step 3c, E27B] forwarding a pointer
                                   formal as an actual: DR writes the descriptor
@@ -6093,6 +6123,14 @@ let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : st
      encoder, or the two copies drift [C179/C189]. *)
   (match dst with Some f -> f () | None -> (d st op_lxi_h; reloc st Data (addr_of st name)));
   match k with
+  | Vlbl ->
+      (* [E2E-53/P4 (d)] hop-14 witness SNSL5 (`x = 'abc';'): the inner match here is a
+         PRE-EXISTING partial match newly reachable for Vlbl -- a character store into a
+         2-byte CODE-address cell has no DR object.  Refuse loudly; the other missing kinds
+         of this partial are OUT of label scope and stay as-is. *)
+      failwith
+        ("codegen: character store into a LABEL cell is unsampled [TBD] (E527 measures only "
+         ^ "label-value stores; a ?SMCVM/?SMCCM string never lands in a label cell)")
   | Vvar cap | Vbvar (_, _, cap) as kk ->
       (* Fail-loud: a based member has NO cell of its own, so the default destination address
          source (`LXI H,<cell>') would silently address whatever the member offset happens to look
@@ -7079,6 +7117,10 @@ let vk_name (vk : vkind) : string =
   | Vdec (p, s) -> "dec(" ^ string_of_int p ^ "," ^ string_of_int s ^ ")"
   | Vflt -> "float" | Vbit1 -> "bit(1)"
   | Vptr -> "pointer"
+  (* [E2E-53/P4 (a)] Vlbl was the ONLY vkind missing here (the hop-13 W8 at 7076): every
+     refusal that prints the operand kind via vk_name CRASHED instead of refusing loudly for
+     a LABEL variable (SNSL3/SNSL27 `f = 1.0 + x'/`f = x').  Naming is total now. *)
+  | Vlbl -> "label"
   | Vbased p -> "based(" ^ p ^ ")"
   | Vbfix (p, k) -> "based-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
   | Vbptr (p, k) -> "based-pointer-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
@@ -7575,6 +7617,15 @@ let op_ana_b = 0xa0
  E32C1 (LOCAL = 0 -> still LXI H, byte-exact before and after this change). *)
 let val_addr st (nm : string) () =
   let ln = String.lowercase_ascii nm in
+  (* [E2E-53/P4 (e)] size-based, kind-blind read: a LABEL cell would load as an integer with
+     NO DR sample for reading a label value out of its cell (the armed E527 forms never do).
+     Consult the row via List.assoc_opt so NO other name gains a new failure mode. *)
+  (match List.assoc_opt ln st.vars with
+   | Some { vk = Vlbl; _ } ->
+       failwith
+         ("codegen: reading a LABEL variable by value is unsampled [TBD] (no DR object reads "
+          ^ "a label cell as an operand; E527 measures only store/goto/call-use)")
+   | _ -> ());
   if List.mem ln st.deref then d st op_lhld else d st op_lxi_h;
   reloc st Data (addr_of st nm)
 
@@ -8009,6 +8060,14 @@ let tail_exits_stmt (s : Ast.stmt) =
    reached from conditions where the operand name has already been resolved. *)
 let cmp_load_deref st (nm : string) =
   let li = String.lowercase_ascii nm in
+  (* [E2E-53/P4 (f)] hop-14 witness SNSL21 (`if x > 3' produced an rc=0 object): the compare
+     ladder is size-based and kind-blind.  No DR sample compares a label value. *)
+  (match List.assoc_opt li st.vars with
+   | Some { vk = Vlbl; _ } ->
+       failwith
+         ("codegen: comparing a LABEL variable is unsampled [TBD] (no DR golden tests a "
+          ^ "label cell against an operand; the compare ladder is pinned for numeric kinds only)")
+   | _ -> ());
   match (if List.mem li st.deref then `formal
          else match List.assoc_opt li st.vars with
               | Some { vk = Vbfix (cell, k); imem = None } -> `based (cell, k)
@@ -10611,6 +10670,15 @@ statement form IS implemented; this expression form is not.)")
       if not (dec_pure st rhs) then
         failwith
           "codegen: mixed decimal/integer arithmetic unproven [TBD]            (the DEC->INT conversion is pinned only for a direct decimal             operand: i = d [R506])";
+      if vi.vk = Vlbl then
+        (* [E2E-53/P4 (g)] hop-14 witness SNSL14 (`x = d' produced an rc=0 object): the
+           ?DLDOP/?QDI15 ladder would overwrite the 2-byte CODE address with a converted
+           decimal.  E527A/C pin ONLY the direct label-value store; a DEC->INT store into a
+           label cell has NO sample. *)
+        failwith
+          "codegen: DEC->INT conversion store into a LABEL cell is unsampled [TBD] \
+           (R506 pins the decimal-to-fixed conversion for numeric targets only; E527 measures \
+           direct label-value stores, never a converted decimal write)";
       if vi.size <> 2 then
         failwith
           "codegen: DEC->INT store into a 1-byte FIXED target [TBD] \
@@ -13449,6 +13517,15 @@ let lower_put_items_gen st ?(file : string option = None)
                failwith
                  ("codegen: PUT LIST of a POINTER variable is unsampled [TBD] (P019A/P086M never "
                   ^ "print a pointer value; DR has no sample for outputting an address)")
+           | Vlbl ->
+               (* [E2E-53/P4 (c)] the INNER kind match below is a pre-existing partial match
+                  (hop-14 witness: SNSL4/17/25 `put list/edit/skip list(x)' died with
+                  `Pattern matching failed' at 13455).  No DR object puts a LABEL value through
+                  any item route -- LIST, EDIT or skip -- so refuse at the OUTER dispatch. *)
+               failwith
+                 ("codegen: PUT of a LABEL value is unsampled [TBD] (no DR golden prints a "
+                  ^ "label variable through a LIST, EDIT or skip item; E527 measures only "
+                  ^ "store/goto/call-use of a label cell)")
            | vk ->
                (* single-item char var = the banked V101/V106 chain *)
                let bit_item = match vk with Vbit1 -> true | _ -> false in
@@ -14786,7 +14863,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
      is pinned by the N6_COMPUTED_GOTO negative marker, and the final catch is kept VERBATIM
      because E527F (DR refuses `goto c(i)' on an implicit distinct-value array with `ARG COUNT')
      must keep dying with exactly this text. *)
-  | Ast.Sgoto { tgt; subscript = [ ({ Ast.e = Ast.Eident idx; _ } as sidx) ] }
+  | Ast.Sgoto { tgt; subscript = [ ({ Ast.e = Ast.Eident _idx; _ } as sidx) ] }
     when
       let a = String.lowercase_ascii tgt.Ast.orig in
       List.mem a st.lbl_arrs
