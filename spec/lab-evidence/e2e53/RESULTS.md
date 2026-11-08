@@ -124,3 +124,97 @@ contract's 145/95 reflected the EXTEND option, the count moves BY ADJUDICATION a
 FULL gate **rc=0 DIRECT** `build/gate-e53p2-reg.log`: 1323/0 byte-exact, 190/190 NEG, 9/9 DIV,
 146 rows, census 16/0/25/0, prose 5 — every number hit. BYTE TIER ONLY; `nelem=1` crash remains
 RECORDED, not fixed; zero corpus programs advanced.
+
+## §P3 — entry/label VALUE class (LABELS/DEPREC/MPMCALLA family) — **CLOSED** (2026-11-09, sessions 01a1b8dd hops 1-2 / 01a1b8f6 hop 3 / 01a1b90f hop 4 / 01a1b9b1-01a1ba02 hops 5-9 / 01a1ba17 hop 10 / 01a1ba2f hops 11-12 / this successor hop 13; campaign `e53p3`)
+
+**Scope delivered.** The label/entry VALUE class measured by PLAN §P3: a LABEL variable's cell is a
+2-byte word holding **the address of its label's recovery PAD**; storing one is
+`LXI H,<code> / SHLD *D(cell)` at a scalar or element-offset-0 target and
+`LXI H,*D(elem) / LXI D,<code> / MOV M,E / INX H / MOV M,D` at any other element, the code operand a
+PLAIN `RELOC code` backward and a `LINK-CHAIN-ADDR` into the operand slot forward (**NO** JMP opcode);
+reading one is `LHLD *D(cell)`, plus one deref `5E 23 56 EB` for a POINTER-formal cell, then `E9 (PCHL)`;
+`goto z(i)` on a label array is the existing stride-2 ladder (bias `-lb*2` carried as a DATA reloc even
+when the operand reads `0000`) plus the deref plus `E9`. DR demands the saved-SP cell and the pads ONLY
+for labels whose VALUE is materialised — a program that merely reads its cells gets neither.
+**Goal A payoff is ZERO**: no corpus program advanced to EXACT. Three blockers MOVED and all landed in
+new refusals (`[C159/AB5]` for DEPREC/MPMCALLA, exactly as CORRECTION-1 predicted;
+`char store from non-literal [TBD]` for LABELS); OPTIMIST's `9-byte [C159]` never moved.
+
+**Campaign.** ONE pre-registered oracle run `E527A..H --tag e53p3 --switches '$L$D'` rc=0 —
+**5 ok / 3 dr-refuses**; every accepted `.PRN` `NO ERROR(S)` BOTH passes; goldens committed VERBATIM
+`6b3dbef4` BEFORE any `ocaml/lib/` arm byte (`dir.txt` never staged).
+
+**H-verdicts (first-hand `build/e53p3/decode/`, hops 2-4; falsified predictions KEPT, never fitted).**
+H-A **FALSIFIED** and H-B **FALSIFIED** — scalar ENTRY stores are DR-REFUSED in BOTH directions
+(`E527B`/`E527H`: pass 1 clean, `TYPES NOT=  ?`, 2 ERROR(S) pass 2, no `.REL`); the DEPREC W1 store is an
+ARRAY cell, and scalar entry/label cells stay UNMEASURED. H-F **FALSIFIED** — `goto c(i)` on an IMPLICIT
+distinct-value label array is `ARG COUNT   ?`; the LABELS witness rides only the shared-`?RECOV`-stub
+collapse, nothing is armed on F's authority. H-C **CONFIRMED** (backward `LXI H,<plain RELOC code>/SHLD`;
+forward scalar = `CHAIN-ADDR` into the SHLD operand slot). H-D **CONFIRMED** (const-subscript element
+store: backward plain reloc, forward self-address pair). H-E **CONFIRMED** (dynamic ladder + deref + `E9`;
+the bias word is `21 + RELOC data 0000`). H-G **CONFIRMED** (a label-variable ACTUAL rides the EXISTING
+pointer-formal descriptor route — hidden DATA cell `LXI H,*D / RELOC data <cell> / SET-LC code <here>`;
+the callee's `goto formal;` is `LHLD` + deref + `PCHL`).
+
+**NEW first-hand law — the STOP-WINDOW (hop 12, [C380]).** A MAIN-level label definition BELOW an
+explicit `stop;` emits its recovery pad, which is CODE, so DR still emits the epilogue `CALL ?STOPX'
+(E527C `DEF-CODE-SIZE 0030`) and still emits a nested procedure's branch-over `JMP' landing on it
+(E527G guard `C3' at 0023, backpatched out-of-band to 0035). Two bounds FALSIFIED the naive law into
+existence: **R10** (a procedure declaration's ENTRY NAME is in the same label set but is not such a
+definition — no guard, no epilogue) and **E25G/E34A6/E34A7** (labels INSIDE a nested procedure do not
+reopen MAIN's window). Implementation is one line: clear `st.stop_seen` at the label-prefix site.
+
+**Arm (committed `b7544b61`; bind.ml + codegen.ml ONLY).** bind: `bytes_of RTlabel -> 2`; sizing shadow
+`RTlabel | RTentry _ -> 2` + allow-list arms with the `[C159]`/`[C159/AB5]` strings BYTE-IDENTICAL;
+`bind_label_arrays` export; demand class `Rk_val` (label name as assignment RHS to a label/entry-class
+LHS), threaded through the ref walker; PADDEBUG `:val`. codegen: `Vlbl` vkind; EVERY `RTlabel` row
+registered (hop-11's array-skip proposal **FALSIFIED** — `addr_of_raw` needs the array row, and
+DEF-DATA-SIZE rides `max auto_bytes pl_total`); `lbl_arrs` save/set/restore mirroring `st.arrays`;
+`lbl_val_operand` 5-case (here/pad, forward self-slot `00 00` + `ls.fwd` cons WITHOUT a JMP, pad-forward
+REFUSED as unmeasured); `lower_label_assign` dispatched behind a candidate test (so the B/H deaths are
+preserved verbatim); Vlbl-first plain `goto`; the measured dynamic computed-goto arm with the catch
+`codegen: computed GOTO deferred [TBD]` kept VERBATIM (N6 marker).
+
+**Parity + falsifiers.** FRESH POSITIONAL whole-file `cmp` **5/5 rc=0** vs `golden/e53p3/` in
+`build/e53p3/arm-out/` (A 128 B CODE `001D` DATA `0004`; C 256 B `0030`/`0008`; D 128 B `002D`/`000A`;
+E 128 B `001E`/`0008`; G 256 B `0038`/`0008`). Mismatches at hop 11 were RECORDED and adjudicated from
+the KEPT goldens, never fitted. B/H (`undeclared e (no declaration in scope)`) and F
+(`computed GOTO deferred [TBD]`) byte-identical to the pre-arm baseline
+`build/e53p3/pre-arm-hop10/`; the `nelem=1` crash unchanged (`lib/codegen.ml:10189 Pattern matching
+failed`, RECORDED, never fixed); sweep `build/e53p3/sweep-h12b.log` **201 byte-exact / 0 FAILS**.
+
+**Registration + claim + coverage.** 5 SPECIMENS in `tools/e2e_gate.py` with measured-byte comments;
+REAL `--update-inventory` OWN output **1323 → 1328**, refusals 190 UNCHANGED; census OWN path counts
+**16/0/25/0** with three corpus messages MOVED VERBATIM. **C380** written BEFORE any `spec/COVERAGE.tsv`
+touch (ledger ends C380, 203 headers). Coverage FIRST-HAND, BY HAND (`coverage_gen.py` NEVER used): row
+101 `TRAN.COMPUTED_GOTO` UNTESTED/REFUSED → **ACCEPTS / PARTIAL / EXACT:1** — NOT retired, because the
+constant-subscript and non-label-target classes still refuse with the `computed GOTO` phrase — plus
+THREE new rows `TRAN.LABEL_VALUE_CELL` (EXACT:3, MEASURED), `TRAN.LABEL_AS_ACTUAL` (EXACT:1,
+SINGLE_SAMPLE), `TRAN.STOP_TAIL_WINDOW` (EXACT:2, MEASURED); ids appended explicitly to
+`spec/COVERAGE-IDS.txt`. `coverage_check` **149 rows, 0 errors, 0 warnings**; its own canonical output at
+close time is **SUPPORTED 99 / PARTIAL 24 / REFUSED 20 / DIVERGENT 3 / NOT_ATTEMPTED 3** (the 96 quoted
+mid-campaign was the 146-row state before these adjudications — the count moves BY ADJUDICATION and is
+recorded here, not reused).
+
+**Close-out tail (hop 13, all numbers COMPUTED).** Armed fingerprint **`fed67d24297d5e85ffc6b74d654c44e8c066ad23d757762306d31f62f597cb5a`**
+re-produced on a FRESH `--build-dir _build-e53p3h13` (ZERO `Error`, binary IDENTICAL to the tree);
+markers harness argv-19 **`MARKER_FAILS: 0` rc=0** incl. `N6_COMPUTED_GOTO` still refusing with the
+pinned phrase (`build/e53p3/markers-h13.log`); DEC regressions **64/0 FAILS**
+(`build/e53p3/dec-h13.log`); divergence panel **9/9** (`build/e53p3/divcheck-h13.log`); FULL gate
+**rc=0** `build/gate-e53p3-reg3.log` (1328/1328, 190/190, 9/9, 149 rows, census 16/0/25/0, prose 5).
+
+**NEW my-gap found BY THIS TAIL CHECK, recorded VERBATIM and NOT fixed.** The contract predicted
+hist 68/124; measured **codegen 72 / total 128**, delta +4 = exactly TWO new sites, both from this arm:
+(1) `lib/codegen.ml:14789` `Warning 27 unused variable idx` (the dynamic computed-goto guard binds `idx`
+and uses `sidx`) — cosmetic; and (2) a NEW `Warning 8 partial-match` on **`vk_name`** (`codegen.ml:7076`),
+which gained an unmatched `Vlbl` case when the `Vlbl` constructor was added. (2) is a **LIVE CRASH
+PATH**, not just a warning: first-hand witness `build/e53p3/h13-sanity/SNSL6.PLI`
+(`dcl x label; … f = 1.0 + x;`) dies `Fatal error: exception File "lib/codegen.ml", line 7076,
+characters 2-7: Pattern matching failed` instead of a loud `[TBD]` refusal, and `SNSL8.PLI`
+(`put list(x);`) crashes the same way at `codegen.ml:13455`. A label variable reaching ANY
+`vk_name`-formatting refusal (nine call sites) or any vkind dispatch that predates the arm now crashes.
+Classified **my-gap**, recorded here rather than fitted, because hop 13 is a close-out hop with no
+compiler edits authorized; the fix is PRE-REGISTERED in `LEARNINGS.md` § "hop 13" (fail-loud for `Vlbl`
+at every consumer, plus the histogram repair, ZERO oracle needed for the message sites but the byte-tier
+falsifier suite is mandatory since `vk_name` text appears in refusal markers the gate pins).
+BYTE TIER ONLY — nothing linked or run.

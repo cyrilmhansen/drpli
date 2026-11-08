@@ -72,6 +72,7 @@ FILE-route GET SKIP is OUT unless evidence crosses it. Never reuse PUT SKIP byte
 |---|---|---|---|---|---|---|
 | P1 **CLOSED** | GET SKIP family (console) | +4 (E525A-D, whole-file cmp rc=0) | 0 (blockers moved VERBATIM past GET lines in EXPR1/REPORT/DEPREC/COPYLPT, never fixed) | 0 | C378 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p1-reg.log (1316/0, 190/190, 9/9, 145 rows SUPPORTED 95, census 16/0/25/0, prose 5) |
 | P2 **CLOSED** | non-2-byte array elements (stride 1/3 class) | +7 (E526A-G, whole-file cmp rc=0) | 0 (four B1 blockers re-held VERBATIM 0-byte/9-byte [C159], never fixed) | 0 | C379 (measured-bytes-only, BEFORE COVERAGE) | rc=0 build/gate-e53p2-reg.log (1323/0, 190/190, 9/9, 146 rows SUPPORTED 96, census 16/0/25/0, prose 5) |
+| P3 **CLOSED** | entry/label VALUE class (LABELS/DEPREC/MPMCALLA family) | +5 (E527A/C/D/E/G, whole-file cmp rc=0) | 0 (three blockers MOVED to new refusals VERBATIM, never fixed; OPTIMIST `9-byte` unmoved) | 0 | C380 (measured-bytes-only, BEFORE COVERAGE; stop-window law + its two falsified bounds) | rc=0 build/gate-e53p3-reg3.log (1328/0, 190/190, 9/9, 149 rows SUPPORTED 99, census 16/0/25/0, prose 5) |
 
 ## 5. Re-ranking at P3 open (2026-11-08, successor session of `c3b54516`; ZERO oracle; binary `cb906871…` == tree)
 
@@ -100,7 +101,7 @@ The §2 matrix predates the P1/P2 arms. Re-measured DIRECT this hop (census OWN 
   CREATE (GET LIST unknown name) are single-rule but each still needs a full behind-blocker
   audit first; queued.
 
-## 6. P3 — entry/label VALUE class (LABELS/DEPREC/MPMCALLA family) — PRE-REGISTERED (2026-11-08, successor session of `c3b54516`, chain 10/12, BEFORE any oracle call or `ocaml/lib/` byte)
+## 6. P3 — entry/label VALUE class (LABELS/DEPREC/MPMCALLA family) — **CLOSED** (hop 13, 2026-11-09; results `RESULTS.md` §P3; claim [C380]; gate rc=0 `build/gate-e53p3-reg3.log`) — originally PRE-REGISTERED (2026-11-08, successor session of `c3b54516`, chain 10/12, BEFORE any oracle call or `ocaml/lib/` byte)
 
 ### P3.1 Blocker VERBATIM (UNARMED `cb906871…`, `build/e53p3/sanity/` + `sanity2/`)
 
