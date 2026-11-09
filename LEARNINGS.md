@@ -10359,3 +10359,51 @@ hir_test SEM_MODES (live + 9) → FULL gate FROZEN → build/gate-e54p1h-reg.log
 Standing: ZERO oracle; C380; lib+bin byte-clean; config NEVER staged; no push; explicit
 paths; eval "$(opam env)" every shell; rc DIRECT; never batch build with tests; timeout 60
 per fixture; scratch ocaml/scratch-p1h/ NEVER committed; H01–H21 frozen.
+
+## E2E-54/P1-h hop 2 — CLOSE (session 01a1c00b, renewal 1/12; ZERO oracle)
+
+ACCEPTED (measured first-hand):
+- Step 4 `500c668f`: H22–H29 measured in scratch BEFORE pinning; expected files are `cp`
+  of reviewed output. All 8 §P1-h.4 predictions confirmed, none fitted. **H22 empty
+  `begin; end;` PARSES** (the pre-registration flagged it UNPROVEN): rc 0, 425 B, NO
+  phantom statement in `proc(0)`. H23/H24/H25: BEGIN statements inlined EXACTLY ONCE,
+  source order, correct line numbers (representation only, never runtime). H26: proc under
+  a statement-level BEGIN discovered ONCE (`SCOPE 1 parent=0 kind=proc(1)`,
+  `PROC 1 name=p scope=1`). H27: BEGIN inside proc q — `r` ONCE with parent q
+  (`SCOPE 2 parent=1`, `PROC 2 scope=2`), q's BEGIN statement inlined once. **H28 (REGR,
+  the BEG2 shape): rc 0, the BOGUS `HIR-E11 duplicate internal procedure name p` is GONE,
+  exactly ONE `PROC … name=p`.** H29: dcl-in-BEGIN rc 2, ZERO stdout, 66 B stderr =
+  `HIR-E03: line 4: declaration y produced no bind row in this block`.
+- Step 5 `e004fa3e`: §P1-a2.6 shared-comparison law executed — I6's ENTIRE body moved
+  VERBATIM into `ownership_mismatches env blk pairs : string list` (messages unchanged,
+  still "invariant 6: …"), live `i6` is one `List.iter … bad "%s"`, and BOTH new controls
+  (`--corrupt-owner` reparents the first pair at a sibling proc's block else self-parents;
+  `--corrupt-discovery` drops it) run THAT SAME function. SEM_MODES now live + NINE.
+- Zero drift MEASURED end-to-end: hir_test rc 0 (184 ok → 220 ok, ZERO FAIL), all 11
+  frozen OK numbers UNMOVED, T2 clean at every step, FULL gate rc 0 FROZEN ALL HIT
+  1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 (`build/gate-e54p1h-reg.log`),
+  fresh `--build-dir _build-e54p1h` rc 0 ZERO Error hist 122, fresh exe sha == kept
+  `172595d5…`; T1 held DIRECT after every build.
+- Post-fix reproduction (`build/e54p1h-repro-postfix.log`, timeout 20): BEG1/2/3 rc 0
+  (pre-fix 124 / 2-bogus / 124); BEG4 E03, BEG5/6 E05, BEG7 E06, BEG8 silent-absent
+  byte-UNCHANGED — M-6 pre-existing asymmetry carried, NOT touched (honours the brief's
+  narrow scope).
+- Non-vacuity FIRST-HAND (T9): owner control names the perturbed proc — H26/H28/H03
+  self-parent trip "eparent is not the enclosing block's scope"; H27/H18 take the
+  sibling-proc arm; discovery trips the block-count arm ("2 env blocks for 0",
+  "3 env blocks for 1"); H01/H05 print "nothing was proven" rc 1.
+
+FALSIFIED (recorded, not fitted):
+- First draft `let blk_name b = match b.Ast.bname with Some n -> n …` — `Ast.name` is the
+  RECORD `{orig;key;pos}`, not a string; build rc 1, fixed to `n.Ast.orig`. Zero commits
+  affected. Tooling law: `bname : name option` everywhere in AST-name positions.
+
+PROPOSED (carry honestly, unverified):
+- The `--corrupt-owner` self-parent arm covers single-proc fixtures; the sibling arm needs
+  ≥2 nested procs (H27/H18). A future slice could ALSO perturb a 3-deep chain to exercise
+  the "missing-block" arm directly (today the count arm always trips first).
+- M-6 (conditional-position nested proc: loud E06 if called, silently absent if not) is the
+  obvious next hygiene candidate; DR behaviour [TBD — no oracle authorized].
+
+Close state: RESULTS §P1-h + arch §7-4 + PLAN §P1-h.8 dashboard CLOSED; **§P1-h CLOSED,
+STOP — nothing further authorized.**

@@ -2569,4 +2569,4 @@ that consume its artifacts; every fixture under `timeout 60`; scratch
 
 | slice | status | notes |
 |---|---|---|
-| P1-h | **OPEN 2026-11-10 (pre-registered)** | BEGIN/DO discovery hygiene; ZERO oracle; contract §§P1-h.2–.5; work order §P1-h.7 |
+| P1-h | **CLOSED 2026-11-10** | BEGIN/DO discovery hygiene; ZERO oracle; correction `7144b3f1`, fixtures `500c668f`, semtest/runner `e004fa3e`; panel RESULTS §P1-h (T1–T10 ALL PASS, gate FROZEN 1328-190-9-149-16/0/25/0-prose 5 ALL HIT, zero drift measured) |

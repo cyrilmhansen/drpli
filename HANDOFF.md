@@ -7,6 +7,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0d-e54p1h-2. **E2E-54/P1-h CLOSED 2026-11-10 — steps 4–7 LANDED (close session 01a1c00b, renewal 1/12; ZERO oracle; lib+bin byte-clean; ledger C380).** Step 4 `500c668f`: fixtures **H22–H29** measured-FIRST in `ocaml/scratch-p1h/` (CRLF+^Z, one dcl/statement, timeout 60), expected = `cp` of reviewed measured output — ALL 8 §P1-h.4 predictions CONFIRMED, none fitted: H22 empty `begin; end;` **PARSES** rc 0 425 B NO phantom statement; H23/H24/H25 statements EXACTLY once in source order; H26 `p` under a BEGIN ONCE (`SCOPE 1 parent=0`, `PROC 1 name=p scope=1`); H27 `r` once parent `q` (`SCOPE 2 parent=1`); **H28 (REGR BEG2) rc 0 — the BOGUS `duplicate internal procedure name p` GONE, ONE `PROC name=p`**; H29 dcl-in-BEGIN rc 2 ZERO stdout 66 B = the **LIVE** `HIR-E03 … no bind row in this block` (E11 `bdecls` guard DEAD). Step 5 `e004fa3e`: I6 comparison extracted VERBATIM into SHARED `ownership_mismatches env blk pairs` + `--corrupt-owner`/`--corrupt-discovery` running THAT SAME code; SEM_MODES live + **NINE**; T9 non-vacuity verified FIRST-HAND on H26/H27/H28 + H03/H18 and `nothing was proven` on H01/H05. Step 6: FULL gate rc 0 → `build/gate-e54p1h-reg.log` FROZEN ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5**; fresh `--build-dir _build-e54p1h` rc 0 ZERO Error hist **122**, fresh sha == kept exe `172595d5…`; T1 held DIRECT every build; T2 clean every step; hir_test rc 0 (184 ok → 220 ok, ZERO FAIL), ALL 11 frozen numbers UNMOVED. Step 7 (this commit): RESULTS **§P1-h** (T1–T10 WITH values + pre/post reproduction panel + 8 deviations), arch **§7-4**, PLAN §P1-h.8 dashboard **CLOSED**, `build/e54p1h-repro-postfix.log` (BEG1/2/3 rc 0 vs pre-fix 124/2-bogus/124; BEG4–BEG8 unchanged, M-6 carried).
+**SUCCESSOR: NOTHING is authorized.** §P0/§P1-b/§P1-a1/§P1-a2/**§P1-h** CLOSED. M-6 conditional-position hygiene, MIR, PUT/GET, P2+ are **PROPOSED ONLY** (RESULTS §P1-h.7) — report closure, await the OPERATOR; each future slice needs its own PROTOCOL #1 pre-registration BY EXPLICIT PATHS before any code byte. Standing: ZERO oracle; ledger C380 (203 headers); config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT; never batch build with tests; H01–H29 frozen (T2/T10); scratch never committed; `superseded/` never rewritten.
+
 0d-e54p1h-1. **E2E-54/P1-h IN FLIGHT — steps 2–3 LANDED, successor = §P1-h.7 steps 4–8 (session 01a1bfe1, fresh startup chain 0/12; ZERO oracle; lib+bin byte-clean; ledger C380).** Baseline VERIFIED first-hand at `cf6202b` (build rc 0; exe `172595d5…`; hir_test 120 ok, 11 numbers unmoved; FULL gate rc 0 FROZEN 1328-190-9-149-16/0/25/0-prose 5 → `build/gate-e54p1h-baseline.log`). Reproduction under `timeout 20` preserved `build/e54p1h-hang-witness.log` (BEG1/BEG3 rc 124 hang; BEG2 rc 2 BOGUS duplicate). **PREREGISTRATION `04bccbac`** (PLAN §P1-h, brief VERBATIM byte-verified, audit M-1..M-7). **CORRECTION `7144b3f1`** — `semantic_env.ml` `discover_stmts` visitor descends the NESTED block's OWN statements under the SAME enclosing-procedure ctx (BEGIN shares parent scope; Bproc registration verbatim); post-fix BEG1/2/3 rc 0 (dumps reviewed: statements once, procs once, owners correct); BEG4 E03 / BEG5-6 E05 / BEG7 E06 refusals unchanged; full hir_test rc 0 ALL 11 OK numbers UNMOVED, T2 clean. **SUCCESSOR = PROGRESS.md live P1-h heading VERBATIM:** (4) measure fixtures H22–H29 in scratch, expected = cp of reviewed measured output (H28 bogus-duplicate GONE rc 0; H29 dcl-in-BEGIN pins the LIVE `HIR-E03 … no bind row` channel — the E11 bdecls guard is DEAD for parser ASTs; empty `begin; end;` parse UNPROVEN — record deviation honestly) → hir_test rc 0 → commit; (5) semtest shared I6 comparison + `--corrupt-owner` + `--corrupt-discovery` + hir_test SEM_MODES live+9, first-hand non-vacuity on H26/H27/H28 + H03-or-H18 → commit; (6) FULL gate FROZEN → `build/gate-e54p1h-reg.log` + fresh `--build-dir _build-e54p1h` hist 122 sha==kept; (7) CLOSE RESULTS §P1-h + arch §7-4 + dashboard CLOSED + durables; (8) **STOP**. Key [bind-facts] read first-hand: collect descends EVERY Sproc child incl. anonymous BEGIN (bind.ml:2204-2231); frame_decls STOPS at Sproc (bind.ml:390-408); M-6 conditional-position silent drop is PRE-EXISTING, recorded NOT fitted. Standing: ZERO oracle; C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT; never batch build with tests; `timeout 60` per fixture; scratch never committed; H01–H21 frozen.
 
 0d-e54p1a2-12. **E2E-54/P1-a2 CLOSED 2026-11-10 — steps 6–8 LANDED (close session 01a1bfc1, renewal 11/12; ZERO oracle; lib+bin byte-clean; ledger C380).** Step 6: `dune build` rc 0 + T1 exe `172595d5…` DIRECT + T2 clean + `timeout 900 python3 tools/hir_test.py` rc 0 (120 ok; ALL 11 OK numbers unmoved; 11×7 = 77 corrupt controls rc 1 loud, spot-verified FIRST-HAND incl. both `nothing was proven` cases on H04); FULL gate rc 0 → `build/gate-e54p1a2-reg.log` FROZEN ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5**; fresh `dune build --build-dir _build-e54p1a2` rc 0 ZERO `Error` hist **122**, fresh exe sha == kept exe (computed separately). Step 7: **CLOSE commit `ae0c6b4f`** — `spec/lab-evidence/e2e54/RESULTS.md` §P1-a2 (T1–T10 panel WITH measured values; 13 deviations recorded NOT fitted; alias-pair/nested pins = HIR REPRESENTATION only, never runtime; unknowns carried; reproduction set), `docs/architecture/backend-boundary.md` §7-3, PLAN dashboard P1-a2 **CLOSED 2026-11-10**. Step 8: **STOP — NOTHING is authorized.** §P0/§P1-b/§P1-a1/§P1-a2 all CLOSED; MIR, PUT/GET, BEGIN repair, P2+ and broader argument subsets are PROPOSED ONLY (RESULTS §P1-a2.7) — report closure, await the OPERATOR; each future slice needs its own PROTOCOL #1 pre-registration BY EXPLICIT PATHS before code. Standing: ledger C380 (203 headers); config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT; never batch build with tests; H01–H21 frozen (T2/T10); Eident zero-arg exclusion arm + E16 UNEXERCISED (honest).
@@ -1784,25 +1787,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 671
-checkpoint-id: g671-cfbd48844124
-checkpoint-kind: manual
+checkpoint-generation: 673
+checkpoint-id: g673-08154234aff8
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~10863, session 01a1bfe1-3e0a-763c-ab64-5e545a345d30)
-checkpointed: 2026-11-09T11:21:40.526Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4088, session 01a1c00b-7271-763c-ab64-5e598890a3d3)
+checkpointed: 2026-11-09T11:48:14.908Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 13b43d3899fa4382b42c73b678561843534c18d4e94dc3fa578fb840854e8a2f
+source-progress: a67758f950751bf511f3eded880879588c301477ed18231e0e4934388f79031d
 source-handoff: 86cc234058a2cfdb5fabbac32156eadf86c91c0758a9d4e6e488c12e4352b3f0
 source-learnings: c4bf12c9cf2e5a6e43ce7b665b7df07024dbf2c212c8e5f3485e86822aaae7d5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bfe1-3e0a-763c-ab64-5e545a345d30
-readiness-at: 2026-11-09T11:21:40.583Z
-readiness-checkpoint: g671-cfbd48844124
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

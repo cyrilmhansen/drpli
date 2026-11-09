@@ -54,7 +54,15 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-h hop 1 LANDED — steps 2–3 COMMITTED; successor = steps 4–5)
+## Next action (E2E-54/P1-h hop 2 CLOSE — **§P1-h CLOSED 2026-11-10 — steps 4–7 LANDED, T1–T10 panel WITH measured values, dashboard CLOSED — step 8: STOP; NOTHING FURTHER IS AUTHORIZED — BINDING**)
+**DONE hop 2 (session 01a1c00b, renewal 1/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380):** step 4 **`500c668f`** — fixtures H22–H29 MEASURED-FIRST in `ocaml/scratch-p1h/` (CRLF+^Z, one dcl item/statement, `timeout 60`), expected = `cp` of reviewed measured output. All 8 pre-registered predictions CONFIRMED, none fitted: H22 empty `begin; end;` **PARSES** rc 0 425 B with NO phantom statement (the flagged UNPROVEN resolved positively); H23 both statements once in order; H24 siblings once each in source order; H25 nested-once; H26 `p` under a BEGIN discovered ONCE (`SCOPE 1 parent=0`, `PROC 1 name=p scope=1`) + `call proc(1)`; H27 `r` once with parent `q` (`SCOPE 2 parent=1`, `PROC 2 scope=2`) and q's BEGIN statement inlined once; **H28 (REGR BEG2) rc 0, the BOGUS `duplicate internal procedure name p` GONE, exactly ONE `PROC name=p`**; H29 dcl-in-BEGIN rc 2 ZERO stdout 66 B pinned to the **LIVE** `HIR-E03 … produced no bind row in this block` (the E11 `bdecls` guard is DEAD for parser ASTs).
+step 5 **`e004fa3e`** — `semtest.ml` I6 comparison extracted VERBATIM into SHARED `ownership_mismatches env blk pairs` (live I6 = one `List.iter`; message bytes unchanged) + `--corrupt-owner` (reparent at a sibling proc block, else self-parent) + `--corrupt-discovery` (drop a pair); SEM_MODES = live + **NINE** corrupt. FIRST-HAND non-vacuity (T9): H26/H28/H03 owner → `proc … reparented at … eparent is not the enclosing block's scope`; H27/H18 → sibling-proc arm; discovery → `2 env blocks for 0 …` / `3 env blocks for 1 …`; H01/H05 → `nothing was proven` rc 1.
+step 6: FULL gate rc 0 → `build/gate-e54p1h-reg.log` (1537 lines) FROZEN ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5**; fresh `--build-dir _build-e54p1h` rc 0 ZERO `Error` hist **122**, fresh exe sha == kept `172595d5…` (computed separately). T1 held DIRECT at every build; T2 `git diff --exit-code -- hir/expected` CLEAN at every step; hir_test rc 0 (step 4 **184 ok** → step 5 **220 ok**, ZERO FAIL), ALL 11 frozen OK numbers UNMOVED (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2); new live H22 1/1 H23 3/2 H24 2/2 H25 1/1 H26 2/1 H27 3/2 H28 2/1.
+step 7 (this commit): RESULTS **§P1-h** (T1–T10 WITH values, pre/post reproduction panel, 8 deviations incl. `Ast.name`-is-a-record and the honest single-proc self-parent arm), arch **§7-4**, PLAN dashboard **CLOSED**, plus `build/e54p1h-repro-postfix.log` (ignored): BEG1/2/3 rc 0 (was 124/2-bogus/124), BEG4 E03 / BEG5-6 E05 / BEG7 E06 / BEG8 silent-absent UNCHANGED (M-6 pre-existing, carried).
+**EXECUTE (successor): NOTHING is authorized.** §P0/§P1-b/§P1-a1/§P1-a2/**§P1-h** all CLOSED. M-6 conditional-position hygiene, MIR, PUT/GET, P2+ and broader argument subsets are **PROPOSED ONLY** (RESULTS §P1-h.7) — report closure, await the OPERATOR; each future slice needs its own PROTOCOL #1 pre-registration BY EXPLICIT PATHS before any code byte.
+**CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); lib+bin byte-clean; `handoff.config.json` NEVER staged; no push; explicit-path commits only; `eval "$(opam env)"` every shell; rc DIRECT; NEVER batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H29 frozen (T2/T10).
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-h hop 1 LANDED — steps 2–3 COMMITTED; successor = steps 4–5) — CONSUMED: hop 2 executed §P1-h.7 steps 4–7; §P1-h CLOSED 2026-11-10.
 **DONE:** step 1 baseline VERIFIED first-hand at `cf6202b` (build rc 0; exe `172595d5…`; hir_test 120 ok 11 numbers unmoved; FULL gate rc 0 FROZEN 1328-190-9-149-16/0/25/0-prose 5 → `build/gate-e54p1h-baseline.log`; ledger 203/C380; chain 0/12 fresh startup). Reproduction under `timeout 20` preserved (`build/e54p1h-hang-witness.log`: BEG1 rc 124, BEG2 rc 2 BOGUS duplicate, BEG3 rc 124). Step 2 — **PREREGISTRATION `04bccbac`** (PLAN §P1-h: brief VERBATIM machine-verified 143 lines; audit M-1..M-7 with first-hand anchors; contracts §§P1-h.2–.8). Step 3 — **CORRECTION `7144b3f1`** (semantic_env.ml `discover_stmts` visitor; Bproc body verbatim; post-fix BEG1/2/3 rc 0 with reviewed dumps; BEG4 E03/BEG5-6 E05/BEG7 E06/BEG8 unchanged; full hir_test rc 0, ALL 11 numbers UNMOVED, T2 clean).
 **EXECUTE (successor) — §P1-h.7 steps 4–8 VERBATIM:** (4) fixtures H22–H29 (§P1-h.4 table): measure EACH shape in `ocaml/scratch-p1h/` first (`timeout 60`, CRLF+`^Z`, program names h22..h29), review every dump line (BEGIN statement inlined EXACTLY once; each proc ONCE with owner scope; H28 = BEG2-shape bogus-duplicate GONE rc 0; H29 = `dcl` in BEGIN must pin rc 2 `HIR-E03 … produced no bind row in this block` — the LIVE channel, E11 guard is dead), expected = `cp` of reviewed measured output NEVER hand-written; empty `begin; end;` parseability UNPROVEN — if it dies in the parser, record deviation honestly and adapt H22; hir_test rc 0 → commit explicit paths. (5) semtest.ml: extract I6 per-pair ownership comparison into a SHARED function (live + controls run THE SAME code, §P1-a2.6 law); add `--corrupt-owner` (reparent one pair at a wrong physical block; single-proc fixtures self-parent; else `nothing was proven` rc 1) and `--corrupt-discovery` (drop one pair → count/missing-block arm rejects); wire both flags in `tools/hir_test.py` SEM_MODES (live + NINE corrupt), update docstring; OK-line meaning unchanged. Build rc 0 (rc DIRECT) → T1 → hir_test rc 0 with all 11 existing numbers unmoved → T9 non-vacuity spot-verified FIRST-HAND on H26/H27/H28 and H03 or H18 → commit. (6) FULL gate rc 0 FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54p1h-reg.log` + fresh `dune build --build-dir _build-e54p1h` rc 0 ZERO Error hist 122, fresh sha == kept exe (computed separately). (7) CLOSE: RESULTS §P1-h (T1–T10 WITH measured values + deviations + pre/post reproduction panel), arch doc §7-4, PLAN dashboard CLOSED, durables. (8) **STOP** — no PUT/GET, no MIR, no P2, no broader refactoring.
 **CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); `ocaml/lib`+`ocaml/bin` byte-clean; `handoff.config.json` NEVER staged; no push; explicit-path commits; `eval "$(opam env)"` every shell; rc DIRECT; NEVER batch build with tests; `timeout 60` per fixture; scratch `ocaml/scratch-p1h/` NEVER committed; `superseded/` never rewritten; H01–H21 frozen; dead `bdecls<>[]` guards stay.
@@ -3923,15 +3931,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 671
-checkpoint-id: g671-cfbd48844124
-checkpoint-kind: manual
+checkpoint-generation: 673
+checkpoint-id: g673-08154234aff8
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-09T11:21:40.526Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-09T11:48:14.908Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 13b43d3899fa4382b42c73b678561843534c18d4e94dc3fa578fb840854e8a2f
+source-progress: a67758f950751bf511f3eded880879588c301477ed18231e0e4934388f79031d
 source-handoff: 86cc234058a2cfdb5fabbac32156eadf86c91c0758a9d4e6e488c12e4352b3f0
 source-learnings: c4bf12c9cf2e5a6e43ce7b665b7df07024dbf2c212c8e5f3485e86822aaae7d5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -4700,9 +4708,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1bfe1-3e0a-763c-ab64-5e545a345d30
-readiness-at: 2026-11-09T11:21:40.583Z
-readiness-checkpoint: g671-cfbd48844124
 <!-- guard:end checkpoint -->
 
 ## Blockers

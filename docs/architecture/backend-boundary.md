@@ -304,3 +304,25 @@ sharing their comparison functions with four new non-vacuous corrupt controls (s
 modes total, 11 positives × 7 = 77 control runs, each rc 1 ZERO stdout). The alias-pair
 and nested-actual fixtures pin HIR REPRESENTATION only, never runtime behaviour. Full
 panel: RESULTS §P1-a2.
+
+### 7-4. E2E-54/P1-h LANDED — BEGIN/DO discovery hygiene (CLOSED 2026-11-10)
+
+The pre-existing HIR procedure-discovery hang (§P1-b.5 note 3) was REPAIRED, zero-oracle, in
+ONE file: `Semantic_env`'s discovery walk is now the structural visitor
+`discover_stmts st plan ctx ss`, which SEPARATES the statement subtree being traversed from
+the enclosing procedure's semantic owner. A non-`Bproc` nested block (BEGIN/DO) is descended
+for its OWN statements under the SAME `ctx` — bind has no per-BEGIN scoping (`frame_decls`
+stops at `Sproc`, `bind.ml:390-408`) and its `collect` descends every `Sproc` child while
+registering only `Bproc`s (`bind.ml:2204-2231`), so mirroring it exactly invents no scope,
+pid, signature or ownership. Termination is structural. Shapes that previously hung (rc 124)
+or BOGUS-refused with `duplicate internal procedure name` now dump rc 0 with the BEGIN's
+statements inlined EXACTLY ONCE (H22–H28 measured; H28 is the regression witness). A `dcl`
+inside a BEGIN still refuses on the LIVE typed channel `HIR-E03 … produced no bind row in
+this block` (H29 pins it; the `bdecls <> []` E11 guards are DEAD for parser ASTs and were
+kept, not removed). DO groups still refuse E05 by name; the conditional-position nested-proc
+asymmetry (M-6) is PRE-EXISTING, untouched and carried as an unknown. No diagnostic, HIR
+node, lowering rule or `ocaml/lib`/`ocaml/bin` byte changed; zero drift MEASURED (H01–H21
+frozen; gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 ALL HIT; all 11 semtest OK
+numbers unmoved). `semtest.ml` gained the §P1-a2.6 shared-comparison extraction of I6 plus
+two non-vacuous controls (`--corrupt-owner`, `--corrupt-discovery`) — live + NINE corrupt
+modes on 18 positives. Panel: RESULTS §P1-h.
