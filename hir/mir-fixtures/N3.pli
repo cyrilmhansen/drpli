@@ -1,0 +1,8 @@
+n3: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl z fixed bin(7);
+   x = 300;
+   z = x + 1;
+   return (z);
+end n3;
+

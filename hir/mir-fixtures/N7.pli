@@ -1,0 +1,8 @@
+n7: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   do while (x > 0);
+      x = x - 1;
+   end;
+   return (x);
+end n7;
+

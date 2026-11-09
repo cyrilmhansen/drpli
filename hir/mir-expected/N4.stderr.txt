@@ -1,0 +1,1 @@
+HIR-E02: line 2: declared type CHAR(3) for c is outside the P0 HIR subset (FIXED BINARY scalars only)

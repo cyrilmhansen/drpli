@@ -1,0 +1,8 @@
+n5: procedure returns(fixed bin(15));
+   dcl a(3) fixed bin(15);
+   dcl x fixed bin(15);
+   a(1) = 5;
+   x = a(1) + 1;
+   return (x);
+end n5;
+

@@ -1,0 +1,1 @@
+HIR-E19: line 3: MIR backend: uninitialized read of sym(0) on the only path of this straight-line body; reading an undefined value is outside the proven-safe domain (brief §4)

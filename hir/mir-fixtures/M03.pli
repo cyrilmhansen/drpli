@@ -1,0 +1,6 @@
+m03: procedure returns(fixed bin(15));
+   dcl r fixed bin(15);
+   r = 2 - 3 * 4;
+   return (-r);
+end m03;
+

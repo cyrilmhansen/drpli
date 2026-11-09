@@ -1,0 +1,7 @@
+n2: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 1;
+   if x = 1 then x = 2;
+   return (x);
+end n2;
+

@@ -1,0 +1,8 @@
+m02: procedure returns(fixed bin(15));
+   dcl y fixed bin(15);
+   dcl z fixed bin(15);
+   y = 10;
+   z = y + 5;
+   return (z * 3);
+end m02;
+

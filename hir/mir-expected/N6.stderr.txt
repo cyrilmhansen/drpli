@@ -1,0 +1,1 @@
+HIR-E08: line 3: numeric literal 40000 is outside the P0 bin(15) literal domain; DR's literal typing beyond the measured window is unmeasured [TBD]

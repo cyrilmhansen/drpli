@@ -1,0 +1,1 @@
+HIR-E18: line 3: MIR backend: a while loop is outside the P1-m0 native subset (brief §3: loops are explicitly excluded)

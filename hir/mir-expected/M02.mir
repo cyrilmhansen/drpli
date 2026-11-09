@@ -1,0 +1,16 @@
+M0:	module
+pli80_m02:	func	i64
+	local	i64:v0, i64:v1, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6, i64:t7
+	mov t1, 10
+	mov v0, t1
+	mov t2, v0
+	mov t3, 5
+	add t4, t2, t3
+	mov v1, t4
+	mov t5, v1
+	mov t6, 3
+	mul t7, t5, t6
+	ret t7
+	endfunc
+	export pli80_m02
+	endmodule

@@ -1,0 +1,5 @@
+n4: procedure returns(fixed bin(15));
+   dcl c character(3);
+   return (1);
+end n4;
+
