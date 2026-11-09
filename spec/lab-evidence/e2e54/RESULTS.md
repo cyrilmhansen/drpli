@@ -518,3 +518,197 @@ PLAN dashboard CLOSED) + durables.
 PUT/GET statements; BEGIN/DO hygiene repair (pre-existing hang); MIR lab (still
 `[TBD — lab not reachable]`). NONE is authorized by this close; each needs its own
 pre-registration (PROTOCOL #1). **STOP after P1-a1 closure.**
+
+---
+
+# E2E-54/P1-a2 RESULTS — Procedure Arguments and Indirect References (zero-oracle slice)
+
+Phase **§P1-a2** CLOSED **2026-11-10** (sessions `01a1beba` → `01a1beca` → `01a1bee4` →
+`01a1bf03` → `01a1bf18` → `01a1bf2e` → `01a1bf4a` → `01a1bf62` → `01a1bf74` → hop 10 →
+`01a1bfa3` → this close session; chain `chain:01a1beba-124f-74ee-84fe-84e837f466b2`,
+renewals 0–11 of cap 12). Pre-registered as PLAN §P1-a2 (operator brief VERBATIM as
+§P1-a2.0, commit `3446dd85` — the PROTOCOL #1 gate landed BEFORE any `ocaml/hir/` byte);
+executed against starting reference `b716daf0`.
+
+**Oracle runs this phase: ZERO.** No probe, no CP/M, no cpmsim, no LINK-80. No claim
+created or modified: `spec/CLAIMS.md` still has **203** `## C` headers, ending **C380**
+(verified first-hand at close). `spec/COVERAGE.tsv`, `spec/INVENTORY.txt`, `spec/census/`,
+every `golden/`, `probes/`, `artefacts/`, `manuals/`, `extracted/`, `references/`,
+`oracle/disks/` untouched; `ocaml/lib/` and `ocaml/bin/` byte-clean vs HEAD at every step
+(T4). No push.
+
+## P1-a2.1 What §P1-a2 delivered
+
+| deliverable | measured form |
+|---|---|
+| evidence matrix | PLAN §P1-a2.1: the brief's 8 parameter-semantics questions classified [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] with measured CLAIMS anchors (C093 `:859`, C130 `:2036`, C145 `:2668`, C167 `:3196`, C175 `:3415`, C358 `:8480`); standing law: every `cs_*`/`pl_ptrs` int is PHYSICAL and never crosses the seam |
+| adjudication | §P1-a2.2 (brief §2): `args left-to-right` KEPT — DR-ABI-BACKED as an EMISSION-order fact [C093]; language-level evaluation order remains [unmeasured] [TBD]; H01–H15 bytes stay frozen, `hir.ml` header carries the adjudication |
+| env parameter API | `ocaml/hir/semantic_env.ml` (**756 L**, `426293dd`): `passing_mode` symbolic classifier (PM_value_cell/PM_own_cell/PM_immediate/PM_copy_in/PM_unknown; copy-in > recorded-cell > syntax; inconsistency ⇒ PM_unknown, never a guess); `call_site` projection built ONCE at `create` — `cs_slot` DROPPED UNREAD, `cs_temps` Some⇒bool, `cs_dec` as-is, `cs_args` PHYSICAL nodes for identity matching only; `call_evidence` first-DFS-site match by callee key + `(==)` node list (typed None ⇒ E16 at lowering); `formal_desc`/`sformals`/`formals_of` via callee-OWN-esyms resolution (C358 shadow law) |
+| HIR representation | `ocaml/hir/hir.ml` (**398 L**, `cfaad741`): `designator = D_var{sid} | D_elem{base;subs}` (`target = designator` rename of P1-a1 `T_var/T_elem`, DUMP BYTES UNCHANGED); `actual_form = A_value of expr | A_reference of designator` — by-value CANNOT masquerade as reference by construction; `actual {af;ac_ty;ac_ef;ac_line}`; shared `dump_designator`/`dump_actual` |
+| lowering | `ocaml/hir/hir_build.ml` (**1042 L**, `cfaad741` + `735b43af`): MODE-FIRST `lower_actual`, evidence-driven `lower_args` (typed absence ⇒ E16, never positional-guess), frozen `lower_call` refusal order, NEW statement-position Esuffix arm ⇒ `Call_s` (E04 kept for non-procedure heads; Eident zero-arg route untouched, `args=[]`-guarded); Bind seam still EXACTLY alias + one `bind_program` (F10) |
+| diagnostics | `diagnostic.ml` (**62 L**): NEW stable codes `HIR-E15 e_arg_whole_array` / `HIR-E16 e_arg_evidence` (UNEXERCISED defensive witness, no fixture by design) / `HIR-E17 e_arg_type`; E13 keeps its P1-a1 meaning; H19's whole-array actual moved E13→E15 as pre-registered |
+| fixtures | **11 positive** (H01–H05, H08, H09, H16, H17, H18, H21) + **10 negative pins** (H06, H07, H10–H15, H19, H20) — H16–H21 MEASURED (`96e995fd`), CRLF+^Z, expected files COPIES OF REVIEWED MEASURED OUTPUT; every dump line checked against §P1-a2.4 BEFORE pinning |
+| semantic authority | `ocaml/hir/semtest.ml` (**1501 L**, `735b43af`): I11 designator soundness (`var_mismatch` extracted from I2 and REUSED verbatim; `e_array = None` clause; `elem_ref_mismatch` shared with I8); I12 passing-evidence alignment (`arg_evidence_mismatch`: key equality → `ce_args` length → `sptr_count` → `ce_dec` length → positional mode law); I13 formal-API alignment (`formals_mismatch`: length, `f_pos = i`, `f_key` vs syntax, `f_sid` vs `params[i]`, `f_stype` vs env row); `collect_calls` AST↔HIR 1:1 lockstep walker (the PHYSICAL-node pairing the env needs); SEVEN corrupt modes, each running THE SAME comparison function as its invariant |
+| test runner | `tools/hir_test.py` (**438 L**): `SEM_MODES` ×7 on EVERY positive; T5 extended RAW grep list `pl_calls|cs_temps|cs_copies|cs_dec|bind_arrays` (readers ONLY `semantic_env.ml`+`semtest.ml`) + `cs_slot` NOWHERE in `ocaml/hir`; F8 vocabulary strip-grep extended to the new semtest strings |
+
+## P1-a2.2 Falsifier panel (pre-registered §P1-a2.8) — every measured value
+
+- **T1 — PASS.** `pli80c.exe` sha256
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` held after EVERY
+  build step (recorded at hops 2/3/4/5/6/7/9/10/11, each checked DIRECT — dune logs never
+  print the sha) and re-verified first-hand at this close; fresh
+  `dune build --build-dir _build-e54p1a2` exe sha == kept exe (computed separately, below).
+- **T2 — PASS.** `git diff --exit-code -- hir/expected` rc **0** at every step and at close:
+  H01 **1753 B**, H02 **1808 B**, H03 **1608 B**, H04 **1090 B**, H05 **497 B** (P1-a1 flip)
+  and H06–H15 pins FROZEN through every type change; `superseded/` never rewritten. The
+  six NEW files (added at `96e995fd`, frozen since): H16.txt **2572 B**, H17.txt **2173 B**,
+  H18.txt **1509 B**, H21.txt **1188 B**, H19.stderr.txt **211 B**, H20.stderr.txt **163 B**.
+- **T3 — PASS, ZERO movement.** `python3 tools/e2e_gate.py` rc **0 DIRECT** →
+  `build/gate-e54p1a2-reg.log` (1537 lines): sweep **1328/1328** byte-exact, negatives
+  **190/190**, divergence **9/9**, coverage **149 rows 0 errors 0 warnings**, census
+  **16/0/25/0** (NO_ORACLE 3), prose **5**. All FROZEN counts hit exactly (§P1-a2.10
+  prediction confirmed; no wiring revert needed). Fresh `dune build --build-dir
+  _build-e54p1a2` rc **0**, ZERO `Error`, hist **122** warning headers
+  (`build/e54p1a2-freshbuild.log` records rc+headers only).
+- **T4 — PASS.** `ocaml/lib/`, `ocaml/bin/`, `golden/`, `spec/CLAIMS.md`,
+  `spec/INVENTORY.txt`, `spec/COVERAGE.tsv`, `spec/census/` byte-clean vs HEAD at close
+  (`git diff --exit-code` rc **0**, verified first-hand); ledger **203** headers ending
+  **C380**; NO new claim, NO coverage/inventory/golden touch; ZERO oracle in the whole slice.
+- **T5 — PASS.** F10: `hir_build.ml` references `Bind` ONLY at the `:41` alias and the
+  single `bind_program` call (pinned by CONTENT — the call sits at `:974` after the slice's
+  growth). RAW greps (comments included), all enforced by `tools/hir_test.py`:
+  `pl_calls`, `cs_temps`, `cs_copies`, `cs_dec`, `bind_arrays` each have readers EXACTLY
+  `['ocaml/hir/semantic_env.ml', 'ocaml/hir/semtest.ml']`; `cs_slot` appears NOWHERE in
+  `ocaml/hir` (nor `ocaml/bin`) — its descriptor-slot int is dropped UNREAD at the
+  projection boundary (the two pre-existing `semantic_env.ml` comments and two
+  `hir_build.ml` comments naming it were reworded; deviation §P1-a2.3-4).
+- **T6 — PASS.** After nested-comment strip, `semantic_env.ml` and `hir.ml` contain NO
+  `\b(stride|offset|bytes|esz|size|reloc|pool)\b` and NO `0x` (harness: "2 files clean");
+  the site projection carries booleans, names, AST node identities and positions ONLY —
+  reviewed line-by-line at `426293dd`.
+- **T7 — PASS.** Non-vacuity: **11 positives × 7 corrupt modes = 77** control lines, every
+  run rc **1**, ZERO stdout, all-`SEM-FAIL` stderr. Spot-checked FIRST-HAND at close:
+  `--corrupt-formal` proves on H16 ("formal p of proc(1) projects sid 1003, bind's row
+  says 3") and on H04 (sid 1001 vs 1); `--corrupt-actual-base` proves on H16 ("repointed
+  sym(0)->sym(3) … name p resolves from scope 0 to nothing" — KEY LAW: a VISIBLE alias
+  would pass I2, so the candidate must be caller-invisible) and says
+  `nothing was proven` on H04 (no reference actual); `--corrupt-arg-position` proves on
+  both (length arm trips first: "positional evidence list disagrees in length — impossible
+  by bind construction"); `--corrupt-mode` proves on H16 ("argument 0 needs its own cell
+  (bind recorded a value cell)") and says `nothing was proven` on H04 (immediate-only —
+  EXACTLY as §P1-a2.6 predicted). Live counts: H01 `4/3`, H02 `7/2`, H03 `7/4`, H04 `4/2`
+  (UNCHANGED since P1-b), H05 `1/1`, H08 `7/3`, H09 `3/2`, and NEW
+  **H16 `12 refs / 5 syms`, H17 `12/5` (the aliased pair `call bump(x, x)` yields TWO
+  identical `var sym(2)` lines — this pins HIR REPRESENTATION only, never runtime
+  aliasing behaviour), H18 `7/3` (three-pid forwarding chain, [C130] E27B route;
+  representation only), H21 `5/2` (nested `A_value (Call_e)`; representation only)**.
+  ALL 11 OK numbers byte-unmoved from hop 11's commit-time run to this close.
+- **T8 — PASS.** Every fixture and every semtest invocation ×2 fresh processes, rc +
+  stdout + stderr byte-identical (all 120 harness `ok` lines carry `deterministic`).
+- **T9 — PASS.** `timeout 60` per fixture/semtest run throughout (harness envelope); the
+  pre-existing BEGIN/DO discovery hang stays DOCUMENTED (classified at `aaf295f0`), NOT
+  fixed in this slice.
+- **T10 — PASS.** H06/H07/H10–H15 pins byte-identical (harness: H10 E03, H11 E02,
+  H12 E12, H13 E13, H14 E14, H15 E12); the ONLY sanctioned behaviour changes landed as
+  pre-registered: statement-call-with-arguments accepted (new `Call_s` coverage —
+  H16/H17/H18/H21) and the whole-array actual E13→E15 handover (H19; H13's E13 pin
+  unmoved). New refusals carry NEW stable codes in `diagnostic.ml`: H19
+  `HIR-E15 … whole-array actual a at argument 0 … no array calling convention [C175] …
+  unmeasured [TBD]`; H20 `HIR-E17 … argument 0 … FIXED BINARY(7,0) but the formal is
+  FIXED BINARY(15,0); DR's conversion at an argument position is unmeasured [TBD]`.
+  **E16 has NO fixture by design** — defensive witness, UNEXERCISED (recorded honestly).
+
+## P1-a2.3 Deviations and measured notes (recorded, NOT fitted)
+
+1. **FALSIFIED (hop 6):** the pre-code audit's prediction that P0 `params_of` E03 stays
+   the FIRST refusal for an undeclared formal is FALSE — blocks lower pid-ascending, so
+   the CALLER lowers first and H07 died E16. `formal_ty` now RE-EMITS the pinned E03
+   channel/wording from the callee's own `bparams` line; H07 bytes restored exactly.
+2. **Walker `ci_key` defect found and fixed (hop 11):** the predecessor's never-built
+   uncommitted draft computed the statement-call key with `eident_key` of the Esuffix
+   target — raised "not an identifier" on every positive with args (H16–H18 FAIL); the
+   key must come from the head identifier node. Committed in `735b43af`.
+3. **I13 main-block law (measured, hop 11):** `SE.formals_of env 0` answers **None** for
+   MAIN programs — the outer block carries NO bind `proc_layout` record (the env's own
+   i4/i5 law). First version failed ALL H01–H09; I13 tolerates None exactly when
+   `params = []`, else loud.
+4. **T5 raw-grep law forced comment rewords:** `cs_slot` occurrences in two
+   `semantic_env.ml` comments (hop 9) and `pl_calls` in two `hir_build.ml` comments
+   (hop 11) were reworded — RAW greps include comments, so literal bind field names may
+   not survive anywhere outside the two authorized readers.
+5. **corrupt-arg-position: DROP arm only.** §P1-a2.6 pre-registered an OR (drop a
+   position, or swap two modes); only the drop (`List.tl ce_args`) was implemented — the
+   length arm trips first and the swap would exercise the identical positional
+   comparison one step further. Recorded honestly, not silently narrowed.
+6. **`arg_evidence_mismatch` arm order:** the pre-registered order put the per-shape
+   mismatch arms before the `PM_copy_in`/`PM_unknown` refusals — in OCaml that would be
+   DEAD CODE (bottom-up subsumption); arms reordered without changing semantics.
+   `f_key` is compared against `String.lowercase_ascii` of the block's `eformals`
+   (sptrs and f_key share one bind origin; the comparison tests the SYNTAX).
+7. **`nothing_proven` grammar:** the what-string must CARRY the "no" — the message reads
+   `had <what> to perturb (nothing was proven)`; first two new calls passed
+   "a multi-position evidence list"/"an own/value-cell passing mode" and read as if
+   something existed; fixed to "no …" wording BEFORE commit.
+8. **FALSIFIED stdlib assumptions (hop 9 design):** `Option.flatten` and `List.mapi2`
+   DO NOT EXIST in the OCaml 5.4 stdlib — use nested-option match and `combine`+`mapi`.
+9. **`elem_ref_mismatch` scope-generalized** (commit `735b43af`): shared with the new
+   I11 D_elem arm by parameterizing the resolving scope; the P1-a1 I8 call site is
+   byte-identical in behaviour (all H08/H09 numbers unmoved).
+10. **`dump_designator` signature deviation (hop 6):** `dvar_ty : int -> string`
+    (rendering-only — the assign-target role passes `pp_sym_ty syms sid`, an actual
+    passes `fun _ -> pp_ty ac_ty`); representation detail, no semantics.
+11. **Tooling law re-measured (hop 8):** the FIRST `dune build` in a fresh container can
+    return rc 1 with ZERO output — rc must always be checked DIRECT/re-run.
+12. **ACCEPTED AND CONFIRMED (hop 6/7): the PHYSICAL-NODE MATCHING LAW HOLDS** — bind's
+    recorded `pl_calls` sites really share the CLI's own `Ast.expr` nodes; H03/H04
+    (expression route) and H16–H18 (statement route) all matched; zero spurious E16.
+    A fixture dying E16 would have FALSIFIED it (§P1-a2.10); it did not.
+13. **UNEXERCISED, recorded honestly:** the Eident zero-arg `Call_s` exclusion arm
+    (`ci_ast_args = None`) is walked but never positively exercised — no positive fixture
+    contains `call q;`/bare `q;`; I12 skips it by design. E16 remains a defensive witness.
+
+## P1-a2.4 Facts Bind still does NOT expose (carried from §P1-a1.4, plus)
+
+10. Argument EVALUATION ORDER at the language level — [C093] backs DR's EMISSION order
+    only; the ordered `arg N` list is a REPRESENTATION ordering (§P1-a2.2) `[TBD]`.
+11. Runtime EFFECTS of argument aliasing, forwarding and nested actuals — H17/H18/H21 pin
+    HIR REPRESENTATION only; DR behaviour for the aliased pair and the nested-call actual
+    is UNMEASURED `[TBD]` (C093/C130 back the general by-reference law, not these shapes).
+12. Conversion at an argument position (actual/formal type mismatch) — refused E17, DR
+    behaviour UNMEASURED `[TBD]`.
+13. Whole-array actuals, BASED/pointer/external argument ABIs — refused E15/E07 by NAME;
+    no DR calling convention exists for arrays [C175] but the shapes are unmeasured `[TBD]`.
+14. DEC copy-in beyond the recorded boolean (`cs_copies` Some⇒bool): the widened-temp
+    mechanics stay in bind/codegen, never in HIR.
+
+## P1-a2.5 Reproduction (the §P1-a2 regression set)
+
+```bash
+cd ocaml && eval "$(opam env)" && dune build       # rc 0; exe 172595d5… (T1)
+python3 tools/hir_test.py                          # rc 0: 120 ok — H01–H21 CLI double-runs,
+                                                   # semtest LIVE + SEVEN corrupt modes ×11
+                                                   # positives, F4/F7/F8/F9/F10/S8, T5/T6
+python3 tools/e2e_gate.py                          # rc 0 FROZEN 1328/1328-190/190-9/9-
+                                                   # 149 rows 0/0-16/0/25/0-prose 5
+cd ocaml && dune build --build-dir _build-e54p1a2  # rc 0 ZERO Error hist 122; exe sha == kept
+grep -c '^## C' spec/CLAIMS.md                     # 203, ending C380
+```
+
+## P1-a2.6 Commits (explicit paths, hop order)
+
+hop 3: **§P1-a2 PRE-REGISTRATION `3446dd85`** (PLAN.md only, BEFORE any `ocaml/hir/`
+byte); hop 4: `426293dd` (semantic_env parameter API); hop 6: `cfaad741` (STEP 3 —
+hir.ml + hir_build.ml + diagnostic.ml + semtest compile-adapt, ONE commit); hop 7:
+`96e995fd` (STEP 4 — fixtures H16–H21 measured + pinned); hops 8/9: `db3421f2` +
+`3f997e35` (STEP 5 design audit + HANDOFF entries, durables only — the `cs_slot` comment
+reword was drafted uncommitted at hop 9 and rode `735b43af`);
+hop 11: `735b43af` (STEP 5 — semtest I11–I13 + walker + 4 corrupt controls + hir_test
+SEM_MODES ×7 + T5 extension); this close: RESULTS §P1-a2 + arch §7-3 + PLAN dashboard
+CLOSED + gate/fresh logs (ignored evidence under `build/`) + durables.
+
+## P1-a2.7 Roadmap (PROPOSED ONLY — operator decision governs)
+
+PUT/GET statements; BEGIN/DO hygiene repair (pre-existing hang); MIR lab (still
+`[TBD — lab not reachable]`); broader argument subsets (DEC copy-in representation,
+external/pointer ABIs) only with their own oracle evidence. NONE is authorized by this
+close; each needs its own pre-registration (PROTOCOL #1). **STOP after P1-a2 closure.**

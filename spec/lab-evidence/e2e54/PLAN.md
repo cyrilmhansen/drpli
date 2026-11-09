@@ -2188,4 +2188,4 @@ amendment. Honestly open, predicted drift surfaces:
 
 | slice | status | gate log | notes |
 |---|---|---|---|
-| P1-a2 | OPEN (pre-registered this commit) | owed: `build/gate-e54p1a2-reg.log` | ZERO oracle; env passing-mode/formal API; HIR `actual`/`designator`; E15/E16/E17; fixtures H16–H21; semtest I11–I13 + 4 corrupt controls; T1 `172595d5…` must hold |
+| P1-a2 | **CLOSED 2026-11-10** | `build/gate-e54p1a2-reg.log` rc 0 FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; fresh `_build-e54p1a2` rc 0 ZERO Error hist 122, sha == kept `172595d5…` | ZERO oracle; env passing-mode/formal API `426293dd`; HIR `actual`/`designator` + lowering `cfaad741`; fixtures H16–H21 `96e995fd`; semtest I11–I13 + 4 corrupt controls + hir_test SEM_MODES ×7 `735b43af`; T1–T10 ALL PASS (RESULTS §P1-a2); roadmap PROPOSED ONLY — STOP |

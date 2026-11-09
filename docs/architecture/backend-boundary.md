@@ -277,3 +277,30 @@ HIR-E02/E03/E12/E13/E14 with ZERO output; DR's runtime bounds and intermediate-t
 behaviour remain UNMEASURED `[TBD]` — the E12 constant range-check is an HIR subset
 rule, never a language claim. Descriptor/actual array passing is out of scope (future
 slice). Full panel: RESULTS §P1-a1.
+
+### 7-3. E2E-54/P1-a2 LANDED — procedure arguments and indirect references (CLOSED 2026-11-10)
+
+Item: §1.5 "Procedure signatures and calls" gains its first HIR-side ARGUMENT
+representation. Measured outcome: the HIR now distinguishes argument forms **by
+construction** — `actual_form = A_value of expr | A_reference of designator`, so a
+by-value actual cannot masquerade as a reference; `designator = D_var{sid} |
+D_elem{base;subs}` (the P1-a1 assign-target `target` renamed and SHARED with argument
+references, dump bytes unchanged). Passing semantics enter HIR only as a SYMBOLIC
+classification projected by `Semantic_env` (`passing_mode`: own-cell / value-cell /
+immediate / copy-in / unknown): every physical parameter-passing fact — descriptor slot,
+value-cell placement, DEC temp (`cs_slot` is not even READ outside `bind.ml`) — STOPS at
+the seam, enforced by the extended RAW T5 greps (`pl_calls|cs_temps|cs_copies|cs_dec|
+bind_arrays` read ONLY by the projection and the test binary). Call lowering is
+EVIDENCE-DRIVEN: `call_evidence` matches bind's recorded site by callee key plus PHYSICAL
+`(==)` identity of the argument nodes (the matching law CONFIRMED first-hand at
+expression and statement sites — hop 6/7), and typed absence refuses loudly on new
+stable code HIR-E16; it NEVER guesses a position. Whole-array actuals refuse E15,
+argument type mismatch E17 (DR behaviour `[TBD]`). Statement calls with arguments are now
+lowered to `Call_s` (previously refused E04) — the slice's only sanctioned behaviour
+expansion besides the E13→E15 handover. Language-level argument EVALUATION ORDER remains
+[unmeasured] [TBD]: the dump's `args left-to-right` is the §P1-a2.2 adjudication, backed
+as DR EMISSION order only [C093]. Semantic authority is judged LIVE by semtest I11–I13
+sharing their comparison functions with four new non-vacuous corrupt controls (seven
+modes total, 11 positives × 7 = 77 control runs, each rc 1 ZERO stdout). The alias-pair
+and nested-actual fixtures pin HIR REPRESENTATION only, never runtime behaviour. Full
+panel: RESULTS §P1-a2.
