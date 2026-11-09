@@ -10603,3 +10603,57 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
 - **open questions:** string data-item capture through object mode UNPROVEN; exit() resolution
   from libcosmo UNPROVEN; whether the PL/I RETURN value should reach the driver in I/O programs
   (console_check.c driver design is a §P1-m1 pre-registration decision).
+
+## E2E-54/P1-m1 hop 2 (2026-11-10, session 01a1c215, renewal 1/12) — import probe GREEN; production console ABI MEASURED
+
+- **accepted (scratch probe build/p1m1-scratch/mir2o_ext.c — copy of tools/mir_aot/mir2o.c plus ONE additive
+  block: for every MIR_import_item, MIR_load_external(ctx, it->u.import_id, (void *)dummy) BEFORE MIR_link;
+  built `gcc -O2 -Wall -Wextra -Werror -I<mirsrc> … build/p1m0-deps/mir-obj/libmir.a -ldl -lm`, rc 0):**
+  the hop-1 FALSIFICATION is RESOLVED. probe1.mir (4 strong imports) now emits rc 0 (2576 B); `nm -u` shows
+  U exit / U pli_console_get_i64 / U pli_console_put_i64 / U pli_console_put_text (undefined STRONG), T
+  pli80_probe; `T`-symbol + readelf -r show calls via .mir.addrpool PC32 relocs, pool entries R_X86_64_64
+  against the NAMED symbols — the dummy address NEVER enters the object. Source law read first-hand:
+  mir.c setup_global creates an environment IMPORT item (ref_def NULL); mir-gen.c gen_obj_item_sym emits
+  SEC_UNDEF for canonical import items. **Additivity MEASURED, not assumed:** the no-import module M01 emits
+  a .o BYTE-IDENTICAL to the frozen build/mir-aot/M01.o; both .o deterministic ×2.
+- **accepted (cosmo tiny):** tools/mir_aot/cosmo_link.sh tiny links the probe .o + runtime C + driver rc 0 →
+  static ELF; stdin `123\n` prints stdout EXACTLY `42\nHello, console!\n124\n` (xxd-verified), stderr
+  driver-return=124, rc 0, ×2 deterministic. Failure legs: stdin `abc\n` → rc 2 (BAD), empty stdin → rc 1
+  (EOF) with the EARLIER partial output still flushed (exit() flushes stdio) — fail-fast and
+  EOF-never-masquerades-as-success hold; exit() resolves from libcosmo. wine noise during the link
+  (binfmt-claimed .ape helpers) is benign; the artifact is produced (P1-mC law).
+- **accepted (probe2/probe4 — PRODUCTION-shape MIR layout verified end-to-end on glibc):** raw
+  pli_console_put_i64 (NO newline) + statement-level pli_console_put_nl; zero-arg proto `p_nl:\tproto\ti64`
+  parses and calls fine; string items escape `\"` and `\\` and decode to EXACT bytes (31-byte literal
+  verified byte-for-byte); ONE import line per module listing ONLY the names actually called, canonical
+  order (pli_console_put_i64, pli_console_get_i64, pli_console_put_text, pli_console_put_nl, exit); protos
+  emitted only when used, fixed order (p_put, p_get, p_text, p_nl, p_exit) BEFORE the import line, string
+  items s1… after it, all before the func item; get = `alloca a1, 8` (a1 a declared local) +
+  `call p_get, pli_console_get_i64, st, a1, <lo>, <hi>` + `bne Lfail, st, 0` + `mov v<sid>, i64:(a1)`;
+  shared `Lfail:` tail after the body ret: `call p_exit, exit, st` + `ret st`.
+- **accepted (measured runtime parsing laws — the ABI contract to pre-register):** get skips leading
+  space/tab/CR/LF; optional +/-; digits end at the first non-digit WHICH IS CONSUMED (so `123abc` → 123 OK);
+  EOF after a complete number is a GOOD read; lone `-` → BAD; digit run longer than the 24-byte buffer →
+  RANGE; a value outside [lo,hi] (e.g. 16384 vs W(15)=±16383) → RANGE(3); statuses OK0/EOF1/BAD2/RANGE3/IOERR4.
+- **accepted (evidence reads grounding §P1-m1, all first-hand):** parse_put/parse_get ALWAYS set stream=None
+  (streams arrive via on_opts; a bare file name becomes on_opts FILE(ident)); `put from(x)` parses to
+  kind=List_ and is AST-INDISTINGUISHABLE from `put list(x)` (record as deviation); leading SKIP/PAGE/LINE
+  become Pi_ctl items; trailing ctl before `;` is already a parser refusal; ON ENDFILE is a SEPARATE
+  Ast.Son statement refused today by the existing E05 catch-all (wording "ON unit"). Estring carries the
+  lexer-folded value. hir/fixtures N4 pin proves E02 refuses `dcl c character(3)` ⇒ NO character VARIABLE
+  can exist in the current HIR ⇒ m1b is literal-put only; char-var put is blocked at the EXISTING E02
+  channel (documented, never a new refusal). Profile ceiling maxp=15 (Oracle_backed), default literal
+  precision 15; hir clamps binop types to 15 (H08 law).
+- **accepted (WINDOW LAW, critical for fixture design):** after `get list(x)` the provable interval of x IS
+  the full declared window W(p); any later binop that can leave W(p) refuses E19 (e.g. `x = x + 1` after a
+  bin(15) get dies — 16384 > 16383). Console fixtures must PUT/RETURN the got value directly or use
+  window-preserving arithmetic.
+- **proposed (to be pre-registered, NOT yet implemented):** HIR additive stmts `Put of put_source`
+  (P_value of expr | P_text of { text }) and `Get of designator` (D_var only); dump bytes
+  `put value  [line N]` / `put literal  [line N]` + indented `literal 'text'` / `get  [line N]` + shared
+  dump_designator; diagnostic.ml APPENDS e_io_construct HIR-E21 (options/ctl/kind/item-count/item-class/
+  target-shape, BY NAME) and e_io_domain HIR-E22 (type/precision/charset outside the console domain);
+  tools/mir_aot/{pli_console.c,console_check.c} (driver: -DENTRY required, ZERO stdout of its own,
+  stderr `driver-return=<v>\n`, rc 0 on normal return); runner tools/mir_aot_console_test.py; fixtures
+  continue hir/mir-fixtures M04/M05 (m1a) + M06 (m1b) and N8+ refusals; mir2o.c lands the probe's additive
+  block VERBATIM + build_native.sh unchanged + CT2 re-check of the three frozen .o pins.
