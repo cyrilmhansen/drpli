@@ -42,14 +42,19 @@ E2E-54/P1-b additions (PLAN §P1-b.4, falsifiers S5-S8):
 E2E-54/P1-a1 additions (PLAN §P1-a1.7/.8, falsifiers T5/T6/T7):
 
  10. Corrupt controls extended (T7): every positive fixture runs semtest LIVE
-     and ALL THREE corrupt modes (`--corrupt`, `--corrupt-array-hi`,
-     `--corrupt-array-base`); every mode must exit 1 with ZERO stdout and
-     all-SEM-FAIL stderr — a mode with nothing to perturb says
+     and ALL SEVEN corrupt modes (`--corrupt`, `--corrupt-array-hi`,
+     `--corrupt-array-base`, `--corrupt-formal`, `--corrupt-actual-base`,
+     `--corrupt-arg-position`, `--corrupt-mode`); every mode must exit 1 with
+     ZERO stdout and all-SEM-FAIL stderr — a mode with nothing to perturb says
      `nothing was proven` and still exits 1 (never a silent pass).
- 11. T5 bind_arrays seam (RAW grep, comments included): `bind_arrays` may occur
+ 11. T5 bind-parameter seam (RAW grep, comments included): each of
+     `pl_calls`, `cs_temps`, `cs_copies`, `cs_dec`, `bind_arrays` may occur
      ONLY in semantic_env.ml (the projection) and semtest.ml (the intentional
      authority reader, §P1-b.4 law); any hit elsewhere in ocaml/hir or ocaml/bin
-     fails — array facts cross the compiler seam ONLY via Semantic_env.
+     fails — bind's call records cross the compiler seam ONLY via
+     Semantic_env. And `cs_slot` (bind's descriptor-slot field, whose integer
+     the projection drops UNREAD) must occur NOWHERE in ocaml/hir or ocaml/bin
+     at all (§P1-a2.3/T5; hop-8 comment rewords made the directory clean).
  12. T6 array-vocabulary strip-grep: after the comment strip, semantic_env.ml
      and hir.ml contain no `stride|offset|bytes|esz|size|reloc|pool` word and no
      `0x` anywhere in code (the strict F8 subset the array projection lives
@@ -158,12 +163,17 @@ def run_semtest(fixture: Path, flag: str | None = None) -> subprocess.CompletedP
 # stdout of a passing live run is exactly one line of this shape (§P1-b.4)
 SEM_OK_RE = re.compile(r"^SEMANTIC-AUTHORITY OK [0-9]+ refs / [0-9]+ syms\n$")
 
-# §P1-a1.7: live + ALL corrupt modes (T7); every corrupt mode must fail loudly.
+# §P1-a1.7 + §P1-a2.6: live + ALL SEVEN corrupt modes (T7); every corrupt mode
+# must fail loudly.
 SEM_MODES = [
     (None, "live"),
     ("--corrupt", "corrupt"),
     ("--corrupt-array-hi", "corrupt-array-hi"),
     ("--corrupt-array-base", "corrupt-array-base"),
+    ("--corrupt-formal", "corrupt-formal"),
+    ("--corrupt-actual-base", "corrupt-actual-base"),
+    ("--corrupt-arg-position", "corrupt-arg-position"),
+    ("--corrupt-mode", "corrupt-mode"),
 ]
 
 
@@ -332,28 +342,46 @@ def check_seam() -> None:
 
 # ---------- P1-a1 seam greps (T5 / T6) ----------
 
-# T5 (§P1-a1.8): bind_arrays is read ONLY inside semantic_env.ml (the projection)
-# and semtest.ml (the intentional authority reader) — RAW grep, comments included
-# (mirrors `grep -rn bind_arrays ocaml/hir/ ocaml/bin/`).
+# T5 (§P1-a1.8 extended by §P1-a2.3/.8): bind's call/array record fields are
+# read ONLY inside semantic_env.ml (the projection) and semtest.ml (the
+# intentional authority reader) — RAW grep, comments included (mirrors
+# `grep -rn <pat> ocaml/hir/ ocaml/bin/`). cs_slot is stricter: NO reader at
+# all — the descriptor-slot integer is dropped unread at the projection
+# boundary, so the name must occur NOWHERE in ocaml/hir or ocaml/bin.
 T5_ALLOWED = {
     "ocaml/hir/semantic_env.ml",
     "ocaml/hir/semtest.ml",
 }
+T5_PATTERNS = ("pl_calls", "cs_temps", "cs_copies", "cs_dec", "bind_arrays")
+T5_SLOT = "cs_slot"
 
 
 def check_array_seam() -> None:
     files = sorted((REPO / "ocaml" / "hir").glob("*.ml")) \
         + sorted((REPO / "ocaml" / "bin").glob("*.ml"))
-    hits = sorted(
+    for pat in T5_PATTERNS:
+        hits = sorted(
+            str(f.relative_to(REPO))
+            for f in files
+            if pat in f.read_text()
+        )
+        if set(hits) - T5_ALLOWED:
+            fail(f"T5 ({pat} seam): unexpected readers "
+                 f"{sorted(set(hits) - T5_ALLOWED)} (all hits: {hits})")
+        else:
+            ok(f"T5 ({pat} seam): readers exactly {hits} "
+               "(semantic_env + semtest only)")
+    slot_hits = sorted(
         str(f.relative_to(REPO))
         for f in files
-        if "bind_arrays" in f.read_text()
+        if T5_SLOT in f.read_text()
     )
-    if set(hits) - T5_ALLOWED:
-        fail(f"T5 (bind_arrays seam): unexpected readers {sorted(set(hits) - T5_ALLOWED)} "
-             f"(all hits: {hits})")
+    if slot_hits:
+        fail(f"T5 ({T5_SLOT}): descriptor-slot field named in {slot_hits} — "
+             "it must be read NOWHERE in ocaml/hir or ocaml/bin (§P1-a2.3)")
     else:
-        ok(f"T5 (bind_arrays seam): readers exactly {hits} (semantic_env + semtest only)")
+        ok(f"T5 ({T5_SLOT} nowhere): no hir/bin file names the descriptor-slot "
+           "field (dropped unread at the projection boundary)")
 
 
 # T6 (§P1-a1.8): after the comment strip, the array projection and the HIR types
@@ -401,7 +429,8 @@ def main() -> int:
         print(f"HIR TEST FAILED: {len(FAILURES)} failure(s)")
         return 1
     print("HIR TEST PASSED: fixtures deterministic + F4/F7/F8/F9 + "
-          "semtest S6/S7/T7 (live + all corrupt modes) + F10/S8 seam + T5/T6 array greps clean")
+          "semtest S6/S7/T7 (live + all seven corrupt modes) + F10/S8 seam + "
+          "T5 call/array-record greps (cs_slot nowhere) + T6 vocabulary clean")
     return 0
 
 

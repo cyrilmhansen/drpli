@@ -59,8 +59,9 @@
    lists and bind's [cs_dec] flags as-is. Passing modes are symbolic
    ([passing_mode] below) and a disagreement between bind's record and the
    argument syntax is [PM_unknown] — a typed unknown the lowering must refuse
-   loudly (HIR-E16), never guess through. [cs_slot] is not read at all
-   (falsifier T5: it occurs nowhere in this directory). *)
+   loudly (HIR-E16), never guess through. bind's descriptor-slot field is not
+   read at all (falsifier T5: the raw grep pins it out of this directory
+   entirely — hop-8 reword). *)
 
 (* Cross-library aliases (P0 F1 law: these units live in the separate
    [pli80_hir] library; the historical front end is reached through [Pli80]). *)
@@ -313,8 +314,9 @@ type t = {
   sites : call_site list;
       (** AMENDMENT (§P1-a2.3): bind's [pl_calls] projected ONCE at [create] —
           DFS order preserved, every Some address replaced by [true], the slot
-          integer DROPPED unread (T5: [cs_slot] is named nowhere in this
-          directory). The physical node identities enable [call_evidence]
+          integer DROPPED unread (T5 raw grep: this descriptor-slot field is
+          named NOWHERE in this directory — hop-8 reword). The physical node
+          identities enable [call_evidence]
           matching; nothing here interprets an expression. **)
 }
 

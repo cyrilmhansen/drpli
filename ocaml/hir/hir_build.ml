@@ -879,7 +879,8 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
               (* Parser law (read first-hand, hop 5): an [Eident] statement target never
                  carries an argument list — [Sprocedure_stmt.args] is always []. The guard
                  keeps that law loud if the parser ever changes. This route deliberately
-                 consults NO call evidence: bind's [pl_calls] records no site for a plain
+                 consults NO call evidence: bind's raw call-site records (the
+                 [Semantic_env] site channel, §P1-a2.3) hold no site for a plain
                  identifier statement call, so there is nothing to align with (§P1-a2.5). *)
               if args <> [] then
                 raise_err ~line D.e_expr
@@ -909,9 +910,10 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
           ;
           let key = SE.key_of n in
           (match SE.procedure ctx.env key with
-           (* A non-procedure head keeps the EXISTING E04 wording: bind's [pl_calls]
-              proves a non-procedure suffix head records NO call site, so E04 — not a
-              resolution failure — is the honest refusal (T10). *)
+           (* A non-procedure head keeps the EXISTING E04 wording: bind's raw
+              call-site records prove a non-procedure suffix head records NO call
+              site, so E04 — not a resolution failure — is the honest refusal
+              (T10). *)
            | None ->
                raise_err ~line D.e_expr
                  "only direct procedure calls are lowered in P0"
