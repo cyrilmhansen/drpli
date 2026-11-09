@@ -30,14 +30,30 @@ E2E-54/P1-b additions (PLAN §P1-b.4, falsifiers S5-S8):
      `SEMANTIC-AUTHORITY OK <n> refs / <m> syms` and EMPTY stderr; the
      `--corrupt` control must exit 1 with ZERO stdout and a stderr whose every
      line starts with `SEM-FAIL:` (the tool is not vacuous).
-  7. Determinism (S7): semtest also runs TWICE per positive fixture (live and
-     corrupt) in fresh processes with byte-identical (rc, stdout, stderr).
+  7. Determinism (S7/T8): semtest also runs TWICE per positive fixture in fresh
+     processes with byte-identical (rc, stdout, stderr).
   8. F10 Bind-seam audit (S5): after the comment strip, hir_build.ml mentions
      `Bind` ONLY at the cross-library alias line and the single `bind_program`
      call — the exact two lines are pinned; any other occurrence fails.
   9. S8 env independence: after the comment strip, semantic_env.ml contains no
      `\bHir\b` reference (the env is IR-independent). It also rides the F8 glob
      automatically (all ocaml/hir/*.ml).
+
+E2E-54/P1-a1 additions (PLAN §P1-a1.7/.8, falsifiers T5/T6/T7):
+
+ 10. Corrupt controls extended (T7): every positive fixture runs semtest LIVE
+     and ALL THREE corrupt modes (`--corrupt`, `--corrupt-array-hi`,
+     `--corrupt-array-base`); every mode must exit 1 with ZERO stdout and
+     all-SEM-FAIL stderr — a mode with nothing to perturb says
+     `nothing was proven` and still exits 1 (never a silent pass).
+ 11. T5 bind_arrays seam (RAW grep, comments included): `bind_arrays` may occur
+     ONLY in semantic_env.ml (the projection) and semtest.ml (the intentional
+     authority reader, §P1-b.4 law); any hit elsewhere in ocaml/hir or ocaml/bin
+     fails — array facts cross the compiler seam ONLY via Semantic_env.
+ 12. T6 array-vocabulary strip-grep: after the comment strip, semantic_env.ml
+     and hir.ml contain no `stride|offset|bytes|esz|size|reloc|pool` word and no
+     `0x` anywhere in code (the strict F8 subset the array projection lives
+     under; the F4 dump audit proves no byte count ever prints).
 
 F7/F8 grep OCaml sources AFTER stripping `(* ... *)` comments (nesting-aware),
 because module headers legitimately mention Rel80/Codegen in prose. The stripper
@@ -134,23 +150,31 @@ def run_cli(fixture: Path) -> subprocess.CompletedProcess:
     )
 
 
-def run_semtest(fixture: Path, corrupt: bool = False) -> subprocess.CompletedProcess:
-    argv = [str(SEMTEST)] + (["--corrupt"] if corrupt else []) + [str(fixture)]
+def run_semtest(fixture: Path, flag: str | None = None) -> subprocess.CompletedProcess:
+    argv = [str(SEMTEST)] + ([flag] if flag else []) + [str(fixture)]
     return subprocess.run(argv, capture_output=True, timeout=60)
 
 
 # stdout of a passing live run is exactly one line of this shape (§P1-b.4)
 SEM_OK_RE = re.compile(r"^SEMANTIC-AUTHORITY OK [0-9]+ refs / [0-9]+ syms\n$")
 
+# §P1-a1.7: live + ALL corrupt modes (T7); every corrupt mode must fail loudly.
+SEM_MODES = [
+    (None, "live"),
+    ("--corrupt", "corrupt"),
+    ("--corrupt-array-hi", "corrupt-array-hi"),
+    ("--corrupt-array-base", "corrupt-array-base"),
+]
+
 
 def check_semtest(fixture: Path, name: str) -> None:
-    """S6/S7: live semantic-authority checks + the corrupt control."""
-    for corrupt in (False, True):
-        tag = "corrupt" if corrupt else "live"
-        s1 = run_semtest(fixture, corrupt)
-        s2 = run_semtest(fixture, corrupt)
+    """S6/S7/T7/T8: live semantic-authority checks + every corrupt control."""
+    for flag, tag in SEM_MODES:
+        corrupt = flag is not None
+        s1 = run_semtest(fixture, flag)
+        s2 = run_semtest(fixture, flag)
         if (s1.returncode, s1.stdout, s1.stderr) != (s2.returncode, s2.stdout, s2.stderr):
-            fail(f"{name} semtest/{tag}: non-deterministic across two fresh processes (S7)")
+            fail(f"{name} semtest/{tag}: non-deterministic across two fresh processes (S7/T8)")
             continue
         if not corrupt:
             if s1.returncode != 0:
@@ -164,17 +188,17 @@ def check_semtest(fixture: Path, name: str) -> None:
                 ok(f"{name} semtest/live: rc 0, {s1.stdout.decode().strip()!r}, deterministic")
         else:
             if s1.returncode != 1:
-                fail(f"{name} semtest/corrupt: rc={s1.returncode} (want 1) — the wrong-sid "
-                     "control must fail loudly, never OK (S6)")
+                fail(f"{name} semtest/{tag}: rc={s1.returncode} (want 1) — the control "
+                     "must fail loudly, never OK (T7)")
             if s1.stdout != b"":
-                fail(f"{name} semtest/corrupt: control emitted {len(s1.stdout)} stdout bytes")
+                fail(f"{name} semtest/{tag}: control emitted {len(s1.stdout)} stdout bytes")
             lines = s1.stderr.decode(errors="replace").splitlines()
             if not lines:
-                fail(f"{name} semtest/corrupt: empty stderr — control printed nothing")
+                fail(f"{name} semtest/{tag}: empty stderr — control printed nothing")
             elif not all(ln.startswith("SEM-FAIL:") for ln in lines):
-                fail(f"{name} semtest/corrupt: stderr lines not all SEM-FAIL: {lines!r}")
+                fail(f"{name} semtest/{tag}: stderr lines not all SEM-FAIL: {lines!r}")
             else:
-                ok(f"{name} semtest/corrupt: rc 1, ZERO stdout, {len(lines)} SEM-FAIL line(s) "
+                ok(f"{name} semtest/{tag}: rc 1, ZERO stdout, {len(lines)} SEM-FAIL line(s) "
                    "(non-vacuity control)")
 
 
@@ -306,6 +330,57 @@ def check_seam() -> None:
         ok("S8 (env independence): semantic_env.ml code is free of \\bHir\\b (comment strip)")
 
 
+# ---------- P1-a1 seam greps (T5 / T6) ----------
+
+# T5 (§P1-a1.8): bind_arrays is read ONLY inside semantic_env.ml (the projection)
+# and semtest.ml (the intentional authority reader) — RAW grep, comments included
+# (mirrors `grep -rn bind_arrays ocaml/hir/ ocaml/bin/`).
+T5_ALLOWED = {
+    "ocaml/hir/semantic_env.ml",
+    "ocaml/hir/semtest.ml",
+}
+
+
+def check_array_seam() -> None:
+    files = sorted((REPO / "ocaml" / "hir").glob("*.ml")) \
+        + sorted((REPO / "ocaml" / "bin").glob("*.ml"))
+    hits = sorted(
+        str(f.relative_to(REPO))
+        for f in files
+        if "bind_arrays" in f.read_text()
+    )
+    if set(hits) - T5_ALLOWED:
+        fail(f"T5 (bind_arrays seam): unexpected readers {sorted(set(hits) - T5_ALLOWED)} "
+             f"(all hits: {hits})")
+    else:
+        ok(f"T5 (bind_arrays seam): readers exactly {hits} (semantic_env + semtest only)")
+
+
+# T6 (§P1-a1.8): after the comment strip, the array projection and the HIR types
+# carry NO byte-layout vocabulary and no hex literal anywhere in code — the
+# strict F8 subset plus stride/bytes/esz and bare 0x.
+T6_FILES = [
+    REPO / "ocaml" / "hir" / "semantic_env.ml",
+    REPO / "ocaml" / "hir" / "hir.ml",
+]
+T6_PATTERNS = [r"\b(stride|offset|bytes|esz|size|reloc|pool)\b", r"0x"]
+
+
+def check_array_vocabulary() -> None:
+    bad = False
+    for f in T6_FILES:
+        code = stripped(f)
+        for pat in T6_PATTERNS:
+            for m in re.finditer(pat, code):
+                ln = code.count("\n", 0, m.start()) + 1
+                fail(f"T6 (array vocabulary): {f.relative_to(REPO)}:{ln} matches /{pat}/ "
+                     "in code (after comment strip)")
+                bad = True
+    if not bad:
+        ok(f"T6 (array vocabulary): {len(T6_FILES)} files clean of "
+           f"stride|offset|bytes|esz|size|reloc|pool and 0x (comment strip)")
+
+
 def main() -> int:
     if not CLI.exists():
         print(f"ERROR: CLI not built: {CLI}\n"
@@ -319,12 +394,14 @@ def main() -> int:
     check_greps("F7 separation (historical backend free of HIR refs)", F7_FILES, F7_PATTERNS)
     check_greps("F8 HIR purity (no backend/byte-layout vocabulary)", F8_FILES, F8_PATTERNS)
     check_seam()
+    check_array_seam()
+    check_array_vocabulary()
     print()
     if FAILURES:
         print(f"HIR TEST FAILED: {len(FAILURES)} failure(s)")
         return 1
     print("HIR TEST PASSED: fixtures deterministic + F4/F7/F8/F9 + "
-          "semtest S6/S7 + F10/S8 seam checks clean")
+          "semtest S6/S7/T7 (live + all corrupt modes) + F10/S8 seam + T5/T6 array greps clean")
     return 0
 
 
