@@ -7,6 +7,39 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54p1m1-7. **E2E-54/P1-m1 hop 7 CHECKPOINTED 2026-11-10 — step-4 ANCHOR RE-VERIFICATION ONLY,
+ZERO repository code byte changed (session 01a1c283, renewal 6/12; baseline FIRST-HAND: HEAD
+`661c73f2`; `cd ocaml && eval "$(opam env)" && dune build` rc 0; T1 kept exe `172595d52be44c9e…`
+DIRECT; ledger `grep -c '^## C' spec/CLAIMS.md` = 203 ending C380; tree dirty ONLY the managed
+blocks + operator `handoff.config.json` NEVER staged; ZERO oracle).** Verified first-hand and
+recorded in `LEARNINGS.md` § "E2E-54/P1-m1 hop 7": the m1b literal emission shape is ALREADY
+PROVEN in `build/p1m1-scratch/probe2.mir` (proto order p_put,p_get,**p_text**,p_nl,p_exit; ONE
+canonical import line with `pli_console_put_text` in position 3; `s1:\tstring\t"…"` item AFTER
+the import line and BEFORE the `func` item, escapes `\"`/`\\`; statement `mov <t>, <len>` +
+`call p_text, pli_console_put_text, st, s<k>, <t>` + `bne` + `p_nl` + `bne`); the exact edit sites
+(`hir_build.ml` transient `Ast.Estring` refusal inside the `[Pi_data e]` match of the `Sput` arm —
+`hir.ml` needs NO edit, `P_text` + dump arms landed in hop 5; `mir_backend.ml` = P_text arm,
+`cu_put,cu_get` fold → add `cu_text` and OR it into `cu_any`, `console_items` gains the p_text proto
++ import name + s<k> items); the two probe sources to `cp` to `tools/mir_aot/{pli_console.c,
+console_check.c}` (`extern long long ENTRY(void)`, `#error` without `-DENTRY`, ZERO stdout, stderr
+`driver-return=<v>`, statuses OK0/EOF1/BAD2/RANGE3/IOERR4); and the tooling fact that claim headers
+are level-2 `## C…` (a `^### C` grep returns 0).
+**SUCCESSOR = PROGRESS.md LIVE hop-7 heading VERBATIM = PLAN §P1-m1.11 STEP 4 (m1b literal put):**
+E22 empty + charset (codes 32..126, DECIMAL position/code point, NEVER hex/"size") arms REPLACING
+the transient wording; p_text/s<k> emission; commit the two console C files; MEASURED-FIRST
+CRLF+^Z `M06.pli` msg1 (literal EXACTLY 29 chars ⇒ 33 B `DR PL/I-80 hello from Cosmo!!\n42\n`,
+hand-computed §P1-m1.7 NEVER re-fit) + `N18.pli` tab → E22 + `N17.pli` `put list('');` PARSE
+UNPROVEN (if the parser dies, record the deviation, arm stays defensive-UNEXERCISED); pins = `cp`
+after line-by-line review vs §P1-m1.5; build rc 0 → T1 → hir_test **220 ok** 11 numbers UNMOVED →
+T2 clean → commit explicit paths. THEN step 5 runner (`tools/mir_aot_console_test.py`, expected
+bytes COPIED FROM §P1-m1.7; C-a/C-b/C-c MUST FAIL), step 6 FULL FROZEN regression (gate →
+`build/gate-e54p1m1-reg.log`; mir_aot 27; cosmo 25; fresh `_build-e54p1m1` hist 122 sha == kept),
+step 7 CLOSE + **STOP**. READ `LEARNINGS.md` §§ hop 2+3+4+5+6+**7** FIRST. Standing: ZERO oracle;
+ledger 203/C380; config NEVER staged; no push; explicit paths; scratch never committed; lab never
+advanced; hir pins FROZEN / mir pins ADDITIVE-only; F8 law; `eval "$(opam env)"`; rc DIRECT; NEVER
+batch build with tests; timeout 60 per fixture / 900 per suite.
+
+
 1e-e54p1m1-6. **E2E-54/P1-m1 hop 6 LANDED 2026-11-10 — §P1-m1.11 STEP 3 (m1a MIR half) COMMITTED
 `d6ccb333` (session 01a1c26d, renewal 5/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger
 203/C380; baseline re-verified first-hand at `ee126055`). mir_backend §P1-m1.5 emission REPLACED the
@@ -1905,17 +1938,17 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 702
-checkpoint-id: g702-6e7acc2fa148
+checkpoint-generation: 704
+checkpoint-id: g704-56dac794ad3b
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4072, session 01a1c26d-b3d4-7001-8c8d-6b01377a2706)
-checkpointed: 2026-11-09T22:52:05.824Z
+status: checkpoint (guard level 4, remaining ~2664, session 01a1c283-aa9d-7001-8c8d-6b04cccd5c5d)
+checkpointed: 2026-11-09T23:10:57.598Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d28fdb578e94dd4b80ea35c236c65bc6103b40bfa84f75577a5d86ec1a894b1a
+source-progress: c1a9fcf138208389d682c0df3c5626052202e9fa29cb8d2ba8fafe6d89ed22dc
 source-handoff: c8cfcc858a95f216d3a605093f067e4cfa551e3b14eac6f05dd45f824ca55149
-source-learnings: 841b1fbf9ce71a02c95e4ecc84da15868e686500b5923f2200e7c4e8400bf267
+source-learnings: a72c93190116417a801ed5aa8fea83d28c0362f6c389580b9c302b20385d0ee1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
