@@ -54,6 +54,16 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
+## Next action (E2E-54/P1-m0 hop 2 — STEP 3 LANDED AND COMMITTED `241f2a79` (backend compiles; T1/T2/T3 green, 220 ok) — SUCCESSOR = §P1-m0.9 STEP 4 fixtures+pins MEASURED-FIRST, BINDING)
+
+**State (accepted, first-hand this session 01a1c09d, renewal 1/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380):** §P1-m0.9 step 3 EXECUTED and committed `241f2a79` (explicit paths `ocaml/hir/{mir_backend,pli80mir,diagnostic,dune}`; config NOT staged): `mir_backend.ml` (typed HIR → deterministic MIR text; §P1-m0.2 subset with BY-NAME refusals; §P1-m0.3 exact-interval proof inside W(p)=±(2^(p-1)-1); §P1-m0.4 emission contract) + `pli80mir.ml` CLI (`--export` REQUIRED, case-fold match, `-o` written AFTER `Ok` and BEFORE stdout so a refusal leaves ZERO stdout and NO file; `Backend.Driver` + `For`-functor witnesses) + `diagnostic.ml` APPENDED `HIR-E18 e_mir_node`/`HIR-E19 e_mir_numeric`/`HIR-E20 e_mir_export` + dune library/stanza. MEASURED: build rc 0; T1 exe `172595d5…` DIRECT; T2 diff clean; T3 `timeout 900 python3 tools/hir_test.py` rc 0 **220 ok**, ALL 11 frozen numbers UNMOVED (log `build/p1m0-hop2-hirtest.log`, ignored). F8 LAW (measured, pattern NOT weakened): single UPPERCASE letters in code trip the mnemonic grep — `'A'..'Z'` char range rewritten on `Char.code`, module `M` renamed `Entry`. Refusals measured (LF scratch, so LINE NUMBERS WILL MOVE under the committed CRLF fixtures): M01/M02/M03 rc 0 correct shape; N1 E19 uninit; N2 E18 `if`; N3 E19 convert; N7 E18 while; N5 E18 naming the ARRAY **TYPE** at its declare (DEVIATION of wording from "array designation", code as pre-registered); N4 E02 / N6 E08 EXISTING channels (no-bypass pins); `--export` mismatch → E20; MULTI-PROC arm EXERCISED live on frozen `hir/fixtures/H16.pli`; `--profile generic32-unspecified` dies E10 in `Hir_build` so the backend's ceiling-Unknown `e_profile` arm stays UNEXERCISED; `Parse_error` is not caught by either HIR CLI (PRE-EXISTING, identical in `pli80hir.exe`, recorded not fitted). READ `LEARNINGS.md` § "E2E-54/P1-m0 hop 2" FIRST.
+
+**SUCCESSOR = PLAN §P1-m0.9 STEP 4 VERBATIM (then 5–8):** (4) create `hir/mir-fixtures/{M01,M02,M03,N1..N7}.pli` — CRLF on EVERY line + `^Z` terminator, one dcl item/statement (the H-series law); `M01` is the brief candidate `calc: procedure returns(fixed bin(15)); dcl x fixed bin(15); x = 6 * 7; return (x); end calc;` (scratch `M1a.pli` shape); M02 `y=10;z=y+5;return (z*3);`; M03 `r=2-3*4;return (-r);`; N1 uninit read; N2 `if`; N3 two converts (`x=300; z=x+1; return (z);` with `dcl z fixed bin(7)`); N4 `dcl c character(3)`; N5 array `a(3)`; N6 `x = 40000`; N7 `do while (x > 0)` — each under `timeout 60` as `pli80mir.exe --export <name> [-o /tmp/…] <fixture>`; REVIEW EVERY emitted MIR line against §P1-m0.4 BEFORE pinning; expected files are `cp` of the reviewed measured output (NEVER hand-written): `hir/mir-expected/M*.mir` = stdout bytes, `N*.stderr.txt` = stderr bytes, `N*.rc` = the rc; re-measure the N line numbers on the CRLF fixtures (the LF scratch numbers are obsolete); assert ZERO stdout + NO `-o` file for every negative as you measure → `timeout 900 python3 tools/hir_test.py` rc 0 (220 ok, 11 numbers unmoved — the MIR dirs are NOT read by hir_test, this is the regression check) → `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` CLEAN → commit explicit paths (predictions in §P1-m0.2 falsified-not-fitted; deviations recorded here and in RESULTS). (5) `tools/mir_aot/{mir2o.c,build_native.sh,native_check.c}` per §P1-m0.5 (D-3 sequence, `MIR_link(MIR_set_gen_interface)` REQUIRED, `MIR_object_load` FORBIDDEN, nonzero rc everywhere; build script pin-checks lab `ccc92c5c…`+madc `f541a7a5…` and FAILS LOUD naming the blocker — no re-pin, no network, no C-only substitution; libmir.a out-of-tree `build/p1m0-deps/mir-obj` with `mkdir -p` first; `native_check.c` `-DENTRY -DEXPECTED`) → build rc 0 → manual M01 run → commit; then `tools/mir_aot_test.py` full §P1-m0.7 panel (determinism ×2 fresh procs; pin equality; mir2o parser acceptance; readelf -h REL/X86-64 + readelf -r + nm `T pli80_<n>` + objdump + ldd evidence into `build/mir-aot/`; gcc link; TWO native runs; positives EXECUTE **42 / 45 / 10** (independent, §P1-m0.6 — NEVER re-fit from output); negatives assert pinned rc/stderr + NO `-o` file + no `.o`; pipeline proof via `pli80hir.exe`; corruption controls C-a `mul`→`add` MUST fail natively with 13≠42 and C-b `-DEXPECTED=43` MUST fail) → rc 0 → commit. (6) FULL gate rc 0 FROZEN **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** → `build/gate-e54p1m0-reg.log` + fresh `dune build --build-dir _build-e54p1m0` rc 0 ZERO `Error` hist **122**, fresh sha == kept exe (computed separately). (7) CLOSE RESULTS §P1-m0 (T1–T11 WITH values; the FIVE milestones HIR-lowered / MIR-generated / object-emitted / executable-linked / native-execution stated SEPARATELY; unsupported-semantics matrix; deviations incl. the N5 wording and the `For`/`~export` contract resolution), arch doc §7-5, PLAN dashboard CLOSED, durables + guard. (8) **STOP**.
+
+Standing: ZERO oracle; ledger C380 (203 headers); `ocaml/lib`+`ocaml/bin` byte-clean; `handoff.config.json` NEVER staged (left dirty, operator-owned); no push; explicit paths only; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; NEVER batch build with tests; `timeout 60` per fixture; scratch `ocaml/scratch-p1m0/` NEVER committed; H01–H29 + `hir/expected` + `hir/fixtures` FROZEN (T2); `hir/mir-*` pins ADDITIVE-only; thirdparty lab never advanced/modified; F8 forbids single uppercase letters in NEW code; no push.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m0 hop 1 IN FLIGHT — §P1-m0 PRE-REGISTERED `19a7c2c2`; mir_backend.ml DRAFT ON DISK UNCOMMITTED NEVER COMPILED — finish step 3) — CONSUMED: hop 2 fixed, compiled, gated and COMMITTED the draft at `241f2a79`; the STEP-4 contract is the hop-2 heading above (the draft's known defects are all resolved: no `Diagnostic.stmt_name`, the Return arm returns the env, no ignore scaffolding; new unit `pli80mir.ml` + dune stanzas landed).
+
 ## Next action (E2E-54/P1-m0 hop 1 IN FLIGHT — §P1-m0 PRE-REGISTERED `19a7c2c2` (PROTOCOL #1 gate LANDED); mir_backend.ml DRAFT ON DISK UNCOMMITTED NEVER COMPILED — finish step 3, BINDING)
 
 **State (accepted, first-hand this session 01a1c07e, chain 0/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380):** baseline verified (build rc 0, exe `172595d5…`, hir_test rc 0 **220 ok** 11 numbers unmoved, log `build/p1m0-baseline-hirtest.log`). Lab pinned at `thirdparty/mir-madc-aot-lab` (lab `ccc92c5c…`, madc `f541a7a5…`, clean, NEVER modified; git-ignored). `libmir.a` built OUT-OF-TREE → `build/p1m0-deps/mir-obj/libmir.a` (mkdir BUILD_DIR first). Native chain proven on hand-shaped MIR (emit→ELF REL x86-64→gcc link→run 42; ldd only libc; MIR_gen FOLDS constants → judge by EXECUTION). PL/I shapes MEASURED through the real pipeline (brief candidate lowers as written; full facts D-1..D-8 in PLAN §P1-m0.1 and LEARNINGS § P1-m0 hop 1 — READ THAT SECTION FIRST). Pre-registration `19a7c2c2` = PLAN §P1-m0 ONLY (brief VERBATIM machine-verified; subset contract with APPENDED codes E18/E19/E20; numeric-safety W(p)=±(2^(p-1)-1) refuse-not-assume; emission contract; file set; independent expected results **42/45/10** recorded BEFORE any run; runner panel + 2 corruption controls; falsifiers T1–T11; dashboard OPEN).
@@ -3939,17 +3949,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 676
-checkpoint-id: g676-a9bb93b38b56
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 677
+checkpoint-id: g677-1783c5069680
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T13:58:51.338Z
+checkpointed: 2026-11-09T14:01:29.752Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a67758f950751bf511f3eded880879588c301477ed18231e0e4934388f79031d
-source-handoff: c0b86f13be401fa3874c9f612a9a1ff018622419b7bbd43546a4e835bcea2a27
-source-learnings: 3de9cbb0c4178a8aa37e286064c0e92c54e612b563f9fa8b52b5e409dc540bfe
+source-progress: 13e0d712c9dfaec109b70be985355f3f84ba4e87993af373d84889f3ba03d170
+source-handoff: e1e9194e73f91fba8e993bccab62fbe405e10ffcd3ba7549cb3b187195ec9100
+source-learnings: 73b7f96c1eebdff6f7812b9e066c2a76257492182c7d09fdc8c901daa5f12259
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4716,6 +4726,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1c07e-5269-7161-b5f4-4904817cf26e
+readiness-at: 2026-11-09T14:01:29.795Z
+readiness-checkpoint: g677-1783c5069680
 <!-- guard:end checkpoint -->
 
 ## Blockers
