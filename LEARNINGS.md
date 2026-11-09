@@ -10303,3 +10303,59 @@ held DIRECT every build.
 **MEASURED at close (direct semtest runs, not the harness):** corrupt-formal proves on H16 (sid 1003 vs 3) AND H04 (1001 vs 1); corrupt-actual-base proves on H16 (`sym(0)->sym(3)` … "name p resolves from scope 0 to nothing" — caller-invisible-candidate law re-observed), `nothing was proven` on H04; corrupt-arg-position proves on H16 and H04 (length arm trips first); corrupt-mode proves on H16 ("argument 0 needs its own cell (bind recorded a value cell)"), `nothing was proven` on H04 (immediate-only, exactly §P1-a2.6). All eight runs rc 1, ZERO stdout.
 **TOOLING/FACT NOTES (new this session):** (1) fixtures/expected live at the REPO ROOT `hir/fixtures`, `hir/expected` (hir_test.py REPO = repo root, NOT `ocaml/`); (2) `semtest.exe` takes the FLAG BEFORE the fixture path (`SEMTEST <flag> <fixture>`); wrong order prints usage; (3) the F10 Bind-seam pin is CONTENT-based — the single `bind_program` call moved from `:557` (P1-b) to `:974` (post-`cfaad741`); the "pinned LINE numbers" in older prose are historical, the harness pins the two lines by name; (4) `hist 122` = the count of warning headers (`grep -c characters`) in the fresh-container build log, invariant across slices since P1-b.
 **STATUS AFTER STEP 8:** §P1-a2 CLOSED. §P0/§P1-b/§P1-a1/§P1-a2 all CLOSED; NOTHING further is authorized — MIR, PUT/GET, BEGIN/DO repair, P2+ PROPOSED ONLY; await the OPERATOR. Ledger C380 (203 headers); config never staged; no push; H01–H21 frozen; Eident zero-arg exclusion arm and E16 remain UNEXERCISED (recorded honestly).
+
+## E2E-54/P1-h hop 1 (session 01a1bfe1, fresh startup chain 0/12; ZERO oracle)
+
+ACCEPTED (measured first-hand this session):
+- Baseline VERIFIED at cf6202b: build rc 0; exe 172595d5…; hir_test rc 0 120 ok with all
+  11 semtest OK numbers unmoved; FULL gate rc 0 → build/gate-e54p1h-baseline.log FROZEN
+  1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; ledger 203 headers ending C380.
+- Reproduction (timeout 20, NEVER unbounded; witness build/e54p1h-hang-witness.log):
+  BEG1 bare statement-level BEGIN rc 124 hang; BEG2 (Bproc sibling p THEN a BEGIN) rc 2
+  BOGUS `HIR-E11 line 3 duplicate internal procedure name p`; BEG3 BEGIN inside proc rc 124.
+- DEFECT confirmed: semantic_env.ml register_children non-Bproc branch re-walked
+  parent.east.bstmts. FIX (7144b3f1): recursive visitor `discover_stmts st plan ctx ss`
+  descends the NESTED block's OWN bstmts under the SAME ctx (BEGIN shares enclosing
+  procedure scope — no new scope/pid/ownership); register_children is the one-line entry.
+  Bproc registration body kept verbatim. Post-fix: BEG1/2/3 rc 0; dumps reviewed — BEGIN
+  statement inlined EXACTLY once, p registered once, owner scope correct.
+- [bind-fact] Bind.collect (bind.ml:2204-2231) descends through EVERY Sproc child
+  (including anonymous BEGIN) and registers only Bprocs; DFS parents-before-children; it
+  does NOT descend Sdobegin lists, IF arms or loop bodies. Discovery mirrors it exactly.
+- [bind-fact] Bind.frame_decls (bind.ml:390-408) stops at Sproc: a dcl inside BEGIN
+  produces NO row in the enclosing frame ⇒ live refusal channel is
+  `HIR-E03 … produced no bind row in this block` (measured BEG4 rc 2). The
+  `bdecls <> []` e_scope guards in hir_build.ml (:676-680, :954-958) are DEAD for
+  parser-produced ASTs (parser.ml:889 always bdecls=[]); recorded, NOT removed.
+- Bare DO groups refuse by name at lowering: `HIR-E05 statement DO; group is outside the
+  P0 HIR subset` (measured BEG5 with proc inside / BEG6 plain). Discovery never needs
+  Sdobegin descent (collect doesn't either; lowering is loud first).
+- Zero drift CONFIRMED: full hir_test rc 0 after the fix, all 11 OK numbers unmoved,
+  `git diff --exit-code -- hir/expected` CLEAN.
+- OCaml scope law (self-caught during implementation): a wrapper defined AFTER a `let rec`
+  (register_children after discover_stmts) is OUT OF SCOPE inside the rec body — the Bproc
+  branch must call discover_stmts directly. Caught at build, zero commits affected.
+- Brief embedding verified machine-first-hand: stripped blockquote == source, 143 lines
+  byte-identical (diff computed, not eyeballed).
+
+FALSIFIED (recorded, not fitted):
+- "BEGIN-contained declarations are refused by the HIR-E11 bdecls guard" — that guard
+  never fires for parser ASTs; the REAL typed refusal is HIR-E03 (see above).
+
+PROPOSED (unverified, carry honestly):
+- M-6 PRE-EXISTING asymmetry (NOT touched by P1-h): a procedure defined inside a
+  CONDITIONAL-position nested block is not bind-registered; `call p` dies E06 loudly
+  (BEG7 measured) but an uncalled one is silently absent from the dump (BEG8 rc 0
+  measured). Lowering's `Sproc Bproc -> []` arm assumes registration; a future slice may
+  refuse loudly there. DR-oracle behaviour [TBD — no oracle authorized].
+- Fixtures H22–H29 shapes are PRE-REGISTERED predictions (§P1-h.4); pin ONLY measured
+  output; empty `begin; end;` parseability is UNPROVEN — if it parses, H22 pins that; if
+  not, record the deviation and adapt honestly.
+
+Next (steps 4–8): measure H22–H29 in scratch → fixtures + expected (cp of reviewed
+measured output) → semtest shared I6 comparison + --corrupt-owner/--corrupt-discovery +
+hir_test SEM_MODES (live + 9) → FULL gate FROZEN → build/gate-e54p1h-reg.log + fresh
+--build-dir _build-e54p1h → CLOSE RESULTS §P1-h + arch doc + dashboard → STOP.
+Standing: ZERO oracle; C380; lib+bin byte-clean; config NEVER staged; no push; explicit
+paths; eval "$(opam env)" every shell; rc DIRECT; never batch build with tests; timeout 60
+per fixture; scratch ocaml/scratch-p1h/ NEVER committed; H01–H21 frozen.
