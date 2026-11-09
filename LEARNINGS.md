@@ -10073,3 +10073,50 @@ hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → 
   the P0 dump wording `args left-to-right` perpetuates an assumption; §2 audit must read the
   codegen consumers (`cs_*`, `deref`) and the claims C145/C167/C172..175/C358 before any
   representation is designed; fixture ids H16.. unused (verify before pre-registering).
+
+## E2E-54/P1-a2 hop 2 (2026-11-10, session 01a1beca, renewal 1/12; ZERO oracle) — §2 audit COMPLETED (reads), adjudication RECORDED
+- **ACCEPTED (baseline, first-hand):** HEAD `582bc130`; `eval "$(opam env)" && dune build` rc **0**;
+  `pli80c.exe` sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`;
+  `ocaml/lib`+`ocaml/bin` byte-clean; ledger **203** `## C` headers ending **C380**; fixtures
+  H01..H15 + expected pins present; `handoff.config.json` dirty-never-staged.
+- **ACCEPTED (brief recovery):** the P1-a2 operator brief (224 lines) was recovered VERBATIM from the
+  parent transcript `01a1beba…jsonl` (first user message, 8490 chars) and saved to the IGNORED file
+  `build/p1a2-brief-recovered.md` (sha256 `58fb3e4f0f3acb6ffa0ac8bb4fa8fdf6aa8a69056667ad4ad4462b27881a6ecd`).
+  §P1-a2.0 must embed it line-by-line (186/186-style verification as in §P1-a1.0; tooling law: a
+  markdown blockquote must prefix EVERY line).
+- **ACCEPTED (audit reads, this hop):** `ocaml/hir/{diagnostic,backend,semtest,hir,hir_build,semantic_env}.ml`
+  read in full. `diagnostic.ml` stable codes E00..E14 (E12 e_index, E13 e_whole_array, E14 e_dims are the
+  P1-a1 additions; new refusals MUST get new codes, never re-used meanings). `backend.ml` is the P0
+  contract witness only (BACKEND/Null/Driver) — no P1-a2 change owed there. `semtest.ml` has I1..I10 +
+  3 corrupt modes (`--corrupt` I1, `--corrupt-array-hi` I9, `--corrupt-array-base` I8), shared-comparison
+  non-vacuity law, `nothing was proven` loud path, and the OK line `SEMANTIC-AUTHORITY OK <refs> / <syms>`.
+- **ACCEPTED (claim locations):** the cited ids are **inline `Cnnn.` paragraphs under `## E2E-nn` phase
+  headers**, NOT `## C` ledger headers — C145 at CLAIMS.md:2668 (§E2E-14), C167 at :3196 (§E2E-20),
+  C172..C175 at :3367+ (§E2E-22), and **C093 at :855** which is the load-bearing one: it MEASURES that
+  DR materialises call arguments **per argument in SOURCE ORDER, interleaved with each argument's
+  descriptor constant** (R2001/R2032/R2034/R2035/DECPOLY), one `LXI H,*A(slot)` + CALL for the whole
+  block, arity-1 peeled deref vs arity≥2 block copy, and "Formals are passed BY REFERENCE, so writing a
+  formal writes the caller's variable [R2011 runtime: mid received a and 3 became 5]". C130 (line 2036)
+  is the forwarding-pointer-formal RUNTIME descriptor write; C358 (:8480) the DEC copy-in temp;
+  C175 (:3459) "There is NO array calling convention: an array element passed as an actual goes through
+  the ordinary pointer-formal descriptor" + bind gives an element actual NO value cell.
+- **ADJUDICATED (the evaluation-order question, brief §2 "Existing evaluation-order assumption"):**
+  `args left-to-right` in the HIR dump is **NOT an unsupported claim needing retraction** — it is
+  DR-ABI-backed for the measured shapes by [C093] (interleaved per-argument materialisation, source
+  order). But it is an *emission*-order fact about DR's ABI, not a portable PL/I execution-order
+  guarantee, and PL/I language order-of-evaluation of actuals remains **[unmeasured]/[TBD]**.
+  PROPOSED for the pre-registration: keep the dump wording (H01–H15 bytes stay frozen — no named drift
+  needed) and record in `hir.ml`'s header + the PLAN evidence matrix that the ordered `arg N` list is a
+  *representation ordering* (source/positional order, bind's own `cs_args` order) whose only backed
+  execution-order evidence is [C093] for internal fixed-type calls, with DEC/array/external shapes
+  unmeasured. This DECISION must be written into §P1-a2 before code.
+- **ACCEPTED (bind parameter authorities, read first-hand at `section2`, bind.ml:2370-2545):** per-site
+  `cs_slot` = 2 bytes per arg, POOL-EXCLUSIVE; `cs_temps` Some iff the actual is an EXPRESSION (element
+  actuals and bare names/`Enumber` get NO cell); `cs_dec` true iff internal non-recursive callee with a
+  SCALAR RTdec formal; `cs_copies` Some iff caller-declared DEC actual WIDENED at equal scale into a DEC
+  formal (excludes caller formal names, STATIC rows, array heads, recursive/RECURSIVE callees);
+  `pl_ptrs = List.mapi (fun i f -> (f, base + 2*i)) formals` — formal ORDER is semantic, the ADDRESS is
+  physical. Every `cs_*`/`pl_ptrs` int is a DATA address: **never crosses the HIR seam** (brief §3, T6 law).
+- **OPEN for the successor (the ONLY remaining work before implementation):** (a) verify fixture ids
+  H16.. unused (`ls hir/fixtures` — H01..H15 taken); (b) WRITE + COMMIT `spec/lab-evidence/e2e54/PLAN.md`
+  §P1-a2 by EXPLICIT PATHS **before any `ocaml/hir/` byte** (PROTOCOL #1); (c) then implement.

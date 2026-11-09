@@ -7,6 +7,45 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0d-e54p1a2-2. **E2E-54/P1-a2 hop 2 LANDED 2026-11-10 — §2 PARAMETER AUDIT COMPLETE + THE EVALUATION-ORDER
+QUESTION ADJUDICATED; NO CODE TOUCHED (session 01a1beca, renewal 1/12; ZERO oracle; `ocaml/lib`+`ocaml/bin`
+byte-clean; exe `172595d5…` verified FIRST-HAND at `582bc130`; ledger 203 headers/C380).** The operator
+brief was recovered VERBATIM (224 lines) from the parent transcript into the IGNORED
+`build/p1a2-brief-recovered.md` (sha `58fb3e4f…`) — §P1-a2.0 must embed it from there and machine-verify
+the line count. All six `ocaml/hir/` units read in full. Parameter authority read first-hand:
+`section2` (`bind.ml:~2370-2545`) allocates per site a 2-byte-per-arg descriptor block (`cs_slot`,
+POOL-EXCLUSIVE), a value cell ONLY for an EXPRESSION actual (`cs_temps`; bare names, `Enumber` and
+array-ELEMENT actuals get none), a FORMAL-width DEC temp (`cs_dec`) and a main-side DEC copy-in temp
+(`cs_copies`, excluding caller-formal names/STATIC/array heads/recursive-external callees);
+`pl_ptrs = List.mapi (fun i f -> (f, base + 2*i)) formals` — the ORDER is bind's formal order (semantic),
+the ADDRESS is physical. Claims read: **C093** (`CLAIMS.md:855`) DR materialises actuals per argument in
+SOURCE ORDER interleaved with each descriptor constant (R2001/R2032/R2034/R2035/DECPOLY), one
+`LXI H,*A(slot)`+CALL for the block, arity-1 peeled deref vs arity≥2 block copy, and formals are passed
+BY REFERENCE so a formal write is visible to the caller [R2011 runtime]; **C130** (`:2036`) forwarding a
+pointer formal writes the descriptor at RUNTIME; **C175** (`:3459`) NO array calling convention — an
+element actual rides the ordinary pointer-formal descriptor, no value cell (AB7/PASSARAY/EA2 runtime);
+**C145** (`:2668`), **C167** (`:3196`), **C358** (`:8480`). Tooling fact: those cited ids are INLINE
+`Cnnn.` paragraphs under `## E2E-nn` phase headers, NOT `## C` ledger headers, so quoting them never
+moves the 203-header count. **ADJUDICATION (brief §2), DECIDED not deferred:** the P0 dump wording
+`args left-to-right` is DR-ABI-BACKED for the measured internal fixed-type calls by [C093]; it is an
+EMISSION-order fact, not a portable PL/I execution-order guarantee, and the language-level order of
+evaluation of actuals remains [unmeasured] [TBD]. Decision: KEEP the wording (H01–H15 bytes stay frozen,
+NO named drift) and document in `PLAN.md` §P1-a2 + the `hir.ml` header that the ordered `arg N` list is a
+representation ordering whose only backed order evidence is [C093]. Recorded in `LEARNINGS.md`
+§ "E2E-54/P1-a2 hop 2" (accepted: baseline, brief recovery, audit reads, claim locations, bind
+authorities; adjudication; open items). **SUCCESSOR = PROGRESS.md live heading `## Next action
+(E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM:** verify H16.. ids unused → WRITE + COMMIT
+`PLAN.md` §P1-a2 (.0 brief verbatim, evidence/unknowns matrix for the 8 §2 questions with the four
+evidence classes, the ordered-vs-evaluation-order adjudication, the `Semantic_env` parameter-API
+amendment, the HIR designator/argument representation, the narrow lowering subset with BY-NAME refusals
+on NEW codes E15.., semtest I11.. + non-vacuous corrupt controls, measured fixtures H16.., falsifiers
+T1–T10 with the FROZEN panel numbers) **BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1) →
+implement (T1 after every build step) → gate rc 0 `build/gate-e54p1a2-reg.log` + fresh `--build-dir
+_build-e54p1a2` → CLOSE (RESULTS §P1-a2, arch §7-3, dashboard) → **STOP**. Standing: ZERO oracle; ledger
+stays C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every
+shell; rc DIRECT/PIPESTATUS; never batch a build with tests using its artifacts; every fixture under
+`timeout 60`; scratch never committed; `superseded/` never rewritten.
+
 0d-e54p1a2-1. **E2E-54/P1-a2 AUTHORIZED 2026-11-10 — baseline verified, §2 parameter audit IN FLIGHT, NO CODE TOUCHED (session 01a1beba; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; exe `172595d5…`).** Operator authorized **P1-a2** (procedure arguments + indirect references) from starting reference `b716daf0`; P0/P1-b/P1-a1 stay CLOSED and their evidence is untouched. Baseline re-verified first-hand (build rc 0, exe sha, `tools/hir_test.py` rc 0 full panel, ledger 203 headers ending **C380**). §2 audit STARTED: bind's parameter authorities located — `pl_ptrs` (`bind.ml:1952`/`:2557`, formal order semantic, cell address PHYSICAL) and `call_site.pl_calls` (`bind.ml:1650-1669`); the passing-mechanism decision tree is `section2` (`bind.ml:~2376-2545`) with bare-name/`Enumber` ⇒ no temp, array-ELEMENT actual ⇒ reference to the element's own cell ([E2E-22/P3], AB7 + PASSARAY cited), other expressions ⇒ anonymous 2-byte BIN temp ([C145]) or formal-width DEC temp (`cs_dec`), DEC widening copy-in temp (`cs_copies`, [C358]) excluding caller-formal names (E27B forwarding)/STATIC/array-heads/recursive-external callees. Every `cs_*` offset is DR-ABI, never HIR material. Claims C145/C167/C172..175/C358 located but NOT read; **actual-argument evaluation order is UNSUPPORTED by any evidence found so far** — the P0 dump wording `args left-to-right` is an assumption to adjudicate, not a law. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-a2 …)` VERBATIM:** finish the §2 audit (semtest/diagnostic/backend re-read, claim bodies, codegen consumers, manual as language-rule support only) → WRITE + COMMIT `PLAN.md §P1-a2` pre-registration (brief VERBATIM §.0, evidence/unknowns matrix for the 8 questions with [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] classes, env API amendment, HIR designator/argument contract incl. the ordered-vs-evaluation-order adjudication, narrow lowering subset, semtest invariants + corrupt controls, fixtures H16.. after id-unused check, falsifiers) **BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1) → implement (T1 after every build step) → gate rc 0 `build/gate-e54p1a2-reg.log` FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 + fresh `--build-dir _build-e54p1a2` → CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard, **STOP** (no MIR, no PUT/GET, no BEGIN repair). Ledger stays **C380**; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; never batch a build with tests using its artifacts; every fixture under `timeout 60`; scratch never committed; `superseded/` never rewritten.
 
 0c-e54p1a1-5. **E2E-54/P1-a1 CLOSED 2026-11-09 — steps 4–6 LANDED, FULL PANEL GREEN, NOTHING AUTHORIZED (session renewal 4/12; ZERO oracle; ocaml/lib+bin byte-clean; T1 `172595d5…` held).** Step 4 §P1-a1.7 → `1399ff1a`: semtest I1 array-aware (KNOWN RED 9×→0 — TEST was blind, NOT the projection; scalar branch byte-for-byte P1-b), I8/I9/I10 with corrupt controls sharing THE SAME comparison functions (`--corrupt-array-hi` hi+1, `--corrupt-array-base` repoint; `nothing was proven` rc 1 on H01–H04/H05-base — non-vacuity never faked), hir_test.py positives live+ALL corrupt ×2 + T5 RAW bind_arrays grep + T6 strip-grep → **full rc 0** (live H01 4/3 H02 7/2 H03 7/4 H04 4/2 unchanged + H05 1/1 H08 7/3 H09 3/2). Step 5: FULL gate rc 0 → `build/gate-e54p1a1-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5; fresh `--build-dir _build-e54p1a1` rc 0 ZERO Error hist 122, sha == kept exe. Step 6 CLOSE: RESULTS §P1-a1 (T1–T10 WITH values; 10 deviations incl. falsified predecessor claim + H08 NO-Convert + H14 parse-resolved), arch §7-2, PLAN dashboard **P1-a1 CLOSED**. **SUCCESSOR: NOTHING is authorized — report closure, await the OPERATOR.** PUT/GET, BEGIN repair, MIR, P2+ PROPOSED ONLY; each needs own PROTOCOL #1 pre-registration. Ledger C380 (203 headers); config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; NEVER batch build with tests using its artifacts (race law, LEARNINGS); every fixture under timeout; scratch never committed; superseded/ never rewritten.
@@ -1725,25 +1764,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 641
-checkpoint-id: g641-9a213fcee2e0
+checkpoint-generation: 644
+checkpoint-id: g644-d61bd8612b69
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6946, session 01a1beba-124f-74ee-84fe-84e837f466b2)
-checkpointed: 2026-11-09T05:30:40.143Z
+content-delta: new
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3822, session 01a1beca-7c52-74ee-84fe-84ed36a0f527)
+checkpointed: 2026-11-09T05:55:10.619Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3bb08422f7f19f28d4efa1626d4b07f16e241c182d238dbeb03e1eae6c4088cb
+source-progress: bbab19adea7a47cb02e0c09127e7ca65b2981d24b669e87db1b6c1a6d41290b9
 source-handoff: daa7f1871bb73856cadf6864fd1eba32df76057389bdd974e0b741ced16080b4
-source-learnings: d2ca86931778810d62236fc9aa6b64bcdaca2b2626c2d465228e6739f36f34ab
+source-learnings: 10881c7aa04a467213ec23d8433016a68c1deba7ae19941413b8c9ba09fc4e12
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1beba-124f-74ee-84fe-84e837f466b2
-readiness-at: 2026-11-09T05:31:03.848Z
-readiness-checkpoint: g641-9a213fcee2e0
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

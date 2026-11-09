@@ -54,7 +54,75 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a2 authorized 2026-11-10 — RECOVERY DONE; §2 PARAMETER AUDIT IN FLIGHT; PRE-REGISTER PLAN §P1-a2 BEFORE any `ocaml/hir/` byte — BINDING)
+## Next action (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED; WRITE & COMMIT PLAN §P1-a2, THEN IMPLEMENT — BINDING)
+**DONE hop 2 (session 01a1beca, renewal 1/12; ZERO oracle):** baseline re-verified FIRST-HAND at
+`582bc130` (build rc 0, exe `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`,
+`ocaml/lib`+`ocaml/bin` clean, ledger 203 headers ending C380). Brief recovered VERBATIM (224 lines,
+8490 chars) from parent transcript `01a1beba…jsonl` into IGNORED `build/p1a2-brief-recovered.md`
+(sha256 `58fb3e4f0f3acb6ffa0ac8bb4fa8fdf6aa8a69056667ad4ad4462b27881a6ecd`). All six `ocaml/hir/`
+units read in full (`hir`, `semantic_env`, `hir_build`, `semtest`, `diagnostic`, `backend`).
+Claim bodies read: **C093** (`spec/CLAIMS.md:855`) is the load-bearing parameter law — DR materialises
+actuals PER ARGUMENT IN SOURCE ORDER, interleaved with each argument's descriptor constant
+(R2001/R2032/R2034/R2035/DECPOLY), ONE `LXI H,*A(slot)`+CALL for the whole block, arity-1 peeled deref
+vs arity≥2 block copy, and formals are passed BY REFERENCE so a formal write is visible to the caller
+[R2011 runtime: `mid` received `a`, 3 became 5]; **C130** (`:2036`) forwarding a pointer formal writes
+the descriptor at RUNTIME; **C175** (`:3459`) THERE IS NO array calling convention — an element actual
+rides the ordinary pointer-formal descriptor and bind allocates it NO value cell (AB7, PASSARAY, EA2
+runtime: the callee mutated the ORIGINAL cells through both index forms); **C145** (`:2668`) two-phase
+anonymous-cell numbering (descriptors first, then value cells); **C167** (`:3196`) array extent in the
+module span comes from `bind_arrays`; **C358** (`:8480`) DEC copy-in temp, FORMAL-width, main-side.
+NOTE: these cited ids are inline `Cnnn.` paragraphs under `## E2E-nn` phase headers, NOT `## C` ledger
+headers — the ledger count stays 203/C380 however they are quoted.
+**ADJUDICATION (brief §2 "existing evaluation-order assumption") — DECIDED, not deferred:** the dump
+wording `args left-to-right` is NOT an unsupported claim; DR-ABI order evidence exists in [C093] for the
+measured internal fixed-type calls. But it is an EMISSION-order fact about DR's ABI, not a portable
+PL/I execution-order guarantee — language-level order of evaluation of actuals stays
+[unmeasured] [TBD]. DECISION: KEEP the wording so H01–H15 bytes stay frozen (NO named drift), and
+document in `PLAN.md` §P1-a2 + the `hir.ml` header that the ordered `arg N` list is a REPRESENTATION
+ordering (source/positional order = bind's own `cs_args` order) whose only backed execution-order
+evidence is [C093], with DEC/array/external shapes unmeasured. Full write-up:
+`LEARNINGS.md` § "E2E-54/P1-a2 hop 2".
+**EXECUTE (successor), EXACT order:** (1) verify fixture ids unused (`ls hir/fixtures` — H01..H15 taken,
+H16.. free). (2) WRITE `spec/lab-evidence/e2e54/PLAN.md` **§P1-a2**: .0 brief VERBATIM (embed from
+`build/p1a2-brief-recovered.md`; a markdown blockquote must prefix EVERY line; machine-verify the line
+count after); .1 evidence/unknowns matrix for the brief's 8 §2 questions, every row classified
+[bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] with the CLAIMS line numbers above; the
+standing law that every `cs_*`/`pl_ptrs` int is PHYSICAL and NEVER crosses the HIR seam; .2 the
+ORDERED-vs-EVALUATION-ORDER adjudication VERBATIM as above; .3 `Semantic_env` parameter-API amendment
+(formal identity key/sid, POSITION, declared `stype`, ownership/scope, and passing-mode EVIDENCE as a
+symbolic classification — expression-actual / own-cell-reference / copy-in — never an offset; unknown
+modes stay typed-unknown); .4 HIR designator/argument representation (actual-argument forms distinct
+from value expressions; no invented pointer dereference; by-value must be unable to masquerade as
+reference passing); .5 narrow lowering subset (scalar var actual, constant/arith actual, array-ELEMENT
+actual, formal reads/writes, two possibly-aliased formals) with whole-array/BASED/arbitrary-pointer/
+external-ABI refused BY NAME on NEW stable codes (E15.., existing codes keep their meaning);
+.6 semtest invariants (I11..) + NON-VACUOUS corrupt controls for wrong formal identity / wrong actual
+base / wrong argument position-or-type / wrong passing requirement, each sharing THE SAME comparison
+function as its invariant and `nothing was proven` when there is nothing to perturb; .7 fixtures H16..
+MEASURED (CRLF+`^Z`, ONE dcl item per statement, `timeout 60` each; expected files are copies of
+reviewed actual output, never hand-written); .8 falsifiers T1–T10 (T1 exe `172595d5…` DIRECT after
+EVERY build step; T2 `git diff --exit-code hir/expected` clean; T3 FULL gate rc 0 FROZEN 1328/1328,
+190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 → `build/gate-e54p1a2-reg.log`; T4 lib+bin+
+golden+ledgers byte-clean, ledger stays C380, ZERO oracle; T5 Bind-seam pin `hir_build.ml:41`+`:557`;
+T6 no physical vocabulary in `semantic_env.ml`/`hir.ml` and no byte count in any dump; T7 non-vacuity;
+T8 determinism ×2 fresh processes; T9 every fixture under `timeout 60` (the BEGIN/DO hang is
+PRE-EXISTING, never fixed here); T10 existing diagnostics byte-identical, new refusals get new codes).
+**COMMIT BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1 gate). (3) Implement in the PLAN
+work order: `cd ocaml && eval "$(opam env)" && dune build` rc 0 + T1 after EVERY step; NEVER batch a
+build with tests that use its artifacts; extend `tools/hir_test.py`; FULL gate rc 0 →
+`build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2` rc 0 ZERO `Error` (sha vs kept exe;
+fresh-dir logs record rc+headers only). (4) CLOSE: RESULTS §P1-a2 (panel WITH values + deviations),
+`docs/architecture/backend-boundary.md` §7-3, PLAN dashboard P1-a2 **CLOSED**, roadmap PROPOSED ONLY;
+durables + guard; **STOP — no MIR, no PUT/GET, no BEGIN repair; ledger stays C380.**
+**CONSTRAINTS (standing, all hops):** ZERO oracle; ledger stays **C380** (203 headers);
+`ocaml/lib`+`ocaml/bin` byte-clean vs HEAD; `handoff.config.json` NEVER staged; no push; explicit-path
+commits only; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; NEVER glue `rm`; every
+fixture under `timeout 60`; scratch (`ocaml/scratch-*`, `build/*`) NEVER committed;
+`hir/expected/superseded/` never rewritten; H01–H15 pins/diagnostics preserved; do not modify GOAL.md
+or previous evidence; stray root S2..S5 + golden `dir.txt`/`summary.txt` debris untouched.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-a2 authorized 2026-11-10 — RECOVERY DONE; §2 PARAMETER AUDIT IN FLIGHT — consumed by hop 2: the audit is DONE and adjudicated above)
+## Original hop-1 contract (SUPERSEDED — the successor contract above governs)
 **DONE this hop (session 01a1beba; ZERO oracle):** operator authorized **E2E-54/P1-a2**
 (procedure arguments + indirect references, starting reference `b716daf0`; P0/P1-b/P1-a1
 stays CLOSED, its evidence untouched). Baseline verified FIRST-HAND: HEAD `b716daf0`;
@@ -3763,17 +3831,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 641
-checkpoint-id: g641-9a213fcee2e0
+checkpoint-generation: 644
+checkpoint-id: g644-d61bd8612b69
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-guard-level: 3
-checkpointed: 2026-11-09T05:30:40.143Z
+content-delta: new
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-09T05:55:10.619Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3bb08422f7f19f28d4efa1626d4b07f16e241c182d238dbeb03e1eae6c4088cb
+source-progress: bbab19adea7a47cb02e0c09127e7ca65b2981d24b669e87db1b6c1a6d41290b9
 source-handoff: daa7f1871bb73856cadf6864fd1eba32df76057389bdd974e0b741ced16080b4
-source-learnings: d2ca86931778810d62236fc9aa6b64bcdaca2b2626c2d465228e6739f36f34ab
+source-learnings: 10881c7aa04a467213ec23d8433016a68c1deba7ae19941413b8c9ba09fc4e12
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 …)` VERBATIM:** finish the §2 audit (semtest/diagnostic/backend re-read, claim bodies, codegen consumers, manual as language-rule support only) → WRITE + COMMIT `PLAN.md §P1-a2` pre-registration (brief VERBATIM §.0, evidence/unknowns matrix for the 8 questions with [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] classes, env API amendment, HIR designator/argument contract incl. the ordered-vs-evaluation-order adjudication, narrow lowering subset, semtest invariants + corrupt controls, fixtures H16.. after id-unused check, falsifiers) **BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1) → implement (T1 after every build step) → gate rc 0 `build/gate-e54p1a2-reg.log` FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 + fresh `--build-dir _build-e54p1a2` → CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard, **STOP** (no MIR, no PUT/GET, no BEGIN repair). Ledger stays **C380**; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; never batch a build with tests using its artifacts; every fixture under `timeout 60`; scratch never committed; `superseded/` never rewritten.
 
@@ -4497,9 +4565,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1beba-124f-74ee-84fe-84e837f466b2
-readiness-at: 2026-11-09T05:31:03.848Z
-readiness-checkpoint: g641-9a213fcee2e0
 <!-- guard:end checkpoint -->
 
 ## Blockers
