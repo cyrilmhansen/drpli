@@ -8,7 +8,11 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 ## Recovery instructions
 
 1e-e54p1m1-1. **E2E-54/P1-m1 IN FLIGHT — minimal console I/O AUTHORIZED by operator; hop 1 audit
-+ probes DONE; NO code byte written yet; successor = PROGRESS.md live P1-m1 heading VERBATIM**
++ hop 2 SCRATCH PROBES DONE AND GREEN (additive mir2o import route PROVEN; production console ABI
+MEASURED — LEARNINGS § "E2E-54/P1-m1 hop 2"; durables committed `d7f56c19`); NO repo code byte
+written yet; NEXT = WRITE + COMMIT PLAN.md §P1-m1 pre-registration (explicit path, PROTOCOL #1),
+then m1a integers, then m1b characters, CLOSE, STOP; successor = PROGRESS.md live P1-m1 heading
+VERBATIM**
 (session 01a1c1f5, chain fresh; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger
 203/C380; HEAD `61129bd2` = brief starting reference; baseline GREEN: build rc 0, exe
 `172595d5…` DIRECT, hir_test rc 0). Accepted measurements: parser/hir_build Sput/Sget shapes
@@ -1815,25 +1819,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 688
-checkpoint-id: g688-b03b4e1c229a
+checkpoint-generation: 692
+checkpoint-id: g692-3ec5bb7eef25
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 3, remaining ~5590, session 01a1c1f5-8fd1-7001-8c8d-6aeda4b5a405)
-checkpointed: 2026-11-09T20:51:37.705Z
+status: checkpoint (guard level 4, remaining ~-1367, session 01a1c215-735d-7001-8c8d-6af1f4340a75)
+checkpointed: 2026-11-09T21:18:43.208Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: bdde90a874a4243f78d250e7528511f1f3a5f7651d9aa524b0efd8b8c241e860
+source-progress: f92120948b2c39a4dad0cb141bd148964c6e8f50c5679cca90a2a3617f02143d
 source-handoff: 00f669af81cfcc5bdf70addb946619bc3af5afcaf8747868f7fee31ae22514c0
-source-learnings: 67f3a20d1d64d1e917b4ac3c2f6478f74d81e4943cf15033e4c9dca17067693b
+source-learnings: 0db6198203f39400135fa9d22f36378bdce7c1a5aa8da9bd315c262dff4539a8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c1f5-8fd1-7001-8c8d-6aeda4b5a405
-readiness-at: 2026-11-09T20:51:37.751Z
-readiness-checkpoint: g688-b03b4e1c229a
+readiness-by: session:01a1c215-735d-7001-8c8d-6af1f4340a75
+readiness-at: 2026-11-09T21:18:43.250Z
+readiness-checkpoint: g692-3ec5bb7eef25
 ### Last verified state
-guard level 3; checkpoint requested (finalize: E2E-54/P1-m1 hop 1: audit + MIR import probe done; next = scratch mir2o_ext probe, then commit PLAN.md §P1-m1 pre-registration (explicit path) before any code byte; then m1a integers, m1b characters.)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2606,5 +2610,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m1 hop 1: audit + MIR import probe done; next = scratch mir2o_ext probe, then commit PLAN.md §P1-m1 pre-registration (explicit path) before any code byte; then m1a integers, m1b characters.
+E2E-54/P1-m1 hop 2 done: STEP 1 scratch probes COMPLETE AND GREEN, durables committed at d7f56c19 (HEAD). All hop-2 measurements in LEARNINGS.md § "E2E-54/P1-m1 hop 2" — READ FIRST. Exact next action in PROGRESS.md live P1-m1 heading VERBATIM: (1) WRITE + COMMIT spec/lab-evidence/e2e54/PLAN.md §P1-m1 pre-registration (explicit path ONLY, PROTOCOL #1) BEFORE ANY repo code byte — full design digest (accepted syntax, by-name refusals, E21/E22, HIR Put/Get nodes + dump bytes, mir_backend additive layout, runtime ABI + status codes, fixtures M04/M05/M06 + N8+, corruption controls C-a/C-b/C-c, FROZEN regression panel) is IN the PROGRESS hop-2 heading and LEARNINGS hop-2 section; (2) implement m1a integers to green, then m1b characters (literal-only; char-var blocked at existing E02), then CLOSE RESULTS §P1-m1 + arch §7-7 + dashboard, STOP. Constraints: eval $(opam env); rc DIRECT; never batch build with tests; timeouts; scratch build/p1m1-scratch NEVER committed; ZERO oracle; ledger 203/C380; config NEVER staged; no push; lab never advanced; F8 vocabulary law; exe 172595d5 held.
 <!-- guard:end checkpoint -->
