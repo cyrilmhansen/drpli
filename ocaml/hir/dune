@@ -1,12 +1,18 @@
 (library
  (name pli80_hir)
- (modules diagnostic hir target semantic_env hir_build backend)
+ (modules diagnostic hir target semantic_env hir_build backend mir_backend)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
 
 (executable
  (name pli80hir)
  (modules pli80hir)
+ (libraries pli80 pli80_hir)
+ (flags (:standard -warn-error -a)))
+
+(executable
+ (name pli80mir)
+ (modules pli80mir)
  (libraries pli80 pli80_hir)
  (flags (:standard -warn-error -a)))
 

@@ -60,3 +60,23 @@ let e_arg_type = "HIR-E17"
   (* actual/formal declared-TYPE mismatch at an argument position, naming both sides;
      DR's conversion behaviour at argument positions is unmeasured [TBD], so no
      conversion node is invented (§P1-a2.5). *)
+
+(* E2E-54/P1-m0 additions (PLAN §P1-m0.5). APPENDED only; no existing code changes
+   meaning (falsifier T10). These codes are raised by the MIR backend alone — the
+   historical pipeline and the HIR lowering never emit them. *)
+let e_mir_node = "HIR-E18"
+  (* a HIR construct outside the P1-m0 native subset (§P1-m0.2): control flow, calls,
+     arrays, non-automatic storage, an unmodelled target, or a body that does not end
+     in RETURN(expr). Fall-through/implicit-return semantics are unmeasured [TBD], so
+     no MIR is invented for them. *)
+let e_mir_numeric = "HIR-E19"
+  (* numeric semantics outside the proven-safe domain (§P1-m0.3): an uninitialized read
+     on the only path, a literal this backend cannot prove, a conversion whose rounding
+     or overflow behaviour the profile leaves UNKNOWN, or an interval that can leave the
+     declared-precision window W(p). Refusing honours the profile; nothing wraps,
+     saturates or traps by assumption. *)
+let e_mir_export = "HIR-E20"
+  (* export selection or entry signature outside the native subset (§P1-m0.2): no
+     procedure, more than one procedure, no source name, a name that cannot become a
+     portable symbol, a --export option that matches no procedure, parameters, or a
+     result type that is not FIXED BINARY(p,0). *)
