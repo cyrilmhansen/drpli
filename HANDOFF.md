@@ -1774,17 +1774,17 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 657
-checkpoint-id: g657-158b97b23ca2
+checkpoint-generation: 660
+checkpoint-id: g660-6bb10395517a
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~3284, session 01a1bf4a-8c3e-74ee-84fe-85017ef37730)
-checkpointed: 2026-11-09T08:16:00.654Z
+status: checkpoint (guard level 4, remaining ~4095, session 01a1bf62-4321-74ee-84fe-8504a266c403)
+checkpointed: 2026-11-09T08:35:44.906Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a939573769c44a4dcb15fb5a0bb44ef33efc40b42a45f5d0304893a588a3cb94
-source-handoff: 6bb0064e95e3945dd0128b4602af00d8084f7f4459147c95904ae711ac169578
-source-learnings: 07d28a429436440aee5c55ef3b604b42eaf0892737d09fe63320a8c1d4168511
+source-progress: fa4ad065ba95a230880dae502ccf9c720a9622270049f760506005359360429a
+source-handoff: 3596808ae3112967babfa63a4e112819ddcfd551ff647357e92172ec4ec0378b
+source-learnings: 70afa38dac6748f5a99c2c5cd92f0f98f8b20d8a14501388caf381a36ac86255
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
@@ -2562,5 +2562,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-Hop 5 ended at a CLEAN boundary: STEP 3 pre-code audit DONE, ZERO ocaml/hir bytes written, durables committed dfeca0ad (build rc 0, T1 exe 172595d5… held, ledger C380, ZERO oracle). Successor: read LEARNINGS.md § "E2E-54/P1-a2 hop 5" (item-by-item fully determined STEP-3 design) then execute PROGRESS.md live heading VERBATIM = PLAN §P1-a2.9 STEP 3: ocaml/hir/hir.ml (designator D_var/D_elem rename, actual_form A_value/A_reference, args:actual list, dump_designator/dump_actual with FROZEN bytes, header gets §P1-a2.2 adjudication VERBATIM) + hir_build.ml (lower_args + mode-first lower_actual per LEARNINGS hop 5 item 2, frozen lower_call order, NEW statement Esuffix arm keeping E04 for non-procedure heads, Eident zero-arg route UNTOUCHED — never consults evidence) + diagnostic.ml (append HIR-E15/E16/E17) + semtest.ml MINIMAL compile-adapt (walk_actual: A_value→walk_expr, D_var→ONE R_var{ty=Some ac_ty}, D_elem→R_elem{write=false;ety=Some ac_ty}+subs; walk_target arms renamed; OK counts MUST hold H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2) → cd ocaml && eval "$(opam env)" && dune build rc 0 → T1 sha DIRECT → timeout 600 python3 tools/hir_test.py rc 0 → git diff --exit-code -- hir/expected CLEAN → ONE commit by explicit paths → then steps 4–8 (fixtures H16–H21 MEASURED; semtest I11–I13 + 4 corrupt modes + hir_test SEM_MODES×4 + T5 grep list; FULL gate FROZEN → build/gate-e54p1a2-reg.log + fresh --build-dir _build-e54p1a2; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; STOP). If H16 dies E16 the physical-node matching law is FALSIFIED: re-audit bind, never positional-guess. Standing: never batch build with tests; timeout 60 per fixture; F8/T6 vocabulary binds NEW code strings (comments stripped first); config NEVER staged; no push; explicit paths only.
+E2E-54/P1-a2 hop 7: STEP 4 LANDED `96e995fd` (fixtures H16–H21 MEASURED+pinned; all six shapes hit §P1-a2.7 exactly, nothing fitted; PHYSICAL-NODE MATCHING LAW CONFIRMED at statement sites — ZERO HIR-E16; hir_test rc 0, 71 ok, H01–H15 counts unmoved; new live OKs H16 12/5 H17 12/5 H18 7/3 H21 5/2). Durables a3cd2600 (PROGRESS live hop-7 heading). Successor: read PROGRESS.md live heading VERBATIM = PLAN §P1-a2.9 STEP 5 — semtest collect_calls + I11/I12/I13 with SHARED comparisons (walked item counts and ALL existing OK numbers must not move) + 4 corrupt modes (--corrupt-formal/--corrupt-actual-base/--corrupt-arg-position/--corrupt-mode, nothing-was-proven loud) + hir_test SEM_MODES×7 + T5 grep list pl_calls|cs_temps|cs_copies|cs_dec|bind_arrays (readers only semantic_env.ml+semtest.ml), cs_slot NOWHERE in ocaml/hir → hir_test rc 0 → commit → step 6 FULL gate FROZEN → build/gate-e54p1a2-reg.log + fresh --build-dir _build-e54p1a2 → step 7 CLOSE → step 8 STOP. Standing: ZERO oracle; ledger C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; never batch build with tests; H01–H21 frozen; F8/T6 vocabulary binds NEW code strings (strip-first).
 <!-- guard:end checkpoint -->

@@ -10216,3 +10216,58 @@ runtime claim).
 **OPEN:** step 5 (semtest I11–I13 + `--corrupt-formal`/`--corrupt-actual-base`/`--corrupt-arg-position`/
 `--corrupt-mode` + `SEM_MODES`×7 + T5 grep list + `cs_slot` nowhere) → step 6 FULL gate FROZEN → step 7
 CLOSE → step 8 STOP. Full contract is the PROGRESS.md live hop-7 heading, VERBATIM.
+
+## E2E-54/P1-a2 hop 8 (2026-11-10, session 01a1bf62, renewal 7/12; ZERO oracle; NO ocaml/hir byte written this hop) — STEP 5 DESIGN AUDIT: ONE REAL BLOCKER FOUND BEFORE CODE
+**ACCEPTED (verified first-hand at `a3cd2600`):** baseline re-verified (build rc 0; HEAD = durables
+`a3cd2600`, PROGRESS live hop-7 heading = binding STEP 5 contract). Contract read first-hand from
+`PLAN.md §P1-a2.6` (lines ~2032-2070) + §P1-a2.7/.8/.9 and the FULL current `semtest.ml` (557 lines),
+`semantic_env.ml` parameter section (`formal_desc`/`proc_sig.sformals`/`passing_mode`/`call_site`/
+`call_evidence : t -> caller_scope -> callee_key -> Ast.expr list -> call_evidence option`).
+**KEY BLOCKER FOUND (accepted, shapes everything):** `SE.call_evidence` matches bind sites by PHYSICAL
+`Ast.expr` identity (`same_nodes cs.cs_args args`, `(==)`), but **HIR `actual` nodes carry NO AST node**
+(`{af; ac_ty; ac_ef; ac_line}` — frozen §P1-a2.4). So I12's "`SE.call_evidence` answers Some for every
+collected call" CANNOT be invoked from the HIR `actual list` alone — `collect_calls : Hir.program -> …`
+as pre-registered must ALSO carry, per call, the AST `args` nodes, or the invariant must consult
+evidence a different pre-registered way. PLAN's shared comparison `arg_evidence_mismatch env
+caller_pid callee_key args` never fixed `args`' TYPE — adjudication owed at implementation.
+**PROPOSED (unverified) resolution — parallel AST↔HIR pairing in `collect_calls`:** hir_build lowers
+each AST stmt to HIR stmts 1:1 in order (Sdcl→Declare, Sassign→Assign, Sprocedure_stmt→Call_s,
+Sif→If, Swhile→While, Sreturn→Return) and expression calls to `Call_e` positionally (nested actuals
+too); semtest already has the parsed `blk`. Collect calls by walking the OWNING proc's HIR body and
+its AST block (`SE.block_of_pid pid`).SE.east in lockstep, pairing each HIR call node with its AST
+Esuffix node (head ident key via `SE.key_of`, args `Ast.expr list`); callee pid -> key via
+`(SE.signature env pid)`/`sptrs`. A pairing failure = loud SEM-FAIL (never silent skip). This gives
+I12 the physical nodes to re-run `call_evidence` with THE SAME law as lowering. Deviation risk:
+zero-arg `Call_s` (Eident route, NO recorded site by bind — hop-5 measured law) must SKIP the
+Some-requirement or be excluded from collect_calls; every positive fixture's zero-arg Eident calls
+would otherwise make I12 die. [TBD at step 5: check H01-H09 for zero-arg Eident-route Call_s.]
+**PROPOSED shared comparisons (each used VERBATIM by its corrupt control):**
+`arg_evidence_mismatch env caller_pid callee_key (ast_args, hir_args : H.actual list) ce : string option`
+(lengths: List.length ce.ce_args = nargs = sptr_count; per position: A_reference ⇒ PM_own_cell,
+A_value(Const _) ⇒ PM_immediate, other A_value ⇒ PM_value_cell; PM_copy_in/PM_unknown ⇒ reject);
+`designator_mismatch` = I2 comparison reused verbatim for D_var sid (SE.symbol + SE.resolve from CALLER
+scope back to same sid + e_array = None) and existing `elem_ref_mismatch` for D_elem;
+`formals_mismatch env pid params` = SE.formals_of answers Some, f_pos = i, f_key = sptrs entry,
+f_sid = Some params[i], f_stype = env row (SE.symbol sid).ety image).
+Corrupt perturbations (each perturbs ONE input, re-runs THE SAME comparison, must REJECT; `nothing
+was proven` rc 1 when fixture has nothing of that kind): `--corrupt-formal` shift one f_sid +1000;
+`--corrupt-actual-base` repoint one A_reference designator sid at another projected sym;
+`--corrupt-arg-position` drop one ce_args mode; `--corrupt-mode` flip one PM_own_cell⇄PM_value_cell.
+`mode` type gains four constructors; argv matcher + usage line extended. hir_test.py: SEM_MODES ×7
+modes on every positive fixture (T7), T5 RAW grep extended to `pl_calls|cs_temps|cs_copies|cs_dec|
+bind_arrays` (readers ONLY semantic_env.ml+semtest.ml — semtest.ml ALREADY reads bind_arrays/bind_rows
+intentionally per its header law "a TEST must judge the env against its authority"), `cs_slot` NOWHERE
+in ocaml/hir (verified: current grep hits only bind.ml + semantic_env.ml COMMENT — check the comment!
+T5 says NOWHERE in ocaml/hir: semantic_env.ml:62 and ~:317 mention cs_slot IN COMMENTS; STEP 5 must
+either re-word those comments or hir_test grep must exclude comments — ADJUDICATED: contract says
+"must appear NOWHERE" raw — reword comments (comments are not semantics; allowed, record as deviation).
+**MEASURED TOOLING NOTE (accepted):** first `dune build` in a fresh container sometimes returns rc 1
+with ZERO output (no-op build after dune cache warm?); immediate re-run rc 0 — always re-check rc
+DIRECT before believing a silent rc-1 build.
+**OPEN (successor = the whole of STEP 5):** implement `collect_calls` + I11/I12/I13 + 4 corrupt modes
+in semtest.ml (walked R-item counts + ALL 11 existing OK numbers MUST NOT MOVE), extend
+tools/hir_test.py (SEM_MODES×7, T5 grep list, cs_slot nowhere, docstring + PASS line honest) →
+`eval "$(opam env)"; timeout 900 python3 tools/hir_test.py` rc 0 → commit explicit paths → step 6
+FULL gate FROZEN (1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → build/gate-e54p1a2-reg.log +
+fresh --build-dir _build-e54p1a2) → step 7 CLOSE → step 8 STOP. Ledger stays C380; T1 exe 172595d5…
+held DIRECT every build.
