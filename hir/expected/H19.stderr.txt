@@ -1,0 +1,1 @@
+HIR-E15: line 3: whole-array actual a at argument 0 of call to bump is outside the P1-a2 subset (element designators only; DR has no array calling convention [C175] and whole-array actuals are unmeasured [TBD])

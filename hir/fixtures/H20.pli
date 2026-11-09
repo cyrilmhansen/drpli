@@ -1,0 +1,10 @@
+h20: procedure options(main);
+   dcl v fixed bin(7);
+   call bump(v);
+   stop;
+   bump: procedure(p);
+      dcl p fixed bin(15);
+      p = p + 1;
+   end bump;
+end h20;
+

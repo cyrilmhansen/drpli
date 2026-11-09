@@ -1,0 +1,37 @@
+HIR-DUMP schema=v0 profile=dr-pli80-v1.4
+SCOPE 0 parent=- kind=program
+SCOPE 1 parent=0 kind=proc(1)
+SCOPE 2 parent=0 kind=proc(2)
+SYM 0 name=x key=x scope=0 type=FIXED BINARY(15,0) storage=auto line=2
+SYM 1 name=y key=y scope=1 type=FIXED BINARY(15,0) storage=formal line=7
+SYM 2 name=z key=z scope=2 type=FIXED BINARY(15,0) storage=formal line=11
+PROC 0 name=h18 main=true scope=0 params=[] returns=none
+BODY proc(0)
+  declare sym(0)  [line 2]
+  assign  [line 3]
+    order: target address then value
+    var sym(0) : FIXED BINARY(15,0)  [pure, line 3]
+    const 5 : FIXED BINARY(15,0)  [pure, line 3]
+  call proc(1)  [line 4; args left-to-right]
+    arg 0
+      var sym(0) : FIXED BINARY(15,0)  [pure, line 4]
+  stop  [line 5]
+END proc(0)
+PROC 1 name=outer main=false scope=1 params=[1] returns=none
+BODY proc(1)
+  declare sym(1)  [line 7]
+  call proc(2)  [line 8; args left-to-right]
+    arg 0
+      var sym(1) : FIXED BINARY(15,0)  [pure, line 8]
+END proc(1)
+PROC 2 name=inner main=false scope=2 params=[2] returns=none
+BODY proc(2)
+  declare sym(2)  [line 11]
+  assign  [line 12]
+    order: target address then value
+    var sym(2) : FIXED BINARY(15,0)  [pure, line 12]
+    binop + : FIXED BINARY(15,0)  [pure, line 12; typing=language-rule:max+1; clamped to profile ceiling 15 (language-rule result precision 16; DR intermediate typing unmeasured [TBD])]
+      order: left then right
+      var sym(2) : FIXED BINARY(15,0)  [pure, line 12]
+      const 1 : FIXED BINARY(15,0)  [pure, line 12]
+END proc(2)

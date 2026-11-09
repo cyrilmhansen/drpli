@@ -1,0 +1,15 @@
+h18: procedure options(main);
+   dcl x fixed bin(15);
+   x = 5;
+   call outer(x);
+   stop;
+   outer: procedure(y);
+      dcl y fixed bin(15);
+      call inner(y);
+   end outer;
+   inner: procedure(z);
+      dcl z fixed bin(15);
+      z = z + 1;
+   end inner;
+end h18;
+

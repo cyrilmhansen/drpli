@@ -1,0 +1,10 @@
+h21: procedure options(main);
+   dcl y fixed bin(15);
+   y = dbl(dbl(2));
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed bin(15);
+      return (i + i);
+   end dbl;
+end h21;
+

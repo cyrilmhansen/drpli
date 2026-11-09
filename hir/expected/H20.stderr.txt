@@ -1,0 +1,1 @@
+HIR-E17: line 3: argument 0 of call to bump is FIXED BINARY(7,0) but the formal is FIXED BINARY(15,0); DR's conversion at an argument position is unmeasured [TBD]

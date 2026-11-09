@@ -1,0 +1,17 @@
+h16: procedure options(main);
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   dcl s fixed bin(15);
+   x = 1;
+   y = 2;
+   call bump(x, y + 1);
+   s = x;
+   stop;
+   bump: procedure(p, q);
+      dcl p fixed bin(15);
+      dcl q fixed bin(15);
+      q = q + 1;
+      p = p + q;
+   end bump;
+end h16;
+
