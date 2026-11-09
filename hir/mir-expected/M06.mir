@@ -1,0 +1,31 @@
+M0:	module
+p_put:	proto	i64, i64:v
+p_text:	proto	i64, i64:s, i64:n
+p_nl:	proto	i64
+p_exit:	proto	i64:c
+	import	pli_console_put_i64, pli_console_put_text, pli_console_put_nl, exit
+s1:	string	"DR PL/I-80 hello from Cosmo!!"
+pli80_msg1:	func	i64
+	local	i64:v0, i64:st, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6
+	mov t1, 6
+	mov t2, 7
+	mul t3, t1, t2
+	mov v0, t3
+	mov t4, 29
+	call p_text, pli_console_put_text, st, s1, t4
+	bne Lfail, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail, st, 0
+	mov t5, v0
+	call p_put, pli_console_put_i64, st, t5
+	bne Lfail, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail, st, 0
+	mov t6, v0
+	ret t6
+Lfail:
+	call p_exit, exit, st
+	ret st
+	endfunc
+	export pli80_msg1
+	endmodule

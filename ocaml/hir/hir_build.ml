@@ -1042,13 +1042,32 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
       (match items with
        | [ Ast.Pi_data e ] ->
            (match e.Ast.e with
-            | Ast.Estring _ ->
-                (* TRANSIENT m1a wording (PLAN §P1-m1.3): literal items land with m1b
-                   through the E22 domain arms; no committed pin carries these bytes,
-                   so there is no superseded record (recorded, not hidden). *)
-                raise_err ~line D.e_io_construct
-                  "console PUT of a literal string is outside the accepted subset \
-                   (integer data items only in this milestone)"
+            | Ast.Estring s ->
+                (* m1b (PLAN §P1-m1.2/.3): a literal data item is accepted when it is
+                   NON-EMPTY and EVERY character lies inside the printable console
+                   range 32..126; both refusals go to HIR-E22 and name their
+                   construct, the charset one giving the 1-based character position
+                   and the DECIMAL code point (never hex — the F8 vocabulary law).
+                   (RECORDED, not hidden: the m1a transient wording of this arm was
+                   replaced here; no pin ever carried those bytes, §P1-m1.3.) *)
+                if String.length s = 0 then
+                  raise_err ~line D.e_io_domain
+                    "console PUT of an empty literal string; the accepted subset is a \
+                     non-empty literal whose characters all lie in the printable \
+                     console range 32..126"
+                else begin
+                  String.iteri
+                    (fun i c ->
+                      let code = Char.code c in
+                      if code < 32 || code > 126 then
+                        raise_err ~line D.e_io_domain
+                          ("console PUT literal carries character "
+                           ^ string_of_int (i + 1) ^ " (code point "
+                           ^ string_of_int code
+                           ^ ") outside the printable console range 32..126"))
+                    s;
+                  node (H.Put (H.P_text { text = s }))
+                end
             | _ ->
                 (* the EXISTING expression channels, never bypassed: an unresolved
                    name keeps E06, an out-of-window literal keeps E08, a whole-array

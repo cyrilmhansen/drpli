@@ -1,0 +1,1 @@
+HIR-E22: line 3: console PUT literal carries character 2 (code point 9) outside the printable console range 32..126

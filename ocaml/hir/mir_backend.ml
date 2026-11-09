@@ -18,10 +18,11 @@
 
    E2E-54/P1-m1 (§P1-m1.5): a body that carries console statements additionally
    emits the runtime protos (used-only, fixed relative order), exactly ONE
-   import line with the used host names in canonical order, the st (and a1)
-   locals, and the shared Lfail failure tail after the body return. A procedure
-   WITHOUT console statements emits the §P1-m0 bytes EXACTLY — the M01/M02/M03
-   pins and the CT2 object-byte law (§P1-m1.6).
+   import line with the used host names in canonical order, the m1b string items
+   s<k> (after the import line, before the func item), the st (and a1) locals,
+   and the shared Lfail failure tail after the body return. A procedure WITHOUT
+   console statements emits the §P1-m0 bytes EXACTLY — the M01/M02/M03 pins and
+   the CT2 object-byte law (§P1-m1.6).
 
    The native carrier is MIR [i64] — a REPRESENTATION CHOICE, not a claim about
    DR integer widths (§P1-m0.3). The profile's UNKNOWN overflow/rounding/float
@@ -185,6 +186,29 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
     let fresh () =
       incr tmp_n;
       "t" ^ string_of_int !tmp_n
+    in
+    (* §P1-m1.5 item 3 (m1b): the module's string data items s<k>, numbered by FIRST
+       USE of each DISTINCT literal text in BODY order — a pure function of the typed
+       body, so the artifact is deterministic. Only '"' and backslash are escaped; that
+       is exactly what the pinned emitter decodes (measured in probe2). *)
+    let string_items = ref [] in
+    let string_label (text : string) : string =
+      match List.assoc_opt text !string_items with
+      | Some lbl -> lbl
+      | None ->
+          let lbl = "s" ^ string_of_int (List.length !string_items + 1) in
+          string_items := (text, lbl) :: !string_items;
+          lbl
+    in
+    let escape_text (text : string) : string =
+      let b = Buffer.create (String.length text + 2) in
+      String.iter
+        (fun c ->
+          if c = '"' then Buffer.add_string b "\\\""
+          else if c = '\\' then Buffer.add_string b "\\\\"
+          else Buffer.add_char b c)
+        text;
+      Buffer.contents b
     in
     (* declared local registers: sid -> declared precision (§P1-m0.4) *)
     let declared = ref Int_map.empty in
@@ -429,13 +453,21 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
                    emit "call p_nl, pli_console_put_nl, st";
                    emit "bne Lfail, st, 0";
                    lower_stmts env rest
-               | Hir.P_text _ ->
-                   (* Defensive until milestone m1b: the HIR lowering refuses literal
-                      PUT items at HIR-E21 in m1a, so this arm is UNEXERCISED; the
-                      p_text/s<k> emission lands with §P1-m1.11 step 4. *)
-                   refuse ~line Diagnostic.e_mir_node
-                     "MIR backend: a console PUT of a literal is outside the native \
-                        subset until the §P1-m1 milestone m1b emission lands")
+               | Hir.P_text { text } ->
+                   (* §P1-m1.5 item 5 (m1b, PROVEN probe2 shape): the literal's
+                      CHARACTER COUNT rides an immediate into a fresh temp; the text
+                      itself is a module string item s<k>. The runtime put_text emits
+                      NO newline, so the statement closes with p_nl exactly like a
+                      value put; the status branch is this call's own. *)
+                   let char_count = String.length text in
+                   let len_reg = fresh () in
+                   let s_lbl = string_label text in
+                   emit "mov %s, %d" len_reg char_count;
+                   emit "call p_text, pli_console_put_text, st, %s, %s" s_lbl len_reg;
+                   emit "bne Lfail, st, 0";
+                   emit "call p_nl, pli_console_put_nl, st";
+                   emit "bne Lfail, st, 0";
+                   lower_stmts env rest)
           | Hir.Get d ->
               (* §P1-m1.5: the single get slot a1 is stack-allocated per GET
                  statement (measured probe2 pattern); the runtime call carries the
@@ -468,19 +500,21 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
     (* Console-use summary (§P1-m1.5): a pure function of the typed body. It
        decides WHICH module items appear; the statement arms above emit the
        matching instructions, so the two can never disagree — and a refusal
-       means no artifact at all. P_text is deliberately not counted: literal
-       items are refused at lowering until milestone m1b lands. *)
-    let cu_put, cu_get =
+       means no artifact at all. Every PUT (value or literal) closes with the
+       newline call, so p_nl / pli_console_put_nl key on put-of-either-kind. *)
+    let cu_put, cu_get, cu_text =
       List.fold_left
-        (fun (pu, ge) (s : Hir.stmt) ->
+        (fun (pu, ge, tx) (s : Hir.stmt) ->
           match s.Hir.st with
-          | Hir.Put (Hir.P_value _) -> (true, ge)
-          | Hir.Get _ -> (pu, true)
-          | _ -> (pu, ge))
-        (false, false)
+          | Hir.Put (Hir.P_value _) -> (true, ge, tx)
+          | Hir.Put (Hir.P_text _) -> (pu, ge, true)
+          | Hir.Get _ -> (pu, true, tx)
+          | _ -> (pu, ge, tx))
+        (false, false, false)
         body
     in
-    let cu_any = cu_put || cu_get in
+    let cu_any = cu_put || cu_get || cu_text in
+    let cu_nl = cu_put || cu_text in
     let entry_sym = "pli80_" ^ proc_name in
     (* one i64 register per automatic symbol of the export procedure, ascending
        sid from the program's symbol table (§P1-m0.4); then one temp per fresh
@@ -509,17 +543,25 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
     let console_items =
       (if cu_put then [ "p_put:\tproto\ti64, i64:v\n" ] else [])
       @ (if cu_get then [ "p_get:\tproto\ti64, i64:out, i64:lo, i64:hi\n" ] else [])
-      @ (if cu_put then [ "p_nl:\tproto\ti64\n" ] else [])
+      @ (if cu_text then [ "p_text:\tproto\ti64, i64:s, i64:n\n" ] else [])
+      @ (if cu_nl then [ "p_nl:\tproto\ti64\n" ] else [])
       @ (if cu_any then [ "p_exit:\tproto\ti64:c\n" ] else [])
       @
       if cu_any then
         let names =
           (if cu_put then [ "pli_console_put_i64" ] else [])
           @ (if cu_get then [ "pli_console_get_i64" ] else [])
-          @ (if cu_put then [ "pli_console_put_nl" ] else [])
+          @ (if cu_text then [ "pli_console_put_text" ] else [])
+          @ (if cu_nl then [ "pli_console_put_nl" ] else [])
           @ [ "exit" ]
         in
+        (* §P1-m1.5 item 3: the s<k> items come AFTER the ONE import line and BEFORE
+           the func item, in first-use order of their distinct text. *)
         [ "\timport\t" ^ String.concat ", " names ^ "\n" ]
+        @ List.map
+            (fun (text, lbl) ->
+              lbl ^ ":\tstring\t\"" ^ escape_text text ^ "\"\n")
+            (List.rev !string_items)
       else []
     in
     let buf = Buffer.create 1024 in

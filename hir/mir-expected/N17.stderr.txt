@@ -1,0 +1,1 @@
+HIR-E22: line 3: console PUT of an empty literal string; the accepted subset is a non-empty literal whose characters all lie in the printable console range 32..126

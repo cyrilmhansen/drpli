@@ -1,0 +1,6 @@
+n17: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   put list('');
+   return (x);
+end n17;
+
