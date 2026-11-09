@@ -54,7 +54,15 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-m0 hop 3 — **§P1-m0 CLOSED 2026-11-09 — steps 4–7 LANDED, T1–T11 ALL PASS, FIVE MILESTONES ALL PASSED (42/45/10 EXECUTED NATIVELY) — step 8: STOP; NOTHING FURTHER IS AUTHORIZED — BINDING**)
+## Next action (E2E-54/P1-mC hop 1 — **§P1-mC PREREGISTERED `255e8225` (PROTOCOL #1 LANDED); environment MEASURED; SUCCESSOR = PLAN §P1-mC.5 steps 2–6 — BINDING**) — CONSUMED: nothing; this is the live heading.
+
+**DONE this hop (session 01a1c11d, chain 0/12; ZERO oracle; `ocaml/lib`+`ocaml/bin`+`ocaml/hir`+`hir/` byte-clean; ledger 203/C380):** baseline verified FIRST-HAND (HEAD `1b23900e`, kept exe sha `172595d5…` DIRECT, T2 diff rc 0, P1-m0 artifacts `build/mir-aot/M0*.{mir,o,exe}` + `build/p1m0-deps/mir2o` present, lab pins untouched). ACQUIRED + PINNED the official release in the IGNORED `build/p1mc-deps/`: `cosmocc-4.0.2.zip` 441 763 966 B, **sha256 `85b8c37a406d862e656ad4ec14be9f6ce474c1b436b9615e91a55208aced3f44`**, `cosmocc (GCC) 14.1.0`. MEASURED (all under short `timeout`s — the operator's time constraint binds this slice): (a) **FALSIFIED** `-mtinylinux` — NOT supported by 4.0.2 (zero hits in its README/scripts; master-only) ⇒ the slice uses `-moptlinux` and `-mtiny`, never an unversioned master build; (b) **HOST BLOCKER (toolchain-configuration class)** — `binfmt_misc` `DOSWin` claims the toolchain's `MZ`-magic `.ape` helpers and executes them under **wine**: a 4-line `-c` compile exceeded 100 s, `COSMO_APE=native` did NOT help; artifacts ARE still produced (mode `-rw-r--r--`, because the final `chmod.ape` dies) and **run natively after `chmod +x`**: `-moptlinux` 840 944 B and `-mtiny` 216 504 B static x86-64 ELF, both printing `42` rc 0 ⇒ Cosmopolitan CAN build+run static ELF here; the stall is the wrapper path, NOT MIR/ABI; (c) foreign vendored `/home/john/Téléchargements/llamafile/.cosmocc/3.9.7/` inspected and NOT used (another project's dependency, and it has no `tinylinux` either). Pre-registration **`255e8225`** = PLAN §P1-mC ONLY (brief §P1-mC.0, measured §P1-mC.1, frozen boundaries §P1-mC.2, independent 42/45/10 §P1-mC.3, falsifiers CT1–CT6 §P1-mC.4, work order §P1-mC.5); `LEARNINGS.md` § "E2E-54/P1-mC hop 1" carries every measured fact — **READ IT FIRST**.
+
+**EXECUTE (successor) — PLAN §P1-mC.5 steps 2–6 VERBATIM, short timeouts always (≤120 s per command; capture long binutils output to files under `build/`, NEVER to the transcript):** (2) reproduce the wrapper's own `BUILDLOG` and drive the RAW `build/p1mc-deps/bin/x86_64-linux-cosmo-gcc` + `-fuse-ld=bfd` with `$D/x86_64-linux-cosmo/lib/optlinux/{crt.o,libc.a,libcosmo.a,ape.lds}` VERBATIM (no `.ape` helper on the link path); record the exact flag list as a slice decision; rebuild `mir2o` if absent (`sh tools/mir_aot/build_native.sh`), regenerate M01/M02/M03 through `pli80mir` + UNCHANGED `mir2o`, record the three `.o` sha256 BEFORE linking (CT2: the SAME bytes feed gcc/glibc and Cosmopolitan). (3) Cosmopolitan-ONLY control (no MIR object) recorded SEPARATELY (CT4). (4) Link the three genuine `.o` with the UNCHANGED `tools/mir_aot/native_check.c` (`-DENTRY=pli80_<n> -DEXPECTED=<v>`); on failure keep exact diagnostics + classify (object format/relocation/linker script/ABI/startup/unresolved symbol/toolchain configuration) and DO NOT patch MIR. (5) `tools/mir_aot_cosmo_test.py` (emit → object sha → link → CT3 ELF panel: NO `PT_INTERP`, no `DT_NEEDED`, static, `nm T pli80_<n>`, `objdump -d`, TWO fresh runs 42/45/10; controls C-a `mul`→`add` must EXECUTE 13 and FAIL, C-b `-DEXPECTED=43` must FAIL; evidence → `build/mir-cosmo/`) → rc 0 → commit explicit paths. (6) FULL regression CT5 (gate FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54pmc-reg.log`; `hir_test.py` rc 0 220 ok 11 numbers unmoved; `mir_aot_test.py` rc 0 27 checks — the gcc/glibc path STAYS as diagnostic reference; fresh `--build-dir _build-e54pmc` hist 122 sha==kept) → RESULTS §P1-mC (result matrix control/object-acceptance/static-link/native-execution + toolchain record + deviations) + `docs/architecture/backend-boundary.md` §7-6 + **PROPOSED-only** P1-m1 console-I/O roadmap → close, attest, **STOP**.
+**IF THE RAW-TOOLCHAIN PATH ALSO STALLS** (wine/binfmt), the honest outcome is a documented PARTIAL per brief §10: record the exact failing stage + reproduction + diagnostics, keep the `.ape`-free evidence, and close as `toolchain-configuration blocker` — NEVER substitute another compilation route, NEVER add an APE/launcher step, NEVER call a launcher a static ELF.
+**CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); `ocaml/lib`+`ocaml/bin`+`ocaml/hir`+`hir/*` byte-clean (CT1); `handoff.config.json` NEVER staged; no push; explicit-path commits; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; NEVER batch build with tests; scratch `build/p1mc-scratch/` + toolchain `build/p1mc-deps/` NEVER committed; thirdparty lab pinned `ccc92c5c`/`f541a7a5` NEVER advanced; binutils evidence needs `LC_ALL=C`; every command under a short timeout.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m0 hop 3 — **§P1-m0 CLOSED 2026-11-09 — steps 4–7 LANDED, T1–T11 ALL PASS, FIVE MILESTONES ALL PASSED (42/45/10 EXECUTED NATIVELY) — step 8: STOP; NOTHING FURTHER IS AUTHORIZED — BINDING**)
 
 **DONE this hop (session 01a1c0dc, chain 0/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380):** operator roadmap amendment **§RD-COSMO recorded VERBATIM + byte-verified** (186a59d6; Cosmopolitan preferred native libc, static-ELF target, ROADMAP ONLY — P1-m0 criteria untouched). STEP 4 **`57e0450f`**: 10 CRLF+^Z fixtures + MEASURED-FIRST pins (M*.mir 187/269/248 B reviewed line-by-line vs §P1-m0.4; N*.stderr.txt+.rc with VISIBLE CRLF line numbers; refusal totality: zero stdout, NO `-o` file, deterministic ×2). STEP 5 **`5dc2356a`** (mir2o.c full D-3 sequence + finish-on-all-paths; build_native.sh pin-checked out-of-tree; native_check.c #error-enforced ABI; manual M01 run: 1144 B ET_REL, `T pli80_calc`, run 42, ldd clean) + **`180162fa`** (runner rc 0 **ALL 27 CHECKS**: positives EXECUTE **42/45/10** in two fresh procs each — independent §P1-m0.6 values NEVER re-fit; evidence readelf -h/-r, nm, objdump, ldd → `build/mir-aot/`; pipeline proof via pli80hir rc 0; 7 negatives pinned; **C-a mul→add FAILS natively reporting 13; C-b EXPECTED=43 FAILS**; first-run runner path defect self-caught+fixed honestly). STEP 6: FULL gate rc 0 FROZEN ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** → `build/gate-e54p1m0-reg.log`; fresh `_build-e54p1m0` rc 0 ZERO Error hist **122**, sha == kept exe (computed separately); T3 hir_test rc 0 220 ok, 11 numbers UNMOVED; T1 held DIRECT throughout. STEP 7 (this commit): RESULTS **§P1-m0** (five milestones separately, T1–T11 WITH values, matrix, 9 deviations, §P1-m0.8 records the §RD-COSMO PROPOSED stages P1-mC/P1-m1/future per operator instruction), arch **§7-5** (+ roadmap paragraph), PLAN dashboard **CLOSED**, LEARNINGS § hop 3.
 **EXECUTE (successor): NOTHING is authorized.** §P0/§P1-b/§P1-a1/§P1-a2/§P1-h/**§P1-m0 CLOSED**. IF/ELSE-in-MIR, parameters, arrays, calls, I/O, macOS/AArch64, production backend, and EVERY §RD-COSMO stage (P1-mC Cosmopolitan static link, P1-m1 console runtime, ARM64/APE) are **PROPOSED ONLY** — report closure, await the OPERATOR; each future slice needs its own PROTOCOL #1 pre-registration BY EXPLICIT PATHS committed before any code byte.
@@ -3955,17 +3963,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 680
-checkpoint-id: g680-efee19701cba
-checkpoint-kind: manual
+checkpoint-generation: 682
+checkpoint-id: g682-6ce374ff668a
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-09T15:49:42.655Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-09T18:30:03.378Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a3f5c4aab0928d24c596834b58cbbae473d1e32151fa0815f119d2af830bd344
-source-handoff: 89510662bf54556c798b7b32ed559b36cfaa5d512fa5522b13204450552e72f4
-source-learnings: 9364d26feb30b2659b5444c658e34b9d634bbd9ce315d1a15745968ab81c8958
+source-progress: e924c486f7c93f7bc2991d1237de42a317dbec070225e34dbea3516eac0f399e
+source-handoff: 2d999ce9fd0de820bc0d727983e4f9c5890ab6fec5658a8a1a37c67a2381ef10
+source-learnings: 2d2c48283278836ec76b3966780f1dd0b6dbde1d901500594a356303b7a27ffd
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4732,9 +4740,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1c0dc-4504-700d-bdb6-dc2b98a19e20
-readiness-at: 2026-11-09T15:49:42.700Z
-readiness-checkpoint: g680-efee19701cba
 <!-- guard:end checkpoint -->
 
 ## Blockers

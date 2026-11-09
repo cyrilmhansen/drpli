@@ -10452,3 +10452,60 @@ ACCEPTED (all measured first-hand this session):
 - **Toolchain evidence needs `LC_ALL=C`:** binutils messages are localized on this host (D-6 quoted French `Fichier de réadressage`); the runner pins `LC_ALL=C` in the child env so `readelf -h` assertions (`Type: REL`, `Machine: ... X86-64`) match the PLAN's literal strings.
 PROPOSED (carried, NOT adopted): P1-mC static-link step is SMALL — `mir2o` already emits a relocatable `.o` with zero code relocations for the straight-line subset; a cosmo cc invocation replacing gcc is the obvious first probe, PT_INTERP/DT_NEEDED checks extend `ldd` naturally.
 STATE AT CLOSE: §P1-m0 CLOSED; brief §11 STOP in force — IF/ELSE, params, arrays, calls, I/O, macOS/AArch64, production backend and every §RD-COSMO stage need their OWN PROTOCOL #1 pre-registration + operator authorization. Chain 0/12; config dirty NOT staged; no push; lab clean+pinned; scratch never committed.
+
+## E2E-54/P1-mC hop 1 (2026-11-09, session 01a1c11d) — Cosmopolitan static-link feasibility: environment MEASUREMENTS
+
+**accepted (verified first-hand this session, all commands under `timeout`; baseline HEAD
+`1b23900e`, `pli80c.exe` sha256 `172595d5…` held, `git diff --exit-code -- ocaml/lib ocaml/bin`
+rc 0, MIR fixtures/pins and `build/mir-aot/M0*.o` from P1-m0 present):**
+
+1. **No Cosmopolitan toolchain is installed system-wide.** `command -v cosmocc` empty; the only
+   pre-existing distribution is llamafile's private copy at
+   `/home/john/Téléchargements/llamafile/.cosmocc/3.9.7/` (1.4 GB, GCC 14.1.0, has
+   `lib/{,tiny,optlinux}` but NO `tinylinux`, and its scripts contain ZERO `tinylinux` references).
+   It is an OTHER PROJECT's vendored dependency — not used for the reproducible build.
+2. **Official release acquired and pinned (ignored dir).** `cosmocc-4.0.2.zip` from
+   `https://github.com/jart/cosmopolitan/releases/download/4.0.2/cosmocc-4.0.2.zip`
+   (GitHub API asset size 441 763 966 B — matches byte-for-byte), SHA-256
+   `85b8c37a406d862e656ad4ec14be9f6ce474c1b436b9615e91a55208aced3f44`, extracted under
+   `build/p1mc-deps/` (git-ignored; `thirdparty/` is NOT the place for external toolchains).
+   `bin/cosmocc --version` reports `cosmocc (GCC) 14.1.0`. 4.0.2 is the LATEST official
+   release (published 2025-01-06); `master` documents `-mtinylinux` but **4.0.2 does NOT have
+   it**: `grep -rn tinylinux build/p1mc-deps/{README.md,bin/cosmocc,bin/cosmocross}` is EMPTY.
+   ⇒ The brief's `-mtinylinux` option is UNAVAILABLE on a pinned official release; only
+   `-mtiny` and `-moptlinux` exist. Recorded as observed, NOT substituted with an unversioned
+   master build (brief §2 forbids relying on `latest`).
+3. **The fat `cosmocc` driver (and the `-unknown-` cross scripts) are unusable on THIS host as
+   measured.** `bin/x86_64-unknown-cosmo-cc`/`bin/cosmocc` invoke the bundled APE-format helper
+   programs (`*.ape`, e.g. `cp.ape`, `chmod.ape`, `ar.ape`, `fixupobj`). This machine has
+   `binfmt_misc` `DOSWin` registered, so APE's `MZ` magic is claimed by **wine**: every such
+   invocation prints `fixme:wineusb…/fixme:ntdll…` and takes ~40–100 s (measured: a `-c`
+   compile of a 4-line file hit a 100 s timeout; `COSMO_APE=native` changed nothing).
+   ⇒ Toolchain-configuration blocker, classify as **environmental**, not MIR incompatibility.
+   Mitigations to MEASURE in the next hop (each is a separate experiment, none assumed):
+   (a) run the *raw* architecture compiler `bin/x86_64-linux-cosmo-gcc` + explicit
+   `-static -no-pie -nostdlib -fuse-ld=bfd -L…/lib/optlinux …/crt.o -lcosmo …/ape.lds`
+   (the flags `cosmocross` records in its `BUILDLOG`), which needs NO `.ape` helpers;
+   (b) `export PATH` so the helper `.ape` files are executed by `bin/ape-x86_64.elf`;
+   (c) ask the operator about removing the `DOSWin` binfmt registration (system change —
+   NOT ours to make).
+4. **POSITIVE, first-hand (mode evidence, wine notwithstanding):** the SAME 4-line C driver
+   (`static long local_fn(void){…}` + `printf("%ld\n")` + expected-status return) linked by
+   `x86_64-unknown-cosmo-cc` produced, after `chmod +x`, REAL static Linux ELF executables that
+   EXECUTED and printed `42` with rc 0: `-moptlinux` → 840 944 B `ELF 64-bit LSB executable,
+   x86-64, version 1 (GNU/Linux), statically linked, with debug_info, not stripped`;
+   `-mtiny` → 216 504 B `(SYSV) statically linked`; default (fat) mode → 1 478 608 B. The files
+   land NON-EXECUTABLE (`-rw-r--r--`) because the final `chmod.ape` step dies in wine — the
+   artifact is still valid (`timeout 30 ./xu_optlinux` → `42`, rc 0).
+   ⇒ Cosmopolitan 4.0.2 CAN build+run static x86-64 ELF on this host; the blocker is purely the
+   APE-helper/wine path.
+5. **AVX requirement MEASURED:** host CPU flags include `avx avx2 avx512f sse4_2`, so the
+   `-moptlinux` runtime (compiled `-mavx`, "CPUs made after 2011" per 4.0.2 README §-moptlinux,
+   which itself says it still supports AMD K8+ c. 2003 for the 4.0.2 build) is runnable here.
+   The two README statements differ between 4.0.2 and master — record BOTH, judge by EXECUTION.
+6. Scratch convention: all Cosmopolitan experiments live in `build/p1mc-deps/` (toolchain) and
+   `build/p1mc-scratch/` (probe drivers) — both git-ignored; nothing under `build/` is ever
+   committed (T-law from P1-m0).
+7. **Operator time constraint (this session, binding):** commands must carry short timeouts
+   ("a few minutes at most", twice reiterated). Long `readelf`/`objdump` captures go to files,
+   never to the transcript; the wine-slow `.ape` path must be avoided rather than waited on.
