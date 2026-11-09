@@ -3309,7 +3309,7 @@ HIR subset already. `Target.profile` fields `overflow_behavior`, `rounding_rules
 
 | slice | status | notes |
 |---|---|---|
-| P1-m0 | **OPEN 2026-11-09** | first native MIR AOT prototype; preregistered this commit; see §P1-m0.9 work order |
+| P1-m0 | **CLOSED 2026-11-09** | first native MIR AOT path PROVEN end-to-end: five milestones ALL passed, 42/45/10 EXECUTED natively, T1–T11 ALL PASS; RESULTS §P1-m0; roadmap amended §RD-COSMO (`186a59d6`) |
 
 
 ## §RD-COSMO — Operator roadmap amendment: Cosmopolitan as preferred native libc (VERBATIM; ROADMAP decision, NOT a §P1-m0 scope change)

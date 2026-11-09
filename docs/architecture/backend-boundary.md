@@ -326,3 +326,53 @@ frozen; gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 ALL HIT; all 1
 numbers unmoved). `semtest.ml` gained the §P1-a2.6 shared-comparison extraction of I6 plus
 two non-vacuous controls (`--corrupt-owner`, `--corrupt-discovery`) — live + NINE corrupt
 modes on 18 positives. Panel: RESULTS §P1-h.
+
+### 7-5. E2E-54/P1-m0 LANDED — first native MIR AOT path (CLOSED 2026-11-09)
+
+The first experimental NATIVE backend path exists, entirely inside the `pli80_hir` seam and
+with ZERO historical bytes (`pli80c.exe` `172595d5…` held at every step; FULL gate frozen
+1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 ALL HIT; ledger C380; zero oracle).
+`ocaml/hir/mir_backend.ml` lowers the typed `Hir.program` (NEVER the dump text; no second
+parse; no `Semantic_env`/`Hir_build` bypass) to deterministic MIR text under an explicit
+native subset: one zero-argument integer-returning procedure, straight-line `Assign`/`Return`
+over `FIXED BINARY(p,0)` locals, with EVERY unsupported construct refusing BY NAME through
+the appended codes `HIR-E18/E19/E20` — a refusal is total (rc 2, zero stdout, no artifact,
+the emitter is never reached). Numeric safety is an exact-interval proof inside
+`W(p)=±(2^(p-1)-1)`; the MIR `i64` carrier is a REPRESENTATION choice, never a DR claim,
+and profile-UNKNOWN overflow/conversion behaviour is HONOURED by refusing. MIR-specific
+types, opcodes, register names and ABI live ONLY in the backend — HIR and `Semantic_env`
+remain backend- and libc-independent. Host-side, `tools/mir_aot/mir2o.c` runs the pinned
+laboratory's complete object-mode generation sequence (out-of-tree `libmir.a`, lab
+`ccc92c5c…`/madc `f541a7a5…`, pins re-verified clean; `MIR_object_load` NOT used) and
+`tools/mir_aot_test.py` proves the whole chain END-TO-END: the genuine emitted `.o` is an
+`ET_REL` x86-64 object exporting `T pli80_<name>` which LINKS and EXECUTES with the
+independently hand-computed results 42/45/10, verified in two fresh processes per fixture
+and guarded by two corruption controls that both fail natively. The runtime executable
+needs no libmir/MADC/OCaml (`ldd`: libc/vdso/loader only).
+
+**Roadmap (operator amendment §RD-COSMO, 2026-11-09, recorded VERBATIM in PLAN.md):**
+Cosmopolitan Libc is the PREFERRED standard C runtime for future DRPLi/MIR native
+executables; short-term target Linux x86-64 **static ELF** (APE not required unless
+trivial); principle: Cosmopolitan-first native runtime, backend-independent HIR, no
+mandatory glibc runtime dependency. The gcc/glibc linkage of P1-m0 is a DIAGNOSTIC
+REFERENCE, not the deployment target; the static-link requirement concerns the GENERATED
+executable — the build-time MIR emitter may still depend on host libraries. PROPOSED
+stages, NONE authorized by this close (each needs its own PROTOCOL #1 pre-registration
+and explicit operator authorization):
+
+- **P1-mC — Cosmopolitan static-link feasibility**: reuse the GENUINE MIR-produced `.o`;
+pin a Cosmopolitan/cosmocc toolchain version; investigate `x86_64-unknown-cosmo-cc` with
+`-moptlinux`; build a small native C test driver with Cosmopolitan; attempt static linking
+with the MIR-generated object; verify ABI compatibility, relocations, native execution and
+the expected result, and the ABSENCE of `PT_INTERP`/`DT_NEEDED`; keep GCC/glibc linking as
+the diagnostic reference; NEVER substitute generated C for MIR-generated machine code.
+- **P1-m1 — Minimal PL/I console runtime**: small C adapters for integer/string input and
+output linked against Cosmopolitan; PL/I I/O semantics explicitly DISTINGUISHED from the
+underlying libc functions; test EOF, input errors, buffer bounds and deterministic output;
+NOT a wholesale PLILIB reimplementation.
+- **Future — portable native formats**: ARM64 native output first; APE only after the
+static ELF integration works; HIR and MIR lowering stay independent of the selected libc
+and of the final executable format.
+
+Panel: RESULTS §P1-m0.
+
