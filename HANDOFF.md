@@ -6,6 +6,8 @@ history is archived under `docs/history/` (index: `docs/history/README.md`); sci
 authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
+0d-e54p1a2-6. **E2E-54/P1-a2 hop 6 LANDED 2026-11-10 — §P1-a2.9 STEP 3 IMPLEMENTED + COMMITTED `cfaad741`; PHYSICAL-NODE MATCHING LAW CONFIRMED (session 01a1bf2e, renewal 5/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; exe `172595d5…` held DIRECT at every build; ledger 203/C380).** hir.ml (`designator = D_var|D_elem`, `target = designator` rename, `actual_form = A_value|A_reference`, `actual {af;ac_ty;ac_ef;ac_line}`, `args : actual list`, shared `dump_designator`/`dump_actual`, header = §P1-a2.2 adjudication + §P1-a2.4 notes) + hir_build.ml (`formal_ty`, `refuse_arg_type`, MODE-FIRST `lower_actual`, evidence-driven `lower_args` (typed absence ⇒ E16, never positional-guess), frozen `lower_call` order, NEW statement-position Esuffix arm ⇒ `Call_s` with E04 kept for non-procedure heads and the Eident zero-arg route untouched/`args=[]`-guarded) + diagnostic.ml (HIR-E15/E16/E17) + semtest.ml MINIMAL compile-adapt. MEASURED: build rc 0; `timeout 600 python3 tools/hir_test.py` rc 0 — 49 ok, H01–H15 ALL green, F7/F8/F10/S8/T5/T6 clean; `git diff --exit-code -- hir/expected` CLEAN (T2); every semtest OK count preserved. **FALSIFIED (recorded, never fitted):** hop-5's "P0 `params_of` E03 stays the FIRST refusal" — pid-ascending lowering makes the CALLER lower first, so H07 died E16; `formal_ty` now re-emits the pinned E03 channel/wording from the callee's own `bparams` line (H07 bytes restored). Deviation: `dump_designator` takes `dvar_ty : int -> string` (rendering-only; the target role needs `pp_sym_ty syms sid`). **SUCCESSOR = PROGRESS.md live heading (hop 6) VERBATIM — PLAN §P1-a2.9 step 4: fixtures H16–H21 MEASURED (§P1-a2.7 shapes listed there; CRLF+^Z, one dcl item/statement, timeout 60, review every dump line against §P1-a2.4 BEFORE pinning, expected = copies of measured output) → hir_test rc 0 → commit; then 5 (semtest I11–I13 + 4 corrupt modes + hir_test SEM_MODES ×4 + T5 grep list) → 6 (FULL gate FROZEN → build/gate-e54p1a2-reg.log + fresh --build-dir _build-e54p1a2) → 7 CLOSE (RESULTS §P1-a2 + arch §7-3 + dashboard) → 8 STOP.** If H16 dies E16 the matching law is falsified for statement sites: re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; timeout 60 per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary binds NEW code strings (strip-first).
+
 
 0d-e54p1a2-5. **E2E-54/P1-a2 hop 5 — STEP 3 PRE-CODE AUDIT COMPLETE, implementation FULLY determined; ZERO `ocaml/hir/` byte (session 01a1bf18, renewal 4/12; ZERO oracle; exe `172595d5…` held DIRECT; build rc 0; ledger C380).** bind collector read first-hand: sites exist ONLY for registered-procedure Esuffix heads with `cs_proc` = lowered key; nested calls get own sites; `b();` records EMPTY cs_args; plain-Eident `q;`/`call q;` records NO site (Eident statement route never consults evidence). Parser law: every `Sprocedure_stmt` has `args=[]` (args live nested in the Esuffix target). Vocabulary/consumer/indent laws measured. Full item-by-item STEP-3 design (dump_designator, mode-first `lower_actual`, E04 kept for non-procedure statement heads, frozen lower_call order, semtest walk_actual with every OK count preserved) in `LEARNINGS.md` § "E2E-54/P1-a2 hop 5". **SUCCESSOR = PROGRESS.md live heading (hop 5) VERBATIM: read that LEARNINGS section FIRST, execute §P1-a2.9 STEP 3 as ONE commit (build rc 0 → T1 → hir_test rc 0 + T2 clean → commit), then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test SEM_MODES×4 + T5 list; FULL gate FROZEN → build/gate-e54p1a2-reg.log + fresh --build-dir _build-e54p1a2; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; STOP). If H16 dies E16 the physical-node matching law is FALSIFIED — re-audit bind, never positional-guess.** Standing: ZERO oracle; ledger C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; F8/T6 vocabulary law binds new code strings (strip-first); H01–H15 frozen; superseded/ never rewritten.
 
@@ -1770,25 +1772,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 652
-checkpoint-id: g652-57e698b970ed
+checkpoint-generation: 654
+checkpoint-id: g654-65616ae07968
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4781, session 01a1bf03-c87f-74ee-84fe-84f4ca5866c3)
-checkpointed: 2026-11-09T06:57:08.286Z
+content-delta: new
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~5624, session 01a1bf2e-d124-74ee-84fe-84fc6bd8aaf0)
+checkpointed: 2026-11-09T07:49:58.408Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 87f2b0cd3f3fa4c94a966fa02fa48b67c99d6db434c7d5bcd053935455607f12
-source-handoff: ce6c0ae7ed0b69cb4254de9072342d73552afb37417bc97a24c2aad448f7f2fe
-source-learnings: 9637a57b22a8da23647bd8b542080276af9df5854559f238725b45757e6f2869
+source-progress: dfe3282bba4fbcc00abb696b56c99d20efb8950c5865f4b34754919cd47b49f1
+source-handoff: fc8acefc7a23b95bc1518b0b9e9b13e2263f17f6367080e5cf1a3b3c8bc28ae9
+source-learnings: 2606cfed0c37e298409e3c1acef101903e8ff77cb9c00c2df26649ce411f1851
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bf03-c87f-74ee-84fe-84f4ca5866c3
-readiness-at: 2026-11-09T06:57:26.782Z
-readiness-checkpoint: g652-57e698b970ed
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -2561,5 +2560,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-a2 hop 4: step 2 (semantic_env parameter API) LANDED 426293dd, full hir_test green, T1 exe 172595d5… held. Durables 3e9e51c2. Successor: execute PROGRESS live heading VERBATIM = PLAN §P1-a2.9 step 3 (hir.ml designator/actual + hir_build lower_args + diagnostic E15/E16/E17 + semtest minimal compile-adapt) as ONE commit, then steps 4–8. H16-dies-E16 = physical-node matching law falsified → re-audit, never positional-guess.
+Hop 5 ended at a CLEAN boundary: STEP 3 pre-code audit DONE, ZERO ocaml/hir bytes written, durables committed dfeca0ad (build rc 0, T1 exe 172595d5… held, ledger C380, ZERO oracle). Successor: read LEARNINGS.md § "E2E-54/P1-a2 hop 5" (item-by-item fully determined STEP-3 design) then execute PROGRESS.md live heading VERBATIM = PLAN §P1-a2.9 STEP 3: ocaml/hir/hir.ml (designator D_var/D_elem rename, actual_form A_value/A_reference, args:actual list, dump_designator/dump_actual with FROZEN bytes, header gets §P1-a2.2 adjudication VERBATIM) + hir_build.ml (lower_args + mode-first lower_actual per LEARNINGS hop 5 item 2, frozen lower_call order, NEW statement Esuffix arm keeping E04 for non-procedure heads, Eident zero-arg route UNTOUCHED — never consults evidence) + diagnostic.ml (append HIR-E15/E16/E17) + semtest.ml MINIMAL compile-adapt (walk_actual: A_value→walk_expr, D_var→ONE R_var{ty=Some ac_ty}, D_elem→R_elem{write=false;ety=Some ac_ty}+subs; walk_target arms renamed; OK counts MUST hold H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2) → cd ocaml && eval "$(opam env)" && dune build rc 0 → T1 sha DIRECT → timeout 600 python3 tools/hir_test.py rc 0 → git diff --exit-code -- hir/expected CLEAN → ONE commit by explicit paths → then steps 4–8 (fixtures H16–H21 MEASURED; semtest I11–I13 + 4 corrupt modes + hir_test SEM_MODES×4 + T5 grep list; FULL gate FROZEN → build/gate-e54p1a2-reg.log + fresh --build-dir _build-e54p1a2; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; STOP). If H16 dies E16 the physical-node matching law is FALSIFIED: re-audit bind, never positional-guess. Standing: never batch build with tests; timeout 60 per fixture; F8/T6 vocabulary binds NEW code strings (comments stripped first); config NEVER staged; no push; explicit paths only.
 <!-- guard:end checkpoint -->
