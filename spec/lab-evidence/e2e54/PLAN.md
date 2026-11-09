@@ -3368,3 +3368,163 @@ PROTOCOL #1 pre-registration and explicit operator authorization.
 > **Architectural principle: Cosmopolitan-first native runtime, backend-independent HIR, no mandatory glibc runtime dependency.**
 
 <!-- RD-COSMO-END -->
+
+## §P1-mC — Pre-registration: Cosmopolitan static-link feasibility (committed BEFORE any source or test-tooling modification)
+
+Operator authorization of 2026-11-09 (brief reproduced in §P1-mC.0 below; recovered from the
+session transcript at the ignored path `build/p1mc-brief.md`). Scope: link the GENUINE
+MIR-generated native objects of §P1-m0 against a PINNED official Cosmopolitan/cosmocc
+toolchain and verify a plain static Linux x86-64 ELF (NO APE requirement, NO glibc runtime
+dependency). This is a linker/runtime FEASIBILITY slice: `ocaml/lib` and `ocaml/bin` are NOT
+touched, HIR/`Semantic_env`/MIR lowering semantics are FROZEN as delivered by §P1-m0, the
+historical gate must stay green, and no PL/I I/O is implemented. §RD-COSMO (above) is the
+roadmap authority; this section is its first stage's CONTRACT.
+
+### P1-mC.0 Operator brief (essential contract, abridged from the authorized brief)
+
+Starting reference `1b23900e4c9d8ec193583b45949f367671869c93`; E2E-54/P1-m0 CLOSED and its
+42/45/10 results authoritative. Target: static Linux x86-64 ELF; APE NOT required. (1) Verify
+HEAD/worktree/fingerprint/toolchain, preregister here and COMMIT the plan before any source or
+test-tooling change; preserve P1-m0 results unaltered. (2) Use the official
+`github.com/jart/cosmopolitan` distribution and its `tool/cosmocc/README.md`; inspect local
+toolchains first, else acquire a SPECIFIC official release in an IGNORED dependency directory;
+record exact version, archive checksum, executable identity and options; never rely on an
+unversioned `latest` in the reproducible build; investigate `-moptlinux` (AVX CPU requirement)
+and `-mtinylinux` (compact runtime) and record OBSERVED behaviour rather than assuming
+equivalence; prefer the architecture-specific compiler if that is what yields a plain ELF; do
+NOT add an APE conversion step just to pass. (3) Re-run the existing P1-m0 pipeline to generate
+M01 `pli80_calc`→42, M02 `pli80_m02`→45, M03 `pli80_m03`→10 with `pli80mir` and the `mir2o`
+emitter UNCHANGED; record object hashes before linking; the SAME `.o` must feed both the
+existing gcc/glibc diagnostic link and the new Cosmopolitan link. No C translation of PL/I, no
+handwritten replacement function, no object rewriting, no second code-generation path. (4)
+Establish a Cosmopolitan-ONLY control first (start, call a local integer function, print an
+integer, exit status; record format/static properties/output) to separate a broken installation
+from MIR incompatibility — a passing control is NOT proof of MIR integration. (5) Link each
+genuine MIR `.o` with the pinned toolchain via the EXISTING `tools/mir_aot/native_check.c`
+driver with only the minimum build-system change; evaluate separately object acceptance,
+export resolution, zero-argument `i64` ABI, startup linkage, native execution, absence of
+dynamic dependencies; on failure retain exact diagnostics and CLASSIFY the failure (object
+format / relocation / linker script / ABI / startup / unresolved symbol / toolchain
+configuration); do NOT patch MIR blindly to make a link pass. (6) Inspect every successful
+executable (`file`, `readelf -h/-l/-d`, `nm`, `objdump -d`): native x86-64, NO `PT_INTERP`, NO
+`DT_NEEDED`, no glibc/libmir/libmadc/OCaml dependency, MIR-originating code present, correct
+result in TWO fresh processes; statically linked libc code inside the executable is EXPECTED;
+`ldd` is supplementary only; if a launcher script or APE artifact appears, identify it as such
+and do NOT label it a verified static ELF. (7) Keep the independent expected values 42/45/10
+(never derived from MIR text, disassembly or output) and run BOTH non-vacuity controls on the
+Cosmopolitan path (C-a corrupted arithmetic must give a wrong value and fail; C-b wrong
+expected must fail); keep the dynamic-link result as a diagnostic reference. (8) Regression
+boundaries (below). (9) Deliverables: focused P1-mC test script + reproducible build
+instructions, logs/maps/ELF inspections/symbols/disassembly under ignored `build/`, commit the
+preregistration + scripts + docs by explicit paths, result matrix, toolchain/configuration
+record, update `spec/lab-evidence/e2e54/RESULTS.md` and
+`docs/architecture/backend-boundary.md`, PROPOSE (do not implement) the P1-m1 console-I/O
+roadmap. Never stage `handoff.config.json`; never reset/clean unrelated state; no push.
+(10) Stop condition: at least one REAL PL/I-originating MIR object linked with Cosmopolitan
+into a verified static Linux ELF, executed natively with the independently expected result,
+historical compiler unchanged; prefer all three; on an environmental/linker blocker document
+the precise stage and reproduce the failure — a truthful partial beats substitution. Then close
+P1-mC, attest the checkpoint and STOP.
+
+### P1-mC.1 MEASURED environment facts (this session, first-hand — before any code byte)
+
+- HEAD `1b23900e…`; `git diff --exit-code -- ocaml/lib ocaml/bin` rc 0; kept exe
+  `sha256(ocaml/_build/default/bin/pli80c.exe)` = `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+  (verified DIRECT); P1-m0 evidence `build/mir-aot/{M01,M02,M03}.{mir,o,exe}` present from the
+  closed slice; `build/p1m0-deps/mir2o` present; lab pins untouched.
+- NO system Cosmopolitan: `command -v cosmocc` empty. Only foreign vendored copy:
+  `/home/john/Téléchargements/llamafile/.cosmocc/3.9.7/` (another project's dependency; it has
+  `lib/{,tiny,optlinux}` and NO `tinylinux`) — inspected, NOT used.
+- PINNED ACQUISITION (ignored `build/p1mc-deps/`): `cosmocc-4.0.2.zip`, the latest official
+  release asset (tag `4.0.2`, published 2025-01-06), size 441 763 966 B (== GitHub asset
+  size), **SHA-256 `85b8c37a406d862e656ad4ec14be9f6ce474c1b436b9615e91a55208aced3f44`**;
+  `bin/cosmocc --version` = `cosmocc (GCC) 14.1.0`; bundled ld = `x86_64-linux-cosmo-ld`
+  (GNU binutils from the distribution), gcc driver
+  `bin/x86_64-linux-cosmo-gcc` (raw) and `bin/x86_64-unknown-cosmo-cc` (wrapper script).
+- **`-mtinylinux` IS NOT SUPPORTED by 4.0.2** — zero occurrences in its README or wrapper
+  scripts; only `-mtiny`, `-mdbg`, `-moptlinux` exist. The mode is documented ONLY on
+  post-release `master`. FALSIFIED prediction (recorded, not fitted): the brief's
+  "investigate `-mtinylinux` as a possible default" cannot be executed on a pinned official
+  release; per the brief's own rule ("Use whichever is supported by the pinned toolchain") the
+  slice measures `-moptlinux` (Linux-optimized) and `-mtiny` (size-optimized, portable) and
+  records `-mtinylinux` as UNAVAILABLE.
+- **Host `binfmt_misc` blocker (measured):** the toolchain's APE helper programs (`*.ape`,
+  `fixupobj`, `ape-x86_64.elf`) carry `MZ` magic; this machine registers the `DOSWin` binfmt,
+  so every wrapper-script step is executed by **wine** — a 4-line `-c` compile exceeded a
+  100 s `timeout`; `COSMO_APE=native` did not help. Output artifacts are still produced
+  (non-executable, since the final `chmod.ape` step dies) and RUN NATIVELY once `chmod +x`:
+  `-moptlinux` → 840 944 B `ELF 64-bit LSB executable, x86-64, (GNU/Linux), statically linked`
+  printing `42` rc 0; `-mtiny` → 216 504 B `(SYSV) statically linked`, same result.
+  ⇒ classify **toolchain configuration / environmental**, NOT object-format or ABI.
+  Work-around to be measured: drive `x86_64-linux-cosmo-gcc`/`-ld.bfd` DIRECTLY with the flags
+  the wrapper records in `BUILDLOG` (no `.ape` helper on the link path); the raw-toolchain use
+  is explicitly documented by Cosmopolitan ("Using these grants full control over your
+  compiler"; "zero expectation of support … all responsibility for ABI-related flags"), so the
+  flag set used here must be recorded VERBATIM as a slice decision.
+- AVX: host CPU flags include `avx avx2 avx512f`; 4.0.2 `-moptlinux` claims AMD-K8+ (2003)
+  while `master` claims `-mavx`/post-2011 — record BOTH, judge by EXECUTION on this host.
+
+### P1-mC.2 Scope and frozen boundaries
+
+AUTHORIZED: new `tools/mir_aot_cosmo_test.py`; minimal additions under `tools/mir_aot/`
+(a Cosmopolitan link recipe + optional raw-toolchain shim script); `spec/lab-evidence/e2e54/`
+(PLAN/RESULTS); `docs/architecture/backend-boundary.md`; `LEARNINGS.md`/`PROGRESS.md`/
+`HANDOFF.md` prose. FORBIDDEN: ANY byte under `ocaml/lib/` or `ocaml/bin/`; any change to
+`ocaml/hir/` (HIR/`Semantic_env`/MIR lowering FROZEN), `tools/mir_aot/mir2o.c`,
+`native_check.c` (driver reused UNCHANGED; only the LINK command changes), the MIR pins in
+`hir/mir-*`, historical goldens/inventory/coverage/census, `thirdparty/` (never advanced).
+No PL/I I/O, no APE step, no ARM64, no object rewriting, no C substitution for MIR code, no
+second code-generation path. ZERO oracle: no DR compiler, cpmsim, LINK-80, `--runtime`,
+`--link-run`, Rune CI.
+
+### P1-mC.3 Result expectations (INDEPENDENT, never re-derived from MIR/disassembly/output)
+
+M01 → **42**, M02 → **45**, M03 → **10** — the §P1-m0.6 hand-computed values, unchanged. Two
+fresh processes per fixture. Controls, on the Cosmopolitan path: C-a (`mul`→`add` in M01 MIR,
+re-emitted, re-LINKED WITH COSMOPOLITAN) must EXECUTE and report **13**, and the test must
+FAIL; C-b (unmodified M01 `.o`, `-DEXPECTED=43`) must FAIL. If either control passes, the
+runner fails.
+
+### P1-mC.4 Falsifiers (each a STOP-and-attribute gate)
+
+- **CT1** `pli80c.exe` sha256 `172595d5…` held DIRECT before and after every step; `git diff
+  --exit-code -- ocaml/lib ocaml/bin ocaml/hir hir/` rc 0 at every commit.
+- **CT2** the object fed to Cosmopolitan is BYTE-IDENTICAL (sha256) to the object fed to the
+  gcc/glibc diagnostic link, and both come from `pli80mir` + unchanged `mir2o` in this run.
+- **CT3** for every PASSING executable: `readelf -l` shows NO `PT_INTERP`; `readelf -d` reports
+  no dynamic section / NO `DT_NEEDED`; `file` says statically linked x86-64 ELF; `nm` lists the
+  `pli80_<name>` symbol; `objdump -d` contains the MIR-originating function; two fresh
+  executions give the independent value. A launcher script or APE artifact is reported AS SUCH,
+  never counted as a static ELF.
+- **CT4** the Cosmopolitan-only control (no MIR object) is recorded separately; a control
+  success is never described as MIR integration, and a control failure is classified as a
+  broken toolchain, not an MIR defect.
+- **CT5** full historical gate rc 0 with FROZEN panel 1328/1328-190/190-9/9-149 rows 0/0-16/0/
+  25/0-prose 5 → `build/gate-e54pmc-reg.log`; `timeout 900 python3 tools/hir_test.py` rc 0
+  (220 ok, 11 numbers UNMOVED); `timeout 900 python3 tools/mir_aot_test.py` rc 0 (27 checks,
+  gcc/glibc path preserved as diagnostic reference); fresh `dune build --build-dir
+  _build-e54pmc` rc 0, ZERO `Error`, warning hist 122, sha == kept exe.
+- **CT6** zero oracle; ledger stays 203 `## C` headers ending **C380** (native-linking
+  feasibility is DRPLi engineering evidence, never a DR claim); `handoff.config.json` NEVER
+  staged; explicit paths only; no push; nothing under `build/` committed; every command under
+  a short `timeout` (operator constraint).
+
+### P1-mC.5 Work order (successor contract)
+
+1. Commit THIS pre-registration (explicit path `spec/lab-evidence/e2e54/PLAN.md`) BEFORE any
+   source/test-tooling byte. — **DONE** (this commit).
+2. Measure the raw-toolchain link recipe that avoids the `.ape`/wine path (`BUILDLOG` capture;
+   record the flag list VERBATIM); rebuild `build/p1m0-deps/mir2o` if absent
+   (`sh tools/mir_aot/build_native.sh`), re-run the P1-m0 pipeline for M01/M02/M03, record the
+   three `.o` sha256 values BEFORE linking.
+3. Cosmopolitan-ONLY control: build + run a trivial C driver with the pinned toolchain; record
+   format, static properties, output, exit status. No MIR object involved.
+4. Link the three genuine MIR `.o` with Cosmopolitan (`native_check.c` unchanged, `-DENTRY`/
+   `-DEXPECTED` from the §P1-m0.6 table); on failure keep exact diagnostics and classify per
+   §RD-COSMO categories; do NOT patch MIR.
+5. Write `tools/mir_aot_cosmo_test.py` (positives: emit → object sha record → link → ELF panel
+   CT3 → two fresh runs; both controls C-a/C-b on the Cosmopolitan path; evidence into
+   `build/mir-cosmo/`), run to rc 0, commit scripts+docs.
+6. Full regression CT5; then RESULTS §P1-mC (result matrix: control / object acceptance /
+   static link / native execution) + arch doc update + PROPOSED P1-m1 roadmap (integer and
+   string console I/O through Cosmopolitan — NOT implemented here); close, attest, **STOP**.
