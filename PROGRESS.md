@@ -3831,19 +3831,31 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 644
-checkpoint-id: g644-d61bd8612b69
-checkpoint-kind: auto
+checkpoint-generation: 645
+checkpoint-id: g645-109b990284fb
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T05:55:10.619Z
+checkpointed: 2026-11-09T05:58:05.702Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: bbab19adea7a47cb02e0c09127e7ca65b2981d24b669e87db1b6c1a6d41290b9
-source-handoff: daa7f1871bb73856cadf6864fd1eba32df76057389bdd974e0b741ced16080b4
+source-progress: 289af22987d95832fa365d7029b2ff7658c3be37adf5840dbf8fbae0fdd5f627
+source-handoff: c219d703a9f4692b5b3da1a52b2e115d9e0a58269bc73e33ca514a82e6e11668
 source-learnings: 10881c7aa04a467213ec23d8433016a68c1deba7ae19941413b8c9ba09fc4e12
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (E2E-54/P1-a2 …)` VERBATIM:** finish the §2 audit (semtest/diagnostic/backend re-read, claim bodies, codegen consumers, manual as language-rule support only) → WRITE + COMMIT `PLAN.md §P1-a2` pre-registration (brief VERBATIM §.0, evidence/unknowns matrix for the 8 questions with [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] classes, env API amendment, HIR designator/argument contract incl. the ordered-vs-evaluation-order adjudication, narrow lowering subset, semtest invariants + corrupt controls, fixtures H16.. after id-unused check, falsifiers) **BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1) → implement (T1 after every build step) → gate rc 0 `build/gate-e54p1a2-reg.log` FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 + fresh `--build-dir _build-e54p1a2` → CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard, **STOP** (no MIR, no PUT/GET, no BEGIN repair). Ledger stays **C380**; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; never batch a build with tests using its artifacts; every fixture under `timeout 60`; scratch never committed; `superseded/` never rewritten.
+next-action: (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM:** verify H16.. ids unused → WRITE + COMMIT
+`PLAN.md` §P1-a2 (.0 brief verbatim, evidence/unknowns matrix for the 8 §2 questions with the four
+evidence classes, the ordered-vs-evaluation-order adjudication, the `Semantic_env` parameter-API
+amendment, the HIR designator/argument representation, the narrow lowering subset with BY-NAME refusals
+on NEW codes E15.., semtest I11.. + non-vacuous corrupt controls, measured fixtures H16.., falsifiers
+T1–T10 with the FROZEN panel numbers) **BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1) →
+implement (T1 after every build step) → gate rc 0 `build/gate-e54p1a2-reg.log` + fresh `--build-dir
+_build-e54p1a2` → CLOSE (RESULTS §P1-a2, arch §7-3, dashboard) → **STOP**. Standing: ZERO oracle; ledger
+stays C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every
+shell; rc DIRECT/PIPESTATUS; never batch a build with tests using its artifacts; every fixture under
+`timeout 60`; scratch never committed; `superseded/` never rewritten.
+
+0d-e54p1a2-1. **E2E-54/P1-a2 AUTHORIZED 2026-11-10 — baseline verified, §2 parameter audit IN FLIGHT, NO CODE TOUCHED (session 01a1beba; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; exe `172595d5…`).** Operator authorized **P1-a2** (procedure arguments + indirect references) from starting reference `b716daf0`; P0/P1-b/P1-a1 stay CLOSED and their evidence is untouched. Baseline re-verified first-hand (build rc 0, exe sha, `tools/hir_test.py` rc 0 full panel, ledger 203 headers ending **C380**). §2 audit STARTED: bind's parameter authorities located — `pl_ptrs` (`bind.ml:1952`/`:2557`, formal order semantic, cell address PHYSICAL) and `call_site.pl_calls` (`bind.ml:1650-1669`); the passing-mechanism decision tree is `section2` (`bind.ml:~2376-2545`) with bare-name/`Enumber` ⇒ no temp, array-ELEMENT actual ⇒ reference to the element's own cell ([E2E-22/P3], AB7 + PASSARAY cited), other expressions ⇒ anonymous 2-byte BIN temp ([C145]) or formal-width DEC temp (`cs_dec`), DEC widening copy-in temp (`cs_copies`, [C358]) excluding caller-formal names (E27B forwarding)/STATIC/array-heads/recursive-external callees. Every `cs_*` offset is DR-ABI, never HIR material. Claims C145/C167/C172..175/C358 located but NOT read; **actual-argument evaluation order is UNSUPPORTED by any evidence found so far** — the P0 dump wording `args left-to-right` is an assumption to adjudicate, not a law. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-a2 …)` VERBATIM:** finish the §2 audit (semtest/diagnostic/backend re-read, claim bodies, codegen consumers, manual as language-rule support only) → WRITE + COMMIT `PLAN.md §P1-a2` pre-registration (brief VERBATIM §.0, evidence/unknowns matrix for the 8 questions with [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] classes, env API amendment, HIR designator/argument contract incl. the ordered-vs-evaluation-order adjudication, narrow lowering subset, semtest invariants + corrupt controls, fixtures H16.. after id-unused check, falsifiers) **BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1) → implement (T1 after every build step) → gate rc 0 `build/gate-e54p1a2-reg.log` FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 + fresh `--build-dir _build-e54p1a2` → CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard, **STOP** (no MIR, no PUT/GET, no BEGIN repair). Ledger stays **C380**; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; never batch a build with tests using its artifacts; every fixture under `timeout 60`; scratch never committed; `superseded/` never rewritten.
 
 0c-e54p1a1-5. **E2E-54/P1-a1 CLOSED 2026-11-09 — steps 4–6 LANDED, FULL PANEL GREEN, NOTHING AUTHORIZED (session renewal 4/12; ZERO oracle; ocaml/lib+bin byte-clean; T1 `172595d5…` held).** Step 4 §P1-a1.7 → `1399ff1a`: semtest I1 array-aware (KNOWN RED 9×→0 — TEST was blind, NOT the projection; scalar branch byte-for-byte P1-b), I8/I9/I10 with corrupt controls sharing THE SAME comparison functions (`--corrupt-array-hi` hi+1, `--corrupt-array-base` repoint; `nothing was proven` rc 1 on H01–H04/H05-base — non-vacuity never faked), hir_test.py positives live+ALL corrupt ×2 + T5 RAW bind_arrays grep + T6 strip-grep → **full rc 0** (live H01 4/3 H02 7/2 H03 7/4 H04 4/2 unchanged + H05 1/1 H08 7/3 H09 3/2). Step 5: FULL gate rc 0 → `build/gate-e54p1a1-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5; fresh `--build-dir _build-e54p1a1` rc 0 ZERO Error hist 122, sha == kept exe. Step 6 CLOSE: RESULTS §P1-a1 (T1–T10 WITH values; 10 deviations incl. falsified predecessor claim + H08 NO-Convert + H14 parse-resolved), arch §7-2, PLAN dashboard **P1-a1 CLOSED**. **SUCCESSOR: NOTHING is authorized — report closure, await the OPERATOR.** PUT/GET, BEGIN repair, MIR, P2+ PROPOSED ONLY; each needs own PROTOCOL #1 pre-registration. Ledger C380 (203 headers); config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; NEVER batch build with tests using its artifacts (race law, LEARNINGS); every fixture under timeout; scratch never committed; superseded/ never rewritten.
 
@@ -4565,6 +4577,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1beca-7c52-74ee-84fe-84ed36a0f527
+readiness-at: 2026-11-09T05:58:05.740Z
+readiness-checkpoint: g645-109b990284fb
 <!-- guard:end checkpoint -->
 
 ## Blockers
