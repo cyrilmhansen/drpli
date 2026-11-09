@@ -75,6 +75,9 @@ let stmt_kind_name = function
   | Hir.Call_s _ -> "call statement"
   | Hir.Return _ -> "return"
   | Hir.Stop -> "stop"
+  (* E2E-54/P1-m1 §P1-m1.4: the two new names for the body-end diagnostic. *)
+  | Hir.Put _ -> "put"
+  | Hir.Get _ -> "get"
 
 (* §P1-m0.3: the declared-precision value window W(p) of FIXED BINARY(p,0) — the
    same ±(2^(p-1)-1) domain in which the byte-exact bin(15) goldens live. p is
@@ -405,6 +408,17 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
               refuse ~line Diagnostic.e_mir_node
                 "MIR backend: stop is outside the native subset (startup and end \
                    semantics are out of scope, brief §3)"
+          | Hir.Put _ ->
+              (* TRANSIENT (§P1-m1 step 2 compile-adapt): the console emission lands
+                 with §P1-m1.5 and replaces this arm. *)
+              refuse ~line Diagnostic.e_mir_node
+                "MIR backend: a console put statement is outside the native subset \
+                   until the §P1-m1 console emission lands"
+          | Hir.Get _ ->
+              (* TRANSIENT, same status as the put arm above. *)
+              refuse ~line Diagnostic.e_mir_node
+                "MIR backend: a console get statement is outside the native subset \
+                   until the §P1-m1 console emission lands"
     in
     let (_ : (int * int) Int_map.t) = lower_stmts Int_map.empty body in
     (* ---- text assembly (§P1-m0.4) ------------------------------------------ *)

@@ -80,3 +80,18 @@ let e_mir_export = "HIR-E20"
      procedure, more than one procedure, no source name, a name that cannot become a
      portable symbol, a --export option that matches no procedure, parameters, or a
      result type that is not FIXED BINARY(p,0). *)
+
+(* E2E-54/P1-m1 additions (PLAN §P1-m1.3). APPENDED only; no existing code changes
+   meaning (falsifier T10). These codes are raised by the CONSOLE LOWERING in
+   hir_build.ml; the historical pipeline and every other HIR refusal never emit them. *)
+let e_io_construct = "HIR-E21"
+  (* console PUT/GET construct outside the accepted subset (§P1-m1.2), arms BY NAME:
+     statement options (the io_opt key, e.g. FILE); kind (PUT EDIT/ITEM, GET EDIT/CONST);
+     a leading control item (SKIP/PAGE/LINE); an item count other than 1; an item class
+     that is not a single data item; a GET target that is not a scalar-name designation.
+     Trailing control items never reach this code — they die in the parser (§P1-m1.1-3). *)
+let e_io_domain = "HIR-E22"
+  (* console DOMAIN outside the subset (§P1-m1.3): a PUT literal outside the printable
+     range 32..126; an empty PUT literal; a defensive non-FIXED-BINARY(p,0) I/O operand
+     type, expected UNEXERCISED because the declaration channels (E01/E02) precede it —
+     same honest status as the P1-a2 E16 arm. *)

@@ -197,6 +197,16 @@ and actual = {
    designating can never collapse into the same node (brief Phase 3). *)
 type target = designator
 
+(* ---------- console I/O (E2E-54/P1-m1, PLAN §P1-m1.4) ---------- *)
+
+(* The two console output roles are DIFFERENT constructors, so a backend can never
+   treat an output EXPRESSION (m1a: an integer value) as an output TEXT (m1b: a
+   validated literal) or vice versa. Nothing below names a stream, a buffer or a
+   byte: the MIR shapes live in the backend alone (§P1-m1.5). *)
+type put_source =
+  | P_value of expr                          (** m1a: an integer expression  *)
+  | P_text  of { text : string }             (** m1b: a validated literal    *)
+
 (* ---------- statements ---------- *)
 
 type stmt = { st : stmt_kind; st_line : int }
@@ -210,6 +220,14 @@ and stmt_kind =
       (** call as a statement; result discarded; arguments carry passing requirements *)
   | Return of expr option
   | Stop                                  (** program end (no code: the backend decides how) *)
+  | Put of put_source
+      (** E2E-54/P1-m1 §P1-m1.4: console PUT of the ONE accepted data item on the
+          default stream; the statement line rides [st_line], the expression (if any)
+          carries its own. *)
+  | Get of designator
+      (** console GET into a scalar designation (only [D_var] is ever produced — the
+          lowering refuses every other target shape at HIR-E21; designation REUSES
+          [Hir.designator] resolved through the EXISTING resolve channel). *)
 
 (* ---------- program ---------- *)
 
@@ -365,6 +383,20 @@ let rec dump_stmt syms buf indent s =
       Printf.bprintf buf "%sreturn value  [line %d]\n" pad s.st_line;
       dump_expr syms buf (indent + 1) e
   | Stop -> Printf.bprintf buf "%sstop  [line %d]\n" pad s.st_line
+  (* E2E-54/P1-m1 §P1-m1.4: bytes modeled on [return value]/[assign] (two spaces
+     before the [line] bracket; children one level deeper). The GET designator is
+     rendered through the SHARED [dump_designator] with the assignment-target
+     rendering (symbol-projection type, pure effect). No H fixture contains
+     PUT/GET, so every committed H dump byte is unchanged (T2). *)
+  | Put (P_value e) ->
+      Printf.bprintf buf "%sput value  [line %d]\n" pad s.st_line;
+      dump_expr syms buf (indent + 1) e
+  | Put (P_text { text }) ->
+      Printf.bprintf buf "%sput literal  [line %d]\n" pad s.st_line;
+      Printf.bprintf buf "%s  literal '%s'  [line %d]\n" pad text s.st_line
+  | Get d ->
+      Printf.bprintf buf "%sget  [line %d]\n" pad s.st_line;
+      dump_designator syms buf (indent + 1) Pure (pp_sym_ty syms) s.st_line d
 
 let dump (p : program) : string =
   let buf = Buffer.create 4096 in

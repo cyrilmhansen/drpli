@@ -172,6 +172,30 @@ let refuse_name (s : Ast.stmt_kind) : string =
   | Ast.Spreproc _ -> "preprocessor directive"
   | Ast.Snull _ -> "null statement"
 
+(* E2E-54/P1-m1 §P1-m1.3: BY-NAME renderings for the HIR-E21 item-class and
+   GET-target-shape arms (falsifier T10: every message NAMES its construct). *)
+let put_item_class_name (it : Ast.put_item) : string =
+  match it with
+  | Ast.Pi_fmt _ -> "format item"
+  | Ast.Pi_rep _ -> "repetition"
+  | Ast.Pi_repgrp _ -> "counted group"
+  | Ast.Pi_data _ -> "data item"
+  | Ast.Pi_ctl (k, _) -> "control item " ^ k
+  | Ast.Pi_pic _ -> "picture literal"
+  | Ast.Pi_remote _ -> "remote label"
+  | Ast.Pi_group _ -> "group"
+  | Ast.Pi_fmtlist _ -> "format list"
+
+let get_target_shape (e : Ast.expr) : string =
+  match e.Ast.e with
+  | Ast.Esuffix _ -> "an array element or call designation"
+  | Ast.Estring _ -> "a string literal"
+  | Ast.Enumber _ -> "a numeric literal"
+  | Ast.Ebinary _ -> "a binary expression"
+  | Ast.Eprefix _ -> "a prefixed expression"
+  | Ast.Econd _ -> "a parenthesised expression"
+  | _ -> "a non-name expression"
+
 (* ---------- expressions ---------- *)
 
 let ef_union a b = match (a, b) with H.Pure, H.Pure -> H.Pure | _ -> H.Unknown_ef
@@ -960,6 +984,158 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
            its statements execute inline here. Dropping them would be exactly the
            silent lowering F9 forbids. *)
         lower_stmts ctx bi ib.Ast.bstmts
+  | Ast.Sput { stream; on_opts; kind; items } ->
+      (* E2E-54/P1-m1 §P1-m1.2/.3: the accepted console PUT is ONE data item on the
+         DEFAULT stream via the LIST route (deviation §P1-m1.10-1: FROM parses to
+         List_ and is accepted as such). Arms fire in the PRE-REGISTERED ORDER:
+         options -> kind -> item scan (ctl -> count -> class) -> data-expression
+         lowering through the EXISTING channels, which are never bypassed. *)
+      (match stream with
+       | None -> ()
+       | Some _ ->
+           raise_err ~line D.e_io_construct
+             "console PUT carries a stream expression; the accepted subset is the \
+              default console stream only (defensive: this parser never builds one)")
+      ;
+      (match on_opts with
+       | [] -> ()
+       | o :: _ ->
+           raise_err ~line D.e_io_construct
+             ("console PUT option " ^ o.Ast.io_key
+             ^ " is outside the accepted subset (default console stream only)"));
+      (match kind with
+       | Ast.List_ -> ()
+       | Ast.Edit ->
+           raise_err ~line D.e_io_construct
+             "PUT EDIT is outside the accepted console subset (LIST route only)"
+       | Ast.Editsk _ ->
+           raise_err ~line D.e_io_construct
+             "PUT EDIT SKIP is outside the accepted console subset (LIST route only)"
+       | Ast.Item ->
+           (* Parser law (read first-hand, hop 1): the bare-control forms
+              PUT SKIP;/PUT PAGE; arrive with kind = Item and an ALL-control-item
+              list — the honest arm for THAT shape is the control item itself
+              (N8/N9). A data-carrying ITEM route refuses at the kind arm (N12). *)
+           if
+             items <> []
+             && List.for_all
+                  (function Ast.Pi_ctl _ -> true | _ -> false)
+                  items
+           then ()
+           else
+             raise_err ~line D.e_io_construct
+               "PUT ITEM is outside the accepted console subset (LIST route only)")
+      ;
+      List.iter
+        (function
+         | Ast.Pi_ctl (key, _) ->
+             raise_err ~line D.e_io_construct
+               ("console PUT control item " ^ key
+               ^ " is outside the accepted subset (no control items)")
+         | _ -> ())
+        items;
+      if List.length items <> 1 then
+        raise_err ~line D.e_io_construct
+          ("console PUT carries " ^ string_of_int (List.length items)
+          ^ " items; the accepted subset is exactly ONE data item")
+      ;
+      (match items with
+       | [ Ast.Pi_data e ] ->
+           (match e.Ast.e with
+            | Ast.Estring _ ->
+                (* TRANSIENT m1a wording (PLAN §P1-m1.3): literal items land with m1b
+                   through the E22 domain arms; no committed pin carries these bytes,
+                   so there is no superseded record (recorded, not hidden). *)
+                raise_err ~line D.e_io_construct
+                  "console PUT of a literal string is outside the accepted subset \
+                   (integer data items only in this milestone)"
+            | _ ->
+                (* the EXISTING expression channels, never bypassed: an unresolved
+                   name keeps E06, an out-of-window literal keeps E08, a whole-array
+                   name keeps E13; a CONDITION value keeps E04. *)
+                let v = lower_expr ctx bi e in
+                node (H.Put (H.P_value v)))
+       | [ it ] ->
+           raise_err ~line D.e_io_construct
+             ("console PUT item class " ^ put_item_class_name it
+             ^ " is outside the accepted subset (a single data item only)")
+       | _ -> assert false (* length checked to be 1 above *))
+  | Ast.Sget { stream; on_opts; kind; items } ->
+      (* §P1-m1.2/.3: the accepted console GET is ONE data item, a scalar-name
+         designation, on the default stream via the LIST route; same arm ORDER. *)
+      (match stream with
+       | None -> ()
+       | Some _ ->
+           raise_err ~line D.e_io_construct
+             "console GET carries a stream expression; the accepted subset is the \
+              default console stream only (defensive: this parser never builds one)")
+      ;
+      (match on_opts with
+       | [] -> ()
+       | o :: _ ->
+           raise_err ~line D.e_io_construct
+             ("console GET option " ^ o.Ast.io_key
+             ^ " is outside the accepted subset (default console stream only)"));
+      (match kind with
+       | Ast.List_ -> ()
+       | Ast.Edit ->
+           raise_err ~line D.e_io_construct
+             "GET EDIT is outside the accepted console subset (LIST route only)"
+       | Ast.Const_ ->
+           raise_err ~line D.e_io_construct
+             "GET CONST is outside the accepted console subset (LIST route only)")
+      ;
+      List.iter
+        (function
+         | Ast.Pi_ctl (key, _) ->
+             raise_err ~line D.e_io_construct
+               ("console GET control item " ^ key
+               ^ " is outside the accepted subset (no control items)")
+         | _ -> ())
+        items;
+      if List.length items <> 1 then
+        raise_err ~line D.e_io_construct
+          ("console GET carries " ^ string_of_int (List.length items)
+          ^ " items; the accepted subset is exactly ONE data item")
+      ;
+      (match items with
+       | [ Ast.Pi_data e ] ->
+           (* target shape AFTER the EXISTING resolve channel, before anything else
+              touches the symbol (§P1-m1.3); an unresolved name keeps E06. *)
+           (match e.Ast.e with
+            | Ast.Eident n ->
+                let key = SE.key_of n in
+                (match resolve ctx bi key with
+                 | None ->
+                     (* the EXISTING unresolved wording, unchanged (T10) *)
+                     raise_err ~line D.e_unresolved
+                       ("identifier " ^ n.Ast.orig
+                       ^ " resolved by NO bind row in this or any enclosing block")
+                 | Some sy ->
+                     (match sy.H.sty with
+                      | H.Array1 _ ->
+                          raise_err ~line D.e_io_construct
+                            ("GET target " ^ n.Ast.orig
+                            ^ " designates an array; the accepted subset is a scalar \
+                               name designation")
+                      | H.Fixed_bin _ -> node (H.Get (H.D_var { sid = sy.sid }))
+                      | t ->
+                          (* defensive: project_syms admits FIXED BINARY scalars and
+                             array rows only, so no other type can reach this arm —
+                             same honest status as the P1-a2 E16 arm (§P1-m1.3). *)
+                          raise_err ~line D.e_io_domain
+                            ("GET target " ^ n.Ast.orig ^ " has type " ^ H.pp_ty t
+                            ^ ", not FIXED BINARY(p,0) (defensive witness)")))
+            | _ ->
+                raise_err ~line D.e_io_construct
+                  ("GET target " ^ get_target_shape e
+                  ^ " is outside the accepted subset (a scalar name designation \
+                     only)"))
+       | [ it ] ->
+           raise_err ~line D.e_io_construct
+             ("console GET item class " ^ put_item_class_name it
+             ^ " is outside the accepted subset (a single data item only)")
+       | _ -> assert false (* length checked to be 1 above *))
   | k ->
       raise_err ~line D.e_stmt
         ("statement " ^ refuse_name k ^ " is outside the P0 HIR subset")

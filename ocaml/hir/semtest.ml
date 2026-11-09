@@ -156,6 +156,14 @@ let rec walk_stmt acc (s : H.stmt) : ref_item list =
         (R_call { pid; nargs = List.length args } :: acc)
         args
   | H.Return eo -> (match eo with Some x -> walk_expr acc x | None -> acc)
+  (* E2E-54/P1-m1 §P1-m1.11 step 2 MINIMAL compile-adapt (PLAN §P1-m1.4 zero-pin law:
+     NO H fixture contains PUT/GET, so every measured count on H01–H29 is preserved
+     byte-for-byte). A put of a value reads like any expression; a put of a literal
+     references no symbol; a GET DESIGNATES its target exactly like an assignment
+     target (a write). *)
+  | H.Put (H.P_value e) -> walk_expr acc e
+  | H.Put (H.P_text _) -> acc
+  | H.Get d -> walk_target acc d
 
 (* ---------- P1-a2 §P1-a2.6: the call-collection walk (AST <-> HIR, 1:1) ----------
 
