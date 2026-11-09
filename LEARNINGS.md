@@ -10573,3 +10573,33 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
    rc 0 (27 checks) as the gcc/glibc diagnostic reference, fresh `--build-dir
    _build-e54pmc` hist 122 with sha == kept exe; then RESULTS §P1-mC + arch §7-6 + the
    PROPOSED-only P1-m1 console-I/O roadmap and the §P1-mC close.
+
+## E2E-54/P1-m1 hop 1 (2026-11-10, session 01a1c1f5) — console-I/O audit + MIR-text import probe
+
+- **accepted (first-hand):** HEAD 61129bd2 = brief starting reference; baseline GREEN (build
+  rc 0; exe 172595d5; hir_test rc 0 full PASS; lib+bin clean; g686 managed-block dirt is the
+  prior finalize, prose edits only above it). Parser law measured: put list(x) =>
+  Sput{stream=None;kind=List_;items=ctl_items@[Pi_data (Eident x)]}; bare file name arrives as
+  on_opts FILE(f); 'Hello' => Estring (lexer folds doubled quotes); trailing SKIP/PAGE before ;
+  is already a PARSE refusal. hir_build refuses Sput/Sget ONLY at catch-all HIR-E05; lower_expr
+  refuses Estring; ZERO hir/fixtures mention put/get so no existing pin can move when admitted.
+- **accepted:** F8 strip-greps (tools/hir_test.py F8_PATTERNS) bind every NEW ocaml/hir CODE
+  string: no \b(size|offset|reloc|pool)\b, no uppercase mnemonic tokens (incl. single letters
+  C/M/P/Z), no 0x, no op_. Lowercase MIR text (call/ret/mov) is safe; use len, never size.
+- **accepted:** MIR text capabilities (pinned lab MIR.md + mir-tests): proto = [res,] args with
+  type:name args (leading bare type is the result); call proto,callee,res...,args...; module
+  items import a,b / export n / s0: string "..."; labels on own line; branches
+  beq/bne/blt/bge/jmp lbl,op,op; mem operand i64:(base[,idx[,scale]]); alloca reg,bytes;
+  p_exit: proto i64:c (no result) + call p_exit, exit, st.
+- **falsified (probe, recorded not fitted):** strong import of a host C name FAILS in pinned
+  mir2o: rc 1, stderr "import of undefined item pli_console_put_i64" (mir.c link path: strong
+  import + NULL resolver + no MIR_load_external registration). The madc fork has WEAK imports
+  captured as undefined weak by the object emitter, but MIR TEXT cannot express weak.
+- **proposed (UNVERIFIED, probe before pre-registering):** additive mir2o change MIR_load_external
+  (ctx,name,stable dummy addr) per import before MIR_link; emitted .o keeps the symbol undefined,
+  cosmo_link resolves it against the console runtime C. No-I/O modules have no imports so their
+  objects stay byte-identical (CT2 re-check mandatory). Scratch assets:
+  build/p1m1-scratch/{probe1.mir,probe_runtime.c,probe_main.c} (status codes OK0/EOF1/BAD2/RANGE3/IOERR4).
+- **open questions:** string data-item capture through object mode UNPROVEN; exit() resolution
+  from libcosmo UNPROVEN; whether the PL/I RETURN value should reach the driver in I/O programs
+  (console_check.c driver design is a §P1-m1 pre-registration decision).

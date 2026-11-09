@@ -7,6 +7,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54p1m1-1. **E2E-54/P1-m1 IN FLIGHT — minimal console I/O AUTHORIZED by operator; hop 1 audit
++ probes DONE; NO code byte written yet; successor = PROGRESS.md live P1-m1 heading VERBATIM**
+(session 01a1c1f5, chain fresh; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger
+203/C380; HEAD `61129bd2` = brief starting reference; baseline GREEN: build rc 0, exe
+`172595d5…` DIRECT, hir_test rc 0). Accepted measurements: parser/hir_build Sput/Sget shapes
+and the HIR-E05 catch-all today; NO fixture contains put/get ⇒ accepting moves zero pins; F8
+vocabulary law on new hir strings (no size/offset/reloc/pool/0x/uppercase mnemonics); MIR text
+capabilities (proto/call/import/export/string item/labels/branches/alloca/mem operands) from the
+pinned lab docs. **FALSIFIED:** the pinned mir2o REJECTS strong host imports — rc 1
+`import of undefined item pli_console_put_i64` (madc fork: only WEAK imports capture undefined,
+text cannot express weak). **PROPOSED (unverified):** additive mir2o `MIR_load_external` before
+`MIR_link`; probe in scratch FIRST, then pre-register. NEXT ACTION: (1) scratch probe
+`build/p1m1-scratch/mir2o_ext.c` + cosmo_link tiny run (assets already staged: probe1.mir,
+probe_runtime.c, probe_main.c); (2) WRITE + COMMIT §P1-m1 in `spec/lab-evidence/e2e54/PLAN.md`
+(explicit path, PROTOCOL #1) before ANY code byte; (3) m1a integers to green, then m1b
+characters. Full contract + constraints in the PROGRESS live heading; details in LEARNINGS
+§ "E2E-54/P1-m1 hop 1". Standing: ZERO oracle; C380; config NEVER staged; no push; explicit
+paths; scratch never committed; lab never advanced; P1-mC/P1-m0 CLOSED and their results
+unchanged.
+
 0e-e54pmc-2. **E2E-54/P1-mC CLOSED 2026-11-09 (session 01a1c194, renewal 1/12; ZERO oracle; `ocaml/lib`+`ocaml/bin`+`ocaml/hir`+`hir/` byte-clean; ledger 203/C380; kept exe `172595d5…` held).** THE GENUINE unchanged `mir2o` objects link with pinned official Cosmopolitan 4.0.2 (`cosmocc-4.0.2.zip` sha256 `85b8c37a…3f44`, GCC 14.1.0, ignored `build/p1mc-deps/`) into PLAIN STATIC Linux x86-64 ELF — no `PT_INTERP`, no dynamic section/`DT_NEEDED`, `nm T pli80_<n>`, objdump shows the MIR-originating code — and EXECUTE **42/45/10** in two fresh processes each; CT2 object sha256 recorded BEFORE linking and byte-equal to `build/mir-aot/M0*.o`; CT4 Cosmopolitan-only controls (optlinux+tiny) recorded separately; controls C-a (`mul`→`add`) EXECUTES 13 and FAILS, C-b (`EXPECTED=43`) FAILS. Route = RAW `bin/x86_64-linux-cosmo-gcc` with the wrapper's own BUILDLOG-captured flags + `lib/optlinux/{ape-no-modify-self.o,crt.o}`/`-lcosmo`/`ape.lds`, launched via the distribution's native ELF loader `bin/ape-x86_64.elf` (~1 s; the wine/binfmt wrapper path >90 s; artifacts byte-identical both ways) — NO APE step, NO launcher, `-mtinylinux` UNAVAILABLE in 4.0.2 (falsified). Deliverables committed: `597298b0` (`tools/mir_aot/cosmo_link.sh`, `tools/mir_aot_cosmo_test.py`, runner rc 0 25 checks) + the close commit (RESULTS §P1-mC, arch §7-6, PLAN dashboard CLOSED, LEARNINGS § P1-mC hop 2, PROGRESS). CT5 ALL GREEN: gate FROZEN ALL HIT → `build/gate-e54pmc-reg.log`, hir_test rc 0 220 ok 11 numbers UNMOVED, mir_aot_test rc 0 27 checks (gcc/glibc = diagnostic reference), fresh `_build-e54pmc` rc 0 ZERO Error hist 122 sha==kept. **SUCCESSOR: NOTHING FURTHER IS AUTHORIZED — brief §10 STOP; P1-m1 (console I/O over Cosmopolitan), ARM64, APE, production backend adoption and all broader MIR semantics remain PROPOSED ONLY; each needs its own PROTOCOL #1 pre-registration + explicit operator authorization.** Standing: ZERO oracle; C380; config NEVER staged; no push; explicit paths; `build/p1mc-deps`+`build/p1mc-scratch`+`build/mir-cosmo` NEVER committed; lab never advanced; `LC_ALL=C` for binutils; every command under a short timeout.
 
 0e-e54p1m0-3. **E2E-54/P1-m0 hop 3 LANDED — §P1-m0 CLOSED: the first NATIVE MIR path EXECUTES 42/45/10 (session 01a1c0dc, chain 0/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380).** Operator **§RD-COSMO roadmap amendment recorded VERBATIM** (commit `186a59d6`; transcript-extracted, stripped blockquote == source BYTE-FOR-BYTE 40 lines/2137 B; Cosmopolitan = preferred future native libc, Linux x86-64 static ELF first, APE only after; ROADMAP ONLY — §P1-m0 acceptance criteria UNCHANGED). STEP 4 `57e0450f` (CRLF+^Z fixtures, measured-first pins, review-vs-§P1-m0.4 before every cp, VISIBLE CRLF line numbers, refusal totality incl. NO `-o` file); STEP 5 `5dc2356a`+`180162fa` (mir2o complete D-3 sequence, finish-on-all-paths, rc≠0 everywhere; build_native.sh pin-checks + out-of-tree libmir; native_check.c ABI; runner rc 0 ALL 27 CHECKS — **42/45/10 EXECUTED** in two fresh procs per fixture, ET_REL X86-64, `nm T pli80_<n>`, relocations only `.rela.eh_frame`, `ldd` ONLY libc/vdso/loader, pipeline proof via pli80hir, **C-a mul→add executes 13≠42 and C-b EXPECTED=43 BOTH FAIL natively**; self-caught runner path defect fixed+recorded honestly); STEP 6 (FULL gate rc 0 FROZEN ALL HIT 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54p1m0-reg.log`; fresh `_build-e54p1m0` rc 0 hist 122 sha==kept `172595d5…`; hir_test rc 0 220 ok, 11 numbers UNMOVED; T2 clean; lab clean+pinned). STEP 7 (this+docs commit): RESULTS **§P1-m0** (FIVE milestones separately — all PASSED; T1–T11 WITH values; unsupported-semantics matrix; 9 deviations; **§P1-m0.8 records the PROPOSED stages P1-mC/P1-m1/future-portable VERBATIM-IN-SPIRIT of §RD-COSMO, per operator instruction**), arch doc **§7-5** + roadmap paragraph, PLAN dashboard **CLOSED**, LEARNINGS § hop 3. **SUCCESSOR: NOTHING FURTHER IS AUTHORIZED — brief §11 STOP; every next slice (incl. P1-mC/P1-m1) needs its own PROTOCOL #1 pre-registration + explicit operator authorization.** Standing: ZERO oracle; C380; config NEVER staged; no push; explicit paths; scratch NEVER committed; hir/expected+hir/fixtures FROZEN; mir pins ADDITIVE-only; lab never advanced; F8 uppercase-single-letter law binds new hir code; binutils evidence needs LC_ALL=C.
@@ -1795,22 +1815,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 685
-checkpoint-id: g685-e63e39396c37
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4800, session 01a1c194-3cf0-72cb-a0c1-060b479c6c49)
-checkpointed: 2026-11-09T19:09:52.398Z
+checkpoint-generation: 688
+checkpoint-id: g688-b03b4e1c229a
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 3, remaining ~5590, session 01a1c1f5-8fd1-7001-8c8d-6aeda4b5a405)
+checkpointed: 2026-11-09T20:51:37.705Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2a4dd3ccb0e40ef5e440378ad103a1a04a993ebb2568cede1ad6b6e5ad2a7743
-source-handoff: 2d999ce9fd0de820bc0d727983e4f9c5890ab6fec5658a8a1a37c67a2381ef10
-source-learnings: b87e456b1cb3ac42ae3310b5e0e599793992d7b1288aa160f908bd0559b56fb5
+source-progress: bdde90a874a4243f78d250e7528511f1f3a5f7651d9aa524b0efd8b8c241e860
+source-handoff: 00f669af81cfcc5bdf70addb946619bc3af5afcaf8747868f7fee31ae22514c0
+source-learnings: 67f3a20d1d64d1e917b4ac3c2f6478f74d81e4943cf15033e4c9dca17067693b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c1f5-8fd1-7001-8c8d-6aeda4b5a405
+readiness-at: 2026-11-09T20:51:37.751Z
+readiness-checkpoint: g688-b03b4e1c229a
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (finalize: E2E-54/P1-m1 hop 1: audit + MIR import probe done; next = scratch mir2o_ext probe, then commit PLAN.md §P1-m1 pre-registration (explicit path) before any code byte; then m1a integers, m1b characters.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2583,5 +2606,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m0 CLOSED (hop 3, session 01a1c0dc): five milestones all passed, 42/45/10 executed natively; §RD-COSMO amendment recorded 186a59d6; close e4cadf66. SUCCESSOR: STOP — nothing authorized; each future slice (P1-mC/P1-m1/IF-ELSE/params/arrays/calls/IO/AArch64/APE) needs own PROTOCOL #1 pre-registration + operator authorization. Chain 0/12; ledger C380; config dirty NEVER staged; no push.
+E2E-54/P1-m1 hop 1: audit + MIR import probe done; next = scratch mir2o_ext probe, then commit PLAN.md §P1-m1 pre-registration (explicit path) before any code byte; then m1a integers, m1b characters.
 <!-- guard:end checkpoint -->
