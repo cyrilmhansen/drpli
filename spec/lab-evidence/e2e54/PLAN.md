@@ -3529,3 +3529,413 @@ runner fails.
 6. Full regression CT5; then RESULTS §P1-mC (result matrix: control / object acceptance /
    static link / native execution) + arch doc update + PROPOSED P1-m1 roadmap (integer and
    string console I/O through Cosmopolitan — NOT implemented here); close, attest, **STOP**.
+
+---
+
+## §P1-m1 — Pre-registration: Minimal console I/O over the native MIR path (committed BEFORE any repository source byte)
+
+Operator authorization of 2026-11-10: **P1-m1 (minimal console I/O) is AUTHORIZED** as the
+third §RD-COSMO stage — the roadmap row recorded PROPOSED in RESULTS §P1-mC.5 and PLAN
+§P1-m0.8, promoted to an authorized slice by that explicit operator decision (audit recorded
+in `LEARNINGS.md` § "E2E-54/P1-m1 hop 1"; the contract reproduced here is the authoritative
+brief for this slice). Type of work: **backend engineering, ZERO oracle calls** (none
+planned or authorized; console semantics are DRPLi engineering evidence, never DR claims —
+the ledger stays 203 headers ending **C380**). Starting reference `61129bd2` (the §P1-mC
+close commit; verified first-hand at hop 1); pre-registration hop 3 HEAD `96610195` (zero
+repo code byte since the starting reference; baseline trio green at `612275bb` and re-verified
+at this HEAD: `dune build` rc 0; kept exe
+`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; `ocaml/lib` +
+`ocaml/bin` byte-clean).
+
+All design authority for this slice was MEASURED in three probe hops and is digested in
+`LEARNINGS.md` §§ "E2E-54/P1-m1 hop 1/2/3" — READ hop 2 + hop 3 FIRST. Every prediction in
+this section either cites a first-hand measurement (hops 1–3 scratch probes in the IGNORED
+`build/p1m1-scratch/`, NEVER committed) or is explicitly marked UNPROVEN and will be
+measured-first at pin time.
+
+### P1-m1.0 Milestones (SEPARATE deliverables)
+
+- **m1a — integers.** `put list(<integer expression>);` and `get list(<scalar variable>);`
+  over the console runtime, end to end: HIR lowering → MIR emission (import/protos/labels/
+  branches) → mir2o object with undefined host imports → Cosmopolitan static link → native
+  execution with observable stdout/stderr/exit-status. GREEN means: fixtures M04/M05 pinned,
+  the m1a negative pins landed, the runner panel for m1a legs rc 0, and the full FROZEN
+  regression panel (§P1-m1.9) all hit.
+- **m1b — characters (LITERAL put ONLY).** `put list('<printable literal>');`. Character
+  VARIABLES are blocked by the EXISTING `HIR-E02` declaration refusal (`dcl c character(3)`
+  is refused today; `hir/mir-fixtures/N4.pli` pins it) — documented, NEVER a new refusal; a
+  char-variable put stays unreachable until declaration support exists. m1b lands only after
+  m1a is green; m1a stays independently deliverable.
+
+CLOSE after both milestones: RESULTS §P1-m1 + `docs/architecture/backend-boundary.md` §7-7
++ dashboard CLOSED + durables, then **STOP** — IF/ELSE in MIR, file streams, FORMAT/EDIT,
+ON-unit handling, char declarations, APE, ARM64 and production-backend adoption all remain
+PROPOSED ONLY and each needs its own PROTOCOL #1 pre-registration plus explicit operator
+authorization.
+
+### P1-m1.1 MEASURED design facts (hops 1–3, first-hand; this section pre-registers, it does not re-measure)
+
+1. **Zero-pin law (accepted):** every candidate console form (`put skip;`, `put page;`,
+   `put file(f) list(x);`, `put edit(x)(b(15));`, `put item(i);`, `put from(x);`,
+   `put list('<lit>');`, `put list(x, y);`, `get list(x + 1);`, `get list(a(1));`,
+   `get list('z');`, `on error put list(x);`) PARSES through the frozen parser and dies
+   today at the EXISTING catch-all `HIR-E05: line N: statement PUT|GET|ON unit is outside
+   the P0 HIR subset`; NO existing fixture (H-series or M-series) contains put/get, so
+   accepting the subset moves ZERO committed pins.
+2. **Line-number law (accepted, measured both directions):** LF fixtures report LOW
+   statement lines; CRLF+`^Z` fixtures report EXACT lines. Every new pin is measured on
+   CRLF+`^Z` fixture bytes.
+3. **Trailing control items are NOT pinnable (accepted):** `put list(x) skip;` and
+   `get list(x) skip;` die in the PARSER via the pre-existing UNCAUGHT `Parse_error` hole
+   (rc 2, zero stdout, OCaml `Fatal error: exception Pli80.Parser.Parse_error(...)` on
+   stderr; recorded in P1-m0 hop 2, identical in `pli80hir.exe`). They get NO E21 arm and NO
+   negative pin. LEADING control items (`Pi_ctl` items, e.g. `put skip;`) ARE E21 arms.
+4. **Precision ceiling is the E01 bind channel (accepted):** `dcl x fixed bin(16)` (and a
+   `returns(fixed bin(16))` result) dies at `HIR-E01` — the existing no-bypass bind refusal
+   ("FIXED BINARY(16) exceeds DR's FIXED precision limit 15 ... [TBD]"). Declaration-level
+   precision is therefore NOT an E22 arm; only what the bind channel lets through can reach
+   the console gates.
+5. **Additive mir2o route PROVEN (accepted, hop 2):** registering every `MIR_import_item`
+   with `MIR_load_external(ctx, name, (void *) pli_ext_dummy)` BEFORE `MIR_link` makes strong
+   host imports emit as UNDEFINED STRONG ELF symbols (the dummy address never enters the
+   object; `nm -u` shows `U pli_console_*`, `U exit`); a module WITHOUT imports takes ZERO
+   extra steps and its object is BYTE-IDENTICAL to the frozen §P1-m0 pin (M01 measured);
+   objects deterministic ×2. The pinned madc fork itself is NEVER touched.
+6. **Production layout PROVEN (accepted, hop 2 probes probe2/probe4, glibc; re-read hop 3):**
+   exact module/func/proto/import/string/label/branch/local shape reproduced VERBATIM in
+   §P1-m1.5 below; zero-arg proto `p_nl:\tproto\ti64` parses and calls fine; string items
+   escape `\"` and `\\` and decode to exact bytes (31-byte literal verified byte-for-byte);
+   one `import` line listing ONLY the used names in canonical order.
+7. **Runtime ABI + status laws MEASURED (accepted, hop 2; §P1-m1.6):** statuses
+   OK=0 EOF=1 BAD=2 RANGE=3 IOERR=4; get skips leading space/tab/CR/LF, accepts an optional
+   sign, the digit run ends at the first non-digit WHICH IS CONSUMED (`123abc` → 123 OK),
+   EOF after a complete number is a GOOD read, lone `-` → BAD, a digit run longer than the
+   24-byte scan buffer → RANGE, a value outside `[lo,hi]` → RANGE; any nonzero status
+   fail-fasts through `exit(status)` (observable nonzero process rc); `exit()` flushes stdio
+   so earlier partial stdout still appears — EOF never masquerades as success; cosmo tiny
+   end-to-end ran: stdout EXACTLY `42\nHello, console!\n124\n`, `driver-return=124` on
+   stderr, rc 0 (and failure legs rc 2 / rc 1 with partial output preserved).
+8. **WINDOW LAW (accepted, critical for fixtures):** after `get list(x)` the provable
+   interval of `x` IS the full declared window `W(p) = ±(2^(p-1)-1)`; any later arithmetic
+   that can leave `W(p)` refuses `HIR-E19` (e.g. `x = x + 1` after a bin(15) get dies —
+   16384 > 16383). Console fixtures therefore PUT/RETURN the got value directly.
+9. **Parser/AST shape facts (accepted, hop 1–2 reads):** `parse_put`/`parse_get` ALWAYS set
+   `stream=None`; a bare file name arrives as an `on_opts` entry `FILE(ident)`; the LIST
+   route arrives as `kind=List_` with `items = ctl_items @ [Pi_data ...]`; `'Hello'` lowers
+   from `Estring` (the lexer folds doubled quotes); `put from(x)` parses AST-INDISTINGUISH-
+   ABLY from `put list(x)` (deviation §P1-m1.10-1).
+10. **F8 vocabulary law (accepted):** the strip-greps glob ALL `ocaml/hir/*.ml`; new code
+    strings must avoid `\b(size|offset|reloc|pool)\b` (say "len"), hex `0x...` (say
+    "32..126"), `op_`, and UPPERCASE mnemonic words INCLUDING single letters (C, M, P, Z...).
+    Lowercase MIR mnemonics (`call`, `ret`, `mov`, `local`, `import`) are safe.
+
+### P1-m1.2 Accepted-syntax contract (the FINAL subset after m1a + m1b; anything else refuses LOUDLY)
+
+A `Sput` lowers iff ALL hold:
+- `stream = None` and `on_opts = []` (default console stream only);
+- `kind = List_`;
+- `items` contains EXACTLY ONE item and it is `Pi_data e`;
+- either (m1a) `e` lowers through the EXISTING `lower_expr` subset (integer-valued
+  `FIXED BINARY(p,0)`, p in 1..15 — every HIR integer expression qualifies after the E02/E08/
+  E19 channels have had their say; a literal above `W(15)` keeps refusing `HIR-E08`, an
+  uninitialized variable read keeps refusing `HIR-E19`, an unresolved name keeps refusing
+  `HIR-E06` — the EXISTING channels, never bypassed);
+- or (m1b) `e` is `Ast.Estring s` with `String.length s >= 1` and EVERY character in the
+  printable console range 32..126 (empty literal → `HIR-E22`; out-of-range character such
+  as a TAB → `HIR-E22`).
+
+A `Sget` lowers iff ALL hold:
+- `stream = None` and `on_opts = []`;
+- `kind = List_` (`get edit`/`get const` kinds refuse `HIR-E21`);
+- `items` contains EXACTLY ONE `Pi_data e`;
+- `e` is a bare name `Eident` whose name resolves through the EXISTING `resolve`/
+  Semantic_env channel (unresolved keeps `HIR-E06`);
+- the resolved symbol is a scalar (NOT an array row) of type `FIXED BINARY(p,0)` with
+  automatic storage — an array designation (whole or `a(i)`) or any expression target
+  (`x + 1`, `'z'`) refuses `HIR-E21` BY SHAPE.
+
+Statement-position invariants inherited UNCHANGED from §P1-m0: the export procedure stays
+zero-argument with a `FIXED BINARY(p,0)` result and a straight-line body ending in
+`RETURN(expr)`; `put`/`get` are ordinary statements inside that body (any position after the
+declarations that the body law already allows).
+
+### P1-m1.3 Refusal contract — `diagnostic.ml` APPENDS two codes (append-only law; no existing code changes meaning)
+
+`let e_io_construct = "HIR-E21"` (* console PUT/GET construct outside the subset — arms BY
+NAME: statement options (the `io_opt` key, e.g. FILE); kind (EDIT/ITEM and the GET kinds);
+leading control items (SKIP/PAGE/LINE); item count /= 1; item class (not a single data
+item); GET target shape (not a scalar name designation) *)
+
+`let e_io_domain = "HIR-E22"` (* console domain outside the subset: a PUT literal outside
+the printable range 32..126; an empty PUT literal; a defensive non-FIXED-BINARY(p,0) I/O
+operand TYPE, expected UNEXERCISED because the declaration channels (E02/E01) precede it —
+same honest status as the P1-a2 E16 arm *)
+
+Arms fire at LOWERING (`hir_build.ml`), BEFORE any MIR decision, in this order: options →
+kind → item scan (any `Pi_ctl` → ctl arm; count /= 1 → item-count arm; non-`Pi_data` class →
+item-class arm) → data-expression lowering (existing channels) → literal charset/empty (m1b)
+→ GET target shape (after `resolve`, before anything else touches the symbol). Every message
+NAMES the offending construct (falsifier T10 discipline). During m1a (before m1b) a literal
+PUT item refuses via the item-class arm; that arm's literal wording is TRANSIENT (m1b
+replaces it) and gets NO committed pin — honest note, no superseded record needed because no
+pin existed.
+
+Trailing control items are OUT of scope of this contract (fact 3: parser death, unpinnable).
+`ON` units stay the EXISTING `HIR-E05 statement ON unit ...` catch-all — untouched.
+`put from(x)` is ACCEPTED as a list put (§P1-m1.10-1).
+
+### P1-m1.4 HIR representation contract — `ocaml/hir/hir.ml` ADDITIVE (existing bytes frozen)
+
+```
+type put_source =
+  | P_value of expr                          (** m1a: an integer expression  *)
+  | P_text  of { text : string }             (** m1b: a validated literal    *)
+```
+new `stmt_kind` arms `Put of put_source` and `Get of designator` (only `D_var` is ever
+produced — reference-position designators REUSE `Hir.designator` resolved through the
+EXISTING `resolve`; NO new name resolver, NO new node for arrays). `dump_stmt` gains (bytes
+modeled on the existing `return value`/`assign` lines; `[line N]` is the statement line):
+
+- `P_value`: `put value  [line N]` then the expression dumped at indent+1 (shared `dump_expr`);
+- `P_text`: `put literal  [line N]` then at indent+1 one line `literal '<text>'  [line N]`;
+- `Get d`: `get  [line N]` then the designator dumped at indent+1 through the SHARED
+  `dump_designator` (`Pure`, symbol-projection type text — exactly the assignment-target rendering).
+
+`stmt_kind_name` (mir_backend) gains `"put"` / `"get"` for the body-end diagnostic. NO H
+fixture contains put/get, so every committed H dump byte is unchanged (T2); the dump shapes
+above are reviewed in scratch runs of the M fixtures through `pli80hir.exe` and are NOT
+pinned under `hir/expected` (this slice's pins live in `hir/mir-*` only).
+
+### P1-m1.5 MIR-backend emission contract — `ocaml/hir/mir_backend.ml` ADDITIVE (layout PROVEN in probe2/probe4)
+
+A procedure WITHOUT console statements emits the EXISTING bytes EXACTLY (M01/M02/M03 pins
+and every H dump byte-frozen; CT2/T9 re-check). With console statements the module gains,
+IN THIS ORDER:
+
+1. protos (only the ones used, fixed relative order p_put, p_get, p_text, p_nl, p_exit),
+   VERBATIM as measured:
+   `p_put:\tproto\ti64, i64:v` / `p_get:\tproto\ti64, i64:out, i64:lo, i64:hi` /
+   `p_text:\tproto\ti64, i64:s, i64:n` / `p_nl:\tproto\ti64` / `p_exit:\tproto\ti64:c`
+2. exactly ONE import line listing ONLY the used host names in canonical order:
+   `\timport\tpli_console_put_i64, pli_console_get_i64, pli_console_put_text, pli_console_put_nl, exit`
+   (`exit` is always among them when any console call exists — the shared tail uses it);
+3. string items `s<k>:\tstring\t"<escaped>"` (m1b), numbered by FIRST USE of each DISTINCT
+   literal text, escaping exactly `"` → `\"` and `\` → `\\` (measured decode); placed after
+   the import line, before the func item;
+4. the func locals gain, after the existing ascending `v<sid>` registers and BEFORE the
+   ascending `t<k>` temps: `st` (status register, once, when any console call exists) and
+   `a1` (the single get slot, once, when any `Get` exists);
+5. statement shapes (tab-indented like every other instruction):
+   - `put value`: lower the expression per §P1-m0.3 (interval proof incl. — its own declared
+     window), then `call p_put, pli_console_put_i64, st, <reg>`, `bne Lfail, st, 0`,
+     `call p_nl, pli_console_put_nl, st`, `bne Lfail, st, 0` (the backend closes EVERY put
+     statement with a newline — line-oriented statements; the runtime itself never adds one);
+   - `put literal`: `mov <t>, <len>` (the text's character count — never the word "size"),
+     `call p_text, pli_console_put_text, st, s<k>, <t>`, `bne Lfail, st, 0`, then `p_nl` as
+     above;
+   - `get`: `alloca a1, 8`, `call p_get, pli_console_get_i64, st, a1, <lo>, <hi>` where
+     (lo,hi) = `W(p)` of the target's declared precision, `bne Lfail, st, 0`,
+     `mov v<sid>, i64:(a1)`; the environment then maps `sid` to EXACTLY (lo,hi) (WINDOW LAW);
+   - EVERY console call is followed by its own `bne Lfail, st, 0`;
+6. the SHARED failure tail AFTER the body's final `ret` and before `endfunc`:
+   `Lfail:` (own line, no indent) then `\tcall p_exit, exit, st` and `\tret st`.
+
+An `assign` to, `put` of, or `return` of an uninitialized-after-nothing variable keeps the
+EXISTING `HIR-E19` wording; the `Get` arm refuses the mirrored defensive wording "assignment
+to sym(N) which was never declared" pattern if no `Declare` preceded it. Multiple `Get`
+statements each emit their own `alloca a1, 8` (same instruction, measured pattern repeated;
+only single-get modules are pinned).
+
+### P1-m1.6 mir2o additive change + committed console runtime + driver (tools/)
+
+- `tools/mir_aot/mir2o.c` gains EXACTLY the hop-2 probe block VERBATIM-IN-SPIRIT: the
+  `pli_ext_dummy` function plus the import-registration double loop BEFORE `MIR_link`
+  (context lines `mod`/`it` already exist in the pinned file; the loop variables reuse the
+  ones already in scope). `build_native.sh` UNCHANGED (it compiles this file with
+  `-Werror` — the block compiles clean in the probe). `thirdparty/` lab pinned
+  `ccc92c5c`/`f541a7a5` NEVER touched or advanced. **CT2 re-check MANDATORY at first build:**
+  the three frozen no-IO objects keep their recorded sha256 values `78656e6c…`,
+  `3822f777…`, `02c15b1b…` (measured byte-equal again in P1-mC).
+- NEW committed runtime `tools/mir_aot/pli_console.c` (from the MEASURED scratch
+  `build/p1m1-scratch/pli_console2.c`): the five extern "C" entry points
+  `pli_console_put_i64`, `pli_console_get_i64`, `pli_console_put_text`, `pli_console_put_nl`
+  (each returning the `long` status) and the status constants OK=0 EOF=1 BAD=2 RANGE=3
+  IOERR=4; put functions emit NO newline; get per the §P1-m1.1-7 parsing laws; document the
+  ABI in the file header. This runtime is DRPLi's OWN minimal console layer — PL/I I/O
+  semantics stay DISTINCT from libc (no stdio passthrough beyond getchar/putchar-level use);
+  NOT wholesale PLILIB; NOT oracle-judged.
+- NEW committed driver `tools/mir_aot/console_check.c` (from the MEASURED scratch
+  `console_check_probe.c`): `-DENTRY=<pli80_name>` REQUIRED (`#error` otherwise); calls
+  ENTRY once; prints NOTHING on stdout; prints `driver-return=<v>` + newline on stderr;
+  returns rc 0 on normal completion (an I/O failure NEVER returns — the MIR tail calls
+  `exit(status)`).
+- Link recipe = the EXISTING `tools/mir_aot/cosmo_link.sh tiny <out> -- <driver+runtime+object>`
+  (tiny mode PROVEN for this shape in hop 2); no APE step, no launcher, no glibc fallback
+  (the glibc reference remains available for diagnosis exactly as in §P1-m0).
+
+### P1-m1.7 Fixtures and INDEPENDENT expected results (recorded HERE, BEFORE any run; measured-first pins NEVER hand-written)
+
+NEW fixtures continue the series in `hir/mir-fixtures/` (CRLF on every line + `^Z`,
+one dcl item/statement, program names as listed; run under `timeout 60` as
+`pli80mir.exe --export <name> [-o f.mir] <fixture>`):
+
+- `M04.pli` **io1** (m1a, put path): `io1: procedure returns(fixed bin(15)); dcl x fixed
+  bin(15); x = 6 * 7; put list(x); return (x); end io1;`
+- `M05.pli` **iorw** (m1a, get+put roundtrip): `iorw: procedure returns(fixed bin(15));
+  dcl n fixed bin(15); get list(n); put list(n); return (n); end iorw;`
+- `M06.pli` **msg1** (m1b, literal): `msg1: procedure returns(fixed bin(15)); dcl x fixed
+  bin(15); x = 6 * 7; put list('DR PL/I-80 hello from Cosmo!!'); put list(x); return (x);
+  end msg1;` (the literal is EXACTLY 29 characters — hand-checked).
+
+INDEPENDENT expected behaviour (hand-computed HERE; NEVER re-fit from output):
+
+| fixture | leg | stdin | expected stdout (EXACT bytes) | expected stderr | rc |
+|---|---|---|---|---|---|
+| M04 io1 | run | (empty) | `42\n` (3 B) | `driver-return=42\n` | 0 |
+| M05 iorw | good | `123\n` | `123\n` (4 B) | `driver-return=123\n` | 0 |
+| M05 iorw | sign+terminator | `-42x` | `-42\n` (4 B) | `driver-return=-42\n` | 0 |
+| M05 iorw | not-a-number | `abc\n` | `` (empty — get fails before any output) | — | 2 (BAD) |
+| M05 iorw | eof | `` (empty) | `` | — | 1 (EOF) |
+| M05 iorw | outside W(15) | `20000\n` | `` | — | 3 (RANGE; 20000 > 16383) |
+| M06 msg1 | run | (empty) | `DR PL/I-80 hello from Cosmo!!\n42\n` (EXACTLY 33 B) | `driver-return=42\n` | 0 |
+
+Pins (measured-first, `cp` of reviewed output, NEVER hand-written): `hir/mir-expected/M04.mir`,
+`M05.mir`, `M06.mir` (reviewed line-by-line against §P1-m1.5 BEFORE pinning; stdout bytes,
+`-o` file byte-equal). Negatives `hir/mir-fixtures/N8..N21.pli` with `N*.stderr.txt` + `N*.rc`
+pins (zero stdout, no `-o` file, deterministic ×2 — the §P1-m0 refusal-totality law):
+
+| id | statement (one per fixture, CRLF+^Z) | expected refusal (measured-first; wording may deviate — the CODE and NAMED arm may not) |
+|---|---|---|
+| N8 | `put skip;` | `HIR-E21` ctl arm, names SKIP |
+| N9 | `put page;` | `HIR-E21` ctl arm, names PAGE |
+| N10 | `put file(f) list(x);` (f undcl) | `HIR-E21` options arm, names FILE (checked BEFORE name resolution — fact 1) |
+| N11 | `put edit(x)(b(15));` | `HIR-E21` kind arm, names EDIT |
+| N12 | `put item(i);` (i declared bin(15), assigned) | `HIR-E21` kind arm, names ITEM |
+| N13 | `put list(x, y);` | `HIR-E21` item-count arm (names the count 2) |
+| N14 | `get list(x + 1);` | `HIR-E21` target-shape arm |
+| N15 | `get list(a(1));` (a an array row) | `HIR-E21` target-shape arm |
+| N16 | `get list('z');` | `HIR-E21` target-shape arm (literal) |
+| N17 | `put list('');` | `HIR-E22` empty-literal arm — PARSE UNPROVEN (lexer quote folding); if the parser dies instead, record the deviation and keep the arm defensive-UNEXERCISED |
+| N18 | `put list('a<TAB>b');` | `HIR-E22` charset arm (names the position and the offending code point WITHOUT hex — F8) |
+| N19 | `dcl x fixed bin(16); ... put list(x);` | EXISTING `HIR-E01` bind channel, wording byte-identical to the probe (no-bypass pin) |
+| N20 | `dcl c character(3); ... put list(x);` | EXISTING `HIR-E02` declaration channel (no-bypass pin) |
+| N21 | `on error put list(x);` | EXISTING `HIR-E05` catch-all "ON unit" (no-bypass pin) |
+
+Additional no-bypass pins MAY be added while measuring (e.g. `put list(40000)` → `HIR-E08`,
+`put list(y)` uninitialized → `HIR-E19`) — additive only, each justified by the no-bypass law.
+Every negative is REFUSAL AT LOWERING: the MIR emitter is never reached, rc 2, zero stdout.
+
+### P1-m1.8 Test runner panel — NEW `tools/mir_aot_console_test.py` (every command DIRECT rc, separate processes, NEVER batched)
+
+- **V0** prerequisites: `pli80mir.exe`/`pli80hir.exe` built; `build/p1m0-deps/mir2o` (re)built
+  from the COMMITTED `mir2o.c` via `build_native.sh`; cosmo toolchain pinned (K0 law).
+- **V1 CT2 no-IO integrity:** re-emit M01/M02/M03 → `.mir` byte-equal to pins; re-emit `.o`
+  with the NEW mir2o → sha256 EQUAL to the frozen values of §P1-m1.6 (the additive change is
+  byte-invisible to no-IO modules); determinism ×2 fresh processes.
+- **V2 pin panel (new fixtures):** M04/M05/M06 `.mir` == pins ×2 fresh; N8..N21 pinned rc +
+  pinned stderr bytes, ZERO stdout, NO `-o` file; pipeline proof: each positive fixture
+  through `pli80hir.exe` rc 0 (the HIR path itself green, no bypass; dump reviewed against
+  §P1-m1.4 during measurement).
+- **V3 link panel:** per positive: mir2o `.o` rc 0; `cosmo_link.sh tiny` with
+  `console_check.c -DENTRY=pli80_<name>` + `pli_console.c` + object → static ELF; sanity:
+  first bytes `0x7fELF`, `file` static x86-64, `readelf -lW` has NO `PT_INTERP`, `nm` lists
+  `T pli80_<name>` and NO remaining undefined `pli_console_*`/`exit` (all resolved by the link).
+- **V4 run legs:** the §P1-m1.7 table, EXACT stdout bytes (compare raw bytes, not lines),
+  EXACT stderr bytes for success legs, exact rc; EVERY leg in a FRESH process; determinism
+  re-run for at least one success and one failure leg.
+- **V5 non-vacuity controls (perturbations live ONLY in scratch copies under ignored `build/`;
+  committed sources NEVER perturbed; if a control PASSES, this runner FAILS):**
+  - **C-a wrong arithmetic:** M04 MIR with the emitted `mul` replaced by `add` → the program
+    EXECUTES and prints `13\n` — the expected-`42\n` leg MUST FAIL (proves the bytes are judged).
+  - **C-b ignored status:** a scratch copy of `pli_console.c` whose `pli_console_get_i64`
+    returns OK on the not-a-number path → the `abc` leg now exits 0 instead of 2 and MUST FAIL.
+  - **C-c EOF-as-success:** a scratch copy returning OK with value 0 at EOF → the empty-stdin
+    leg now prints `0\n` rc 0 instead of rc 1 and MUST FAIL.
+- Evidence → ignored `build/mir-console/`. The runner NEVER regenerates pins.
+
+### P1-m1.9 Falsifiers (each a STOP-and-attribute gate; FROZEN regression panel)
+
+- **T1** kept exe `172595d5…` verified DIRECT before and after EVERY build step.
+- **T2** `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0 at
+  every step; ALL committed H dumps byte-frozen (no H fixture contains put/get — fact 1).
+- **T3** `timeout 900 python3 tools/hir_test.py` rc 0: **220 ok**, ALL 11 frozen semtest
+  numbers UNMOVED (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5
+  H17 12/5 H18 7/3 H21 5/2); F8 strip-greps green over the NEW/EDITED `ocaml/hir/*.ml`.
+- **T4** FULL gate rc 0 FROZEN ALL HIT: byte panel **1328/1328**, negatives **190/190**,
+  divergence **9/9**, coverage **149 rows 0/0**, census **16/0/25/0**, prose **5** →
+  `build/gate-e54p1m1-reg.log`.
+- **T5** `timeout 900 python3 tools/mir_aot_test.py` rc 0 — **27 checks** (the §P1-m0 pins
+  M01–M03 and N1–N7 unmoved by the additive mir2o).
+- **T6** `timeout 900 python3 tools/mir_aot_cosmo_test.py` rc 0 — **25 checks**.
+- **T7** `tools/mir_aot_console_test.py` rc 0, AND all three V5 controls observed FAILING
+  loudly first-hand (non-vacuity never faked).
+- **T8** fresh `cd ocaml && timeout 900 dune build --build-dir _build-e54p1m1` rc 0, ZERO
+  `Error`, warning history **122**, fresh exe sha == kept `172595d5…` (computed separately).
+- **T9** V1 CT2 byte-identity of the three frozen `.o` (the additive mir2o changes no-IO bytes
+  NOWHERE).
+- **T10** refusals name their construct (every E21/E22 pin names its arm; no silent drop —
+  a lowered console statement appears in the MIR exactly once, reviewed line-by-line).
+- **T11** ZERO oracle; ledger stays 203 headers ending **C380**; `handoff.config.json` NEVER
+  staged; explicit-path commits only; scratch (`build/p1m1-scratch/`, `ocaml/scratch-*`,
+  `build/mir-console/`) NEVER committed; thirdparty lab never advanced; no push; `eval
+  "$(opam env)"` every shell; rc DIRECT; never batch build with tests; short timeouts
+  everywhere (60 per fixture, 900 per suite).
+
+### P1-m1.10 Deviations recorded IN ADVANCE (honest, never fitted away)
+
+1. `put from(x);` is AST-INDISTINGUISHABLE from `put list(x);` in the frozen parser (hop 2
+   read) ⇒ it is ACCEPTED as a list put; no E21 kind arm can name it. Recorded here and in
+   RESULTS; never a parser change in this slice.
+2. Trailing control items die in the PARSER (uncaught `Pli80.Parser.Parse_error` — a
+   pre-existing hole recorded in P1-m0 hop 2, identical in `pli80hir.exe`); no HIR pin is
+   possible, so the subset boundary there is a parser message, not `HIR-E21`.
+3. The madc-fork object emitter cannot express WEAK imports from MIR text; this slice lands
+   a justified ADDITIVE change in OUR `mir2o.c` instead (§P1-m1.6) — the lab stays untouched,
+   the no-IO bytes stay byte-frozen (T9).
+4. Character VARIABLES stay blocked by the EXISTENT `HIR-E02` declaration channel; m1b is
+   literal-only BY CONSTRUCTION of the current subset (fact: N4 already pins the declaration
+   refusal). No new refusal is invented for something already impossible.
+5. New diagnostic WORDING (exact bytes of E21/E22 messages) is pinned MEASURED-FIRST; the
+   tables above pre-register the CODE + NAMED ARM, not the letters; any wording deviation
+   gets recorded, never hidden.
+6. The H dump representation of `Put`/`Get` (§P1-m1.4) is reviewed in scratch but NOT pinned
+   under `hir/expected` in this slice — the fixture panel authorized for P1-m1 is the MIR
+   one; extending the H panel is a future slice decision.
+
+### P1-m1.11 Work order (successor contract — exact order)
+
+1. Commit THIS pre-registration (explicit path `spec/lab-evidence/e2e54/PLAN.md`) BEFORE any
+   repository source byte. — **DONE** (this commit).
+2. **m1a HIR half:** append `HIR-E21`/`HIR-E22` to `ocaml/hir/diagnostic.ml`; extend
+   `ocaml/hir/hir.ml` (`put_source`, `Put`, `Get`, dump arms per §P1-m1.4); extend
+   `ocaml/hir/hir_build.ml` `lower_stmt` with the `Ast.Sput`/`Ast.Sget` arms implementing
+   §P1-m1.2/.3 IN THE PRE-REGISTERED ORDER (m1a: literal data items refuse via the
+   item-class arm); MINIMAL `semtest.ml` compile-adapt preserving every walk count.
+   `dune build` rc 0 → T1 → `timeout 900 python3 tools/hir_test.py` rc 0 (220 ok, 11 numbers
+   UNMOVED) → commit explicit `ocaml/hir/` paths.
+3. **m1a MIR half:** extend `mir_backend.ml` per §P1-m1.5 (console statements lower; every
+   no-IO procedure keeps the byte-identical path); land the §P1-m1.6 additive block in
+   `tools/mir_aot/mir2o.c`; rebuild via `sh tools/mir_aot/build_native.sh`; V1/CT2 byte-check
+   FIRST-HAND; commit m1a fixtures/pins MEASURED-FIRST: `M04.pli`, `M05.pli` and negatives
+   N8..N16, N19..N21 (N17/N18 land with m1b), reviewing every MIR line against §P1-m1.5
+   before pinning; T1/T2/T3 green; commit.
+4. **m1b:** accept the validated literal item (charset/empty arms) in `hir_build.ml`; add the
+   `p_text`/`s<k>` emission in `mir_backend.ml`; `tools/mir_aot/{pli_console.c,console_check.c}`
+   committed from the MEASURED probe sources (header documents the ABI); build → T1 → T3 →
+   pin `M06.pli` + M06.mir + N17/N18 measured-first → commit explicit paths.
+5. **runner:** write `tools/mir_aot_console_test.py` per §P1-m1.8 with the expected bytes
+   copied from §P1-m1.7 (NEVER from a run); run → rc 0; observe C-a/C-b/C-c FAILING loudly;
+   commit.
+6. FULL regression T4/T5/T6/T8 (gate → `build/gate-e54p1m1-reg.log`; fresh build-dir hist
+   122, sha == kept) — each as its own command, rc DIRECT.
+7. CLOSE: RESULTS §P1-m1 (milestones m1a/m1b SEPARATELY; T-panel WITH measured values; the
+   §P1-m1.10 deviations + any measured deviation; unsupported-semantics matrix; reproduction
+   set), `docs/architecture/backend-boundary.md` §7-7, dashboard row CLOSED, durables
+   (LEARNINGS hop line, PROGRESS live heading → closure, HANDOFF recovery heading) + guard
+   attest → **STOP**.
+
+### P1-m1.12 Dashboard update
+
+| slice | status | notes |
+|---|---|---|
+| P1-m1 | **OPEN 2026-11-10** (pre-registration committed) | minimal console I/O over the native MIR path; milestones m1a integers / m1b characters (literal-only) SEPARATE; ZERO oracle; contract §§P1-m1.1–.11; work order §P1-m1.11 |
