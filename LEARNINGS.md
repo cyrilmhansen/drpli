@@ -10123,3 +10123,39 @@ hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → 
 - **ACCEPTED (id check, hop 2 close):** `ls hir/fixtures | grep -c 'H1[6-9]\|H2[0-9]'` = **0** — fixture
   ids H16.. are UNUSED, so the §P1-a2 fixture plan may take H16.. without collision (verified first-hand
   at HEAD `71ee96d0`; successor contract step 1 is therefore DONE).
+
+## E2E-54/P1-a2 hop 3 (2026-11-10, session 01a1bee4, renewal 2/12; ZERO oracle; NO ocaml/hir byte) — §P1-a2 PRE-REGISTERED + COMMITTED (PROTOCOL #1 gate LANDED)
+- **ACCEPTED (baseline, first-hand):** HEAD `5b0afa65`→`3446dd85`; build rc 0; exe
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; `ocaml/lib`+`ocaml/bin`
+  byte-clean; ledger 203 `## C` headers ending C380; `ls hir/fixtures | grep -c 'H1[6-9]\|H2[0-9]'`
+  = 0 (H16.. free, re-confirmed as the contract required).
+- **ACCEPTED (measurement corrections, recorded not nitpicked):** the recovered brief is **225
+  content lines / 224 newlines, NO trailing newline** — the predecessors' "224 lines" is the `wc -l`
+  count, not the line count; the §.0 embedding was machine-verified (strip `> ` → byte-identical to
+  `build/p1a2-brief-recovered.md`, sha `58fb3e4f…`). C093's `## C` heading is measured at
+  `spec/CLAIMS.md:859` (hop 2 quoted :855); C175's inline paragraph is at `:3415` (hop 2 quoted
+  :3459 — the body region). Ledger count is unaffected (inline-paragraph quotations never move it).
+- **ACCEPTED (tooling law re-proven the hard way):** when embedding a blockquote then VERIFYING,
+  extract with `index(marker, i)` — the P1-a1 PLAN contains an earlier `(Verbatim law:` phrase; a
+  naive first-occurrence search sliced the check EMPTY and the verify-after-write corrupted PLAN.md
+  once (restored by `git checkout -- <explicit path>`; nothing else in the file was at risk). Verify
+  BEFORE writing.
+- **ACCEPTED (design laws pre-registered in PLAN §P1-a2):** env `call_evidence` matches bind's
+  `pl_calls` sites by callee key + PHYSICAL (`==`) identity of `cs_args` nodes (bind's collector
+  walks the same parsed tree; ASSERTED from reading `pl_stmt_calls`, MEASURED when H16 goes green —
+  an E16 there falsifies the law, never patch with positional guesses); zero-arity ambiguity is
+  provably harmless (empty evidence lists); HIR `A_value`/`A_reference` constructors make
+  by-value-masquerading-as-reference impossible by typing; renaming `T_var/T_elem`→`D_var/D_elem`
+  moves NO dump byte; semtest walked-item counts stay identical so existing
+  `SEMANTIC-AUTHORITY OK n/m` lines do not move; statement calls WITH args newly lower to `Call_s`
+  (previously died E04 — intended new coverage, no pin); whole-array actual hands over E13→E15 at
+  argument position (E13 keeps its value/target meaning; no fixture pinned the old behaviour);
+  E16 is an UNEXERCISED defensive witness (like dup_free/§P1-a1.5(e)); external/pointer/based
+  actuals keep EXISTING refusal codes — recorded honestly, no new code claimed for them.
+- **FALSIFIED (predecessor claim):** PROGRESS hop-1 wording implied `hir_test.py` pins exact OK-line
+  numbers — it matches only the SHAPE (`SEM_OK_RE`); counts are documentation in RESULTS. The
+  count-preserving design is still kept (cleaner history).
+- **LANDED:** `PLAN.md` §P1-a2 (.0–.11) committed at `3446dd85` by explicit path, BEFORE any
+  `ocaml/hir/` byte. Successor = PROGRESS live heading: work-order steps 2–8 (env → hir+hir_build+
+  diagnostic ONE commit → measured fixtures H16..H21 → semtest I11–I13 + 4 corrupt modes +
+  hir_test extension → FULL gate frozen panel → CLOSE → STOP).

@@ -54,7 +54,59 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED; WRITE & COMMIT PLAN §P1-a2, THEN IMPLEMENT — BINDING)
+## Next action (E2E-54/P1-a2 hop 3 — PLAN §P1-a2 PRE-REGISTERED + COMMITTED (PROTOCOL #1 gate LANDED); IMPLEMENT per §P1-a2.9 — BINDING)
+**DONE hop 3 (session 01a1bee4, renewal 2/12; ZERO oracle; NO `ocaml/hir/` byte touched):**
+baseline re-verified first-hand (build rc 0; exe `172595d5…`; `ocaml/lib`+`ocaml/bin` clean; ledger
+203 headers ending C380; H16.. re-confirmed FREE). **`spec/lab-evidence/e2e54/PLAN.md` §P1-a2
+WRITTEN + COMMITTED at `3446dd85` by EXPLICIT PATH** — .0 brief VERBATIM (MEASURED correction: the
+brief file is **225 content lines / 224 newlines, NO trailing newline**; predecessor's "224 lines" is
+the wc count; blockquote machine-verified stripped==source); .1 evidence matrix for the 8 §2
+questions ([bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured]) with measured anchors **C093:
+CLAIMS.md:859** (predecessor quoted :855 — slip recorded), C130:2036, C145:2668, C167:3196, **C175:
+3415** (predecessor quoted :3459 = body region), C358:8480; standing law every `cs_*`/`pl_ptrs` int
+is PHYSICAL and never crosses the seam; .2 the ordered-vs-evaluation adjudication (KEEP
+`args left-to-right`, H01–H15 frozen, language order [TBD]); .3 env API (`passing_mode`
+PM_value_cell/PM_own_cell/PM_immediate/PM_copy_in/PM_unknown; `formal_desc`/`formals_of`;
+`call_evidence` matching bind's `pl_calls` sites by callee key + PHYSICAL `==` of `cs_args` nodes,
+zero-arg ambiguity provably harmless); .4 HIR `designator` (D_var/D_elem; `target = designator`
+RENAME T_var→D_var, T_elem→D_elem — bytes unchanged) + `actual` (`A_value`/`A_reference` —
+by-value CANNOT masquerade as reference by construction; dump bytes byte-identical: A_reference
+renders as the old Var/elem_ref lines, arg items keep walk counts so OK-lines do not move);
+.5 narrow subset + statement-call-with-args NEWLY lowered to Call_s (intended coverage; no fixture
+pinned the old E04 text) + NEW codes **E15 e_arg_whole_array / E16 e_arg_evidence (UNEXERCISED
+defensive witness) / E17 e_arg_type** (frozen refusal ORDER in lower_call: callee→arity→args→
+recursion→returns; external/pointer/based keep EXISTING codes, recorded honestly);
+.6 semtest I11 (designator soundness, shares I2/I8 comparisons) + I12 (passing-evidence alignment)
++ I13 (formal API) + FOUR corrupt modes (`--corrupt-formal`, `--corrupt-actual-base`,
+`--corrupt-arg-position`, `--corrupt-mode`) all sharing THE SAME comparisons, `nothing was proven`
+loud;
+.7 fixtures H16/H17/H18/H21 positive, H19 (E15), H20 (E17) — MEASURED, CRLF+^Z, one dcl item per
+statement, timeout 60, expected copied from reviewed output; .8 falsifiers T1–T10 (T1 exe
+`172595d5…` DIRECT every build step; T2 `git diff --exit-code hir/expected` clean; T3 FULL gate
+FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54p1a2-reg.log` + fresh
+`--build-dir _build-e54p1a2`; T5 extended raw grep: `pl_calls|cs_temps|cs_copies|cs_dec|bind_arrays`
+ONLY in semantic_env.ml+semtest.ml, `cs_slot` read NOWHERE in ocaml/hir; T6 existing vocabulary
+strip-grep; T7 non-vacuity live+ALL SEVEN corrupt modes; T10 existing diagnostics byte-identical);
+.9 work order; .10 predicted drift surfaces; .11 dashboard OPEN row.
+**EXECUTE (successor) = PLAN.md §P1-a2.9 VERBATIM, starting at step 2:** (2) `ocaml/hir/semantic_env.ml`
+API → build rc 0 → T1 → `timeout 600 python3 tools/hir_test.py` rc 0 → commit; (3) `hir.ml` +
+`hir_build.ml` + `diagnostic.ml` as ONE commit (args: actual list breaks consumers; P1-a1 hop-3 law)
+→ build + T1 + hir_test rc 0 + T2 clean; (4) fixtures H16..H21 MEASURED (review every dump line
+against §P1-a2.4 BEFORE pinning); (5) `semtest.ml` I11–I13 + 4 corrupt modes + `tools/hir_test.py`
+(SEM_MODES ×4 new, T5 grep list) → full rc 0; (6) FULL gate → `build/gate-e54p1a2-reg.log` + fresh
+`--build-dir _build-e54p1a2` (rc 0 ZERO Error, sha vs kept exe); (7) CLOSE RESULTS §P1-a2 (panel WITH
+values + deviations incl. whatever the fixtures actually measure) + arch `docs/architecture/
+backend-boundary.md` §7-3 + PLAN dashboard CLOSED + durables; (8) **STOP — no MIR, no PUT/GET, no
+BEGIN repair; ledger stays C380.** If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED —
+re-audit, never positional-guess (§P1-a2.10).
+**CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); lib+bin byte-clean; `handoff.config.json`
+NEVER staged; no push; explicit-path commits; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS;
+NEVER batch a build with tests using its artifacts; every fixture `timeout 60`; scratch never
+committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary bans apply to NEW code
+strings too (no `offset/size/bytes/…`, no uppercase CALL/M/C/P/Z word-boundary tokens — mode names
+like `PM_value_cell` are safe).
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED; WRITE & COMMIT PLAN §P1-a2, THEN IMPLEMENT — BINDING)
 **DONE hop 2 (session 01a1beca, renewal 1/12; ZERO oracle):** baseline re-verified FIRST-HAND at
 `582bc130` (build rc 0, exe `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`,
 `ocaml/lib`+`ocaml/bin` clean, ledger 203 headers ending C380). Brief recovered VERBATIM (224 lines,
@@ -3831,15 +3883,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 646
-checkpoint-id: g646-416cffebca74
-checkpoint-kind: manual
+checkpoint-generation: 648
+checkpoint-id: g648-1edb3427f0e7
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-09T05:59:39.950Z
+checkpointed: 2026-11-09T06:32:19.448Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d3c8c009996a62617bf11231f39fa7549a22d27c40b8cd2176ea6ce6e1c33043
+source-progress: a9d9e1b031856adbbd99fd0fe9968b5c895285467677c59e93f52b8fd7d48aa4
 source-handoff: c219d703a9f4692b5b3da1a52b2e115d9e0a58269bc73e33ca514a82e6e11668
 source-learnings: 28d3e6d0ae2d352ca0e71f37dcfef8cc67266603e285808e0c4c77b9120f9cda
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -4577,9 +4629,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1beca-7c52-74ee-84fe-84ed36a0f527
-readiness-at: 2026-11-09T05:59:40.018Z
-readiness-checkpoint: g646-416cffebca74
 <!-- guard:end checkpoint -->
 
 ## Blockers
