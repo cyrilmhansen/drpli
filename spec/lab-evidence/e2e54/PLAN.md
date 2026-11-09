@@ -3310,3 +3310,61 @@ HIR subset already. `Target.profile` fields `overflow_behavior`, `rounding_rules
 | slice | status | notes |
 |---|---|---|
 | P1-m0 | **OPEN 2026-11-09** | first native MIR AOT prototype; preregistered this commit; see §P1-m0.9 work order |
+
+
+## §RD-COSMO — Operator roadmap amendment: Cosmopolitan as preferred native libc (VERBATIM; ROADMAP decision, NOT a §P1-m0 scope change)
+
+Recorded VERBATIM from the operator turn of session
+`01a1c0dc-4504-700d-bdb6-dc2b98a19e20` (transcript JSONL), stored at the ignored path
+`build/p1m0-amendment-true.md` and machine-compared against this embedding: the stripped
+blockquote below equals the source BYTE-FOR-BYTE (40 content lines, 39 newlines, NO
+trailing newline). This amendment does NOT change the already-preregistered §P1-m0
+acceptance criteria (PLAN §P1-m0.2–§P1-m0.11 stand VERBATIM) and authorizes NO new code.
+ACTION AT §P1-m0 CLOSE-OUT (§P1-m0.9 step 7): record the PROPOSED stages P1-mC, P1-m1 and
+the future portable-native items VERBATIM-IN-SPIRIT (as listed below) in
+`spec/lab-evidence/e2e54/RESULTS.md` §P1-m0 roadmap subsection AND in
+`docs/architecture/backend-boundary.md`; each subsequent stage still requires its own
+PROTOCOL #1 pre-registration and explicit operator authorization.
+
+> # E2E-54 — Operator roadmap amendment: Cosmopolitan as preferred native libc
+>
+> The operator selects **Cosmopolitan Libc as the preferred standard C runtime for future DRPLi/MIR native executables**.
+>
+> Short-term target: Linux x86-64 static ELF. APE is NOT required unless it becomes trivial at no significant additional complexity.
+>
+> This is a ROADMAP decision, not authorization to expand the active P1-m0 implementation.
+>
+> At P1-m0 close-out, record the following PROPOSED stages in RESULTS and `docs/architecture/backend-boundary.md`:
+>
+> **P1-mC — Cosmopolitan static-link feasibility**
+>
+> - Reuse the genuine `.o` produced from PL/I → HIR → MIR.
+> - Pin a Cosmopolitan/cosmocc toolchain version.
+> - Investigate `x86_64-unknown-cosmo-cc` with `-moptlinux`.
+> - Build a small native C test driver with Cosmopolitan.
+> - Attempt static linking with the MIR-generated object.
+> - Verify ABI compatibility, relocations, native execution, expected result and absence of `PT_INTERP` / `DT_NEEDED`.
+> - Preserve GCC/glibc linking as a diagnostic reference, not the preferred deployment target.
+> - Do not substitute generated C for MIR-generated machine code.
+>
+> **P1-m1 — Minimal PL/I console runtime**
+>
+> - Implement small C adapters for integer/string input and output.
+> - Link the adapters against Cosmopolitan.
+> - Explicitly distinguish PL/I I/O semantics from the underlying libc functions.
+> - Test EOF, input errors, buffer bounds and deterministic output.
+> - Do not reimplement PLILIB wholesale.
+>
+> **Future — Portable native formats**
+>
+> - Investigate ARM64 native output.
+> - Investigate APE only after the static ELF integration works.
+> - Keep HIR and MIR lowering independent of the selected libc and final executable format.
+>
+> The build-time MIR emitter may still depend on host libraries. The static-link requirement concerns the GENERATED executable.
+>
+> Do not change the already-preregistered P1-m0 acceptance criteria or active code scope. Each subsequent stage requires its own PROTOCOL #1 preregistration and operator authorization.
+>
+> **Architectural principle: Cosmopolitan-first native runtime, backend-independent HIR, no mandatory glibc runtime dependency.**
+
+<!-- RD-COSMO-END -->
