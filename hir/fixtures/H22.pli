@@ -1,0 +1,8 @@
+h22: procedure options(main);
+   dcl x fixed bin(15);
+   begin;
+   end;
+   x = 1;
+   stop;
+end h22;
+

@@ -1,0 +1,15 @@
+h27: procedure options(main);
+   dcl x fixed bin(15);
+   call q;
+   stop;
+   q: procedure;
+      dcl y fixed bin(15);
+      begin;
+         y = 1;
+         r: procedure;
+            y = 2;
+         end r;
+      end;
+   end q;
+end h27;
+

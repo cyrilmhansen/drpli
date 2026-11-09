@@ -1,0 +1,20 @@
+HIR-DUMP schema=v0 profile=dr-pli80-v1.4
+SCOPE 0 parent=- kind=program
+SCOPE 1 parent=0 kind=proc(1)
+SYM 0 name=x key=x scope=0 type=FIXED BINARY(15,0) storage=auto line=2
+PROC 0 name=h28 main=true scope=0 params=[] returns=none
+BODY proc(0)
+  declare sym(0)  [line 2]
+  assign  [line 7]
+    order: target address then value
+    var sym(0) : FIXED BINARY(15,0)  [pure, line 7]
+    const 2 : FIXED BINARY(15,0)  [pure, line 7]
+  stop  [line 9]
+END proc(0)
+PROC 1 name=p main=false scope=1 params=[] returns=none
+BODY proc(1)
+  assign  [line 4]
+    order: target address then value
+    var sym(0) : FIXED BINARY(15,0)  [pure, line 4]
+    const 1 : FIXED BINARY(15,0)  [pure, line 4]
+END proc(1)

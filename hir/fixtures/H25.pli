@@ -1,0 +1,10 @@
+h25: procedure options(main);
+   dcl x fixed bin(15);
+   begin;
+      begin;
+         x = 1;
+      end;
+   end;
+   stop;
+end h25;
+

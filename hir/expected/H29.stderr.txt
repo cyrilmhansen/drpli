@@ -1,0 +1,1 @@
+HIR-E03: line 4: declaration y produced no bind row in this block

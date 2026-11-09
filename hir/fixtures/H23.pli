@@ -1,0 +1,10 @@
+h23: procedure options(main);
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   begin;
+      x = 1;
+      y = x + 1;
+   end;
+   stop;
+end h23;
+
