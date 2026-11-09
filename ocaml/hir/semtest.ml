@@ -35,6 +35,12 @@
                             arity-disagreement branch, §P1-a2.6)
      --corrupt-mode         one own/value-cell passing mode flipped before the
                             I12 comparison (wrong passing requirement)
+     --corrupt-owner        one re-derived nesting pair reparented at a physical
+                            block that is NOT its AST parent before the SHARED
+                            ownership comparison (§P1-h.3, I6)
+     --corrupt-discovery    one re-derived nesting pair DROPPED before the same
+                            shared comparison — discovery hiding a procedure
+                            must move the block count (§P1-h.3, I6)
 
    This is an executable in ocaml/hir/ (never ocaml/bin/ — the P0 F1 exe-dir
    law: a stanza in the hir directory does not move pli80c.exe; S1 re-checked
@@ -64,6 +70,8 @@ type mode =
   | Corrupt_actual
   | Corrupt_argpos
   | Corrupt_mode
+  | Corrupt_owner
+  | Corrupt_discovery
 
 let fails : string list ref = ref []
 let bad fmt = Printf.ksprintf (fun s -> fails := s :: !fails) fmt
@@ -1076,20 +1084,35 @@ let rec ast_nesting parent acc (stmts : Ast.stmt list) =
       | _ -> a)
     acc stmts
 
-let i6 env blk =
-  let pairs = List.rev (ast_nesting blk [] blk.Ast.bstmts) in
+(* The independently re-derived nesting table: (child block, AST parent block) in
+   pre-order, from the parsed syntax only (physical block identity, never a name). *)
+let nesting_pairs blk = List.rev (ast_nesting blk [] blk.Ast.bstmts)
+
+let blk_name b =
+  match b.Ast.bname with Some n -> n.Ast.orig | None -> "(anonymous)"
+
+(* §P1-h.3 — THE SHARED OWNERSHIP COMPARISON. The live invariant I6 and BOTH new
+   corrupt controls (--corrupt-owner, --corrupt-discovery) run exactly THIS code;
+   a control perturbs the independently re-derived nesting TABLE, never a copy of
+   the comparison (§P1-a2.6 shared-comparison law). The checks below are the
+   pre-existing I6 body moved verbatim, collected rather than printed so a caller
+   can ask "would this table be rejected?". *)
+let ownership_mismatches (env : SE.t) (blk : Ast.block)
+    (pairs : (Ast.block * Ast.block) list) : string list =
+  let out : string list ref = ref [] in
+  let add fmt = Printf.ksprintf (fun s -> out := s :: !out) fmt in
   let blocks = SE.blocks env in
   if List.length blocks <> List.length pairs + 1 then
-    bad "invariant 6: %d env blocks for %d AST-nested procedures (main is the extra)"
+    add "invariant 6: %d env blocks for %d AST-nested procedures (main is the extra)"
       (List.length blocks) (List.length pairs);
   let main = SE.main_block env in
   if main.SE.epid <> 0 || main.SE.eparent <> None then
-    bad "invariant 6: main block is not pid 0 with no parent scope";
+    add "invariant 6: main block is not pid 0 with no parent scope";
   if not (main.SE.east == blk) then
-    bad "invariant 6: env main block is not the parsed AST root";
+    add "invariant 6: env main block is not the parsed AST root";
   (match SE.enclosing env 0 with
   | None -> ()
-  | Some _ -> bad "invariant 6: main pid claims an enclosing procedure");
+  | Some _ -> add "invariant 6: main pid claims an enclosing procedure");
   List.iter
     (fun (child, parent) ->
       let cb = List.find_opt (fun (b : SE.block_env) -> b.SE.east == child) blocks in
@@ -1097,19 +1120,25 @@ let i6 env blk =
       match (cb, pb) with
       | Some cb, Some pb ->
           if cb.SE.eparent <> Some pb.SE.escope then
-            bad "invariant 6: proc(%d) eparent is not the enclosing block's scope"
+            add "invariant 6: proc(%d) eparent is not the enclosing block's scope"
               cb.SE.epid;
           if cb.SE.epid <= pb.SE.epid then
-            bad "invariant 6: pre-order broken — proc(%d) numbered at or below its \
+            add "invariant 6: pre-order broken — proc(%d) numbered at or below its \
                  parent" cb.SE.epid;
           (match SE.enclosing env cb.SE.epid with
           | Some e ->
               if e <> pb.SE.epid then
-                bad "invariant 6: enclosing(%d) answers %d, the AST says %d"
+                add "invariant 6: enclosing(%d) answers %d, the AST says %d"
                   cb.SE.epid e pb.SE.epid
-          | None -> bad "invariant 6: proc(%d) claims no enclosing pid" cb.SE.epid)
-      | _ -> bad "invariant 6: an AST-nested procedure has no env block for it")
-    pairs
+          | None -> add "invariant 6: proc(%d) claims no enclosing pid" cb.SE.epid)
+      | _ -> add "invariant 6: an AST-nested procedure has no env block for it")
+    pairs;
+  List.rev !out
+
+(* I6: the live nesting table must satisfy the shared comparison with ZERO
+   mismatches. Message bytes are exactly the pre-§P1-h I6 text (the shared
+   function carries them unchanged). *)
+let i6 env blk = List.iter (fun m -> bad "%s" m) (ownership_mismatches env blk (nesting_pairs blk))
 
 (* 7. every Call_e/Call_s pid has a bind signature whose arity (pl_ptrs cell
    count) equals the argument count — never a re-derived signature. *)
@@ -1412,6 +1441,54 @@ let corrupt_mode_flip env calls =
               check is vacuous";
           exit 1)
 
+(* §P1-h.3 --corrupt-owner: reparent ONE independently re-derived nesting pair at a
+   physical block that is NOT its AST parent, then re-run THE SAME shared ownership
+   comparison (never a copy). With more than one nested procedure the wrong parent is
+   a DIFFERENT procedure's own block; with only one, the child is SELF-parented —
+   eparent, pre-order and enclosing all reject that. A fixture with no nested
+   procedure has nothing to perturb and says so loudly. *)
+let corrupt_owner env blk =
+  match nesting_pairs blk with
+  | [] -> nothing_proven "no nested procedure block"
+  | (child, _parent) :: rest ->
+      let wrong =
+        match rest with
+        | (sibling, _) :: _ -> sibling
+        | [] -> child
+      in
+      match ownership_mismatches env blk ((child, wrong) :: rest) with
+      | [] ->
+          prerr_endline
+            "SEM-FAIL: corrupt control ACCEPTED a reparented block — the ownership \
+              comparison is vacuous";
+          exit 1
+      | why :: _ ->
+          prerr_endline
+            ("SEM-FAIL: [corrupt control] proc " ^ blk_name child ^ " reparented at "
+            ^ blk_name wrong ^ " rejected as it must: " ^ why);
+          exit 1
+
+(* §P1-h.3 --corrupt-discovery: simulate discovery HIDING a procedure — drop one
+   re-derived nesting pair and re-run THE SAME shared comparison. The block-count
+   arm (N env blocks for M AST-nested procedures, main is the extra) rejects; with a
+   deeper tree the missing-block arm is reachable too. Nothing nested ⇒ nothing
+   proven. *)
+let corrupt_discovery env blk =
+  match nesting_pairs blk with
+  | [] -> nothing_proven "no nested procedure block"
+  | (hidden, _) :: rest -> (
+      match ownership_mismatches env blk rest with
+      | [] ->
+          prerr_endline
+            "SEM-FAIL: corrupt control ACCEPTED a hidden block — the discovery count \
+              comparison is vacuous";
+          exit 1
+      | why :: _ ->
+          prerr_endline
+            ("SEM-FAIL: [corrupt control] proc " ^ blk_name hidden
+            ^ " dropped from discovery rejected as it must: " ^ why);
+          exit 1)
+
 (* ---------- driver ---------- *)
 
 let () =
@@ -1425,12 +1502,14 @@ let () =
     | [ "--corrupt-actual-base"; s ] -> (Corrupt_actual, s)
     | [ "--corrupt-arg-position"; s ] -> (Corrupt_argpos, s)
     | [ "--corrupt-mode"; s ] -> (Corrupt_mode, s)
+    | [ "--corrupt-owner"; s ] -> (Corrupt_owner, s)
+    | [ "--corrupt-discovery"; s ] -> (Corrupt_discovery, s)
     | [ s ] -> (Live, s)
     | _ ->
         prerr_endline
           "usage: semtest [--corrupt|--corrupt-array-hi|--corrupt-array-base \
             |--corrupt-formal|--corrupt-actual-base|--corrupt-arg-position \
-            |--corrupt-mode] FIXTURE.PLI";
+            |--corrupt-mode|--corrupt-owner|--corrupt-discovery] FIXTURE.PLI";
         exit 2
   in
   let text =
@@ -1490,7 +1569,9 @@ let () =
   | Corrupt_formal -> corrupt_formal env prog
   | Corrupt_actual -> corrupt_actual env prog calls
   | Corrupt_argpos -> corrupt_argpos env calls
-  | Corrupt_mode -> corrupt_mode_flip env calls);
+  | Corrupt_mode -> corrupt_mode_flip env calls
+  | Corrupt_owner -> corrupt_owner env blk
+  | Corrupt_discovery -> corrupt_discovery env blk);
   let nrefs =
     List.fold_left
       (fun n (p : H.proc) -> n + List.length (List.fold_left walk_stmt [] p.H.body))

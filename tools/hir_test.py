@@ -42,11 +42,14 @@ E2E-54/P1-b additions (PLAN §P1-b.4, falsifiers S5-S8):
 E2E-54/P1-a1 additions (PLAN §P1-a1.7/.8, falsifiers T5/T6/T7):
 
  10. Corrupt controls extended (T7): every positive fixture runs semtest LIVE
-     and ALL SEVEN corrupt modes (`--corrupt`, `--corrupt-array-hi`,
+     and ALL NINE corrupt modes (`--corrupt`, `--corrupt-array-hi`,
      `--corrupt-array-base`, `--corrupt-formal`, `--corrupt-actual-base`,
-     `--corrupt-arg-position`, `--corrupt-mode`); every mode must exit 1 with
-     ZERO stdout and all-SEM-FAIL stderr — a mode with nothing to perturb says
-     `nothing was proven` and still exits 1 (never a silent pass).
+     `--corrupt-arg-position`, `--corrupt-mode`, `--corrupt-owner`,
+     `--corrupt-discovery`); every mode must exit 1 with ZERO stdout and
+     all-SEM-FAIL stderr — a mode with nothing to perturb says
+     `nothing was proven` and still exits 1 (never a silent pass). The two
+     §P1-h controls perturb the INDEPENDENTLY RE-DERIVED AST nesting table and
+     run THE SAME shared ownership comparison as live invariant I6.
  11. T5 bind-parameter seam (RAW grep, comments included): each of
      `pl_calls`, `cs_temps`, `cs_copies`, `cs_dec`, `bind_arrays` may occur
      ONLY in semantic_env.ml (the projection) and semtest.ml (the intentional
@@ -163,8 +166,8 @@ def run_semtest(fixture: Path, flag: str | None = None) -> subprocess.CompletedP
 # stdout of a passing live run is exactly one line of this shape (§P1-b.4)
 SEM_OK_RE = re.compile(r"^SEMANTIC-AUTHORITY OK [0-9]+ refs / [0-9]+ syms\n$")
 
-# §P1-a1.7 + §P1-a2.6: live + ALL SEVEN corrupt modes (T7); every corrupt mode
-# must fail loudly.
+# §P1-a1.7 + §P1-a2.6 + §P1-h.3: live + ALL NINE corrupt modes (T7); every
+# corrupt mode must fail loudly.
 SEM_MODES = [
     (None, "live"),
     ("--corrupt", "corrupt"),
@@ -174,6 +177,8 @@ SEM_MODES = [
     ("--corrupt-actual-base", "corrupt-actual-base"),
     ("--corrupt-arg-position", "corrupt-arg-position"),
     ("--corrupt-mode", "corrupt-mode"),
+    ("--corrupt-owner", "corrupt-owner"),
+    ("--corrupt-discovery", "corrupt-discovery"),
 ]
 
 
@@ -429,7 +434,7 @@ def main() -> int:
         print(f"HIR TEST FAILED: {len(FAILURES)} failure(s)")
         return 1
     print("HIR TEST PASSED: fixtures deterministic + F4/F7/F8/F9 + "
-          "semtest S6/S7/T7 (live + all seven corrupt modes) + F10/S8 seam + "
+          "semtest S6/S7/T7 (live + all nine corrupt modes) + F10/S8 seam + "
           "T5 call/array-record greps (cs_slot nowhere) + T6 vocabulary clean")
     return 0
 
