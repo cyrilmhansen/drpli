@@ -2189,3 +2189,384 @@ amendment. Honestly open, predicted drift surfaces:
 | slice | status | gate log | notes |
 |---|---|---|---|
 | P1-a2 | **CLOSED 2026-11-10** | `build/gate-e54p1a2-reg.log` rc 0 FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; fresh `_build-e54p1a2` rc 0 ZERO Error hist 122, sha == kept `172595d5…` | ZERO oracle; env passing-mode/formal API `426293dd`; HIR `actual`/`designator` + lowering `cfaad741`; fixtures H16–H21 `96e995fd`; semtest I11–I13 + 4 corrupt controls + hir_test SEM_MODES ×7 `735b43af`; T1–T10 ALL PASS (RESULTS §P1-a2); roadmap PROPOSED ONLY — STOP |
+
+## §P1-h — Pre-registration: BEGIN/DO Discovery Hygiene (committed BEFORE any `ocaml/hir/` byte)
+
+**Authorized by the operator 2026-11-10** (brief reproduced VERBATIM as §P1-h.0 below).
+Campaign slice **E2E-54/P1-h** — the narrow, zero-oracle correctness repair of the HIR
+procedure-discovery hang recorded as a pre-existing defect in §P1-b.5 note 3 (classified
+at pre-migration `aaf295f0`). Type of work: **infrastructure correctness, ZERO oracle
+calls** (none planned or authorized). Starting reference:
+`cf6202bfa3eef1262b45f1ff41b30e63b81a7d28` (verified first-hand at this session's start).
+
+**Baseline VERIFIED first-hand at session start (2026-11-10), not copied from the brief:**
+
+- `git rev-parse HEAD` = `cf6202bfa3eef1262b45f1ff41b30e63b81a7d28` ✓ (the operator's
+  stated starting reference; the tree carries only the operator's `handoff.config.json`
+  edit — NEVER staged — plus ignored/untracked working debris, left untouched)
+- `dune build` rc = 0; `sha256sum _build/default/bin/pli80c.exe` =
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` ✓
+- `timeout 900 python3 tools/hir_test.py` rc = 0 — **120 ok** lines; ALL 11 semtest/live
+  OK numbers at their pinned values (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3
+  H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2)
+- FULL gate rc = 0 → `build/gate-e54p1h-baseline.log` (1537 lines): **1328/1328**
+  byte-exact, **190/190** negative, **9/9** divergence, coverage **149 rows, 0 errors,
+  0 warnings**, census **EXACT 16 / DIFFERS 0 / REFUSED 25 / NO_ORACLE 3**, prose **5** ✓
+- `spec/CLAIMS.md`: 203 `^## C` headers; ledger ENDS **C380** ✓
+- Guard budget: this is a FRESH operator-started session (`01a1bfe1…`, `reason: startup`);
+  the last verified chain closed at 11/12 and the operator archived/reset it per policy —
+  this session's chain count is 0 with cap 12 (`handoff.config.json`, authoritative).
+  No renewal has been used or requested in this phase so far.
+- Fixture ids **H22..H29 FREE**: `ls hir/fixtures | grep -c 'H2[2-9]'` = 0 and
+  `ls hir/expected | grep -c 'H2[2-9]'` = 0 (the `H24..H29` hits in `tools/e2e_gate.py`
+  are the unrelated `E36H*` specimen namespace).
+
+P0, P1-b, P1-a1 and P1-a2 are CLOSED; this slice re-uses their evidence and touches
+none of it. PUT/GET, MIR, the P2 oracle-typing campaign and broader scope refactoring
+are explicitly NOT started or authorized by this slice (brief §7).
+
+### P1-h.0 Operator brief (verbatim)
+
+> # DRPLi — E2E-54/P1-h: BEGIN/DO Discovery Hygiene
+>
+> ## Operator authorization
+>
+> The operator authorizes E2E-54/P1-h, a narrow, zero-oracle correctness repair for the existing HIR procedure-discovery hang.
+>
+> Starting Git reference: `cf6202bfa3eef1262b45f1ff41b30e63b81a7d28`.
+>
+> P0, P1-b, P1-a1 and P1-a2 are CLOSED.
+>
+> This phase fixes a previously measured HIR infrastructure defect. It does not expand PL/I language semantics or modify the historical compiler.
+>
+> ## 1. First-hand recovery and preregistration
+>
+> Read AGENTS.md, PROTOCOL.md, E2E-54 PLAN/RESULTS and the active Handoff contract.
+>
+> Verify current HEAD, worktree state, guard budget and the full historical baseline.
+>
+> Preregister P1-h in `spec/lab-evidence/e2e54/PLAN.md` and commit before changing source.
+>
+> The known defect was recorded in P1-b:
+>
+> A statement-level `BEGIN` block causes `Semantic_env.register_children` to recurse into its enclosing block's original statement list instead of traversing the nested block.
+>
+> This creates an infinite discovery loop.
+>
+> Reproduce the failure under a short explicit timeout, preserving the witness and baseline exit status.
+>
+> Do not let the reproduction run indefinitely.
+>
+> ## 2. Root-cause audit
+>
+> Inspect `ocaml/hir/semantic_env.ml`, especially `register_children`.
+>
+> Confirm whether the current non-Bproc branch:
+>
+> ```ocaml
+> register_children st plan parent
+> ```
+>
+> revisits the same `parent.east.bstmts`.
+>
+> Review how procedure discovery and lexical ownership are currently distinguished.
+>
+> Establish the exact traversal requirements for:
+>
+> - A bare BEGIN.
+> - Nested BEGIN/DO blocks.
+> - Sibling procedures.
+> - A procedure declared inside a BEGIN.
+> - A BEGIN containing declarations.
+> - A BEGIN nested inside a procedure.
+>
+> Do not infer new per-BEGIN lexical scope semantics: Bind does not currently expose them.
+>
+> ## 3. Minimal correction
+>
+> Separate:
+>
+> 1. The statement subtree being traversed.
+> 2. The enclosing procedure's semantic environment.
+>
+> The traversal must descend into the nested block's statements while preserving the correct enclosing procedure context.
+>
+> Prefer a minimal structural visitor to a new semantic binder.
+>
+> Ensure each nested block is visited once along its structural path.
+>
+> Do not create new scope IDs for BEGIN/DO unless explicitly supported by existing semantic authority.
+>
+> Do not invent procedure signatures or symbol ownership.
+>
+> If a nested declaration cannot be represented safely, refuse with a typed diagnostic instead of silently flattening incompatible scopes.
+>
+> Preserve all existing procedure registration order, stable IDs and diagnostics wherever the behavior is already correct.
+>
+> ## 4. Focused regression witnesses
+>
+> Add independently reviewed positive and negative fixtures covering:
+>
+> - An empty BEGIN.
+> - A BEGIN containing ordinary statements.
+> - Two sibling BEGIN blocks.
+> - Nested BEGIN blocks.
+> - A procedure discovered beneath a BEGIN, where supported by Bind.
+> - A BEGIN with declarations that must remain unsupported.
+> - Existing procedure shadowing and forwarding behavior.
+>
+> Every fixture must terminate promptly.
+>
+> Include an independently checked structural traversal invariant and a non-vacuous corruption or regression control.
+>
+> A test that merely completes without hanging is insufficient: it must also verify that no statements or procedures were duplicated, dropped or assigned the wrong owner.
+>
+> Preserve all previously pinned HIR dumps and diagnostic bytes unless an explicitly documented correction requires a new expected result.
+>
+> ## 5. Historical invariants
+>
+> Mandatory:
+>
+> - No edits under `ocaml/lib/` or `ocaml/bin/`.
+> - No oracle calls.
+> - No changes to historical goldens, inventory, census or coverage.
+> - No scientific claim beyond C380.
+> - `pli80c.exe` SHA-256 remains `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`.
+> - Full byte-tier gate RC 0.
+> - 1328/1328 byte-exact, 190/190 negative, 9/9 divergence.
+> - Existing HIR semantic-authority and corruption tests continue passing.
+>
+> Run build and test commands separately. Check every exit code directly.
+>
+> Do not invoke external rune-ci runtime or audit tiers for this HIR-only work.
+>
+> ## 6. Handoff budget
+>
+> The last verified chain was at 11/12 renewals.
+>
+> Inspect the current actual state before proceeding.
+>
+> Do not silently reset the chain or raise its cap.
+>
+> If renewal becomes unavailable, preserve the complete recovery state and finalize according to PROTOCOL.md. Report the actual reason.
+>
+> Do not use filesystem-wide discovery or unrelated infrastructure changes.
+>
+> ## 7. Deliverables
+>
+> - P1-h preregistration.
+> - Reproducer demonstrating the original hang.
+> - Minimal correction in the independent HIR path.
+> - Focused positive and negative tests.
+> - Structural discovery invariants.
+> - Complete regression results.
+> - Updated architecture and scientific campaign documentation.
+> - Durable Handoff checkpoint.
+>
+> Use explicit-path commits; never stage `handoff.config.json`. Do not push.
+>
+> Close P1-h and STOP.
+>
+> Do not automatically begin PUT/GET, MIR, the P2 oracle-typing campaign or broader scope refactoring.
+>
+> **Success criterion:** BEGIN/DO discovery terminates correctly, procedure ownership and registration remain sound, unsupported scopes refuse explicitly, and historical compilation is unchanged.
+
+Embedding law applied (LEARNINGS hop-2): every brief line carries the blockquote
+prefix; the brief is otherwise byte-faithful — no word, number, path or constraint
+altered. (Line-wrap inside the brief is the operator's own; this file reproduces it
+as received in this session.)
+
+### P1-h.1 Root-cause audit — MEASURED facts (this session, all first-hand)
+
+Anchors verified first-hand at `cf6202b`.
+
+- **M-1 Reproduction (pre-fix).** Three scratch inputs (`ocaml/scratch-p1h/`, never
+  committed; raw witness kept at `build/e54p1h-hang-witness.log`), each under
+  `timeout 20` — never run unbounded:
+  - `BEG1.pli` — bare statement-level `begin; x = 1; end;` in main ⇒ **rc 124**
+    (timeout), ZERO stdout, ZERO stderr.
+  - `BEG2.pli` — Bproc sibling `p` FIRST, then a bare BEGIN ⇒ **rc 2**
+    `HIR-E11: line 3: duplicate internal procedure name p (bind-legal? P0 refuses
+    rather than guess)` — a BOGUS refusal: `p` was registered once by the first pass
+    and AGAIN when the discovery re-walked main's list.
+  - `BEG3.pli` — bare BEGIN nested inside procedure `p` ⇒ **rc 124** (timeout).
+  Matches §P1-b.5 note 3 exactly (rc 124, no stack growth; bogus duplicate with a
+  preceding sibling).
+- **M-2 Defect site CONFIRMED.** `ocaml/hir/semantic_env.ml:511-563`:
+  `register_children st plan parent` iterates `parent.east.Ast.bstmts` (:563). The
+  non-Bproc branch (:559-561) calls `register_children st plan parent` — i.e. re-enters
+  the SAME list, re-reading the SAME `Sproc` node forever. Answer to the brief's
+  question: **yes**, the current non-Bproc branch revisits the same
+  `parent.east.bstmts`. The Bproc branch (:518-556) is structurally correct
+  (registry lookup, duplicate guard :540-543, pid/scope/sid pre-order allocation,
+  recursive descent into the REGISTERED block).
+- **M-3 Bind's own discovery law.** `ocaml/lib/bind.ml:2204-2231` (`collect` inside
+  `bind_program`): for every `Ast.Sproc` child, **regardless of `bkind`**, bind descends
+  (`else collect pb`, :2230); only `Bproc` children are registered (`bkind = Ast.Bproc`
+  guard). Traversal is DFS, parents before children, source order within each list —
+  the order `pl_procs` carries (`proc_layout` comment `DFS: parents before children`,
+  `bind.ml:1975`). `collect` does NOT descend into `Sdobegin` lists, `Sif` arms or loop
+  bodies (`_ -> ()`). The env's own comment (semantic_env.ml:507-510) states this mirror
+  law; the buggy branch VIOLATED it.
+- **M-4 No per-BEGIN lexical authority in Bind.** `Bind.frame_decls` (`bind.ml:390-408`)
+  flattens `Sdcl` statements from the block's OWN statement region (descending into
+  `Sdobegin` groups and `IF`/`DO WHILE` bodies) but **stops at `Sproc`** (`Sproc _ -> ()`,
+  :403): a declaration written inside a BEGIN block produces NO row in the enclosing
+  frame. Measured witness `BEG4.pli` (BEGIN placed inside an `IF` arm so discovery is
+  not the blocker): **rc 2, `HIR-E03: line 5: declaration x produced no bind row in this
+  block`** — the LIVE typed refusal channel for BEGIN-contained declarations is the
+  existing `E03` no-bind-row arm of `lower_stmt`'s `Sdcl` case, NOT the `bdecls <> []`
+  `e_scope` guards (`hir_build.ml:676-680` and `:954-958`): the parser sets `bdecls = []`
+  on BEGIN blocks (`parser.ml:889`), so those guards are DEAD for parser-produced ASTs.
+  Recorded honestly; the dead guards are NOT removed (they still guard structurally
+  built blocks; removal is scope change, §P1-b.4 fact 2 unchanged).
+- **M-5 DO groups refuse by name at lowering.** A bare `do; … end;` is an `Sdobegin`
+  statement (parser law, recorded in bind.ml:1807-1809). Measured `BEG5.pli` (procedure
+  inside a do-group) and `BEG6.pli` (plain do-group): both **rc 2, `HIR-E05: line 3:
+  statement DO; group is outside the P0 HIR subset`** (`hir_build.ml:148`). Discovery never
+  has to descend into `Sdobegin`: `collect` does not discover through it either (M-3), so
+  nothing can be hidden from registration that bind itself hides, and lowering refuses
+  the group loudly before any of its contents could be silently dropped.
+- **M-6 Conditional-position nested procedures (PRE-EXISTING, out of scope, recorded
+  not fitted).** Discovery walks only BLOCK-level statement lists (`collect` likewise).
+  A procedure defined inside a conditional-position nested block is NOT bind-registered:
+  `BEG7.pli` (`call p` to such a `p`) dies LOUD — rc 2 `HIR-E06: line 8: call target p is
+  no bind-registered procedure`; `BEG8.pli` (same `p`, never called) currently ACCEPTS
+  rc 0 with `p` silently absent from the dump. This asymmetry is carried by the LOWERING
+  path (`lower_stmt`'s `Sproc Bproc -> []` arm, which assumes registration), predates
+  this slice, is unchanged by it, and its DR-oracle behaviour is `[TBD]` (no oracle
+  authorized). NOT touched by P1-h per the brief's narrow scope; recorded here so a
+  future slice can own it.
+- **M-7 The independent checker already encodes the correct law.** `semtest.ml`'s
+  `ast_nesting` (invariant I6, `semtest.ml:1062-1111`) recurses into the NESTED block's
+  own statements with the SAME parent for non-Bproc `Sproc` children, and its comment
+  records the pre-fix hang and the fact that its BEGIN arm never ran for a fixture. I6
+  judges the live env against a physically re-derived AST nesting table (block identity
+  by `==`, pid pre-order, `eparent`/`SE.enclosing` agreement) — after the repair this
+  becomes the exercised, independently checked structural traversal invariant (brief §4).
+
+### P1-h.2 Correction contract (minimal structural visitor)
+
+ONE file changes: `ocaml/hir/semantic_env.ml`. Per brief §3, separate the statement
+subtree being traversed from the enclosing procedure's semantic environment:
+
+- Introduce `discover_stmts st plan ctx (ss : Ast.stmt list)` — the structural visitor.
+  `ctx` is the ENCLOSING procedure's `block_env` (semantic owner); `ss` is the statement
+  subtree under traversal. The `Ast.Sproc` arms:
+  - `Bproc` child: registration body **verbatim and unchanged** (name guard, second-
+    authority registry lookup, duplicate guard, pid/pre-order ids, `procs_by_name`
+    prepend, `register_block st ctx.escope …`, then descend into the NEW env's own
+    statements);
+  - non-Bproc child (BEGIN/DO): `discover_stmts st plan ctx ib.Ast.bstmts` — descend
+    into the nested block's OWN statements under the SAME ctx. No scope id, no pid, no
+    signature, no ownership is invented; BEGIN shares the enclosing procedure's scope
+    (M-3/M-4; §P1-b.4 fact 2).
+- `register_children st plan parent` becomes exactly
+  `discover_stmts st plan parent parent.east.Ast.bstmts`.
+- Termination: the parser AST is a finite tree and recursion strictly descends the
+  nesting structure; each nested block is visited exactly once along its structural
+  path (no re-walk of an ancestor list). Depth is source nesting depth.
+- Non-targets (explicit): no change to `hir_build.ml`, `hir.ml`, `diagnostic.ml`,
+  `backend.ml`, `ocaml/lib/**`, `ocaml/bin/**`; no new diagnostic; no scope semantics;
+  no `Sdobegin` descent (M-5); the M-6 lowering asymmetry is NOT touched.
+- Preservation law (predicted, falsified by T2/T4): for any program whose block tree
+  contains no non-Bproc nested block, the visitor produces the IDENTICAL sequence of
+  registrations — every H01–H21 dump, diagnostic byte, OK number and gate panel is
+  byte-identical. Shapes containing statement-level BEGIN/DO previously HUNG or
+  bogus-refused; they now traverse.
+
+### P1-h.3 `semtest.ml` amendment — shared comparisons + two non-vacuous controls
+
+Per the §P1-a2.6 shared-comparison law (the control runs THE SAME code as the
+invariant, never a copy):
+
+- Extract I6's per-pair ownership comparison (the body of the `List.iter` over the
+  `pairs` list plus the block-count/identity checks it shares) into a shared function
+  used VERBATIM by the live I6 and by both new corrupt controls.
+- `--corrupt-owner`: take the independently re-derived nesting pairs and reparent ONE
+  pair at a physical block that is NOT its AST parent (prefer a different procedure's
+  block; with only one nested procedure, use the child itself — self-parenting must
+  fail the `eparent`/pre-order/`enclosing` arms). Re-run the shared comparison; it MUST
+  reject. A fixture with no nested procedure prints `nothing was proven`, rc 1.
+- `--corrupt-discovery`: DROP one nesting pair before re-running the shared comparison —
+  simulating discovery that duplicated the owner's list or hid a procedure: the count
+  invariant (`N env blocks for M AST-nested procedures (main is the extra)`) and the
+  missing-block arm MUST reject. A fixture with no nested procedure prints
+  `nothing was proven`, rc 1.
+- The `SEMANTIC-AUTHORITY OK <n> refs / <m> syms` line is unchanged in meaning and
+  count for every existing fixture (I6 gains no counted item).
+- `tools/hir_test.py`: `SEM_MODES` gains the two flags (live + NINE corrupt modes); the
+  docstring/`SEM-FAIL` contract text updated to match. No T5 grep-list change (the new
+  code reads no bind field that was not already on the seam list; `ast_nesting` is pure
+  AST + env).
+
+### P1-h.4 Fixtures (ids H22–H29; every shape measured FIRST, expected = copy of
+reviewed measured output, never hand-written; CRLF + `^Z`; every run under `timeout 60`)
+
+| id | shape (brief §4 coverage) | predicted outcome |
+|---|---|---|
+| H22 | bare empty `begin; end;` in main | rc 0 dump; main body shows NO phantom statement; determinism |
+| H23 | BEGIN containing ordinary statements (`x = 1; y = x + 1;`) | rc 0; statements appear EXACTLY ONCE, inlined in order, in `proc(0)` body |
+| H24 | two sibling BEGIN blocks, each with one statement | rc 0; both statements once, in source order |
+| H25 | BEGIN nested inside BEGIN (two levels) with one statement | rc 0; statement once |
+| H26 | procedure `p` declared under a statement-level BEGIN in main, plus `call p;` | rc 0; `p` discovered ONCE (PROC + SCOPE lines), owner = main scope |
+| H27 | BEGIN nested inside procedure `q` (q called from main); the BEGIN contains a statement AND a nested procedure `r` | rc 0; `r` discovered ONCE with parent = `q` (dump scopes/pids pinned); q's body inlines the BEGIN statement once |
+| H28 | REGR: M-1/BEG2 shape — Bproc sibling `p` then a bare BEGIN assigning `x` | rc 0 (the bogus `duplicate internal procedure name` refusal must be GONE); exactly ONE `PROC … name=p` line |
+| H29 | BEGIN containing a `dcl` (M-4 shape at statement level) | rc 2, ZERO stdout, stderr byte-pinned to the existing typed `HIR-E03 … produced no bind row in this block` (the unsupported scope refuses explicitly; NOT flattened) |
+
+Existing procedure shadowing and forwarding behavior (brief §4 last bullet) is held by
+the FROZEN existing pins: H18 (three-pid forwarding chain, [C130] E27B) and the I13
+shadow-law comparisons on H16/H17 stay byte- and count-identical (T2/T4); no new fixture
+re-pins them.
+
+Non-vacuity of the traversal invariant on the new fixtures: H26/H27/H28 give I6
+non-empty `pairs` lists, so `--corrupt-owner` and `--corrupt-discovery` must fire SEM-FAIL
+rc 1 on them (brief §4: completion without hanging is insufficient — ownership and
+no-dup/no-drop are asserted structurally, and the dump bytes pin statement identity).
+
+### P1-h.5 Falsifiers (each a STOP-and-attribute gate, never re-fit)
+
+- **T1** `pli80c.exe` sha256 stays `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` after EVERY build step, checked DIRECT.
+- **T2** every PREVIOUS `hir/expected/*` byte unchanged: `git diff --exit-code -- hir/expected` shows additions only (new H22–H29 files; existing files untouched). H01–H21 stay green.
+- **T3** `dune build` rc 0, ZERO `Error`; at close, fresh `dune build --build-dir _build-e54p1h` rc 0, ZERO `Error`, warning hist **122**, fresh exe sha computed separately == kept exe.
+- **T4** `timeout 900 python3 tools/hir_test.py` rc 0; ALL 11 existing semtest OK numbers unmoved; every corrupt mode (existing seven + the two new) rc 1, ZERO stdout, all-`SEM-FAIL` stderr on every positive fixture; new positives H22–H28 each run live + 9 corrupt modes green.
+- **T5** reproduction held + repaired: the pre-fix witness `build/e54p1h-hang-witness.log` stays as measured (rc 124 / rc 2 / rc 124); post-fix re-run of the SAME scratch inputs under `timeout 20` terminates promptly (BEG1/BEG3 no longer 124; BEG2 no longer the bogus duplicate) — recorded in RESULTS with the actual exit statuses.
+- **T6** ZERO oracle: no oracle, cpmsim, LINK-80, `--runtime`, `--link-run` or rune-ci invocation; only `dune build`, `tools/hir_test.py`, `tools/e2e_gate.py` (byte tier), `git`, and the HIR/semtest binaries on scratch fixtures.
+- **T7** `git diff --exit-code -- ocaml/lib ocaml/bin` EMPTY at every commit; goldens/inventory/census/coverage untouched; ledger stays 203 `## C` headers ending **C380**; NO new claim (this slice is infrastructure; its "facts" are reads of this repository's own bind implementation, classified [bind-fact], never DR claims).
+- **T8** seam greps hold after the edits: F10 (Bind alias + one `bind_program` in hir_build — unchanged file), S8 (semantic_env.ml still `Hir`-free after comment strip), F8, F7, F4 hex audit, F9, T5 cs_*/bind_arrays reader list still exactly {semantic_env.ml, semtest.ml}, `cs_slot` nowhere, T6 vocabulary strip-clean.
+- **T9** structural invariant non-vacuity: at least one new positive fixture (H26/H27/H28) proves BOTH new corrupt controls reject real perturbations (SEM-FAIL naming the perturbed proc), and at least one existing nested-proc fixture (H03 or H18) proves the controls still fire for the pre-existing shapes.
+- **T10** FULL gate rc 0 → `build/gate-e54p1h-reg.log` with FROZEN panels **1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5**. Any move = STOP, attribute first-hand, revert; historical compilation is unchanged.
+
+### P1-h.6 Predicted drift surfaces
+
+- Only programs containing statement-level non-Bproc `Sproc` blocks change behaviour:
+  from hang (124)/bogus-duplicate (E11) to traversal. NONE of H01–H21, the 1328 goldens
+  or the 190 negatives contains a HIR-path BEGIN/DO at statement level (the hang is the
+  proof: no committed fixture hit it). Zero drift is therefore PREDICTED and pinned by
+  T2/T4/T10; any observed move is a STOP event.
+- New code words (`discover_stmts`, `--corrupt-owner`, `--corrupt-discovery`) join the
+  F8/T6/T5 grep surface — stripped-code greps must stay clean; names chosen free of the
+  forbidden vocabulary.
+
+### P1-h.7 Work order
+
+1. Baseline first-hand verification + reproduction witness — **DONE** (this session, §P1-h header + M-1).
+2. This pre-registration committed BY EXPLICIT PATHS before ANY `ocaml/hir/` byte (PROTOCOL #1).
+3. `semantic_env.ml` per §P1-h.2 → build rc 0 (DIRECT rc) → T1 → hir_test rc 0 → post-fix reproduction re-run (T5) → commit (explicit paths).
+4. Fixtures H22–H29: measure each shape in scratch first, review every dump line against the traversal law (owner/pid/duplication), then `cp` measured output to `hir/expected/` → hir_test rc 0 → commit.
+5. `semtest.ml` §P1-h.3 + `tools/hir_test.py` SEM_MODES/docstring → hir_test rc 0 (T4, T9) → commit.
+6. FULL gate rc 0 FROZEN → `build/gate-e54p1h-reg.log`; fresh `--build-dir _build-e54p1h` (T3).
+7. CLOSE: `RESULTS.md` §P1-h (panel WITH measured values + deviations + reproduction set), `docs/architecture/backend-boundary.md` update, PLAN dashboard row CLOSED, durables + guard checkpoint → commit.
+8. **STOP** — no PUT/GET, no MIR, no P2, no broader scope refactoring (brief §7).
+
+Standing constraints (every hop): ZERO oracle; ledger stays C380; `ocaml/lib`+`ocaml/bin`
+byte-clean; `handoff.config.json` NEVER staged; no push; explicit-path commits only;
+`eval "$(opam env)"` in every shell; rc checked DIRECT; NEVER batch a build with tests
+that consume its artifacts; every fixture under `timeout 60`; scratch
+(`ocaml/scratch-p1h/`) NEVER committed; `superseded/` never rewritten; H01–H21 frozen.
+
+### P1-h.8 Dashboard
+
+| slice | status | notes |
+|---|---|---|
+| P1-h | **OPEN 2026-11-10 (pre-registered)** | BEGIN/DO discovery hygiene; ZERO oracle; contract §§P1-h.2–.5; work order §P1-h.7 |
