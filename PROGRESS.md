@@ -54,7 +54,9 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-m1 hop 2 — STEP 1 SCRATCH PROBES COMPLETE AND GREEN (additive mir2o import route PROVEN; production console ABI MEASURED end-to-end — LEARNINGS § "E2E-54/P1-m1 hop 2", READ FIRST); NEXT = commit these durables (LEARNINGS hop-2 section may still be UNCOMMITTED: check `git status`), then WRITE + COMMIT PLAN.md §P1-m1 PRE-REGISTRATION (explicit path, PROTOCOL #1, BEFORE any repo code byte), then implement m1a integers to green, then m1b characters, then CLOSE (RESULTS §P1-m1 + arch §7-7 + dashboard) and STOP — BINDING)
+## Next action (E2E-54/P1-m1 hop 3 — DESIGN PROBES COMPLETE; NEXT = WRITE + COMMIT PLAN.md §P1-m1 PRE-REGISTRATION (explicit path `spec/lab-evidence/e2e54/PLAN.md`, PROTOCOL #1, BEFORE any repo code byte — full digest in LEARNINGS § "E2E-54/P1-m1 hop 3"), then implement m1a integers to green, then m1b characters, then CLOSE (RESULTS §P1-m1 + arch §7-7 + dashboard) and STOP — BINDING)
+
+**DONE hop 3 (session 01a1c22e, renewal 2/12; scratch probes in ignored `build/p1m1-scratch/pf/`, NEVER committed; ZERO repo code byte; ZERO oracle):** baseline verified FIRST-HAND (build rc 0 at HEAD `612275bb`; exe `172595d5…` DIRECT). All design authority read first-hand (§P1-m0.2–.11, §P1-mC, §RD-COSMO, RESULTS §P1-mC.5 roadmap, `hir.ml`, `diagnostic.ml`, `hir_build.ml` lower_stmt/lower_expr/resolve, `mir_backend.ml`, `pli80mir.ml`, `mir2o.c` — the additive block drops in verbatim, `mod`/`it` already in scope — `cosmo_link.sh`, F8_PATTERNS VERBATIM). DESIGN PROBES (every prediction for §P1-m1 now measured): (a) ALL candidate console forms PARSE and die at the EXISTING E05 PUT/GET catch-all (`put skip/page/file(f) list/edit/item/from/list('lit')/list(x,y)`, `get list(x+1)/list(a(1))/list('z')`, `on error put`) ⇒ accepting moves ZERO pins; (b) LF line numbers are LOW, CRLF+^Z EXACT — all pins measured on CRLF+^Z; (c) trailing ctl (`put list(x) skip;`) is a PARSER death via the pre-existing UNCAUGHT `Parse_error` hole ⇒ NOT an E21 arm, NO pin; (d) `dcl x fixed bin(16)` dies at E01 (bind precision limit) ⇒ existing no-bypass pin, NOT E22; (e) MIR layout + runtime ABI + status laws re-read first-hand from hop-2 probes (probe2.mir layout, pli_console2.c, console_check_probe.c). Full facts + the complete §P1-m1 pre-registration digest: `LEARNINGS.md` § "E2E-54/P1-m1 hop 3" — READ FIRST, then write PLAN §P1-m1.
 
 **State (accepted, first-hand, session 01a1c1f5-8fd1-7001-8c8d-6aeda4b5a405; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203 headers/C380):** starting reference = HEAD `61129bd2` (the brief's P1-mC close commit; verified). Baseline trio GREEN: `dune build` rc 0; kept exe sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; `timeout 900 python3 tools/hir_test.py` rc 0 (full PASS line, 18 ok tool-level lines). Dirty HANDOFF.md/PROGRESS.md are ONLY the g686 attested managed blocks (prior-session finalize; never hand-edit); `handoff.config.json` dirty and NEVER staged. AUDIT READS (all first-hand): ast.ml Sput/Sget + put_item kinds; parser.ml `parse_put`/`parse_get`/`data_items` — `put list(x);` ⇒ `Sput {stream=None; on_opts; kind=List_; items=ctl_items@[Pi_data e]}`, `'Hello'` ⇒ `Estring` (lexer folds `''`), FILE/SOURCE arrive as `on_opts`, trailing-ctl already refused in the parser; hir_build.ml — Sput/Sget today die at the catch-all `HIR-E05 statement PUT/GET is outside the P0 HIR subset` and `lower_expr` refuses `Estring`; NO hir/fixtures file mentions put/get ⇒ accepting them moves ZERO existing pins; hir.ml stmt enum + dump indent law; diagnostic.ml codes E00..E20 (append-only law); mir_backend.ml — emission contract (module header `M0:\tmodule`, one func, `local i64:v<sid>`…, endfunc/export), W(p)=±(2^(p-1)-1), E18/E19/E20 refusals; pli80mir CLI; tools/mir_aot/{mir2o.c,build_native.sh,native_check.c,cosmo_link.sh}; tools/mir_aot_cosmo_test.py (K0-K4 panels, pins 42/45/10, CT2 object-sha-before-link law, `build/mir-cosmo/` evidence); F8 strip-greps bind NEW ocaml/hir code strings against /\b(size|offset|reloc|pool)\b/, uppercase mnemonic tokens incl. single letters C/M/P/Z, `0x`, `op_`.
 
@@ -3985,16 +3987,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 691
-checkpoint-id: g691-d0be046be55a
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 693
+checkpoint-id: g693-716709396ded
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T21:17:30.257Z
+checkpointed: 2026-11-09T21:19:45.972Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: bdde90a874a4243f78d250e7528511f1f3a5f7651d9aa524b0efd8b8c241e860
-source-handoff: 00f669af81cfcc5bdf70addb946619bc3af5afcaf8747868f7fee31ae22514c0
+source-progress: f92120948b2c39a4dad0cb141bd148964c6e8f50c5679cca90a2a3617f02143d
+source-handoff: 5b0058ed2cbd2ea5377225205eebd06dc664a4fce6f47530dfceed37caf4fb5f
 source-learnings: 0db6198203f39400135fa9d22f36378bdce7c1a5aa8da9bd315c262dff4539a8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
@@ -4762,6 +4764,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1c215-735d-7001-8c8d-6af1f4340a75
+readiness-at: 2026-11-09T21:19:46.027Z
+readiness-checkpoint: g693-716709396ded
 <!-- guard:end checkpoint -->
 
 ## Blockers

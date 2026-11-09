@@ -7,13 +7,19 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-1e-e54p1m1-1. **E2E-54/P1-m1 IN FLIGHT — minimal console I/O AUTHORIZED by operator; hop 1 audit
+1e-e54p1m1-2. **E2E-54/P1-m1 IN FLIGHT — minimal console I/O AUTHORIZED by operator; hop 1 audit
 + hop 2 SCRATCH PROBES DONE AND GREEN (additive mir2o import route PROVEN; production console ABI
-MEASURED — LEARNINGS § "E2E-54/P1-m1 hop 2"; durables committed `d7f56c19`); NO repo code byte
-written yet; NEXT = WRITE + COMMIT PLAN.md §P1-m1 pre-registration (explicit path, PROTOCOL #1),
+MEASURED — LEARNINGS § "E2E-54/P1-m1 hop 2") + hop 3 DESIGN PROBES COMPLETE (every candidate
+console form PARSES to the EXISTING E05 ⇒ ZERO pins move; LF line numbers LOW / CRLF+^Z EXACT;
+trailing ctl = pre-existing UNCAUGHT Parse_error death ⇒ no E21 pin; `fixed bin(16)` = E01 bind
+no-bypass ⇒ not E22; MIR layout + runtime ABI + mir2o additive-block drop-in re-verified first-hand;
+full digest LEARNINGS § "E2E-54/P1-m1 hop 3" — READ hop 2 + hop 3 FIRST); NO repo code byte
+written yet; NEXT = WRITE + COMMIT PLAN.md §P1-m1 pre-registration (explicit path
+`spec/lab-evidence/e2e54/PLAN.md`, PROTOCOL #1),
 then m1a integers, then m1b characters, CLOSE, STOP; successor = PROGRESS.md live P1-m1 heading
 VERBATIM**
-(session 01a1c1f5, chain fresh; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger
+(session 01a1c22e, renewal 2/12; baseline re-verified FIRST-HAND at `612275bb`: build rc 0, exe
+`172595d5…` DIRECT; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger
 203/C380; HEAD `61129bd2` = brief starting reference; baseline GREEN: build rc 0, exe
 `172595d5…` DIRECT, hir_test rc 0). Accepted measurements: parser/hir_build Sput/Sget shapes
 and the HIR-E05 catch-all today; NO fixture contains put/get ⇒ accepting moves zero pins; F8
@@ -1819,25 +1825,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 692
-checkpoint-id: g692-3ec5bb7eef25
+checkpoint-generation: 693
+checkpoint-id: g693-716709396ded
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1367, session 01a1c215-735d-7001-8c8d-6af1f4340a75)
-checkpointed: 2026-11-09T21:18:43.208Z
+status: checkpoint (guard level 4, remaining ~-4257, session 01a1c215-735d-7001-8c8d-6af1f4340a75)
+checkpointed: 2026-11-09T21:19:45.972Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: f92120948b2c39a4dad0cb141bd148964c6e8f50c5679cca90a2a3617f02143d
-source-handoff: 00f669af81cfcc5bdf70addb946619bc3af5afcaf8747868f7fee31ae22514c0
+source-handoff: 5b0058ed2cbd2ea5377225205eebd06dc664a4fce6f47530dfceed37caf4fb5f
 source-learnings: 0db6198203f39400135fa9d22f36378bdce7c1a5aa8da9bd315c262dff4539a8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1c215-735d-7001-8c8d-6af1f4340a75
-readiness-at: 2026-11-09T21:18:43.250Z
-readiness-checkpoint: g692-3ec5bb7eef25
+readiness-at: 2026-11-09T21:19:46.027Z
+readiness-checkpoint: g693-716709396ded
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)

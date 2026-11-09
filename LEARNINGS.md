@@ -10657,3 +10657,82 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   stderr `driver-return=<v>\n`, rc 0 on normal return); runner tools/mir_aot_console_test.py; fixtures
   continue hir/mir-fixtures M04/M05 (m1a) + M06 (m1b) and N8+ refusals; mir2o.c lands the probe's additive
   block VERBATIM + build_native.sh unchanged + CT2 re-check of the three frozen .o pins.
+
+## E2E-54/P1-m1 hop 3 (2026-11-10, session 01a1c22e, renewal 2/12) — pre-registration design probes COMPLETE
+
+- **accepted (baseline, first-hand):** HEAD `612275bb` (predecessor handoff line) over durables `d7f56c19`;
+  `cd ocaml && eval "$(opam env)" && timeout 600 dune build` rc 0; kept exe sha256
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; dirty HANDOFF.md/PROGRESS.md are
+  ONLY the g693 attested managed blocks; `handoff.config.json` dirty, NEVER staged; ZERO repo code byte;
+  ZERO oracle; scratch probes lived in ignored `build/p1m1-scratch/pf/`, NEVER committed.
+- **accepted (design authority reads, all first-hand):** §P1-m0.2–.11 + §P1-mC.0–.5 + §RD-COSMO + RESULTS
+  §P1-mC.5 P1-m1 roadmap wording; `hir.ml` stmt enum + dump indentation law + shared `dump_designator`;
+  `hir_build.ml` `lower_stmt` catch-all E05, `lower_expr`/`lower_arith`/`assign_value`/`resolve`,
+  `refuse_name`; `diagnostic.ml` E00..E20 append-only law; `mir_backend.ml` full emission contract;
+  `pli80mir.ml` CLI law (rc 2 / zero stdout / no `-o` file on refusal); `tools/mir_aot/mir2o.c` —
+  the probe's additive `MIR_load_external`-before-`MIR_link` block drops in verbatim (`mod`/`it` already in
+  scope); `tools/mir_aot/cosmo_link.sh` (mode|tiny, `--toolchain`); `cosmo_link.sh`/`mir_aot_cosmo_test.py`
+  structure; F8_PATTERNS VERBATIM (incl. `\b(size|offset|reloc|pool)\b` and single-letter mnemonics incl.
+  C/M/P/Z — new hir strings must say "len", never "size", and lowercase `call`).
+- **accepted (probe panel — every candidate P1-m1 console form PARSES through the FROZEN parser and dies at
+  the EXISTING `HIR-E05 statement PUT/GET is outside the P0 HIR subset` catch-all; scratch, LF):** `put skip;`
+  `put page;` `put file(f) list(x);` (f undeclared ⇒ bind survives option items ⇒ E21 can be checked BEFORE
+  any name resolution) `put edit(x)(b(15));` `put item(i);` `put from(x);` `put list('hello');`
+  `put list('say "hi" \ go');` (tab and quotes) `put list(x, y);` `get list(x + 1);` `get list(a(1));`
+  `get list('z');` ⇒ accepting the P1-m1 subset moves ZERO existing pins (no fixture contains put/get).
+- **accepted — line-number law (measured twice, both directions):** under LF-only endings the reported
+  statement line is LOW (LF `putskip` stmt physical line 6 ⇒ `line 3`; LF `l1` physical 7 ⇒ `line 4`; LF
+  `l2` physical 4 ⇒ `line 2`), while under CRLF+^Z it is EXACT (`put skip;` line 6 ⇒ `line 6`, `put list(x,y);`
+  line 6 ⇒ `line 6`, `on error` line 6 ⇒ `line 6`). Confirms the P1-m0 "LF scratch numbers are obsolete"
+  law on the PUT/GET statements specifically; every new pin is measured on the CRLF+^Z fixture bytes.
+- **accepted — the trailing-control-item refusal is a PARSER exception, not an HIR diagnostic:**
+  `put list(x) skip;` and `get list(x) skip;` ⇒ rc 2, ZERO stdout, stderr
+  `Fatal error: exception Pli80.Parser.Parse_error(_, "trailing SKIP control item before ';' is not sup...`
+  — the PRE-EXISTING uncaught-`Parse_error` hole (recorded in P1-m0 hop 2, identical in `pli80hir.exe`).
+  **Consequence for the plan:** trailing control items are NOT an E21 arm and get NO negative pin (their
+  wording lives in the parser and the exception is unpinnable by the HIR discipline); LEADING control items
+  (`put skip;`) ARE Pi_ctl items and ARE the E21 arms.
+- **accepted — precision-above-ceiling refusal is the E01 BIND channel, not E02/E18:**
+  `p: procedure returns(fixed bin(16)); dcl x fixed bin(16); x = 6; put list(x); return (x); end p;` (CRLF+^Z)
+  ⇒ rc 2, ZERO stdout, `HIR-E01: bind (semantic authority) refused: bind: FIXED BINARY(16) exceeds DR's
+  FIXED precision limit 15 (PL/I-80 V1.4 says NOT IMP) [TBD]`. So "precision outside the proven window" at
+  DECLARATION level is an EXISTING no-bypass pin (like N4/E02 and N6/E08), and the NEW precision/domain arms
+  are only those the declaration channel lets through.
+- **accepted — MIR layout to pre-register (from hop-2 probe2/probe4, verified by re-read this hop):** proto
+  order `p_put, p_get, p_text, p_nl, p_exit` emitted ONLY when used, BEFORE the single `import` line; import
+  names in canonical order `pli_console_put_i64, pli_console_get_i64, pli_console_put_text,
+  pli_console_put_nl, exit` (only those used); `s<k>: string "..."` items AFTER the import line, BEFORE the
+  func item, escaping `\"` and `\\`; locals = existing `v<sid>` (ascending sid) + `st` + `a1` per GET +
+  the existing ascending `t<k>`; get shape `alloca a1, 8` / `call p_get, pli_console_get_i64, st, a1, <lo>,
+  <hi>` / `bne Lfail, st, 0` / `mov v<sid>, i64:(a1)`; every console call followed by `bne Lfail, st, 0`;
+  shared `Lfail:` tail AFTER the body's `ret`: `call p_exit, exit, st` + `ret st`.
+- **accepted — runtime ABI + status law to pre-register VERBATIM from the probe (`pli_console2.c`,
+  `console_check_probe.c`):** statuses OK=0 EOF=1 BAD=2 RANGE=3 IOERR=4; `put_i64`/`put_text` emit NO
+  newline (the backend closes every PUT statement with a `pli_console_put_nl` call); get skips leading
+  space/tab/CR/LF, accepts optional sign, digit run ends at the first non-digit WHICH IS CONSUMED
+  (`123abc` ⇒ 123), EOF after a complete number is a GOOD read, lone `-` ⇒ BAD, digit run longer than the
+  24-byte buffer ⇒ RANGE, value outside `[lo,hi]` ⇒ RANGE; any nonzero status ⇒ `exit(status)` ⇒ observable
+  nonzero process rc (fail-fast); `exit()` flushes stdio so earlier partial output still appears — EOF never
+  masquerades as success; driver prints NOTHING on stdout and `driver-return=<v>` + newline on stderr, rc 0.
+- **accepted — WINDOW LAW restated for fixture design:** after `get list(x)` the provable interval of `x` IS
+  the full declared window `W(p)`; any later arithmetic that can leave `W(p)` must refuse `HIR-E19`, so the
+  console fixtures PUT/RETURN the got value directly (e.g. `x = x + 1` after a bin(15) get dies — 16384 > 16383).
+- **proposed (the §P1-m1 pre-registration shape to be WRITTEN and COMMITTED next, NOT yet committed):**
+  milestones SEPARATE — m1a integers (`put list(<FIXED BIN(p,0) expr>);`, `get list(<FIXED BIN(p,0) auto
+  scalar>);`), then m1b characters (literal `put list('...');` ONLY; char VARIABLES stay blocked at the
+  existing E02 declaration channel — documented, never a new refusal). HIR ADDITIVE `Put of put_source`
+  (`P_value of expr` | `P_text of { text }`) + `Get of designator` (`D_var` only), reusing
+  `Hir.designator` + `Semantic_env` resolve, NEVER a new name resolver; dump bytes
+  `put value  [line N]` / `put literal  [line N]` + indented `literal '<text>'` / `get  [line N]` +
+  shared `dump_designator`. `diagnostic.ml` APPENDS `HIR-E21 e_io_construct` (options/ctl/kind/item-count/
+  item-class/target-shape, BY NAME) and `HIR-E22 e_io_domain` (type/precision/charset outside the console
+  domain); mir_backend ADDITIVE — no-I/O procedures emit their EXISTING bytes unchanged (M01/M02/M03 pins +
+  all H dumps byte-frozen, T2/CT2); `tools/mir_aot/{pli_console.c,console_check.c}` committed sources, all
+  outputs under ignored `build/`; fixtures continue `hir/mir-fixtures/{M04,M05}` (m1a) + `M06` (m1b) and
+  `N8+` negatives (E21 arms: FILE/SOURCE opts, EDIT/ITEM/FROM-kind, PAGE/SKIP/LINE ctl, multiple items,
+  non-bin/uninit/array targets; E22 charset; plus the EXISTING-channel no-bypass pins for `get list('z')`
+  and `fixed bin(16)`); mir2o.c lands the probe block VERBATIM, MADC/lab NEVER touched; runner
+  `tools/mir_aot_console_test.py` with independently specified expected stdout/exit bytes recorded BEFORE
+  any run, corruption controls C-a wrong arithmetic / C-b ignored status / C-c EOF-as-success MUST fail, and
+  the FROZEN regression panel (gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir_test 220 ok,
+  11 numbers UNMOVED; mir_aot_test 27; mir_aot_cosmo_test 25; exe `172595d5…`).
