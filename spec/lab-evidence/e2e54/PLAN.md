@@ -2570,3 +2570,743 @@ that consume its artifacts; every fixture under `timeout 60`; scratch
 | slice | status | notes |
 |---|---|---|
 | P1-h | **CLOSED 2026-11-10** | BEGIN/DO discovery hygiene; ZERO oracle; correction `7144b3f1`, fixtures `500c668f`, semtest/runner `e004fa3e`; panel RESULTS §P1-h (T1–T10 ALL PASS, gate FROZEN 1328-190-9-149-16/0/25/0-prose 5 ALL HIT, zero drift measured) |
+
+---
+
+## §P1-m0 — Pre-registration: First Native MIR AOT Compilation (committed BEFORE any compiler-source modification)
+
+Operator-authorized slice **E2E-54/P1-m0** (2026-11-09): the first experimental native
+AOT path PL/I source → Parser + Bind → `Semantic_env` + `Hir_build` → typed `Hir.program`
+→ NEW `Mir_backend` → deterministic MIR text → pinned MIR native object generator
+(out-of-tree `libmir.a` from the pinned laboratory) → ELF x86-64 `ET_REL` `.o` → system C
+linker + minimal driver → native executable → independently verified result. No JIT at
+runtime, no oracle calls, no historical-byte change. This section is committed by explicit
+paths BEFORE any `ocaml/` compiler-source byte (PROTOCOL #1).
+
+### P1-m0.0 Operator brief (verbatim)
+
+Recovered VERBATIM from the operator turn of session
+`01a1c07e-5269-7161-b5f4-4904817cf26e` (transcript JSONL), stored at the ignored path
+`build/p1m0-brief-true.md` and machine-compared against this embedding: the stripped
+blockquote below equals the source BYTE-FOR-BYTE (362 content lines, 361 newlines, NO
+trailing newline — recorded honestly; an earlier hand copy differed only by the missing
+final newline and was replaced by the extraction).
+
+> # DRPLi — E2E-54/P1-m0: First Native MIR AOT Compilation
+>
+> ## Operator authorization
+>
+> The operator authorizes **E2E-54/P1-m0**, the first experimental native AOT compilation path from DRPLi's existing PL/I frontend through typed HIR and MIR.
+>
+> The goal is to produce and execute **genuine native machine code originating from PL/I source**, not to implement a complete production backend.
+>
+> Last verified public repository HEAD:
+>
+> `118e91dc39d57a36c28081b5957566743ff27f2a`
+>
+> The P1-h guard reported checkpoint g674 locally. Inspect the actual local HEAD and Handoff state before proceeding; do not assume the remote contains every finalized guard block.
+>
+> E2E-54/P0, P1-b, P1-a1, P1-a2 and P1-h are CLOSED.
+>
+> This new slice is authorized. Preregister it under `spec/lab-evidence/e2e54/PLAN.md` before changing compiler source files.
+>
+> ## 1. Deliverable and success criterion
+>
+> Demonstrate this complete execution path:
+>
+> ```text
+> Actual PL/I source file
+>        |
+>        v
+> Existing Parser + Bind
+>        |
+>        v
+> Semantic_env + Hir_build
+>        |
+>        v
+> Typed Hir.program
+>        |
+>        v
+> NEW Mir_backend
+>        |
+>        v
+> MIR textual representation
+>        |
+>        v
+> Pinned MIR native object generator
+>        |
+>        v
+> ELF x86-64 relocatable .o
+>        |
+>        v
+> System C linker + minimal test driver
+>        |
+>        v
+> Native executable
+>        |
+>        v
+> Verified independently expected result
+> ```
+>
+> **The final executable must execute previously generated native machine code. It must not parse MIR or invoke a JIT at runtime.**
+>
+> The generated `.o` must contain actual machine code produced from the HIR.
+>
+> A handwritten MIR demo, generated C compiled by GCC, or a program returning a hardcoded answer is NOT sufficient evidence.
+>
+> ## 2. Work from verified dependencies
+>
+> Existing independent laboratory:
+>
+> `https://github.com/cyrilmhansen/mir-madc-aot-lab`
+>
+> Pin:
+>
+> - Laboratory commit `ccc92c5c650b4385b4f42c9493725ae1415ab2e5`
+> - MADC submodule commit `f541a7a54624869e29b01f2f30b174bc0329eea5`
+>
+> The maintained MIR implementation lives under `madc/third_party/mir`.
+>
+> Relevant proven entry points:
+>
+> - `src/microbench/aot_corpus.c`
+> - `src/microbench/mir_elf_multimodule_demo.c`
+> - `scripts/run-linux-aot-benchmarks.sh`
+> - `docs/RESULTS.md`
+> - `docs/ISSUES.md`
+>
+> Check the known local laboratory path first. If absent, obtain the pinned checkout in a new disposable, ignored dependency directory, provided network access is available.
+>
+> Do not search the entire filesystem.
+>
+> Do not modify the external laboratory or advance its pinned revisions.
+>
+> ### Native object API
+>
+> The laboratory already demonstrates:
+>
+> ```c
+> MIR_scan_string(ctx, mir_text);
+> /* Load modules, initialize generator, and link. */
+> MIR_gen_set_object_mode(ctx, 1);
+> /* Generate the selected MIR functions. */
+> MIR_gen_object_emit(ctx, &buffer, &size);
+> ```
+>
+> Use the laboratory's actual complete initialization/generation/finalization sequence. The abbreviated example above is not itself a complete driver.
+>
+> Use the system linker to link the emitted object into the test executable.
+>
+> Do not use `MIR_object_load` for P1-m0; a known multi-module/import relocation defect remains recorded in the lab.
+>
+> The first execution target is Linux x86-64 ELF. Do not add macOS/AArch64 cross-compilation to this phase.
+>
+> ## 3. Extremely narrow PL/I subset
+>
+> Begin with a **zero-argument, integer-returning procedure**.
+>
+> A candidate source shape, to validate against the ACTUAL parser and HIR builder before adopting:
+>
+> ```pli
+> calc: procedure returns(fixed bin(15));
+>    dcl x fixed bin(15);
+>    x = 6 * 7;
+>    return (x);
+> end calc;
+> ```
+>
+> Expected result: 42.
+>
+> Adapt syntax only according to observed parser behavior. Do not silently change the meaning of the test.
+>
+> Prefer a genuine procedure-only PL/I module, represented through the existing Bind/HIR pipeline.
+>
+> If that shape is not supported, investigate an existing HIR-supported alternative. Any test-only exported entry must be explicitly identified as a harness convention rather than an invented PL/I language rule.
+>
+> ### Initial supported operations
+>
+> - Integer constants.
+> - FIXED BINARY scalar locals.
+> - Simple assignments.
+> - Addition, subtraction and multiplication.
+> - Unary negation if straightforward.
+> - Return of a scalar integer.
+>
+> The first milestone does NOT need:
+>
+> - Procedure parameters.
+> - Array references.
+> - Pointer or BASED accesses.
+> - Nested calls.
+> - External functions.
+> - PUT/GET.
+> - PLILIB.
+> - Decimal or floating-point arithmetic.
+> - ON conditions.
+> - Full PL/I program startup semantics.
+>
+> IF/ELSE may be added only after the straight-line milestone passes, within the same preregistered small subset.
+>
+> Loops and recursive calls are outside this slice.
+>
+> ## 4. Numeric semantics — do not silently invent them
+>
+> The current HIR carries FIXED BINARY precision and scale, but some DR arithmetic semantics remain unmeasured.
+>
+> For the first prototype, use a documented native integer carrier such as MIR `i64`.
+>
+> This is a backend representation choice, NOT a claim that PL/I-80 integers are 64-bit.
+>
+> Restrict accepted programs to a domain where the following are independently guaranteed:
+>
+> - Integral values.
+> - No arithmetic overflow.
+> - No uncharacterized conversion.
+> - No uninitialized-value read.
+> - No division or floating-point behavior.
+>
+> For the initial no-argument functions, conservative static constant/interval analysis is acceptable.
+>
+> If a program can leave this proven-safe domain, refuse with an explicit diagnostic rather than assume wrapping, saturation or trapping semantics.
+>
+> Do not upgrade the `Target.profile` unknown fields into invented known facts.
+>
+> ## 5. New MIR backend
+>
+> Add an isolated implementation under `ocaml/hir/`, conceptually:
+>
+> - `mir_backend.ml`
+> - `pli80mir.ml` or another explicitly named opt-in CLI
+>
+> Implement the existing `Backend.BACKEND` contract, producing a deterministic MIR textual artifact.
+>
+> The backend should consume the actual `Hir.program`, including its symbols, statements and typed expressions.
+>
+> Do not parse the HIR dump text.
+>
+> Do not parse PL/I a second time.
+>
+> Do not bypass `Semantic_env` or `Hir_build`.
+>
+> Choose an explicit single native export, with a documented C ABI for the test driver.
+>
+> Every unsupported HIR node must fail loudly. A partial or failed compilation must leave no misleading successful `.mir` or `.o` artifact.
+>
+> Keep MIR-specific types, opcodes, register choices and ABI details in the backend implementation, never in `Hir` or `Semantic_env`.
+>
+> Do not introduce MIR into the historical `pli80` library.
+>
+> ## 6. Native emitter tool
+>
+> Add a small, reproducible host-side tool, based on the pinned MIR API, which:
+>
+> 1. Reads the MIR text produced by `Mir_backend`.
+> 2. Parses and validates it with the pinned MIR library.
+> 3. Enables native object generation.
+> 4. Emits an ELF relocatable `.o`.
+> 5. Returns a nonzero exit code on failure.
+>
+> Prefer a small C bridge linked to the pinned `libmir.a`.
+>
+> No dependence on the MADC language frontend is needed: MIR itself is the backend input.
+>
+> Generated objects, logs and temporary executables belong in ignored build directories.
+>
+> Do not commit machine-specific object files.
+>
+> ## 7. Native execution and independent oracle
+>
+> Create a minimal C test driver that calls the exported native function and checks an independently specified expected result.
+>
+> For the initial test, it may verify that the function returns 42.
+>
+> The oracle must be established independently of the generated MIR and HIR dump.
+>
+> Add at least three successful cases, if the initial milestone permits:
+>
+> 1. Constant arithmetic.
+> 2. Local variable assignment followed by arithmetic and return.
+> 3. A second nontrivial arithmetic expression, preferably exercising negative integers or operator precedence.
+>
+> Add at least two negative cases, including an unsupported HIR operation and a construct with unproven numeric semantics.
+>
+> No positive test should pass merely because the backend ignored an operation.
+>
+> Use a corruption control that deliberately changes an emitted arithmetic operation or expected result and proves the native test detects the discrepancy.
+>
+> ### Native-artifact verification
+>
+> Inspect and preserve:
+>
+> - `readelf -h` (ELF machine and object type).
+> - `readelf -r` (relocations, if present).
+> - `nm` (the intended exported symbol).
+> - Native disassembly of the generated function.
+> - Successful system-linker output.
+> - Native execution status and observed result.
+> - Dynamic dependencies of the final executable.
+>
+> Demonstrate that the runtime executable does not require MIR, MADC, the OCaml compiler or the PL/I frontend.
+>
+> The build-time native emitter may of course depend on `libmir`.
+>
+> Execute the native binary in at least two fresh processes.
+>
+> ## 8. Tests and determinism
+>
+> Create a dedicated MIR AOT test runner.
+>
+> It must verify:
+>
+> - The PL/I source is really parsed and lowered through the existing HIR construction path.
+> - MIR text generation is deterministic.
+> - Each successful `.mir` is accepted by the MIR parser.
+> - Native object emission succeeds.
+> - Linking succeeds.
+> - The exported function executes with the correct result.
+> - Negative cases refuse without partial artifacts.
+> - The corruption control fails as designed.
+>
+> Keep independently specified expected results separate from generated output.
+>
+> Do not silently overwrite expected data with new compiler output.
+>
+> ## 9. Historical regression requirements
+>
+> The historical compiler must remain byte-identical:
+>
+> `pli80c.exe SHA-256 = 172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+>
+> Mandatory validation:
+>
+> - Existing HIR suite passes (P1-h baseline: 220 OK).
+> - Full compile-tier gate RC 0.
+> - 1328/1328 byte-exact `.REL`.
+> - 190/190 negative tests.
+> - 9/9 divergence tests.
+> - Coverage 149 rows, zero errors/warnings.
+> - Corpus census unchanged.
+> - Claims ledger unchanged at C380.
+>
+> Do not modify:
+>
+> - `ocaml/lib/`
+> - `ocaml/bin/`
+> - Historical goldens
+> - Existing scientific claims
+> - Inventory, census or coverage
+> - `GOAL.md`
+>
+> No DR oracle calls.
+>
+> No external Rune CI runtime/audit runs are required for this isolated native prototype.
+>
+> Check build/test commands and exit codes separately.
+>
+> ## 10. Deliverables
+>
+> Produce:
+>
+> - Preregistered `PLAN.md` section for P1-m0.
+> - New MIR backend implementation.
+> - Opt-in PL/I-to-MIR CLI.
+> - Reproducible MIR-to-ELF-object emitter.
+> - Native C test driver.
+> - Positive and negative PL/I fixtures.
+> - Automated native AOT tests.
+> - Verified ELF/relocation/disassembly evidence.
+> - Explicit unsupported-semantics matrix.
+> - Updated `docs/architecture/backend-boundary.md`.
+> - Measured `RESULTS.md` section with the complete end-to-end evidence.
+>
+> Clearly distinguish:
+>
+> - Successfully lowered HIR.
+> - Successfully generated MIR.
+> - Successfully emitted a native object.
+> - Successfully linked a native executable.
+> - Successfully executed with the expected result.
+>
+> These are separate milestones. Do not report end-to-end success unless the final native execution has passed.
+>
+> ## 11. Operating constraints and stop condition
+>
+> Use explicit-path commits.
+>
+> Never stage `handoff.config.json`.
+>
+> Do not reset or clean unrelated working state.
+>
+> Do not push.
+>
+> Use safe Handoff renewals where available; respect the actual chain state.
+>
+> If the pinned MIR dependency cannot be obtained or the object emitter is unavailable, record the precise environmental blocker. Do not replace the requested MIR backend with a C-only compilation path and claim success.
+>
+> If full native execution succeeds, record the working commands and results, close P1-m0, finalize the checkpoint and STOP.
+>
+> Do not automatically extend the compiler to parameters, arrays, I/O, macOS, AArch64 or a production backend.
+>
+> ### Success criterion
+>
+> **At least one real PL/I procedure is compiled through the existing frontend and typed HIR into MIR-generated native code, linked into an executable and run successfully against an independent expected result.**
+>
+> No JIT is required at runtime, no historical compiler bytes change, and unsupported semantics remain explicit.
+>
+> **Operator authorization: E2E-54/P1-m0 is approved. Preregister and proceed.**
+
+### P1-m0.1 Dependency acquisition and MEASURED environment facts (this session, first-hand)
+
+All facts below were measured BEFORE this pre-registration, in scratch only (no compiler
+source touched). Each is falsifiable by re-running the named command.
+
+- **D-1 lab pin.** No local laboratory existed (checked the known paths
+  `thirdparty/mir-madc-aot-lab`, `~/mir-madc-aot-lab`, `~/projects/sushiworks/mir-madc-aot-lab`
+  and `find /home/john -maxdepth 3 -iname '*madc*'` — all empty, consistent with RESULTS §5
+  `[TBD — lab not reachable]`, which said "without network"; network IS available this session).
+  Per brief §2 the pinned checkout was obtained by `git clone` into the git-IGNORED,
+  disposable directory `thirdparty/mir-madc-aot-lab`, checked out at lab commit
+  `ccc92c5c650b4385b4f42c9493725ae1415ab2e5` (verified `git rev-parse HEAD`) with submodule
+  `madc` at `f541a7a54624869e29b01f2f30b174bc0329eea5` (verified `git submodule update --init madc`
+  + `git rev-parse HEAD`). The lab is NEVER modified: `libmir.a` is built strictly
+  OUT-OF-TREE (§D-2) and `git status` inside the lab stays clean (checked DIRECT at close).
+- **D-2 out-of-tree libmir.** `make -f GNUmakefile BUILD_DIR=$PWD/../../../../build/p1m0-deps/mir-obj
+  <abs>/build/p1m0-deps/mir-obj/libmir.a -j8` (run from `madc/third_party/mir`) rc 0, producing
+  `build/p1m0-deps/mir-obj/libmir.a` (10 337 202 B at first build; size is NOT pinned — it is
+  machine-specific build output under ignored `build/`). MEASURED tooling law: the make rule
+  needs the BUILD_DIR to pre-exist for the `libmir.a` goal alone when invoked from a different
+  cwd; `mkdir -p` first. The archive embeds `-DGITCOMMIT=f541a7a5…` (the MADC pin) in object
+  metadata — build-time provenance, not a runtime dependency.
+- **D-3 the complete emitter sequence** is `src/microbench/aot_corpus.c` `prepare_capture` +
+  `emit_artifact("object", …)`: `MIR_init` → `MIR_scan_string` → for every module of
+  `MIR_get_module_list`: `MIR_load_module` → `MIR_gen_init` → `MIR_gen_set_object_mode(ctx,1)`
+  → `MIR_link(ctx, MIR_set_gen_interface, NULL)` → `MIR_gen(ctx, item)` for every selected
+  `MIR_func_item` → `MIR_gen_object_emit(ctx,&buf,&size)` → write → `MIR_gen_finish` →
+  `MIR_finish`. `MIR_object_load` is NOT used (brief §2; the lab `docs/ISSUES.md` records the
+  combined imported-call/data relocation defect in the loaded-object path).
+- **D-4 MIR text format (measured by working probe, pinned sample `ext.mir`).** A module is
+  `M0:\tmodule` … `\tendmodule`; a function is `<name>:\tfunc\ti64` with `\tlocal\ti64:a, …`,
+  instructions, `endfunc`, then `\texport <name>` BEFORE `endmodule`. MEASURED: omitting
+  `endfunc` is a PARSE ERROR ("absent endfunc") — the backend must emit it. Binary ops are
+  3-operand register form (`mul t2, t0, t1`), immediate loads go through `mov t, <decimal>`,
+  unary is `neg r, x`, exit is `ret <reg>`. `endfunc`, `export`, `endmodule` are required.
+- **D-5 host toolchain.** `Linux x86-64`, `gcc (GCC) 16.2.1`, `GNU Make 4.4.1`, binutils
+  `readelf`/`nm`/`objdump` present. This is a NATIVE x86-64 host — the lab's Linux caveats
+  (QEMU TCG timings, Darwin failures) do not apply to correctness of the ELF path here.
+- **D-6 full native chain PROVEN on hand-written MIR in the EXACT emitted form** (scratch,
+  never the deliverable claim — this only pins the toolchain, not the backend): emitter linked
+  against the pinned `libmir.a` produced an `REL (Fichier de réadressage)` /
+  `Advanced Micro Devices X86-64` object exporting `T calc` / `T pli80_m01` whose disassembly
+  is real code (`48 c7 c0 2a 00 00 00 mov $0x2a,%rax; c3 ret`); `gcc -O2 drv.o` linked; the
+  executable printed 42 with `ldd` showing ONLY `linux-vdso.so.1`, `libc.so.6`,
+  `ld-linux-x86-64.so.2`; `readelf -r` showed relocations only in `.rela.eh_frame` (two
+  `R_X86_64_PC32` against `.text`) — CODE relocations NONE for this shape. MEASURED: MIR
+  identifiers accept `_` and digits (`pli80_m01` works). Constant folding happens inside
+  `MIR_gen` (a mul chain emitted as one `mov $imm`) — expected results are therefore verified
+  by EXECUTION, never by disassembly shape.
+- **D-7 PL/I shapes measured through the ACTUAL pipeline** (`pli80hir.exe` on scratch CRLF+^Z
+  files, all first-hand this session):
+  - The brief's candidate shape parses and lowers EXACTLY as written:
+    `calc: procedure returns(fixed bin(15));` with one `dcl x fixed bin(15);`,
+    `x = 6 * 7;`, `return (x);` → rc 0, one `PROC 0 … params=[] returns=FIXED BINARY(15,0)`,
+    `assign` + `return value`. NO `options(main)` is needed (adding it also parses; the
+    fixture uses the brief's plain form). No syntax adaptation was required.
+  - `M02` (`y = 10; z = y + 5; return (z * 3);`) and `M03` (`r = 2 - 3 * 4; return (-r);`)
+    lower rc 0; the parser produces the expected PRECEDENCE (`2 - (3 * 4)` nests under the
+    `binop -`), unary minus lowers to `negate`, and NO `Convert` appears (same-type target).
+  - `N1` (read of never-assigned `x`) LOWERS rc 0 in HIR — the unproven-initialization check
+    is therefore a MIR-backend duty, not an HIR refusal. `N2` (IF), `N5` (array element
+    assign + read) and `N7` (DO WHILE) also LOWER rc 0 — unsupported-operation refusals live
+    in the MIR backend. `N3` (bin(15)→bin(7) assignment) lowers WITH `Convert` nodes — the
+    uncharacterized-conversion refusal lives in the MIR backend.
+  - `N4` (`dcl c character(3)`) dies `HIR-E02 … outside the P0 HIR subset` rc 2 and `N6`
+    (literal `40000`) dies `HIR-E08 … outside the P0 bin(15) literal domain` rc 2 — BEFORE
+    any MIR code runs. These two pins double as the proof that `pli80mir` cannot bypass
+    `Hir_build` (brief §5): if the new CLI refused them with a MIR-E code, the bypass claim
+    would be FALSIFIED.
+  - MEASURED line-number quirk: scratch files whose internal newlines are LF-only report
+    `SYM … line=1` for the first `dcl` (the lexer's CR handling), while full-CRLF fixtures
+    report the visible source line; the committed fixtures therefore follow the H-series law
+    (full CRLF + ^Z) and every expected file is a COPY of reviewed measured output
+    (measured-first), never hand-written.
+- **D-8 test-suite vocabulary constraints (read first-hand from `tools/hir_test.py`).**
+  `F8_PATTERNS` is applied to EVERY `ocaml/hir/*.ml` (glob) after nested-comment strip:
+  no `\bRel80\b`, `\bCodegen\b`, `\bbytes_of\b`, `\bop_[A-Za-z_]+`, `0x[0-9a-fA-F]+`, 8080
+  mnemonics (`\b(MOV|…|Z|C|M|P)\b` — single UPPERCASE letters are words!) and
+  `\b(size|offset|reloc|pool)\b` even inside strings. The new units therefore name things
+  with lowercase MIR vocabulary (`mir_text`, `tmp`, `mov`/`mul` as MIR mnemonics in lowercase
+  strings are safe; the forbidden mnemonics are matched word-anchored and UPPERCASE-only
+  except that lowercase MIR `mov` never matches `\bMOV\b`). F7/T5/T6 file sets are untouched.
+  Any F8/T5/T6/F10/S8 movement is a STOP event, never a pattern edit.
+
+### P1-m0.2 Native subset contract — what `Mir_backend` LOWERS; everything else refuses BY NAME
+
+The backend consumes the typed `Hir.program` produced by the EXISTING `Hir_build.build`
+(no second parse, no dump parsing, no `Semantic_env` bypass — brief §5). Accepted shape:
+
+- The program contains EXACTLY ONE procedure (`procs = [p]`); the export is selected by
+  `--export NAME`, matching `p.name` case-insensitively (PL/I name folding; the CLI option
+  and the `pli80_` symbol prefix are HARNESS CONVENTIONS, not PL/I language rules — brief §3).
+  Refusals: no match, `name = None`, or more than one procedure → `HIR-E20`.
+- `p.params = []` and `p.ret = Some (Fixed_bin (p_, 0))` with `1 ≤ p_ ≤` the profile's
+  `max_fixed_precision` ceiling (15, Oracle-backed field; NOT reinterpreted as a DR claim).
+  Anything else → `HIR-E20` (signature outside the native subset).
+- Statements (in order): `Declare` (accepted as a no-op — registers are allocated from the
+  program's `syms`, and the lowering re-checks each declared symbol's type/storage),
+  `Assign { target = D_var; value }`, and EXACTLY ONE `Return (Some e)` as the FINAL
+  statement. `Return None`, a second `Return`, a non-final `Return`, or no `Return` →
+  `HIR-E18` (fall-through/implicit-return semantics are unmeasured [TBD]; no MIR is invented
+  for them). `Stop` → `HIR-E18` (startup/end semantics out of scope, brief §3).
+- Targets: `D_var` only; `D_elem` (and thus ANY array use) → `HIR-E18`.
+- Expressions: `Const`, `Var`, `Bin (Add|Sub|Mul)`, `Neg` — each with `ex_ty` a
+  `Fixed_bin (p, 0)` whose sids belong to the export proc's own scope. `Bin` relational ops,
+  `Call_e`, `Elem_read`, `Elem_ref`, `Convert` → refusal; `Convert` is `HIR-E19`
+  (uncharacterized conversion, brief §4), all others `HIR-E18`. Any `ex_ef = Unknown_ef`
+  → `HIR-E18` (a call's effect is unmodelled here).
+- Symbols for the export proc: storage `Auto` only; `Static` (initial values unmeasured),
+  `Formal`, `External_sym` → `HIR-E18`. Types `Fixed_bin (p, s≠0)`, `Fixed_dec`, `Char`,
+  `Bit`, `Ptrty`, `Array1`, … → `HIR-E18` (typing refusal) or `HIR-E19` when the construct
+  would also leave the numeric domain — the code chosen names the PRIMARY reason in the
+  message; both are loud rc 2 with ZERO stdout.
+
+MEASURED-FIRST predictions (falsifiable; pin what is actually observed, never fit):
+M01/M02/M03 → rc 0 MIR text; N1 → E19 uninitialized read; N2 → E18 `if`; N3 → E19 `convert`;
+N5 → E18 array designation; N7 → E18 `while`; N4 → E02 and N6 → E08 (both from the EXISTING
+HIR channel, unchanged).
+
+### P1-m0.3 Numeric-safety contract (brief §4) — refuse, never assume
+
+The native carrier is MIR `i64`. This is a REPRESENTATION CHOICE: PL/I-80 `FIXED BINARY`
+widths are whatever DR measured them to be; nothing here claims DR uses 64-bit integers, and
+NO `Target.profile` `Unknown` field is upgraded to a fact.
+
+Accepted programs are restricted to a statically PROVEN-SAFE domain, decided by the backend
+over the typed HIR before any MIR is emitted:
+
+1. **Straight-line only** (no control flow in the subset), so initialization and intervals are
+   exact, not approximated: a simple forward walk. A `Var` read of a sid not previously
+   ASSIGNED on that path → `HIR-E19` "uninitialized read". (Measured: HIR itself accepts N1.)
+2. **Interval analysis** with closed integer intervals: `Const` → `[v,v]` (`v` decimal text as
+   written; a non-canonical or signed literal text → `HIR-E19`); `Var` → the sid's current
+   interval; `Add`/`Sub` → endpoint arithmetic; `Mul` → the four endpoint products' extremes;
+   `Neg` → flip. EVERY intermediate interval must lie inside the declared-precision VALUE
+   WINDOW `W(p) = [-(2^(p-1)-1), 2^(p-1)-1]` of the node's own `Fixed_bin (p, 0)` type — the
+   window DR's own bin(15) literal evidence admits (Oracle-backed profile field; for p = 15:
+   ±32767, the same ±32767 domain in which the byte-exact goldens live). Outside `W(p)` the
+   backend REFUSES `HIR-E19` (no wrapping, no saturation, no trapping is assumed — profile
+   `overflow_behavior` stays UNKNOWN and is HONOURED by refusing). Inside the window every
+   faithful integer representation agrees, so the result is representation-independent;
+   i64 contains every window trivially (p ≤ 15 ⇒ |v| ≤ 32767; products ≤ 2^30 inside OCaml
+   `int`, exact, no silent truncation at the analysis level).
+3. The RETURN value interval must lie inside `W(p_ret)`.
+4. No division, no float, no DECIMAL appears in the subset (the HIR typing already refuses
+   what it cannot type); scale ≠ 0 → `HIR-E19`/E02 as measured.
+
+If ANY doubt remains the program is REFUSED with an explicit diagnostic; a refusal is total:
+rc 2, zero stdout, no `-o` file, no `.o` (the emitter is never reached).
+
+### P1-m0.4 MIR text emission contract (deterministic, reviewable)
+
+- One module per compilation: `M0:\tmodule` … `\tendmodule`, exactly one `func` + its `export`.
+- Function label = `pli80_` ^ (lowercased export name); `func\ti64`, zero formal arguments;
+  `endfunc` then `\texport <label>` then `\tendmodule` (D-4: `endfunc` is MANDATORY).
+- One `local i64:v<sid>` register per `Auto` symbol of the export proc (ascending sid, from
+  the program's `syms`) and one `local i64:t<k>` per temporary, numbered by a monotonically
+  increasing counter in EVALUATION ORDER (HIR order: left before right, target before value —
+  the same order the dump records; `order:` is spelled `eval`, never `offset`).
+- Lowering per node: `Const c` → fresh temp `t<k>`, `mov t<k>, c`; `Var s` → fresh temp,
+  `mov t<k>, v<s>`; `Add/Sub/Mul` → lower left/right then fresh `t<k>`, `add|sub|mul t<k>, t<i>, t<j>`;
+  `Neg` → `neg t<k>, t<i>`; `Assign` → lower value then `mov v<sid>, t<k>`; `Return e` → lower
+  then `ret t<k>`. Every value ends in a freshly named temp; NO re-use of temp names.
+- The artifact is a pure function of the `Hir.program` — no timestamps, no addresses, no hash
+  iteration; determinism is tested by two fresh processes per fixture (byte-equal stdout).
+
+### P1-m0.5 File set (explicit paths), CLI and emitter contracts
+
+NEW or MODIFIED compiler-side files (all under the `pli80_hir` library/dir — the historical
+`pli80` library and `ocaml/lib`/`ocaml/bin` are NOT touched, brief §5/§9):
+
+- `ocaml/hir/mir_backend.ml` (NEW) — module `Mir : Backend.BACKEND` with
+  `type artifact = { entry_sym : string; mir_text : string }`. MIR-specific types/opcodes/
+  register names/ABI live ONLY here (brief §5).
+- `ocaml/hir/diagnostic.ml` (MODIFY — APPEND ONLY): three new stable codes after the E17
+  block, no existing code changes meaning:
+  `HIR-E18 e_mir_node` (HIR construct outside the P1-m0 native subset),
+  `HIR-E19 e_mir_numeric` (numeric semantics outside the proven-safe domain),
+  `HIR-E20 e_mir_export` (export selection/signature outside the native subset).
+- `ocaml/hir/pli80mir.ml` (NEW CLI, opt-in): `usage: pli80mir [--profile NAME] --export NAME [-o OUT.mir] INPUT.PLI`.
+  Pipeline: read file → strip at first ^Z (same convention as `pli80hir.ml`, copied honestly)
+  → `Pli80.Parser.parse_source` → `Pli80_hir.Hir_build.build` → `Mir.compile ~profile prog`
+  (via `Backend.Driver (Mir)`). Success → MIR text on stdout AND the `-o` file (written only
+  after `Ok`); rc 0. ANY refusal (parse, bind, HIR, backend) → diagnostics on stderr, rc 2,
+  ZERO stdout, NO output file — a failed compile leaves no misleading `.mir` artifact.
+  Missing `--export`/unknown profile → rc 2 usage error. No MIR, no emitter, no C linker is
+  invoked by the OCaml side at any point.
+- `ocaml/hir/dune` (MODIFY): add `mir_backend` to the library `(modules …)` list; add an
+  `(executable (name pli80mir) (modules pli80mir) (libraries pli80 pli80_hir))` stanza.
+  Nothing in the historical `ocaml/bin/dune` changes (F1 remedy; T2 below re-pins the exe sha).
+
+Host-side native tooling (committed SOURCES only; all outputs land under ignored `build/`):
+
+- `tools/mir_aot/mir2o.c` (NEW) — the small C bridge per D-3's full sequence: `usage: mir2o
+  -f IN.mir OUT.o`; nonzero rc on every failure (read, parse, load, link, zero functions
+  generated, emit, write); emits the ELF relocatable `.o` via `MIR_gen_set_object_mode` +
+  `MIR_gen_object_emit`; `MIR_gen_finish`/`MIR_finish` on every exit path. It generates EVERY
+  `MIR_func_item` of the loaded modules (the backend emits exactly one). No MADC, no
+  `MIR_object_load`, no JIT execution.
+- `tools/mir_aot/build_native.sh` (NEW) — reproducible build: (1) verify lab pin
+  (`git -C thirdparty/mir-madc-aot-lab rev-parse HEAD == ccc92c5…` and
+  `git -C …/madc rev-parse HEAD == f541a7a5…`, FAIL LOUD naming the exact blocker if the
+  checkout is absent or moved — brief §11; no re-pin, no network fallback, no C-only
+  substitution); (2) `make -f GNUmakefile` `libmir.a` out-of-tree into
+  `build/p1m0-deps/mir-obj/` (mkdir first, D-2); (3) `gcc -O2 -Wall -Wextra -Werror
+  -I<mir-src> mir2o.c <libmir.a> -ldl -lm -o build/p1m0-deps/mir2o`. The lab tree stays
+  `git`-clean (checked after every step).
+- `tools/mir_aot/native_check.c` (NEW) — minimal C driver: compiled with
+  `-DENTRY=<exported symbol> -DEXPECTED=<long>`; declares `extern long ENTRY(void);`, calls
+  it once, prints the returned value as decimal, exits 0 iff it equals `EXPECTED`. The C ABI
+  contract (documented): zero arguments; return in the SysV x86-64 `i64` slot; no PL/I
+  startup, no descriptor, no runtime.
+- `tools/mir_aot_test.py` (NEW runner, §P1-m0.7).
+- Fixtures `hir/mir-fixtures/M01.pli M02.pli M03.pli N1.pli … N7.pli` (CRLF + ^Z, one dcl
+  item/statement — the H-series law); expected MIR pins `hir/mir-expected/M*.mir`, negative
+  pins `hir/mir-expected/N*.stderr.txt` + `.rc`, ALL measured-first (§P1-m0.6).
+  These are ADDITIONS: `hir/fixtures`, `hir/expected` and every existing file in them stay
+  byte-frozen (T2).
+
+### P1-m0.6 Fixtures and INDEPENDENT expected results
+
+The expected results below are computed by HAND from the arithmetic of each source program,
+recorded HERE before any run, and kept in the runner's own table — NEVER derived from the
+MIR text, the HIR dump, the object or the disassembly (brief §7/§8).
+
+| fixture | source arithmetic (by hand) | expected |
+|---|---|---|
+| M01 (`calc`, brief candidate) | `x = 6 * 7; return x` → 42 | **42** |
+| M02 | `y = 10; z = y + 5; return z * 3` → 15 × 3 = 45 | **45** |
+| M03 | `r = 2 - 3 * 4; return -r` → 2 − 12 = −10; negate → 10 | **10** |
+
+Negative fixtures (all must refuse at the MIR boundary unless the row says the refusal comes
+from the EXISTING HIR channel — those pin the no-bypass property): N1 (unproven
+initialization), N2 (IF), N3 (Convert), N5 (arrays), N7 (DO WHILE) → new E-codes; N4 (E02),
+N6 (E08) → existing HIR channels. Each negative pin records rc, EMPTY stdout and the exact
+stderr bytes (same discipline as the H-series); additionally the runner asserts that with
+`-o out.mir` the output file DOES NOT EXIST after every refusal, and that no `.o` is ever
+produced for a refused program.
+
+### P1-m0.7 Test runner panel (each check DIRECT rc, separate commands; never batched)
+
+`tools/mir_aot_test.py` (python3, stdlib only) runs, per positive fixture:
+
+1. `pli80mir --export <n> -o tmp.mir M.pli` TWICE in fresh processes → rc 0, byte-equal
+   stdout, stdout == the reviewed `hir/mir-expected/M*.mir` pin (addition-only pin law:
+   expected files are COPIES of reviewed measured output at the fixture step, never
+   regenerated over a pin without an explicit supersede record).
+2. `mir2o -f M.mir M.o` rc 0 (this also IS the MIR-parser acceptance check, brief §8).
+3. Evidence capture into `build/mir-aot/`: `readelf -h` (must say `Type: REL` and
+   `Machine: Advanced Micro Devices X86-64`), `readelf -r`, `nm` (must list `T pli80_<n>`),
+   `objdump -d` (the generated function's native instructions), `ldd` of the final program
+   (must NOT list libmir/MADC/OCaml — only libc/vdso/loader).
+4. `gcc -O2 -DENTRY=pli80_<n> -DEXPECTED=<value> native_check.c M.o -o M.exe` rc 0; run the
+   executable in TWO fresh processes: rc 0 and stdout exactly `<value>`.
+5. Pipeline proof: the same fixture through `pli80hir.exe` also exits 0 (the HIR path itself
+   is green — a MIR success whose HIR dump failed would be a contradiction).
+
+Per negative fixture: run `pli80mir` twice (fresh procs) → pinned rc 2, ZERO stdout, pinned
+stderr bytes, deterministic, and NO output file (brief §5 "no misleading artifact"). The
+emitter is NOT run for negatives.
+
+Corruption controls (non-vacuity, brief §7): (C-a) take the M01 emitted MIR and replace the
+`mul` instruction with `add` (6+7 = 13 ≠ 42), re-emit, re-link, run: the native test MUST
+exit nonzero and report the differing value; (C-b) rebuild the SAME unmodified `.o` driver
+with `-DEXPECTED=43`: MUST exit nonzero. Both prove the pass is an EXECUTION result, not a
+tautology. If either control "passes", the runner fails (a gate that cannot fail is not a
+gate, PROTOCOL #8).
+
+### P1-m0.8 Falsification criteria (each a STOP-and-attribute gate, modelled on §P1-h.5)
+
+- **T1** `pli80c.exe` sha256 stays `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+  after EVERY build step, checked DIRECT.
+- **T2** every PREVIOUS `hir/expected/*` and `hir/fixtures/*` byte unchanged
+  (`git diff --exit-code -- hir/expected hir/fixtures` clean; the MIR pins live in NEW
+  directories and never inside the frozen set).
+- **T3** `timeout 900 python3 tools/hir_test.py` rc 0 with **220 OK** and ALL 11 existing
+  semtest OK numbers UNMOVED (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2
+  H16 12/5 H17 12/5 H18 7/3 H21 5/2); F7/F8/F10/S8/T5/T6 greps stay green over the NEW
+  files automatically (glob) — any hit is a STOP (rename code, never weaken a pattern).
+- **T4** FULL compile-tier gate rc 0 → `build/gate-e54p1m0-reg.log` with FROZEN panel
+  **1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5**. Any move = STOP,
+  attribute, revert. Plus fresh `dune build --build-dir _build-e54p1m0` rc 0, ZERO `Error`,
+  warning hist **122**, fresh exe sha (computed separately) == kept exe.
+- **T5** `git diff --exit-code -- ocaml/lib ocaml/bin` EMPTY at every commit; goldens,
+  inventory, census, coverage untouched; ledger stays 203 `## C` headers ending **C380**;
+  NO new claim (native execution of MIR is DRPLi engineering evidence, not DR behaviour —
+  the DR oracle is never consulted for it; the i64 carrier is explicitly NOT a DR claim).
+- **T6** ZERO oracle: no DR compiler, cpmsim, LINK-80, `--runtime`, `--link-run` or rune-ci
+  invocation anywhere in this slice.
+- **T7** the pinned lab + submodule stay at their exact commits and `git status`-clean
+  (no lab file, pin or revision modified); the lab path stays git-IGNORED from the DRPLi
+  repository; nothing under `build/` is committed.
+- **T8** determinism: both fresh-process runs of every positive fixture byte-equal
+  (MIR text) and both native runs report the same value; the MIR text of each fixture is
+  EXACTLY the committed pin.
+- **T9** non-vacuity: the runner proves BOTH corruption controls fail natively (and says
+  so explicitly); independently specified expected results (42/45/10) live ONLY in the
+  runner table + this PLAN, never in generated artifacts.
+- **T10** no positive test passes by IGNORED work: every positive fixture's MIR text must
+  contain one `func` + `export`, its `.o` must export the symbol (nm), and the value must
+  come from execution; the N-fixtures each name the construct they refuse.
+- **T11** `handoff.config.json` NEVER staged; explicit-path commits only; no push.
+
+### P1-m0.9 Work order (exact order — the successor contract)
+
+1. Baseline first-hand verification (build rc 0; exe `172595d5…`; `hir_test.py` rc 0, 220 OK)
+   — **DONE** (this session, log `build/p1m0-baseline-hirtest.log` — copy of the first run).
+2. This pre-registration committed BY EXPLICIT PATHS before any `ocaml/` compiler-source
+   byte (PROTOCOL #1): `spec/lab-evidence/e2e54/PLAN.md` only.
+3. Implement `ocaml/hir/diagnostic.ml` (append E18/E19/E20) + `mir_backend.ml` +
+   `pli80mir.ml` + `dune` stanza → `dune build` rc 0 (DIRECT) → T1 → T2 → `hir_test.py` rc 0
+   (T3) → ONE commit (the library list change and its consumers land together).
+4. Fixtures + pins: create `hir/mir-fixtures/*.pli` (CRLF+^Z, the shapes already measured in
+   scratch §D-7; review EVERY emitted MIR line against §P1-m0.4 BEFORE pinning),
+   `cp` measured output to `hir/mir-expected/` → hir_test still rc 0 → commit. Predictions
+   in §P1-m0.2 are falsified-not-fitted; deviations recorded here and in RESULTS.
+5. `tools/mir_aot/{mir2o.c,build_native.sh,native_check.c}` + `tools/mir_aot_test.py`;
+   build script rc 0; full runner rc 0 (all panels incl. evidence + corruption controls) →
+   commit.
+6. FULL gate rc 0 → `build/gate-e54p1m0-reg.log`; fresh `--build-dir _build-e54p1m0` (T4).
+7. CLOSE: `RESULTS.md` §P1-m0 (T1–T11 WITH measured values; the five MILESTONES stated
+   separately per brief §10 — HIR lowered / MIR generated / object emitted / executable
+   linked / native execution; the explicit unsupported-semantics matrix; every deviation
+   recorded NOT fitted), update `docs/architecture/backend-boundary.md` (§7-5), PLAN
+   dashboard CLOSED, durables + guard checkpoint.
+8. **STOP** (brief §11). IF/ELSE, parameters, arrays, calls, I/O, macOS/AArch64, production
+   backend are NOT authorized by this slice; each needs its own pre-registration.
+
+### P1-m0.10 Expected outcomes and the unsupported-semantics matrix (pre-registered)
+
+Expected: all three positives lower, emit deterministic MIR, produce an `ET_REL` x86-64
+`.o`, link with the system linker and EXECUTE returning 42 / 45 / 10; all five MIR-level
+negatives refuse loudly with E18/E19 (and no artifact), the two HIR-level negatives keep
+their existing E02/E08 channels; both corruption controls fail natively; every historical
+number unmoved. If native execution fails anywhere, the slice records the precise failing
+step and STOPs at the milestone it reached — partial success is reported by MILESTONE, never
+as end-to-end.
+
+Unsupported-semantics matrix (the slice's honest boundary; each row refuses, none guesses):
+control flow (IF/WHOLE-block branching) — deferred milestone (brief §3 permits IF/ELSE only
+AFTER this slice passes, never silently); loops/recursion — refused; calls (any `Call_e`,
+`Call_s`, nested procs) — refused; parameters/return of a non-integer — refused; arrays —
+refused; `Convert` (any precision/scale change, DEC, CHAR) — refused (rounding/overflow
+profile-UNKNOWN honoured); uninitialized reads — refused (static straight-line flow);
+values leaving `W(p)` — refused (overflow behaviour UNKNOWN honoured); `Static`/`External`
+storage — refused; multi-procedure programs and fall-through/implicit return — refused;
+division/floating point — outside the HIR subset already; DEC/character data — outside the
+HIR subset already. `Target.profile` fields `overflow_behavior`, `rounding_rules`,
+`float_semantics` REMAIN Unknown and are honoured by refusal, never defaulted (brief §4).
+
+### P1-m0.11 Dashboard update
+
+| slice | status | notes |
+|---|---|---|
+| P1-m0 | **OPEN 2026-11-09** | first native MIR AOT prototype; preregistered this commit; see §P1-m0.9 work order |
