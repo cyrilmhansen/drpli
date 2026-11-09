@@ -3831,17 +3831,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 645
-checkpoint-id: g645-109b990284fb
+checkpoint-generation: 646
+checkpoint-id: g646-416cffebca74
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T05:58:05.702Z
+checkpointed: 2026-11-09T05:59:39.950Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 289af22987d95832fa365d7029b2ff7658c3be37adf5840dbf8fbae0fdd5f627
+source-progress: d3c8c009996a62617bf11231f39fa7549a22d27c40b8cd2176ea6ce6e1c33043
 source-handoff: c219d703a9f4692b5b3da1a52b2e115d9e0a58269bc73e33ca514a82e6e11668
-source-learnings: 10881c7aa04a467213ec23d8433016a68c1deba7ae19941413b8c9ba09fc4e12
+source-learnings: 28d3e6d0ae2d352ca0e71f37dcfef8cc67266603e285808e0c4c77b9120f9cda
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM:** verify H16.. ids unused → WRITE + COMMIT
 `PLAN.md` §P1-a2 (.0 brief verbatim, evidence/unknowns matrix for the 8 §2 questions with the four
@@ -4578,8 +4578,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1beca-7c52-74ee-84fe-84ed36a0f527
-readiness-at: 2026-11-09T05:58:05.740Z
-readiness-checkpoint: g645-109b990284fb
+readiness-at: 2026-11-09T05:59:40.018Z
+readiness-checkpoint: g646-416cffebca74
 <!-- guard:end checkpoint -->
 
 ## Blockers

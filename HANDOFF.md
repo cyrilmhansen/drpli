@@ -1764,25 +1764,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 645
-checkpoint-id: g645-109b990284fb
+checkpoint-generation: 646
+checkpoint-id: g646-416cffebca74
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-5925, session 01a1beca-7c52-74ee-84fe-84ed36a0f527)
-checkpointed: 2026-11-09T05:58:05.702Z
+status: checkpoint (guard level 4, remaining ~-10392, session 01a1beca-7c52-74ee-84fe-84ed36a0f527)
+checkpointed: 2026-11-09T05:59:39.950Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 289af22987d95832fa365d7029b2ff7658c3be37adf5840dbf8fbae0fdd5f627
+source-progress: d3c8c009996a62617bf11231f39fa7549a22d27c40b8cd2176ea6ce6e1c33043
 source-handoff: c219d703a9f4692b5b3da1a52b2e115d9e0a58269bc73e33ca514a82e6e11668
-source-learnings: 10881c7aa04a467213ec23d8433016a68c1deba7ae19941413b8c9ba09fc4e12
+source-learnings: 28d3e6d0ae2d352ca0e71f37dcfef8cc67266603e285808e0c4c77b9120f9cda
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1beca-7c52-74ee-84fe-84ed36a0f527
-readiness-at: 2026-11-09T05:58:05.740Z
-readiness-checkpoint: g645-109b990284fb
+readiness-at: 2026-11-09T05:59:40.018Z
+readiness-checkpoint: g646-416cffebca74
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-54/P1-a2 hop 2 durables committed at 99b904f6 (§2 audit complete, evaluation-order adjudicated). Successor: execute PROGRESS.md live heading `## Next action (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM — step 1 verify H16.. ids unused; step 2 WRITE + COMMIT spec/lab-evidence/e2e54/PLAN.md §P1-a2 BY EXPLICIT PATHS BEFORE ANY ocaml/hir/ BYTE (PROTOCOL #1): .0 brief verbatim from ignored build/p1a2-brief-recovered.md (224 lines, sha 58fb3e4f…); .1 evidence/unknowns matrix for the 8 §2 questions ([bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured]; C093 CLAIMS.md:855, C130 :2036, C175 :3459, C145 :2668, C167 :3196, C358 :8480; every cs_*/pl_ptrs int is PHYSICAL and never crosses the seam); .2 the ordered-vs-evaluation-order adjudication (keep `args left-to-right`, H01–H15 frozen, document representation-vs-guarantee); .3 Semantic_env parameter-API amendment; .4 HIR designator/argument representation; .5 narrow lowering subset with BY-NAME refusals on NEW codes E15..; .6 semtest I11.. + non-vacuous corrupt controls; .7 measured fixtures H16..; .8 falsifiers T1–T10 with the FROZEN panel numbers. Then implement, gate rc 0 → build/gate-e54p1a2-reg.log (1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5) + fresh --build-dir _build-e54p1a2, CLOSE (RESULTS §P1-a2 + arch §7-3 + dashboard) and STOP. Standing: ZERO oracle; ledger stays C380 (203 headers); exe must stay 172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281 after every build step; ocaml/lib+bin byte-clean; handoff.config.json NEVER staged; no push; explicit-path commits; eval "$(opam env)" every shell; rc DIRECT/${PIPESTATUS[0]}; never batch a build with tests using its artifacts; every fixture under timeout 60 (BEGIN/DO hang pre-existing, do not fix); scratch never committed; hir/expected/superseded/ never rewritten; H01–H15 pins preserved; no MIR, no PUT/GET, no BEGIN repair.)
+guard level 4; checkpoint requested (finalize: Hop 2 closed at HEAD 3b3e5cfa (audit + adjudication + H16 id check all in durables). Successor: PROGRESS.md live heading step 2 — WRITE + COMMIT spec/lab-evidence/e2e54/PLAN.md §P1-a2 BY EXPLICIT PATHS BEFORE ANY ocaml/hir/ BYTE (PROTOCOL #1), embedding the brief verbatim from ignored build/p1a2-brief-recovered.md (224 lines, sha256 58fb3e4f0f3acb6ffa0ac8bb4fa8fdf6aa8a69056667ad4ad4462b27881a6ecd); then implement, FULL gate rc 0 → build/gate-e54p1a2-reg.log (FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5) + fresh --build-dir _build-e54p1a2, CLOSE (RESULTS §P1-a2 + arch §7-3 + dashboard) and STOP. ZERO oracle; ledger stays C380 (203 headers); exe must stay 172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281 after every build step; ocaml/lib+bin byte-clean; handoff.config.json NEVER staged; no push; explicit-path commits; eval "$(opam env)" every shell; rc DIRECT/${PIPESTATUS[0]}; never batch a build with tests using its artifacts; every fixture under timeout 60; scratch never committed; hir/expected/superseded/ never rewritten; H01–H15 pins preserved; no MIR, no PUT/GET, no BEGIN repair.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2524,5 +2524,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-a2 hop 2 durables committed at 99b904f6 (§2 audit complete, evaluation-order adjudicated). Successor: execute PROGRESS.md live heading `## Next action (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM — step 1 verify H16.. ids unused; step 2 WRITE + COMMIT spec/lab-evidence/e2e54/PLAN.md §P1-a2 BY EXPLICIT PATHS BEFORE ANY ocaml/hir/ BYTE (PROTOCOL #1): .0 brief verbatim from ignored build/p1a2-brief-recovered.md (224 lines, sha 58fb3e4f…); .1 evidence/unknowns matrix for the 8 §2 questions ([bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured]; C093 CLAIMS.md:855, C130 :2036, C175 :3459, C145 :2668, C167 :3196, C358 :8480; every cs_*/pl_ptrs int is PHYSICAL and never crosses the seam); .2 the ordered-vs-evaluation-order adjudication (keep `args left-to-right`, H01–H15 frozen, document representation-vs-guarantee); .3 Semantic_env parameter-API amendment; .4 HIR designator/argument representation; .5 narrow lowering subset with BY-NAME refusals on NEW codes E15..; .6 semtest I11.. + non-vacuous corrupt controls; .7 measured fixtures H16..; .8 falsifiers T1–T10 with the FROZEN panel numbers. Then implement, gate rc 0 → build/gate-e54p1a2-reg.log (1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5) + fresh --build-dir _build-e54p1a2, CLOSE (RESULTS §P1-a2 + arch §7-3 + dashboard) and STOP. Standing: ZERO oracle; ledger stays C380 (203 headers); exe must stay 172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281 after every build step; ocaml/lib+bin byte-clean; handoff.config.json NEVER staged; no push; explicit-path commits; eval "$(opam env)" every shell; rc DIRECT/${PIPESTATUS[0]}; never batch a build with tests using its artifacts; every fixture under timeout 60 (BEGIN/DO hang pre-existing, do not fix); scratch never committed; hir/expected/superseded/ never rewritten; H01–H15 pins preserved; no MIR, no PUT/GET, no BEGIN repair.
+Hop 2 closed at HEAD 3b3e5cfa (audit + adjudication + H16 id check all in durables). Successor: PROGRESS.md live heading step 2 — WRITE + COMMIT spec/lab-evidence/e2e54/PLAN.md §P1-a2 BY EXPLICIT PATHS BEFORE ANY ocaml/hir/ BYTE (PROTOCOL #1), embedding the brief verbatim from ignored build/p1a2-brief-recovered.md (224 lines, sha256 58fb3e4f0f3acb6ffa0ac8bb4fa8fdf6aa8a69056667ad4ad4462b27881a6ecd); then implement, FULL gate rc 0 → build/gate-e54p1a2-reg.log (FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5) + fresh --build-dir _build-e54p1a2, CLOSE (RESULTS §P1-a2 + arch §7-3 + dashboard) and STOP. ZERO oracle; ledger stays C380 (203 headers); exe must stay 172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281 after every build step; ocaml/lib+bin byte-clean; handoff.config.json NEVER staged; no push; explicit-path commits; eval "$(opam env)" every shell; rc DIRECT/${PIPESTATUS[0]}; never batch a build with tests using its artifacts; every fixture under timeout 60; scratch never committed; hir/expected/superseded/ never rewritten; H01–H15 pins preserved; no MIR, no PUT/GET, no BEGIN repair.
 <!-- guard:end checkpoint -->
