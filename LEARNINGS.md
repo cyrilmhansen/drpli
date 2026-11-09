@@ -10782,3 +10782,61 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   "EXISTING"); harmless prose.
 - **NEXT = §P1-m1.11 step 2 (m1a HIR half)** — see PROGRESS live heading; ZERO oracle; m1a
   green BEFORE any character work.
+
+## E2E-54/P1-m1 hop 5 (2026-11-10, session 01a1c25a, renewal 4/12; ZERO oracle; lib+bin byte-clean) — §P1-m1.11 STEP 2 (m1a HIR half) LANDED c3db9ffc
+
+- **accepted (baseline, first-hand):** HEAD `695206df`; build rc 0; kept exe `172595d5…` DIRECT;
+  ledger 203 headers/C380. Contract anchors re-read first-hand this hop: PLAN §P1-m1 full text,
+  PROGRESS live hop-4 heading, `ast.ml` Sput/Sget + `put_kind`/`get_kind`/`put_item` enums,
+  `parser.ml` `parse_put`/`parse_get` (VERBATIM), F8_PATTERNS, `hir.ml` dump law,
+  `hir_build.ml` lower_stmt catch-all, `mir_backend.ml` `stmt_kind_name`+`lower_stmts`,
+  `semtest.ml` `walk_stmt`/`pair_stmts` (pair_stmts matches AST kinds with a `_ -> bad_pair`
+  catch-all — UNAFFECTED by new HIR constructors; only `walk_stmt` needed an arm).
+- **accepted (parser law, read first-hand in parse_put AND measured):** bare `put skip;` /
+  `put page;` arrive as `Sput {kind = Item; items = [Pi_ctl …]}` (the ctl-only fall-through
+  branch of parse_put). CONSEQUENCE for the pre-registered arm order (options→kind→item-scan):
+  the PUT `Item` kind arm must FALL THROUGH to the item scan when EVERY item is a `Pi_ctl`
+  (the honest arm for that shape is the control item itself — N8/N9 name SKIP/PAGE), and
+  refuse BY NAME `ITEM` only for a data-carrying ITEM route (N12). Implemented exactly so.
+- **accepted (measured, CRLF+^Z scratch `ocaml/scratch-p1m1/`, never committed):** dumps match
+  §P1-m1.4 byte-shape: `put value  [line 4]` + child expr at indent+1; `get  [line 3]` +
+  `var sym(0) : FIXED BINARY(15,0)  [pure, line 3]` via shared dump_designator; line numbers
+  EXACT. E21 arms live: `put skip;` → "console PUT control item SKIP …"; `put list('hi');` →
+  TRANSIENT m1a item-class wording "console PUT of a literal string is outside the accepted
+  subset (integer data items only in this milestone)" (NO pin, m1b replaces);
+  `get list(x + 1);` → "GET target a binary expression …".
+- **falsified-by-measure (my own probe, recorded honestly):** `put list(0x41);` is NOT an
+  Estring test — hex literals die in the PARSER (`expected )`, uncaught class); the literal
+  probe must use `put list('hi');`. No pin affected (this was scratch, not a fixture plan).
+- **tooling fact (OCaml offside trap):** a bare `match items with …` as the LAST expression of
+  an outer-match arm ABSORBS the following `| Ast.Sget …` arm (Error: "constructor belongs to
+  stmt_kind but expected belonging to list"). FIX: wrap such tail matches in parens.
+- **accepted (gates, all DIRECT):** after fix `dune build` rc 0; T1 exe `172595d5…`;
+  `timeout 900 python3 tools/hir_test.py` rc 0 = **220 ok**, ALL 11 frozen numbers UNMOVED
+  (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2;
+  log ignored `build/p1m1-hop5-hirtest.log`); T2 `git diff --exit-code -- hir/expected
+  hir/fixtures ocaml/lib ocaml/bin` rc 0. Commit `c3db9ffc` (explicit paths
+  `ocaml/hir/{diagnostic,hir,hir_build,mir_backend,semtest}.ml`, +245 lines; config NOT staged).
+- **mir_backend interim state (intentional, recorded):** `stmt_kind_name` gained "put"/"get"
+  (that part is FINAL per §P1-m1.4); `lower_stmts` Put/Get arms are TRANSIENT E18 refusals
+  ("… outside the native subset until the §P1-m1 console emission lands") — step 3 REPLACES
+  them with the §P1-m1.5 emission (protos used-only p_put,p_get,p_text,p_nl,p_exit order BEFORE
+  the ONE `\timport\t` line; s<k> strings after import before func; locals `st` once when any
+  console call, `a1` once when any Get, between v<sid> and t<k>; put = lower/call p_put/bne/
+  call p_nl/bne; get = alloca a1,8/call p_get st,a1,lo,hi/bne/`mov v<sid>, i64:(a1)` then env
+  sid := W(p) exactly — WINDOW LAW; EVERY console call followed by own `bne Lfail, st, 0`;
+  SHARED tail after body ret: `Lfail:` (unindented) `\tcall p_exit, exit, st` `\tret st`;
+  NO-IO procs must emit EXISTING bytes EXACTLY).
+- **NEXT = §P1-m1.11 step 3 (m1a MIR half), exact order:** (1) implement §P1-m1.5 above;
+  (2) land `tools/mir_aot/mir2o.c` additive block — copy the PROVEN loop from
+  `build/p1m1-scratch/mir2o_ext.c` (pli_ext_dummy + per-MIR_import_item `MIR_load_external(ctx,
+  it->u.import_id, (void *)pli_ext_dummy)` BEFORE MIR_link; `mod`/`it` already in scope);
+  (3) rebuild `sh tools/mir_aot/build_native.sh` (libmir.a at `build/p1m0-deps/mir-obj`,
+  lab pins ccc92c5c/f541a7a5 NEVER advanced); (4) build rc 0 → T1; (5) **CT2 FIRST-HAND:**
+  re-emit M01/M02/M03 .mir == pins, new mir2o .o sha256 EQUAL `78656e6c…`/`3822f777…`/
+  `02c15b1b…`; (6) fixtures `hir/mir-fixtures/M04.pli` (io1) + `M05.pli` (iorw) + negatives
+  N8..N16,N19..N21 (shapes VERBATIM from §P1-m1.7) CRLF+^Z, MEASURED-FIRST under timeout 60
+  (`pli80mir.exe --export <name> [-o f.mir] <fixture>`), review EVERY MIR line vs §P1-m1.5
+  before pinning, pins = `cp` measured (`hir/mir-expected/M04.mir`,`M05.mir`,N*.stderr.txt,
+  N*.rc; negatives zero stdout, NO -o file); (7) hir_test rc 0 220 ok 11 numbers UNMOVED +
+  T2 clean → commit explicit paths. Then step 4 m1b, 5 runner, 6 FROZEN regression, 7 CLOSE+STOP.
