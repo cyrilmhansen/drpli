@@ -376,3 +376,29 @@ and of the final executable format.
 
 Panel: RESULTS §P1-m0.
 
+
+## 7-6 E2E-54/P1-mC — Cosmopolitan static-link feasibility (CLOSED 2026-11-09)
+
+The native MIR objects of §7-5 are **libc-agnostic**: the SAME `mir2o` object bytes
+(`M01 78656e6c…`, `M02 3822f777…`, `M03 02c15b1b…`, hashed BEFORE linking) link under
+gcc/glibc AND under a pinned official **Cosmopolitan 4.0.2** (`cosmocc-4.0.2.zip`,
+sha256 `85b8c37a…3f44`, GCC 14.1.0) into **plain static Linux x86-64 ELF** — no
+`PT_INTERP`, no dynamic section, no `DT_NEEDED`, `nm T pli80_<n>`, MIR-originating code
+disassembled, and **42 / 45 / 10 EXECUTED** in two fresh processes per fixture; both
+non-vacuity controls fail natively on the Cosmopolitan path (C-a executes 13, C-b 42≠43).
+Only the LINK COMMAND changed: the driver `tools/mir_aot/native_check.c`, the emitter
+`mir2o.c`, the MIR backend and every `ocaml/` byte are untouched (`git diff --exit-code --
+ocaml/lib ocaml/bin ocaml/hir hir/` rc 0); the recipe lives in
+`tools/mir_aot/cosmo_link.sh` (raw `x86_64-linux-cosmo-gcc` + the wrapper's own
+BUILDLOG-derived flags + `lib/optlinux/{ape-no-modify-self.o,crt.o}` + `-lcosmo` +
+`ape.lds`) and is driven through the distribution's native ELF loader `bin/ape-x86_64.elf`
+because this host's `binfmt_misc DOSWin` claims the toolchain's MZ-magic APE programs with
+wine (wrapper path >90 s vs loader path ~1 s, **byte-identical output**). There is NO APE
+step: no `fixupobj`/`objcopy`/`zipcopy`, no launcher, and `-mtinylinux` does not exist in
+the pinned release (measured `-mtiny` instead: 216 544 B static ELF, also executes).
+`§P1-m0`'s gcc/glibc link STAYS as the diagnostic reference (27 checks rc 0). Historical
+gate FROZEN ALL HIT (1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5);
+ZERO oracle; the ledger stays **C380** — native-linking feasibility is DRPLi engineering
+evidence, never a DR behaviour claim. Next stage remains **PROPOSED ONLY**: P1-m1 minimal
+PL/I console I/O over Cosmopolitan (own PROTOCOL #1 pre-registration + operator
+authorization required). Panel: RESULTS §P1-mC.

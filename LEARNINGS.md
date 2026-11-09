@@ -10509,3 +10509,67 @@ rc 0, MIR fixtures/pins and `build/mir-aot/M0*.o` from P1-m0 present):**
 7. **Operator time constraint (this session, binding):** commands must carry short timeouts
    ("a few minutes at most", twice reiterated). Long `readelf`/`objdump` captures go to files,
    never to the transcript; the wine-slow `.ape` path must be avoided rather than waited on.
+
+## E2E-54/P1-mC hop 2 (2026-11-09, session 01a1c194, renewal 1/12) — Cosmopolitan static link: THE GENUINE MIR OBJECTS LINK AND EXECUTE; measurements and tooling laws
+
+**accepted (each verified first-hand this session; evidence under the IGNORED
+`build/mir-cosmo/` + `build/p1mc-scratch/`; zero source byte — `git diff --exit-code --
+ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
+
+1. **THE RAW-TOOLCHAIN ROUTE WORKS AND IS THE ROUTE.** Driving `bin/x86_64-linux-cosmo-gcc`
+   with the flag list the official wrapper records in its own `BUILDLOG` (captured VERBATIM
+   for BOTH `-moptlinux` and `-mtiny`; only the `$COSMO` path prefix normalized) links the
+   genuine `mir2o` objects with NO `.ape` helper on the command line: `rc 0` in ~1 s.
+   Recipe frozen in `tools/mir_aot/cosmo_link.sh`; the runner `tools/mir_aot_cosmo_test.py`
+   passes rc 0 with **25 checks** in 48 s.
+2. **The APE-loader law (host-independent build path).** Every program in the distribution
+   (`gcc`, `cc1`, `collect2`, `as`, `ld.bfd`) is an APE file — first bytes `4d5a 7146 7044
+   3d27` (`MZqFpD='`), so `file` reports "DOS/MBR boot sector". `strace -e trace=execve`
+   proves the kernel hands them to `/usr/lib/wine/x86_64-unix/wine` (binfmt `DOSWin`,
+   magic `4d5a` offset 0): the `fixme:` noise on stderr is that path. Launching through the
+   distribution's OWN native ELF loader `bin/ape-x86_64.elf` (`0x7fELF`, statically linked)
+   is FAST and yields a **byte-identical** artifact (`83c352ea…` both ways, optlinux, same
+   object) ⇒ the loader is not required for correctness and adds NO APE step to the output;
+   `COSMO_LOADER=0` reproduces the direct/wine route for comparison.
+   ⇒ The hop-1 "wrapper stalls (>90 s)" blocker is the wrapper's `.ape` HELPER steps
+   (`fixupobj`, `chmod.ape`, `cp.ape`) plus the `mv`/`objcopy`/`zipcopy` branch, NOT the
+   compiler, NOT wine generally: those helpers each cost seconds, a whole `cosmocross` link
+   exceeded 90 s while a raw link costs 1 s. **FALSIFIED (recorded, not fitted):** hop-1's
+   framing "nested exec of the toolchain binaries is the stall" — the binaries themselves
+   run in well under a second either way.
+3. **FEASIBILITY ANSWERED POSITIVELY (the brief §10 stop condition).** The three genuine
+   MIR objects (`pli80mir` + UNCHANGED `mir2o`, sha256 recorded BEFORE linking and equal to
+   `build/mir-aot/M0*.o` — CT2) link against `lib/optlinux/{ape-no-modify-self.o,crt.o}` +
+   `-lcosmo` + `ape.lds` with the UNCHANGED `native_check.c` driver and EXECUTE **42 / 45 /
+   10** in TWO fresh processes each, rc 0. `-mtiny` links and executes 42 too. CT3: first
+   bytes `0x7fELF`, `file` = `ELF 64-bit LSB executable, x86-64, … statically linked`,
+   `readelf -hW` EXEC/X86-64, `readelf -lW` NO `PT_INTERP`, `readelf -dW` "There is no
+   dynamic section", `nm` `T pli80_calc` at `0x401e20`, `objdump -d` contains the function,
+   `ldd` = "not a dynamic executable". Sizes: optlinux 840 984 B (ELF version `GNU/Linux`,
+   with debug_info), tiny 216 544 B (`SYSV`, not stripped).
+4. **Recorded honestly (not a defect, not a claim):** a Cosmopolitan static ELF *embeds*
+   APE machinery as data — `objdump -d` opens a `.head` section holding `ape_cod_vaddr`
+   whose bytes are a second (`0x7fELF…`, type `ET_DYN`-flavoured) copy of the image, used by
+   the APE startup. The FILE is a plain ELF that the kernel loads natively; no `MZ` header,
+   no launcher, no PT_INTERP. The static-ELF requirement of §RD-COSMO concerns the generated
+   executable and is met; the embedded copy is normal Cosmopolitan layout.
+5. **Mode law MEASURED (not derived):** `-mtiny` per 4.0.2's BUILDLOG uses `-mno-red-zone`
+   and `-fno-optimize-sibling-calls -mno-omit-leaf-frame-pointer -fno-schedule-insns2`, and
+   does NOT get `-fpatchable-function-entry=18,16 -fno-inline-functions-called-once`
+   (the wrapper excludes any mode ending in `tiny` from ftrace patching). Deriving the tiny
+   flags by reading `cosmocross` alone was WRONG in exactly that respect and the BUILDLOG
+   capture corrected it — law: **capture the wrapper's BUILDLOG, never reconstruct flags.**
+   Link determinism: two links of one object are byte-identical (`P7`).
+6. **Negative controls on the Cosmopolitan path (non-vacuity):** C-a `mul`→`add` re-emitted
+   and RE-LINKED WITH COSMOPOLITAN executes **13** and the driver FAILS rc 1; C-b
+   `-DEXPECTED=43` on the unmodified `M01.o` FAILS rc 1 reporting 42.
+7. **Gate FROZEN ALL HIT with the new tooling present** — `build/gate-e54pmc-reg.log` (1538
+   lines) rc 0: byte panel **1328/1328**, negatives **190/190**, divergence **9/9**, coverage
+   **149 rows 0/0**, census **16/0/25/0**, prose **5** clean. Law measured: the compile-tier
+   gate reuses dune's cached build and finishes in well under a minute when the tree is
+   already built (never batch it with the test scripts, though — standing law).
+8. **proposed (unverified at checkpoint time, to be measured next):** remaining CT5 legs —
+   `tools/hir_test.py` rc 0 with 220 ok and the 11 numbers UNMOVED, `tools/mir_aot_test.py`
+   rc 0 (27 checks) as the gcc/glibc diagnostic reference, fresh `--build-dir
+   _build-e54pmc` hist 122 with sha == kept exe; then RESULTS §P1-mC + arch §7-6 + the
+   PROPOSED-only P1-m1 console-I/O roadmap and the §P1-mC close.
