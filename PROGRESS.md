@@ -82,8 +82,8 @@ document in `PLAN.md` §P1-a2 + the `hir.ml` header that the ordered `arg N` lis
 ordering (source/positional order = bind's own `cs_args` order) whose only backed execution-order
 evidence is [C093], with DEC/array/external shapes unmeasured. Full write-up:
 `LEARNINGS.md` § "E2E-54/P1-a2 hop 2".
-**EXECUTE (successor), EXACT order:** (1) verify fixture ids unused (`ls hir/fixtures` — H01..H15 taken,
-H16.. free). (2) WRITE `spec/lab-evidence/e2e54/PLAN.md` **§P1-a2**: .0 brief VERBATIM (embed from
+**EXECUTE (successor), EXACT order:** (1) ~~verify fixture ids unused~~ **DONE this hop** — `ls hir/fixtures |
+grep -c 'H1[6-9]\|H2[0-9]'` = **0** at `71ee96d0`, so H16.. are FREE (LEARNINGS addendum at `9bc49937`); re-confirm before writing. (2) WRITE `spec/lab-evidence/e2e54/PLAN.md` **§P1-a2**: .0 brief VERBATIM (embed from
 `build/p1a2-brief-recovered.md`; a markdown blockquote must prefix EVERY line; machine-verify the line
 count after); .1 evidence/unknowns matrix for the brief's 8 §2 questions, every row classified
 [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured] with the CLAIMS line numbers above; the
