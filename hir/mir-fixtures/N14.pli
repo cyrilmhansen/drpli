@@ -1,0 +1,6 @@
+n14: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   get list(x + 1);
+   return (x);
+end n14;
+

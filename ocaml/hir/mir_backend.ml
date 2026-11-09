@@ -9,11 +9,19 @@
    [Backend.BACKEND] instance the CLI instantiates is [For (E)] at the bottom.
 
    Scope is deliberately minimal (brief §3): ONE zero-argument procedure whose
-   result is FIXED BINARY(p,0); straight-line assignments and exactly one final
-   RETURN; constants, variable reads, + - * and unary negation. Every other HIR
+   result is FIXED BINARY(p,0); straight-line assignments, console PUT/GET
+   statements (E2E-54/P1-m1 §P1-m1.5) and exactly one final RETURN; constants,
+   variable reads, + - * and unary negation. Every other HIR
    node refuses (HIR-E18); every numeric step that can leave the proven-safe
    domain refuses (HIR-E19); every export-shape problem refuses (HIR-E20).
    Nothing is silently dropped: a refusal means NO artifact.
+
+   E2E-54/P1-m1 (§P1-m1.5): a body that carries console statements additionally
+   emits the runtime protos (used-only, fixed relative order), exactly ONE
+   import line with the used host names in canonical order, the st (and a1)
+   locals, and the shared Lfail failure tail after the body return. A procedure
+   WITHOUT console statements emits the §P1-m0 bytes EXACTLY — the M01/M02/M03
+   pins and the CT2 object-byte law (§P1-m1.6).
 
    The native carrier is MIR [i64] — a REPRESENTATION CHOICE, not a claim about
    DR integer widths (§P1-m0.3). The profile's UNKNOWN overflow/rounding/float
@@ -408,20 +416,71 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
               refuse ~line Diagnostic.e_mir_node
                 "MIR backend: stop is outside the native subset (startup and end \
                    semantics are out of scope, brief §3)"
-          | Hir.Put _ ->
-              (* TRANSIENT (§P1-m1 step 2 compile-adapt): the console emission lands
-                 with §P1-m1.5 and replaces this arm. *)
-              refuse ~line Diagnostic.e_mir_node
-                "MIR backend: a console put statement is outside the native subset \
-                   until the §P1-m1 console emission lands"
-          | Hir.Get _ ->
-              (* TRANSIENT, same status as the put arm above. *)
-              refuse ~line Diagnostic.e_mir_node
-                "MIR backend: a console get statement is outside the native subset \
-                   until the §P1-m1 console emission lands"
+          | Hir.Put src ->
+              (* §P1-m1.5 (m1a): the lowered value goes through the raw runtime put
+                 (the runtime never adds a newline); the BACKEND closes every PUT
+                 statement with a statement-level newline call. EVERY console call
+                 is followed by its OWN status branch to the shared failure tail. *)
+              (match src with
+               | Hir.P_value e ->
+                   let rv, _iv = lower env e in
+                   emit "call p_put, pli_console_put_i64, st, %s" rv;
+                   emit "bne Lfail, st, 0";
+                   emit "call p_nl, pli_console_put_nl, st";
+                   emit "bne Lfail, st, 0";
+                   lower_stmts env rest
+               | Hir.P_text _ ->
+                   (* Defensive until milestone m1b: the HIR lowering refuses literal
+                      PUT items at HIR-E21 in m1a, so this arm is UNEXERCISED; the
+                      p_text/s<k> emission lands with §P1-m1.11 step 4. *)
+                   refuse ~line Diagnostic.e_mir_node
+                     "MIR backend: a console PUT of a literal is outside the native \
+                        subset until the §P1-m1 milestone m1b emission lands")
+          | Hir.Get d ->
+              (* §P1-m1.5: the single get slot a1 is stack-allocated per GET
+                 statement (measured probe2 pattern); the runtime call carries the
+                 status register, the slot and the target's declared window, and
+                 only a zero status stores the value into v<sid>. *)
+              (match d with
+               | Hir.D_elem _ ->
+                   refuse ~line Diagnostic.e_mir_node
+                     "MIR backend: a console GET of an array designation is outside \
+                        the native subset (HIR lowering refuses every such target at \
+                        HIR-E21; defensive witness)"
+               | Hir.D_var { sid } ->
+                   if not (Int_map.mem sid !declared) then
+                     refuse ~line Diagnostic.e_mir_node
+                       ("MIR backend: assignment to sym(" ^ string_of_int sid
+                       ^ ") which was never declared in this body");
+                   let sp = Int_map.find sid !declared in
+                   let lo, hi = window sp in
+                   emit "alloca a1, 8";
+                   emit "call p_get, pli_console_get_i64, st, a1, %d, %d" lo hi;
+                   emit "bne Lfail, st, 0";
+                   emit "mov v%d, i64:(a1)" sid;
+                   (* WINDOW LAW (§P1-m1.1-8): the runtime proved the read value
+                      inside [lo,hi] = W(p) of the target's declared precision; the
+                      environment records EXACTLY that interval — never wider. *)
+                   lower_stmts (Int_map.add sid (lo, hi) env) rest)
     in
     let (_ : (int * int) Int_map.t) = lower_stmts Int_map.empty body in
-    (* ---- text assembly (§P1-m0.4) ------------------------------------------ *)
+    (* ---- text assembly (§P1-m0.4 + §P1-m1.5) -------------------------------- *)
+    (* Console-use summary (§P1-m1.5): a pure function of the typed body. It
+       decides WHICH module items appear; the statement arms above emit the
+       matching instructions, so the two can never disagree — and a refusal
+       means no artifact at all. P_text is deliberately not counted: literal
+       items are refused at lowering until milestone m1b lands. *)
+    let cu_put, cu_get =
+      List.fold_left
+        (fun (pu, ge) (s : Hir.stmt) ->
+          match s.Hir.st with
+          | Hir.Put (Hir.P_value _) -> (true, ge)
+          | Hir.Get _ -> (pu, true)
+          | _ -> (pu, ge))
+        (false, false)
+        body
+    in
+    let cu_any = cu_put || cu_get in
     let entry_sym = "pli80_" ^ proc_name in
     (* one i64 register per automatic symbol of the export procedure, ascending
        sid from the program's symbol table (§P1-m0.4); then one temp per fresh
@@ -434,14 +493,51 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
         prog.Hir.syms
     in
     let t_regs = List.init !tmp_n (fun i -> "t" ^ string_of_int (i + 1)) in
-    let all_regs = List.map (fun sid -> "v" ^ string_of_int sid) v_regs @ t_regs in
+    (* §P1-m1.5: the status register st once when any console call exists, the
+       single get slot a1 once when any GET exists — between the ascending
+       v<sid> registers and the ascending t<k> temps. *)
+    let extra_regs =
+      (if cu_any then [ "st" ] else []) @ (if cu_get then [ "a1" ] else [])
+    in
+    let all_regs =
+      List.map (fun sid -> "v" ^ string_of_int sid) v_regs @ extra_regs @ t_regs
+    in
+    (* §P1-m1.5: protos (only the used ones, fixed relative order p_put, p_get,
+       p_text, p_nl, p_exit) then EXACTLY ONE import line listing only the used
+       host names in canonical order — all before the func item; exit is always
+       among them because the shared failure tail uses it. *)
+    let console_items =
+      (if cu_put then [ "p_put:\tproto\ti64, i64:v\n" ] else [])
+      @ (if cu_get then [ "p_get:\tproto\ti64, i64:out, i64:lo, i64:hi\n" ] else [])
+      @ (if cu_put then [ "p_nl:\tproto\ti64\n" ] else [])
+      @ (if cu_any then [ "p_exit:\tproto\ti64:c\n" ] else [])
+      @
+      if cu_any then
+        let names =
+          (if cu_put then [ "pli_console_put_i64" ] else [])
+          @ (if cu_get then [ "pli_console_get_i64" ] else [])
+          @ (if cu_put then [ "pli_console_put_nl" ] else [])
+          @ [ "exit" ]
+        in
+        [ "\timport\t" ^ String.concat ", " names ^ "\n" ]
+      else []
+    in
     let buf = Buffer.create 1024 in
     Buffer.add_string buf "M0:\tmodule\n";
+    List.iter (Buffer.add_string buf) console_items;
     Printf.bprintf buf "%s:\tfunc\ti64\n" entry_sym;
     if all_regs <> [] then
       Printf.bprintf buf "\tlocal\t%s\n"
         (String.concat ", " (List.map (fun r -> "i64:" ^ r) all_regs));
     List.iter (fun s -> Printf.bprintf buf "\t%s\n" s) (List.rev !insns);
+    (* §P1-m1.5: the SHARED failure tail lives AFTER the body's final ret and
+       before endfunc — Lfail is its own UNINDENTED line; every nonzero runtime
+       status fail-fasts through exit(status), observable as the process code. *)
+    if cu_any then begin
+      Buffer.add_string buf "Lfail:\n";
+      Buffer.add_string buf "\tcall p_exit, exit, st\n";
+      Buffer.add_string buf "\tret st\n";
+    end;
     Buffer.add_string buf "\tendfunc\n";
     Printf.bprintf buf "\texport %s\n" entry_sym;
     Buffer.add_string buf "\tendmodule\n";

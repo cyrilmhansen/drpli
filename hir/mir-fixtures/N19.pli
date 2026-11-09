@@ -1,0 +1,7 @@
+n19: procedure returns(fixed bin(16));
+   dcl x fixed bin(16);
+   x = 6;
+   put list(x);
+   return (x);
+end n19;
+

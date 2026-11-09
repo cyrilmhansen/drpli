@@ -1,0 +1,1 @@
+HIR-E21: line 4: console PUT option FILE is outside the accepted subset (default console stream only)

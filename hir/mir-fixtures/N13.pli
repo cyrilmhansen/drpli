@@ -1,0 +1,7 @@
+n13: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   put list(x, y);
+   return (x);
+end n13;
+

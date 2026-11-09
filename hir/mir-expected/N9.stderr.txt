@@ -1,0 +1,1 @@
+HIR-E21: line 3: console PUT control item PAGE is outside the accepted subset (no control items)

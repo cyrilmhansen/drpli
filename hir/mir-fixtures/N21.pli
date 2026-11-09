@@ -1,0 +1,7 @@
+n21: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 6;
+   on error put list(x);
+   return (x);
+end n21;
+

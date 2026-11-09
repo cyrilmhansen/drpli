@@ -1,0 +1,1 @@
+HIR-E21: line 4: GET target an array element or call designation is outside the accepted subset (a scalar name designation only)

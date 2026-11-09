@@ -1,0 +1,7 @@
+iorw: procedure returns(fixed bin(15));
+   dcl n fixed bin(15);
+   get list(n);
+   put list(n);
+   return (n);
+end iorw;
+

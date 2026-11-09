@@ -1,0 +1,1 @@
+HIR-E21: line 4: console PUT carries 2 items; the accepted subset is exactly ONE data item

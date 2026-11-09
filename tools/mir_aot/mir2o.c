@@ -21,6 +21,18 @@
  * "absent endfunc" aborts).  Generation and finalization run on every
  * exit path.  The backend emits exactly one function, but every
  * func_item of every loaded module is generated.
+ *
+ * E2E-54/P1-m1 (PLAN §P1-m1.6, additive): the pinned madc fork aborts
+ * MIR_link on a STRONG import of a host symbol ("import of undefined
+ * item") and its object emitter cannot express weak imports from MIR
+ * text.  Before MIR_link, every MIR_import_item is therefore registered
+ * with MIR_load_external(ctx, name, (void *) pli_ext_dummy).  The dummy
+ * address is used only by JIT interfaces; the object capture records the
+ * symbol NAME as an UNDEFINED STRONG ELF symbol (measured hop 2: nm shows
+ * U pli_console_* / U exit and the dummy never enters the object).
+ * Modules WITHOUT imports take zero extra steps, so their objects stay
+ * byte-identical to the frozen §P1-m0 pins (CT2 re-check).  The pinned
+ * laboratory itself is never touched.
  */
 #include "mir.h"
 #include "mir-gen.h"
@@ -39,6 +51,11 @@ static void mir_finish_all(void) {
     the_ctx = NULL;
   }
 }
+
+/* Stable non-NULL dummy address for host-import registration (§P1-m1.6);
+ * never called in object mode — the emitter records the symbol NAME as
+ * undefined. */
+static void pli_ext_dummy(void) {}
 
 static char *read_whole(const char *path, size_t *size) {
   FILE *f = fopen(path, "rb");
@@ -85,6 +102,15 @@ int main(int argc, char **argv) {
   for (mod = DLIST_HEAD(MIR_module_t, *MIR_get_module_list(the_ctx)); mod != NULL;
        mod = DLIST_NEXT(MIR_module_t, mod))
     MIR_load_module(the_ctx, mod);
+  /* ADDITIVE (P1-m1 §P1-m1.6): register every import as an external BEFORE
+   * MIR_link so the link resolves it to the environment entry instead of
+   * aborting with "import of undefined item". */
+  for (mod = DLIST_HEAD(MIR_module_t, *MIR_get_module_list(the_ctx)); mod != NULL;
+       mod = DLIST_NEXT(MIR_module_t, mod))
+    for (it = DLIST_HEAD(MIR_item_t, mod->items); it != NULL;
+         it = DLIST_NEXT(MIR_item_t, it))
+      if (it->item_type == MIR_import_item)
+        MIR_load_external(the_ctx, it->u.import_id, (void *)pli_ext_dummy);
   MIR_gen_init(the_ctx);
   gen_inited = 1;
   MIR_gen_set_object_mode(the_ctx, 1);

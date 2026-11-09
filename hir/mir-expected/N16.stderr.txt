@@ -1,0 +1,1 @@
+HIR-E21: line 3: GET target a string literal is outside the accepted subset (a scalar name designation only)

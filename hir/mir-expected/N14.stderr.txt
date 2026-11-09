@@ -1,0 +1,1 @@
+HIR-E21: line 3: GET target a binary expression is outside the accepted subset (a scalar name designation only)

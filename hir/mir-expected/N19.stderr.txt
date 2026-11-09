@@ -1,0 +1,1 @@
+HIR-E01: bind (semantic authority) refused: bind: FIXED BINARY(16) exceeds DR's FIXED precision limit 15 (PL/I-80 V1.4 says NOT IMP) [TBD]
