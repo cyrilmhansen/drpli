@@ -7,6 +7,32 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54p1m1-5. **E2E-54/P1-m1 hop 5 LANDED 2026-11-10 — §P1-m1.11 STEP 2 (m1a HIR half) COMMITTED
+`c3db9ffc` + durables `ba6910ff` (session 01a1c25a, renewal 4/12; ZERO oracle; `ocaml/lib`+`ocaml/bin`
+byte-clean; ledger 203/C380; baseline re-verified first-hand at `695206df`). E21/E22 appended;
+`put_source`/`Put`/`Get` + §P1-m1.4 dump arms; hir_build Sput/Sget arms in PRE-REGISTERED ORDER
+(ctl→count→class→lower_expr→GET target-shape; bare `put skip;` = kind Item all-ctl → falls to
+ctl arm, MEASURED parser law; m1a literal refuses via TRANSIENT class wording, no pin; GET
+unresolved keeps E06; E22 GET-type defensive-UNEXERCISED); mir_backend compile-adapt
+(stmt_kind_name put/get FINAL; Put/Get lower_stmts arms TRANSIENT E18 — step 3 REPLACES with
+§P1-m1.5 emission); semtest walk_stmt arms. GATES: build rc 0; T1 `172595d5…` DIRECT; hir_test
+rc 0 **220 ok** 11 numbers UNMOVED; T2 clean; scratch CRLF+^Z dumps reviewed (§P1-m1.4 shape
+confirmed: `put value  [line 4]`, `get  [line 3]` + shared designator line).
+**SUCCESSOR = PROGRESS.md live hop-5 heading VERBATIM: §P1-m1.11 step 3 (m1a MIR half)** —
+mir_backend §P1-m1.5 (protos used-only p_put,p_get,p_text,p_nl,p_exit before ONE import line;
+s<k> after import; locals st/a1 between v<sid> and t<k>; put=call p_put/bne/p_nl/bne;
+get=alloca a1,8/call p_get st,a1,lo,hi/bne/mov v<sid>,i64:(a1), env sid:=W(p) WINDOW LAW;
+every console call own bne; shared unindented `Lfail:` tail call p_exit,exit,st + ret st;
+NO-IO bytes FROZEN) + mir2o.c additive MIR_load_external block (copy PROVEN
+`build/p1m1-scratch/mir2o_ext.c`) + `sh tools/mir_aot/build_native.sh` + CT2 .o pins
+78656e6c/3822f777/02c15b1b FIRST-HAND + M04/M05 + N8..N16,N19..N21 MEASURED-FIRST CRLF+^Z
+(timeout 60, review every MIR line vs §P1-m1.5, pins=cp, negatives zero stdout/no -o) →
+build rc 0 → T1 → hir_test 220 ok 11 UNMOVED + T2 → commit; then steps 4 (m1b) / 5 (runner,
+expected from §P1-m1.7, C-a/C-b/C-c MUST FAIL) / 6 (FULL FROZEN regression) / 7 (CLOSE + STOP).
+READ LEARNINGS §§ hop 2+3+4+5 FIRST. Standing: ZERO oracle; config NEVER staged; no push;
+explicit paths; scratch never committed; lab never advanced; m1a GREEN before character work;
+F8 law on new hir strings; `eval "$(opam env)"`; rc DIRECT; never batch build with tests.
+
 1e-e54p1m1-3. **E2E-54/P1-m1 IN FLIGHT — §P1-m1 PRE-REGISTERED + COMMITTED `51231164`
 (PROTOCOL #1 gate LANDED; explicit path `spec/lab-evidence/e2e54/PLAN.md` only; ZERO repo
 source byte beyond the PLAN; session 01a1c243, renewal 3/12; baseline re-verified FIRST-HAND
@@ -1850,17 +1876,17 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 696
-checkpoint-id: g696-f4be7cb42812
+checkpoint-generation: 699
+checkpoint-id: g699-f4b5d9072d34
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4930, session 01a1c243-5974-7001-8c8d-6af964a4df0a)
-checkpointed: 2026-11-09T22:06:55.810Z
+status: checkpoint (guard level 4, remaining ~4927, session 01a1c25a-eee3-7001-8c8d-6afd96caa645)
+checkpointed: 2026-11-09T22:27:27.983Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 851932a36fcc8b89607213df188a0083e59ea24b56a0fa75f7ddb21f7e33a540
-source-handoff: 6fd8ee0864ee0d92b28e83c349d675d6932dc823cf130e4acd7761388cfccb05
-source-learnings: c8ab01d67894fd425b535d9f2da33e14b509bac8a04a5a1dc74134453e661575
+source-progress: a69151036573543cb5d40c9f152cd51bf1aa00e4539899e0763ac660889cde19
+source-handoff: 91cfd52669843123b173306adf12d00767c95940b5c5e291090b83471f9c58ba
+source-learnings: 992af6fed1027526454f940b784917f92a36008bfabcef7377ae461e8adf5d70
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
@@ -2638,5 +2664,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m1 hop 2 done: STEP 1 scratch probes COMPLETE AND GREEN, durables committed at d7f56c19 (HEAD). All hop-2 measurements in LEARNINGS.md § "E2E-54/P1-m1 hop 2" — READ FIRST. Exact next action in PROGRESS.md live P1-m1 heading VERBATIM: (1) WRITE + COMMIT spec/lab-evidence/e2e54/PLAN.md §P1-m1 pre-registration (explicit path ONLY, PROTOCOL #1) BEFORE ANY repo code byte — full design digest (accepted syntax, by-name refusals, E21/E22, HIR Put/Get nodes + dump bytes, mir_backend additive layout, runtime ABI + status codes, fixtures M04/M05/M06 + N8+, corruption controls C-a/C-b/C-c, FROZEN regression panel) is IN the PROGRESS hop-2 heading and LEARNINGS hop-2 section; (2) implement m1a integers to green, then m1b characters (literal-only; char-var blocked at existing E02), then CLOSE RESULTS §P1-m1 + arch §7-7 + dashboard, STOP. Constraints: eval $(opam env); rc DIRECT; never batch build with tests; timeouts; scratch build/p1m1-scratch NEVER committed; ZERO oracle; ledger 203/C380; config NEVER staged; no push; lab never advanced; F8 vocabulary law; exe 172595d5 held.
+E2E-54/P1-m1 hop 4 COMPLETE: §P1-m1 pre-registration COMMITTED 51231164 (PROTOCOL #1 gate landed; explicit path spec/lab-evidence/e2e54/PLAN.md only; ZERO repo source byte beyond the PLAN). Durables committed 695206df. EXACT NEXT = PROGRESS.md live hop-4 heading VERBATIM: PLAN §P1-m1.11 step 2 (m1a HIR half: diagnostic.ml append HIR-E21 e_io_construct / HIR-E22 e_io_domain; hir.ml put_source P_value|P_text + Put/Get arms + dump lines; hir_build Sput/Sget arms in order options→kind→ctl→item-count→item-class→lower_expr→GET target-shape; m1a refuses literals via transient item-class, no pin; semtest minimal compile-adapt) then build rc 0 → T1 exe 172595d5 DIRECT → hir_test rc 0 220 ok 11 numbers UNMOVED → commit; then step 3 m1a MIR half (mir_backend additive per §P1-m1.5, NO-IO bytes frozen; mir2o.c additive block; CT2 re-check .o pins 78656e6c/3822f777/02c15b1b; M04/M05 + N8..N16,N19..N21 measured-first CRLF+^Z), step 4 m1b (literal + tools/mir_aot/{pli_console.c,console_check.c} from probes; console_check extern long long), step 5 runner with expected bytes copied from §P1-m1.7 and controls C-a/C-b/C-c MUST fail, step 6 FULL FROZEN regression, step 7 CLOSE + STOP. READ LEARNINGS §§ hop 2+3+4 FIRST. Constraints: eval $(opam env); rc DIRECT; never batch build with tests; timeouts 60/900; scratch never committed; ZERO oracle; ledger 203/C380; config NEVER staged; no push; lab never advanced; F8 vocabulary law on NEW ocaml/hir strings; explicit paths; m1a GREEN before any character work.
 <!-- guard:end checkpoint -->
