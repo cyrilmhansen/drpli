@@ -1536,3 +1536,656 @@ new diagnostic codes. Deviations predicted and honestly open:
 | slice | status | gate log | notes |
 |---|---|---|---|
 | P1-a1 | **CLOSED 2026-11-09** (hop 3) | `build/gate-e54p1a1-reg.log` rc 0 FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 | ZERO oracle; env Array1 + HIR Elem_read/Elem_ref/target + E12/E13/E14; fixtures H01–H09 positive/pins H10–H15 + H05 flip; semtest I1 array-aware + I8/I9/I10 + 3 corrupt modes; T1 `172595d5…` held; RESULTS §P1-a1 |
+
+
+---
+
+## §P1-a2 — Pre-registration: Procedure Arguments and Indirect References (committed BEFORE any `ocaml/hir/` byte)
+
+**Authorized by the operator 2026-11-10** (brief reproduced VERBATIM as §P1-a2.0 below).
+Campaign slice **E2E-54/P1-a2** — the procedure-arguments/addressable-references slice of
+the P1-a family. Type of work: **backend architecture, ZERO oracle calls** (none planned
+or authorized). Starting reference:
+`b716daf057a221ec8b6016c74ed6d6bf80aaccbf` (verified first-hand at hop-1 session start
+and re-verified first-hand each hop: `dune build` rc 0; `pli80c.exe` sha256 `172595d5…`;
+`tools/hir_test.py` rc 0 full panel; ledger 203 `## C` headers ending **C380**;
+`ocaml/lib`+`ocaml/bin` byte-clean). Re-verified FIRST-HAND again at this commit
+(session 01a1bee4, renewal 2/12): build rc 0, exe `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`,
+203 headers ending C380, `git status --porcelain -- ocaml/lib ocaml/bin` EMPTY,
+`ls hir/fixtures | grep -c 'H1[6-9]\|H2[0-9]'` = **0** (ids H16.. FREE, re-confirmed as
+this contract requires).
+
+P0, P1-b and P1-a1 are CLOSED; this slice re-uses their evidence and touches none of it.
+MIR generation, PUT/GET, the BEGIN/DO hang repair, decimal typing and the DR-specific ABI
+are explicitly NOT started or authorized by this slice (brief §9).
+
+### P1-a2.0 Operator brief (verbatim)
+
+> # DRPLi — E2E-54/P1-a2: Procedure Arguments and Indirect References
+>
+> ## Operator authorization
+>
+> The operator authorizes **E2E-54/P1-a2**, a zero-oracle architectural campaign to prepare procedure calls, formal parameters and indirect references for future backends including MIR.
+>
+> Starting reference: `b716daf057a221ec8b6016c74ed6d6bf80aaccbf`.
+>
+> P0, P1-b and P1-a1 are CLOSED. Do not reopen them or modify their historical evidence.
+>
+> ### Objective
+>
+> Establish a semantic distinction between:
+>
+> - An expression evaluated to a value.
+> - An addressable scalar variable.
+> - An addressable array element.
+> - A formal parameter referring to a caller-provided entity.
+> - An actual argument whose passing semantics are not yet established.
+>
+> This distinction must be represented without embedding Intel 8080 addresses, DR-specific descriptors, PLILIB conventions or MIR instructions.
+>
+> The long-term objective is to allow multiple backends to implement PL/I parameter semantics correctly, without duplicating the frontend.
+>
+> ## 1. Recovery and preregistration
+>
+> Read:
+>
+> - `AGENTS.md` and `PROTOCOL.md`
+> - `spec/lab-evidence/e2e54/PLAN.md`
+> - `spec/lab-evidence/e2e54/RESULTS.md`
+> - `docs/architecture/backend-boundary.md`
+> - `ocaml/hir/{semantic_env,hir,hir_build,backend,semtest}.ml`
+>
+> Verify HEAD, guard status, worktree dirt, the historical compiler fingerprint and the existing HIR tests.
+>
+> Write the complete P1-a2 preregistration in `spec/lab-evidence/e2e54/PLAN.md` and commit it before any source changes.
+>
+> No oracle calls are authorized.
+>
+> ## 2. Audit parameter semantics FIRST
+>
+> Inspect the current binder and historical code generator.
+>
+> Identify the actual sources of information about:
+>
+> 1. Formal parameter declarations and types.
+> 2. Procedure signatures and arity.
+> 3. Actual argument syntax and resolved types.
+> 4. Passing by value, reference, descriptor or other mechanisms.
+> 5. Array-element actuals versus whole-array actuals.
+> 6. Aliasing between actual parameters.
+> 7. Modifications to a formal becoming observable by its caller.
+> 8. Evaluation order of actual argument expressions.
+>
+> For every finding classify the evidence as:
+>
+> - Bind-authoritative semantic fact.
+> - PL/I language rule with explicit supporting documentation.
+> - DR implementation-specific behavior backed by existing claims/goldens.
+> - Unmeasured or unknown.
+>
+> Important: a pointer cell or descriptor emitted by DR is evidence about DR's ABI. It is not automatically a portable semantic rule.
+>
+> Read existing claims and goldens selectively where necessary. Do not create new oracle evidence.
+>
+> ### Existing evaluation-order assumption
+>
+> The P0 HIR describes call arguments as evaluated left-to-right.
+>
+> Audit whether the available evidence really establishes this as an execution-order guarantee, rather than merely source order.
+>
+> If not established, record this limitation explicitly and propose a representation distinguishing ordered argument positions from guaranteed evaluation order.
+>
+> Do not silently perpetuate an unsupported execution-order assumption.
+>
+> ## 3. Semantic_env extension
+>
+> Expose the smallest justified formal/actual semantic interface.
+>
+> The interface should distinguish:
+>
+> - Parameter identity.
+> - Declared semantic type.
+> - Procedure ownership and lexical scope.
+> - Parameter position.
+> - Available passing-mode evidence.
+> - Unknown or unsupported passing modes.
+>
+> Retain Bind as the sole authoritative source for its recorded facts.
+>
+> Do not independently derive procedure signatures from AST syntax when Bind provides an authoritative signature.
+>
+> Use AST solely for explicitly identified structural or syntactic facts.
+>
+> The public projection must contain no physical descriptor layout, stack offset or machine address.
+>
+> ## 4. HIR reference model
+>
+> Extend the existing addressability model introduced by P1-a1.
+>
+> Represent a designator separately from reading its value.
+>
+> A scalar variable and an indexed array element should be usable as addressable argument candidates.
+>
+> Avoid adding an unrestricted pointer type with invented dereference semantics.
+>
+> Introduce explicit actual-argument forms or passing requirements only where justified by evidence.
+>
+> The representation must make it impossible for a backend to silently treat an unresolved reference-passing requirement as ordinary by-value passing.
+>
+> A semantically unknown case must remain explicitly unknown or be rejected with a stable diagnostic.
+>
+> Keep the distinction between:
+>
+> - Source-level aliasing and reference semantics.
+> - Physical pointer and descriptor representations selected by a backend.
+>
+> ## 5. Narrow lowering subset
+>
+> Use existing P0 and P1-a1 functionality.
+>
+> Target a small representative set of internal procedure calls involving:
+>
+> - Scalar variable actuals.
+> - Constant or arithmetic-expression actuals.
+> - An array element actual.
+> - Formal parameter reads and writes, where supported.
+> - Two formals receiving potentially aliased actuals.
+>
+> Only admit forms whose semantic passing requirements can be justified.
+>
+> Where evidence is insufficient, create a negative test with a precise diagnostic, rather than inventing behavior.
+>
+> Do not support whole-array actuals, arbitrary pointer dereferences, based structures or external ABI calls merely because their syntax parses.
+>
+> A valid outcome is a small number of supported new constructs plus accurately documented unsupported cases.
+>
+> ## 6. Semantic-authority tests
+>
+> Extend `semtest` to verify the new reference and parameter relationships against the live Semantic_env.
+>
+> Include non-vacuous corruption controls for:
+>
+> - Wrong formal identity.
+> - Wrong actual-reference base.
+> - Wrong argument position or type.
+> - Wrong known passing requirement, if such a requirement is represented.
+>
+> Preserve H01–H15 and their existing expected outputs and diagnostic contracts unless an explicit, evidence-backed adjudication requires a change.
+>
+> Add new positive and negative fixtures with reviewed expected dumps.
+>
+> Check deterministic output and refusal behavior.
+>
+> Do not let tests silently skip reference checks because the selected fixture happens not to exercise them.
+>
+> Use bounded execution: the pre-existing BEGIN/DO discovery hang remains out of scope.
+>
+> ## 7. Historical compiler invariants
+>
+> Mandatory:
+>
+> - `pli80c.exe` SHA-256 remains exactly `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`.
+> - Full compile-tier gate RC 0.
+> - Historical byte-exact panel: 1328/1328.
+> - Negative panel: 190/190.
+> - Divergence panel: 9/9.
+> - Coverage: 149 rows, zero errors and warnings.
+> - Historical census: 16 EXACT, 0 DIFFERS, 25 REFUSED, 3 NO_ORACLE.
+> - Claims ledger remains at C380.
+> - No modification to historical golden objects, inventory, census or coverage.
+>
+> Keep `ocaml/lib/` and `ocaml/bin/` byte-identical.
+>
+> Keep the separate `ocaml/hir/` build isolation that preserves the historical executable fingerprint.
+>
+> Run the existing HIR test suite and full compile-tier gate. Do not launch the external rune-ci runtime/audit tiers for this HIR-only phase.
+>
+> ## 8. Deliverables
+>
+> Produce and commit:
+>
+> - P1-a2 preregistration.
+> - Parameter-passing evidence and unknowns matrix.
+> - Semantic_env extensions.
+> - HIR designator and argument representation, as justified.
+> - Narrow HIR lowering extensions.
+> - Positive and negative fixtures.
+> - Semantic-authority and corruption tests.
+> - Updated `docs/architecture/backend-boundary.md`.
+> - P1-a2 RESULTS and full regression measurements.
+> - A proposed next-step roadmap.
+>
+> Any unsupported or unproven construct must be reported as such, never counted as supported merely because a HIR node exists.
+>
+> ## 9. Scope discipline
+>
+> Do not implement MIR generation.
+>
+> Do not introduce a second binder or type checker.
+>
+> Do not refactor historical Codegen.
+>
+> Do not fix the BEGIN/DO hang incidentally.
+>
+> Do not expand PUT/GET, decimal typing or the DR-specific ABI.
+>
+> Do not modify `GOAL.md` or previous scientific evidence.
+>
+> Never stage `handoff.config.json`, destroy unrelated working state or push.
+>
+> Use explicit-path commits and safe Handoff renewals.
+>
+> At completion, close P1-a2, attest the checkpoint and STOP. The successor phase requires a separate operator decision.
+>
+> ### Success criterion
+>
+> The HIR can accurately distinguish procedure argument values from addressable references, and can represent or explicitly refuse the parameter semantics required by future code generators.
+>
+> Every accepted semantic fact has identifiable provenance. Every unknown remains visible.
+>
+> Historical byte-exact compilation is unchanged.
+>
+> **Operator authorization: E2E-54/P1-a2 is approved. Preregister and proceed.**
+
+(Verbatim law: the block above is the operator brief EXACTLY as recovered from the parent
+transcript `01a1beba-124f-74ee-84fe-84e837f466b2` into the ignored file
+`build/p1a2-brief-recovered.md` (224 lines, sha256
+`58fb3e4f0f3acb6ffa0ac8bb4fa8fdf6aa8a69056667ad4ad4462b27881a6ecd`), every line prefixed
+with the markdown blockquote marker `> ` and NOTHING else — headings un-demoted, blank
+lines carried as bare `>`. The embedding was machine-verified line-by-line: stripping the
+`> ` prefix from the embedded block reproduces the source file byte-for-byte
+(`cmp` rc 0, 224/224 lines). The P1-a1 tooling law applies: a blockquote must prefix
+EVERY line, verified against the source, never transformed-and-trusted.)
+
+### P1-a2.1 Parameter-semantics evidence and unknowns matrix (brief §2 audit, CLOSED)
+
+Audit method (hops 1–2, sessions 01a1beba/01a1beca): all six `ocaml/hir/` units read in
+full; the binder authorities read first-hand at `ocaml/lib/bind.ml` — `call_site`
+(`:1650-1669`), `proc_layout.pl_ptrs` (`:1952`, built `List.mapi (fun i f -> (f, base +
+2*i)) formals` at `:2557`), the passing-mechanism decision tree `section2`
+(`:~2370-2545`), the call-site collector `pl_stmt_calls` (`:2052+`); claim bodies read:
+**C093** (`spec/CLAIMS.md:859`; the predecessor hop quoted `:855` — the heading is
+measured at `:859`, the four-line slip recorded, content unchanged), **C130** (`:2036`),
+**C358** (`:8480`) as `## C` ledger headers, and **C145** (`:2668`, §E2E-14 header
+`:2665`), **C167** (`:3196`), **C172** (`:3369`), **C173** (`:3391`), **C175** (`:3415`)
+as inline `Cnnn.` paragraphs under `## E2E-nn` phase headers — quoting them never moves
+the 203-header ledger count. Evidence classes are the brief §2 four-way classification.
+
+**STANDING LAW (all rows, verified first-hand):** every `cs_slot`, `cs_temps`,
+`cs_copies` and `pl_ptrs` integer is a **PHYSICAL DATA address, pool-exclusive**
+(`bind.ml:1650-1669`; the `cur` allocation fold at `section2`). It is evidence about
+**DR's ABI**, never a portable semantic rule (brief §2 warning). **No such integer ever
+crosses the HIR seam**: the `Semantic_env` projection converts every cell fact to a
+SYMBOLIC classification at its first touch (the same first-touch drop law as the P1-a1
+element width, §P1-a1.4), and falsifier T6 below greps for it. The `cs_args` lists are
+physical AST node identities — the env may use node IDENTITY for matching and SYNTAX for
+classification, and exports nothing but names, positions and symbolic modes.
+
+| # | Question (brief §2) | Finding | Class | Anchor |
+|---|---|---|---|---|
+| 1 | Formal parameter declarations and types | Bind lays one 2-byte pointer cell per formal in **bind's own formal order** (`pl_ptrs` keys, `List.mapi` at `bind.ml:2557`); the ORDER is semantic (position i of the signature), the ADDRESS is physical and dropped. A formal WITH an explicit `dcl` row carries its declared type as a bind row in the callee block (fact A-1 re-applies: an array-named formal SHARES the element-type row — hence the `cs_dec` array-formal exclusion). A formal WITHOUT a row gets none: P0 already refuses (`HIR-E03` wording, pinned by H07). | [bind-fact] | `bind.ml:1952`, `:2557`, `:2411-2433`; `semantic_env.ml` `proc_sig.sptrs/sptr_count`; §P1-b.2 Bind-flat-registry law |
+| 2 | Procedure signatures and arity | Arity is `sptr_count` (the `pl_ptrs` cell count), returns is `pl_ret`/`sret_pr`, recursion is `pl_rec`/`pl_attr_rec`; external entries live in the separate `pl_exts` channel (params count, ret, ptypes). No HIR-side signature may ever be re-derived from AST syntax where bind provides the record (brief §3). | [bind-fact] | `bind.ml:1952-1974`; `semantic_env.ml` `sig_of_pl`, `entry_sig`; semtest I4/I5 (live) |
+| 3 | Actual argument syntax and resolved types | Bind records every call site's argument EXPRESSIONS in source order as `cs_args : Ast.expr list` (physical nodes of the same parsed tree; collector `pl_stmt_calls`, statement calls included). Bind records NOTHING about whether an actual's type matches the formal: no claim, golden or probe measures a DR actual/formal type-compatibility rule. | [bind-fact] (syntax, order) / **[unmeasured]** (type compatibility) | `bind.ml:1651`, `:2052-2135`, `:2541`; §P1-a1 fact A-4 (binder blind to index expressions) generalizes |
+| 4 | Passing by value, reference, descriptor or other | The CALLER allocates one 2-byte pointer cell per argument, contiguously, contents = link-time address constants, emission interleaved per argument; ONE `LXI H,*A(slot)`+CALL for the block; arity-1 peeled deref vs arity≥2 block copy. In bind's own record: `cs_temps i = Some` **iff** arg i is an expression needing a value cell — bare names, `Enumber` and array-ELEMENT actuals get NONE (`:2448-2457` comment: "getting this wrong would add a DATA byte AND shift every later anonymous-cell number"); DEC expression actuals size at the FORMAL width (`cs_dec`, [E2E-52/P3-13]); DEC widening copy-in temps (`cs_copies`, [C358]) EXCLUDE caller-formal names (E27B forwarding), STATIC rows, array heads and recursive/RECURSIVE callees. | [DR-ABI-backed] (the descriptor/cell machinery) + [bind-fact] (the per-position records are bind's) | [C093] `CLAIMS.md:859-887`; [C145] `:2668` (two-phase numbering); [C358] `:8480`; `bind.ml` `section2` `:2376-2545` |
+| 5 | Array-element vs whole-array actuals | **There is NO array calling convention**: an element actual rides the ordinary pointer-formal descriptor (constant index `LXI H,<a+off>;SHLD`; runtime index the ladder then `SHLD`), bind allocates it NO value cell, and the EA2 RUNTIME witness proves the callee mutated the ORIGINAL cells through both index forms. A WHOLE array as an actual is UNMEASURED (no claim, no golden) — and C175's "no array calling convention" is exactly why inventing one is forbidden: refused BY NAME on the new code E15. | [DR-ABI-backed] (element) / **[unmeasured]** (whole array) | [C175] `CLAIMS.md:3415-3433` (AB7, PASSARAY, EA2 runtime); `bind.ml:2389-2401` (`is_arr_hd`) |
+| 6 | Aliasing between actual parameters | Two actuals naming the same variable (or the same array) receive descriptor cells whose contents address the SAME caller cell — the descriptor law of [C093] makes this the only coherent reading, but NO experiment runs a program whose callee mutates through two aliased actuals: multi-actual aliasing is **[unmeasured]**. The HIR therefore makes aliasing VISIBLE (two designators with the same sid/base) and asserts NOTHING about it; the subset admits aliased pairs because reference semantics [C093] is per-argument and copying would contradict it — recorded as a representation choice pending measurement. | [DR-ABI-backed] per-argument reference; **[unmeasured]** aliased-pair runtime | [C093] `:880+`; [C130] `:2036` (E28C: mutation reaches the original cell TWO levels up) |
+| 7 | Formal modifications visible to the caller | **Formals are passed BY REFERENCE, so writing a formal writes the caller's variable** — [R2011 runtime: `mid` received `a` and 3 became 5]; E28C repeats it through a FORWARDING formal (prints 3, not 2). The old codegen still refuses formal stores (`store to pointer formal unproven`, negative N55) — that is the HISTORICAL backend's caution, not a language or HIR rule; the HIR records the reference requirement and lets a backend decide. | [DR-ABI-backed] | [C093] `CLAIMS.md:880-887`; [C130] `:2036-2065` |
+| 8 | Evaluation order of actual argument expressions | ADJUDICATED in §P1-a2.2: DR's EMISSION order per [C093] (interleaved, source order) backs the dump wording; E28B pins argument POSITIONS semantically (a swap prints 35, the linked program prints 53). Language-level order of EVALUATION remains **[unmeasured] [TBD]**. | [DR-ABI-backed] (emission) / [unmeasured] (language) | [C093] `:876-880`; [C130] E28B semantic witness `:2036+` |
+
+Gap rows honest-by-construction (brief §2 "Unmeasured or unknown" is a real category):
+actual/formal TYPE compatibility (row 3), whole-array actuals and multi-actual aliasing
+runtime (rows 5, 6), language evaluation order (row 8), and the BY-NAME default semantics
+of PL/I actuals (DR implements address passing; the language rule itself is not
+documented-support by any manual read in this campaign → **[unmeasured]**, never cited).
+
+### P1-a2.2 The ORDERED-vs-EVALUATION-ORDER adjudication (brief §2, DECIDED not deferred)
+
+Reproduced from `LEARNINGS.md` § "E2E-54/P1-a2 hop 2" and the `PROGRESS.md` hop-2
+heading, which are the accepted records:
+
+> **ADJUDICATION (brief §2 "existing evaluation-order assumption") — DECIDED, not
+> deferred:** the dump wording `args left-to-right` is NOT an unsupported claim needing
+> retraction — it is DR-ABI-backed for the measured shapes by [C093] (interleaved
+> per-argument materialisation, source order). But it is an *emission*-order fact about
+> DR's ABI, not a portable PL/I execution-order guarantee, and PL/I language
+> order-of-evaluation of actuals remains **[unmeasured]/[TBD]**. DECISION: KEEP the
+> wording (H01–H15 bytes stay frozen — NO named drift needed) and document in
+> `PLAN.md` §P1-a2 + the `hir.ml` header that the ordered `arg N` list is a
+> REPRESENTATION ordering (source/positional order = bind's own `cs_args` order) whose
+> only backed execution-order evidence is [C093] for internal fixed-type calls, with
+> DEC/array/external shapes unmeasured.
+
+Consequences fixed by this slice: the `hir.ml` header gains exactly that documentation;
+no dump byte changes; `Hir` keeps argument POSITIONS (`arg N` = bind formal position,
+per [C093]'s per-argument law), never claiming an evaluation ORDER beyond the cited
+emission evidence. The brief's alternative ("propose a representation distinguishing
+ordered argument positions from guaranteed evaluation order") is satisfied by the type
+itself: an ordered list of positions, each carrying a passing REQUIREMENT, no node
+claiming order-of-evaluation.
+
+### P1-a2.3 `Semantic_env` parameter-API amendment (brief §3)
+
+Additions ONLY; nothing existing changes shape (P1-a1 precedent: append and document).
+
+1. **Passing-mode evidence (symbolic, offsets dropped at first touch):**
+
+   ```ocaml
+   type passing_mode =
+     | PM_value_cell    (** bind allocated an anonymous value cell (cs_temps Some) [C145] **)
+     | PM_own_cell      (** no cell: a bare name or array-ELEMENT actual designates its own storage **)
+     | PM_immediate     (** Enumber actual: bind allocates no cell; DR materialises a descriptor constant [C093] **)
+     | PM_copy_in       (** cs_copies Some: DEC widening copy-in temp [C358]; outside the lowering subset, refused by rule **)
+     | PM_unknown       (** typed unknown: bind's record and the argument syntax disagree — never silently lowered **)
+   ```
+
+   `t` gains a private projected-site table built ONCE in `create` from
+   `plan.Bind.pl_calls`: `{ cs_proc; cs_args }` kept VERBATIM (names and physical node
+   identities), while `cs_temps`/`cs_copies` are projected to `bool list` (Some→true)
+   and `cs_dec` is carried as-is; `cs_slot` is DROPPED at first touch — no integer ever
+   enters the env record (T6 grep below pins the readers).
+
+2. **Lookup:** `call_evidence : t -> caller_scope:int -> callee_key:string ->
+   Ast.expr list -> call_evidence option`. Matching law: the first recorded site (bind
+   DFS order) whose `cs_proc` equals the lowered callee key and whose `cs_args` are
+   PHYSICALLY (`==`) the same `Ast.expr` nodes being lowered. Determinism: `cs_args`
+   nodes are the very nodes of the parsed block handed to `Hir_build.build` (verified
+   first-hand: the collector walks the AST; `bind_program` is re-run on the SAME tree),
+   so identity is stable across the two bind reads in a process; two zero-arity sites to
+   the same callee are indistinguishable but carry EMPTY evidence lists, so first-match
+   is provably harmless. Per position `i`, the mode is computed by bind's OWN
+   discriminators, never re-derived: `copies[i]` ⇒ `PM_copy_in`; else `temps[i]` ⇒
+   `PM_value_cell`; else the argument SYNTAX (an [O]-class organization, like the Formal
+   flag): `Eident` ⇒ `PM_own_cell`, `Enumber` ⇒ `PM_immediate`, a 1-subscript `Esuffix`
+   on a name whose env symbol carries `e_array = Some` ⇒ `PM_own_cell`; anything else —
+   including `temps[i] = true` on a bare name/`Enumber`/element (an internal
+   inconsistency) — ⇒ `PM_unknown`. `None` (no recorded site) is a typed absence: the
+   LOWERING refuses loudly (E16), never assumes a mode.
+
+3. **Formal descriptions (identity, position, type, ownership):** `proc_sig` gains
+   `sformals : formal_desc list`, computed in `register_block` from bind's own views:
+
+   ```ocaml
+   type formal_desc = {
+     f_pos   : int;            (** 0-based, bind pl_ptrs order **)
+     f_key   : string;         (** lowered formal name (bind fact) **)
+     f_sid   : int option;     (** env symbol in the CALLEE's own scope; None = bind laid no row **)
+     f_stype : stype option;   (** declared row type; None exactly when f_sid is None **)
+     f_scope : int;            (** owning (callee) scope — ownership and lexical scope, brief §3 **)
+   }
+   ```
+
+   Resolution is the callee block's OWN `esyms` association (never `resolve` up the
+   chain: a formal that shadows an outer name is the [C358] shape — the callee's row
+   wins). `f_sid` is the same sid the env assigned to that row (§P1-b identity contract
+   unchanged). Accessor `formals_of : t -> int -> formal_desc list option` (None = no
+   bind signature; typed `Not_found` for an out-of-range pid, as §P1-b.2).
+
+4. The public interface still references NO `Hir` type (S8), exports no integer that is
+   not an identity/position/line (S8/T6), and Bind remains the sole authority (S5).
+
+### P1-a2.4 HIR designator and argument representation (brief §4)
+
+P1-a1 introduced designation for assignment targets (`target = T_var | T_elem`). P1-a2
+generalizes the SAME notion — a designator is a location designation whether it is an
+assignment target or an argument reference — and keeps it distinct from value expressions:
+
+```ocaml
+type designator =
+  | D_var of { sid : int }
+  | D_elem of { base : int; subs : expr list }   (** exactly one subscript (subset gate) **)
+
+type target = designator      (** Assign.target keeps its name; T_var/T_elem RENAME to D_var/D_elem **)
+
+type actual_form =
+  | A_value of expr
+      (** by-value requirement: the callee receives a value; the caller's storage is NOT
+          addressable through it. The expression is never itself a bare-name read on this
+          path: the classifier routes every bare name/element actual to A_reference. **)
+  | A_reference of designator
+      (** reference requirement: the callee can read AND write the designated caller cell
+          [C093 R2011; C130 E28C; C175 EA2]. Constructed ONLY by the classifier from a
+          bare name or an element designation — never from an expression. **)
+
+type actual = { af : actual_form; ac_ty : ty; ac_ef : ef_kind; ac_line : int }
+```
+
+`Call_e.args` and `Call_s.args` become `actual list`. The representation law the brief
+demands ("impossible for a backend to silently treat an unresolved reference-passing
+requirement as ordinary by-value passing") holds BY CONSTRUCTION: the two requirements
+are different constructors; there is no bool, no default, and no `A_value` ever built
+from a bare name or element designator (the lowering and semtest I11/I12 both police it).
+An unclassified case is NEVER representable — lowering refuses (E15/E16/E17) instead of
+inventing a node. No unrestricted pointer type and NO invented dereference is added:
+`Ptrty` stays as P0 had it, and no HIR node dereferences anything.
+
+**Dump rendering (T2 law — H01–H15 bytes FROZEN):** the call lines keep their exact
+current text (`call proc(N) ... [args left-to-right]`, adjudication §P1-a2.2), the
+`arg i` label lines stay, and a nested argument prints at `indent + 2` (the P0 hop-4
+indent law). `A_value e` prints `dump_expr e` — byte-identical to today (H04's
+`const 2 : ... [pure, line 3]`). `A_reference (D_var {sid})` prints exactly the line the
+old `Var` node printed: `var sym(%d) : %s  [%s, line %d]` with `ac_ef` (pure) — H03's
+arg 0 byte-for-byte. `A_reference (D_elem ...)` prints
+`elem_ref %s : %s  [%s, line %d]` (designator rendering via the shared
+`dump_designator`, the old `dump_target` generalized; the assign-target bytes are the
+same lines, so H08/H09/T_elem pins are untouched — the rename changes NO bytes). No new
+dump line ever carries a size, count or address (F4/T6).
+
+`hir.ml` header gains: the §P1-a2.2 adjudication paragraph (ordered representation,
+[C093]-backed emission, language order [TBD]) and the P1-a2 representation notes above.
+
+### P1-a2.5 Narrow lowering subset (brief §5) and BY-NAME refusals
+
+Internal, non-recursive callees only (existing E07 recursion refusal UNCHANGED); arity
+from bind `sptr_count` (existing E07 wording unchanged). Argument positions lower through
+the env evidence (§P1-a2.3) with this decision list — every admitted form traces to a
+matrix row:
+
+- **bare caller variable** (auto/static OR formal — a formal forwarded onward is [C130],
+  the E27B route bind itself licenses by suppressing the copy-in) with `PM_own_cell`,
+  env symbol projected and NOT an array ⇒ `A_reference (D_var sid)`; the read-only flag
+  mirrors the existing Var lowering (`addressable = true` semantics, designators ARE
+  locations);
+- **array element actual** (1-subscript `Esuffix` on an `e_array` name) with
+  `PM_own_cell` ⇒ `A_reference (D_elem ...)` — subscript lowered through the EXISTING
+  `lower_index` (constant in-bounds rule, E12/E14 wording unchanged) [C175];
+- **constant / arithmetic / nested-call expression actual** with `PM_immediate` (literal)
+  or `PM_value_cell` (any other expression, incl. a nested call — the [C145] `D3` shape)
+  ⇒ `A_value (lower_arith expr)` — the EXISTING expression gate unchanged inside;
+- **type discipline:** every actual must have the callee's declared formal type EXACTLY
+  (`f_stype` through the P0 gate, image `ac_ty = formals type`): any mismatch refuses
+  with the NEW code **E17** naming both types and marking DR's conversion behaviour
+  **[TBD]** — row 3 of the matrix says NO evidence licenses a silent conversion, so none
+  is invented (H03/H04 are type-equal; their bytes do not move);
+- **statement-position calls WITH arguments** (`call p(x);` — the parser's Esuffix
+  target) now lower to `Call_s` (today they die on the pre-existing E04 wording "only
+  direct procedure calls are lowered in P0" — this is the INTENDED new coverage, brief
+  §5; no fixture pins that text, recorded as an honest behaviour change); the zero-arg
+  `call q;` / `q;` path keeps its EXACT current route and bytes.
+
+New codes (appended; existing codes keep their meaning — T10):
+
+- **HIR-E15 `e_arg_whole_array`** — whole-array actual: `call p(a);` where `a` projects
+  `Array1`. BY NAME, element designators only, [C175] "no array calling convention" +
+  row 5 unmeasured. (Behaviour change, recorded: TODAY that input dies on E13
+  `whole-array use of a is outside the P1-a1 subset (element references only)` from the
+  value path; P1-a2's argument classifier owns argument position, E13 keeps its P1-a1
+  meaning for value/target positions. NO existing fixture passes an array as an actual —
+  H19 measures the new pin; the E13 wording itself is untouched and still pinned by H13.)
+- **HIR-E16 `e_arg_evidence`** — typed-unknown passing evidence: no recorded bind site
+  matches the call node, or a position classifies `PM_unknown`, or an admitted shape is
+  contradicted by bind's record. UNREACHABLE by construction if bind's collector is
+  exhaustive (it claims to be — the [E2E-11/CALL] full-coverage note); documented as an
+  UNEXERCISED defensive witness exactly like the P0 `dup_free` and P1-a1 §P1-a1.5(e)
+  guards — never fitted, never silently accepted.
+- **HIR-E17 `e_arg_type`** — actual/formal declared-type mismatch at an argument
+  position, naming both sides and quoting the [TBD].
+
+Refusal order INSIDE `lower_call` is frozen as today: callee lookup → arity check →
+argument lowering (this is where E15/E16/E17 fire) → recursion check → RETURNS gate.
+BASED / POINTER-typed actuals, qualified names (`a.b`, `a->b`) and built-ins never reach
+the classifier: their declared types die at `project_syms` (E02, unchanged) or at
+`lower_expr`'s existing E04/E06 wording; a call to an EXTERNAL entry dies today on the
+pre-existing E06 "no bind-registered procedure" wording (the registry admits only
+`pl_procs`/`pl_top`) — recorded honestly as an EXISTING named refusal, NOT a new code;
+this slice adds no reachability there.
+
+### P1-a2.6 Semantic-authority tests (brief §6): invariants I11–I13 + corrupt controls
+
+A NEW collection pass `collect_calls : Hir.program -> call_site_item list` walks bodies
+and returns, per call, the OWNING proc, callee pid and the `actual list` itself — the
+walked REFERENCE ITEMS (`R_var`/`R_call`/`R_elem`) and their counts DO NOT CHANGE (an
+`A_reference` designator still contributes exactly the item its old expression node
+contributed), so every existing `SEMANTIC-AUTHORITY OK n/m` line keeps its measured
+numbers. All three new invariants judge the LIVE env (and through it bind), never dump
+text (S6 law), and each is driven by a SHARED comparison function also used by its
+corrupt control (non-vacuity law, §P1-a1.7).
+
+- **I11 designator soundness:** every argument `A_reference`: `D_var sid` resolves — via
+  `SE.symbol` AND via `SE.resolve` from the CALLER's scope back to that same sid
+  (shadowing-aware, the I2 comparison function reused verbatim) — and its env symbol has
+  `e_array = None` (a whole array can never be a designator); `D_elem base subs` runs the
+  EXISTING `elem_ref_mismatch` (the I8 function) with the owning caller proc.
+- **I12 passing-evidence alignment:** for every collected call, `SE.call_evidence` from
+  the CALLER's scope answers `Some ce`; `List.length ce.ce_args = nargs = arity
+  (sptr_count)`; and per position: `A_reference` ⇒ `PM_own_cell`;
+  `A_value (Const _)` ⇒ `PM_immediate`; any other `A_value` ⇒ `PM_value_cell`;
+  `PM_copy_in`/`PM_unknown` can never back an admitted HIR node. Shared comparison
+  `arg_evidence_mismatch env caller_pid callee_key args : string option`.
+- **I13 formal-API alignment:** for every HIR proc, `SE.formals_of pid` answers `Some`
+  with `f_pos = i` in order, `f_key` = the `sptrs` entry, `f_sid = Some params[i]`
+  (P0's explicit-dcl gate already refuses `None`), and `f_stype` = the env row behind
+  that sid — the formal ORDER contract (matrix row 1/2) checked against bind, not AST.
+
+Corrupt controls (each perturbs ONE input, re-runs THE SAME comparison, and must see it
+REJECT; each prints `nothing was proven` LOUDLY (rc 1) when the fixture has nothing of
+that kind):
+- `--corrupt-formal` — swap two `f_sid`s (or shift one by +1000) before the I13
+  comparison (wrong formal IDENTITY);
+- `--corrupt-actual-base` — repoint one argument designator's sid at a different
+  projected symbol before the I11 comparison (wrong ACTUAL base);
+- `--corrupt-arg-position` — drop one `ce_args` position (arity disagreement) or replace
+  one mode by a different position's before the I12 comparison (wrong argument
+  POSITION-or-TYPE);
+- `--corrupt-mode` — flip one `PM_own_cell` to `PM_value_cell` (or vice versa) before
+  the I12 comparison (wrong PASSING REQUIREMENT).
+
+Output contract unchanged: live rc 0 exactly one `SEMANTIC-AUTHORITY OK` line, empty
+stderr; every control rc 1, ZERO stdout, all-`SEM-FAIL:` stderr (S6/T7).
+
+### P1-a2.7 Fixture plan (MEASURED pins — expected files are copies of reviewed actual output, never hand-written)
+
+Ids verified UNUSED first-hand TWICE (hop 2 at `71ee96d0`, this hop before writing):
+`ls hir/fixtures | grep -c 'H1[6-9]\|H2[0-9]'` = 0. All fixtures CRLF line endings +
+`^Z` terminator (P0 law: bare LF shifts every line), **ONE dcl item per statement**
+(the standing convention), every fixture run under `timeout 60`.
+
+- **H16 (positive):** statement-position call WITH arguments — `call bump(x, y + 1);` —
+  callee formal READ and formal WRITE in the body (row 7 shapes; the write is legal in
+  HIR representation, its runtime visibility [C093]-backed). Exercises `Call_s` with
+  `A_reference` + `A_value(PM_value_cell)`.
+- **H17 (positive):** array-element actuals `call bump(a(2), i);` (constant index) and
+  an ALIASED pair `call bump(x, x);` (row 6, representation-visible aliasing).
+- **H18 (positive):** forwarding chain `call outer(x); outer: procedure(y); call inner(y);`
+  ([C130] E27B/E28C shape, two levels; inner writes y — the HIR records both reference
+  requirements).
+- **H19 (negative, ONE refusal):** whole-array actual `call bump(a);` ⇒ E15 pin.
+- **H20 (negative, ONE refusal):** precision-mismatched actual `dcl v fixed bin(7);
+  call bump(v);` (formal bin(15)) ⇒ E17 pin.
+- **H21 (positive):** nested call actual `y = dbl(dbl(2));` — the [C145] two-phase value
+  cell shape in HIR representation (`A_value (Call_e ...)`), arity/RETURNS gates
+  unchanged.
+
+`E16` gets NO fixture by design: it is a defensive witness (see §P1-a2.5); if any probe
+makes it fire, that is a falsifier STOP, not a fixture. Predictions for review BEFORE
+pinning (falsify, never fit): H16's dump is the existing `call proc(N)  [line L; args
+left-to-right]` line + `arg 0`/`arg 1` labels + designator/value lines as §P1-a2.4
+specifies; no existing expected byte moves; the OK-line counts for H01–H09 stay exactly
+as recorded at §P1-a1 close.
+
+### P1-a2.8 Falsification criteria (each a STOP-and-fix gate, modelled on §P1-a1.8)
+
+- **T1** `pli80c.exe` sha256 stays `172595d5…` after EVERY build step, checked DIRECT
+  (dune logs never print the sha — tooling law). Moved = STOP and attribute first-hand.
+- **T2** `git diff --exit-code -- hir/expected` CLEAN at every step: H01–H15 bytes and
+  the superseded archive are FROZEN; the §P1-a2.2 adjudication is explicitly a
+  keep-bytes decision; `hir/expected/superseded/` is never rewritten.
+- **T3** FULL `python3 tools/e2e_gate.py` rc 0 with FROZEN counts **1328/1328, 190/190,
+  9/9, coverage 149 rows 0/0, census 16/0/25/0, prose 5** →
+  `build/gate-e54p1a2-reg.log`; ANY move = STOP, record VERBATIM, never force. Fresh
+  `--build-dir _build-e54p1a2` rc 0 with ZERO `Error` (hist ≈122); the fresh-dir exe sha
+  is checked against the KEPT exe (fresh-dir logs record rc+headers only).
+- **T4** `ocaml/lib/`, `ocaml/bin/`, `golden/`, `spec/CLAIMS.md`, `spec/INVENTORY.txt`,
+  coverage ledgers byte-clean vs HEAD; ledger stays **C380** (203 headers); NO new claim,
+  NO coverage/inventory/golden touch; ZERO oracle in the whole slice.
+- **T5** Bind seam: `hir_build.ml` (comment strip) mentions `Bind` ONLY at the EXACTLY
+  two pinned lines (F10; today `:41` alias + `:557` `bind_program` — the pinned LINE
+  CONTENTS, which edits may shift). NEW this slice: `pl_calls`, `cs_temps`, `cs_copies`,
+  `cs_dec` and `bind_arrays` occur ONLY inside `semantic_env.ml` (projection) and
+  `semtest.ml` (intentional authority reader) — RAW grep, comments included; `cs_slot`
+  appears ONLY in `bind.ml` (no reader at all — its int is dropped unread).
+- **T6** vocabulary: after the comment strip, `semantic_env.ml` and `hir.ml` contain NO
+  `stride|offset|bytes|esz|size|reloc|pool|0x` match (existing grep) — and NO integer
+  physicality enters the env record: the site projection carries booleans, names, AST
+  node identities and positions ONLY (structural, reviewed line-by-line at commit).
+- **T7** non-vacuity: live + ALL SEVEN corrupt modes (three existing + four new) run on
+  EVERY positive fixture; each control rc 1, ZERO stdout, all-`SEM-FAIL` stderr; a
+  fixture with nothing to perturb says `nothing was proven` LOUDLY.
+- **T8** determinism: every fixture and every semtest invocation runs TWICE in fresh
+  processes, byte-identical (rc, stdout, stderr) — the existing runner law.
+- **T9** bounded execution: every fixture under `timeout 60`; the pre-existing BEGIN/DO
+  discovery hang stays DOCUMENTED, never fixed here (brief §9).
+- **T10** diagnostic stability: every code/wording for EXISTING paths byte-identical —
+  H06/H07/H10–H15 pins unchanged, E13 keeps its P1-a1 value/target meaning; the NEW
+  refusals get NEW stable codes E15/E16/E17 documented in `diagnostic.ml`; the ONLY
+  sanctioned behaviour changes are the §P1-a2.5 statement-call-with-arguments acceptance
+  and the whole-array-actual E13→E15 handover, each recorded here BEFORE any code byte.
+
+### P1-a2.9 Work order (exact order — the successor contract)
+
+1. (this commit) §P1-a2 pre-registration committed BY EXPLICIT PATHS (`PLAN.md` only),
+   BEFORE any `ocaml/hir/` byte (PROTOCOL #1).
+2. `ocaml/hir/semantic_env.ml` (§P1-a2.3) → `dune build` rc 0 → T1 DIRECT →
+   `tools/hir_test.py` rc 0 (all existing green) → commit.
+3. `ocaml/hir/hir.ml` + `ocaml/hir/hir_build.ml` + `ocaml/hir/diagnostic.ml`
+   (§P1-a2.4/.5 — ONE commit: the `args : actual list` change breaks its consumers, the
+   P1-a1 hop-3 law) → build rc 0 → T1 → hir_test rc 0 (H01–H15 ALL green, T2 clean).
+4. Fixtures H16..H21 (§P1-a2.7): MEASURE outputs under `timeout 60`, review every dump
+   line against §P1-a2.4 BEFORE pinning, expected files copied from measured output;
+   hir_test rc 0 with the new fixtures picked up by the glob; commit.
+5. `ocaml/hir/semtest.ml` (I11–I13 + four new corrupt modes) + `tools/hir_test.py`
+   (new modes in `SEM_MODES`, the extended T5 grep list) → FULL `timeout 600
+   python3 tools/hir_test.py` rc 0 → commit.
+6. FULL gate rc 0 → `build/gate-e54p1a2-reg.log` (T3); fresh `dune build --build-dir
+   _build-e54p1a2` rc 0 ZERO `Error` + kept-exe sha check.
+7. CLOSE: `RESULTS.md` §P1-a2 (T1–T10 panel WITH measured values; every deviation
+   recorded VERBATIM, never fitted — incl. whatever the measured fixtures actually say),
+   `docs/architecture/backend-boundary.md` §7-3 (parameter/argument projection), PLAN
+   dashboard row P1-a2 **CLOSED**, proposed next roadmap as **PROPOSED ONLY**; durables +
+   guard checkpoint.
+8. **STOP — close P1-a2 only. No MIR, no PUT/GET, no BEGIN repair, no further slice
+   without a separate operator decision.**
+
+### P1-a2.10 Expected outcomes (pre-registered, falsified-not-forced)
+
+Frozen numbers stay frozen (T1/T3/T4). H01–H15 byte-stable through every step (T2/T10).
+Six new fixtures (four positives, two negative pins), three new invariants, four new
+corrupt controls, three new diagnostic codes, one env API amendment, one HIR type
+amendment. Honestly open, predicted drift surfaces:
+- the OCaml record-field evaluation-order law (§P1-b hop 2 measurement): every fixture
+  carries exactly ONE refusal path, so a multi-refusal reorder should NOT appear; if it
+  does, record VERBATIM;
+- whether bind's site records really share PHYSICAL nodes with the CLI's tree (§P1-a2.3
+  matching law) is ASSERTED from reading the collector but MEASURED only when H16 goes
+  green — an E16 refusal on H16 is the falsifier for this assumption, and then identity
+  matching is re-audited (never replaced by a positional guess);
+- the alias-pair and nested-call shapes are [C093]/[C145]-adjacent but individually
+  UNMEASURED at runtime; the fixtures pin HIR REPRESENTATION only — RESULTS §P1-a2 must
+  say so next to each number;
+- `nothing was proven` will fire on several positives for the new corrupt modes (H01–H02
+  have no calls at all) — expected, loud, rc 1; not a failure.
+
+### P1-a2.11 Dashboard update
+
+| slice | status | gate log | notes |
+|---|---|---|---|
+| P1-a2 | OPEN (pre-registered this commit) | owed: `build/gate-e54p1a2-reg.log` | ZERO oracle; env passing-mode/formal API; HIR `actual`/`designator`; E15/E16/E17; fixtures H16–H21; semtest I11–I13 + 4 corrupt controls; T1 `172595d5…` must hold |
