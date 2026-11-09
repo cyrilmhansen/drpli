@@ -9963,3 +9963,66 @@ compare, never transform-and-trust.
 **NEXT (BINDING):** PROGRESS hop-2 heading steps 1–6 — review tail of §P1-a1, COMMIT PLAN+LEARNINGS
 BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE (PROTOCOL #1), then implement semantic_env → hir →
 hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → STOP.
+
+## E2E-54/P1-a1 hop 3 (2026-11-09, session 01a1bd86, renewal 2/12; ZERO oracle)
+**Baseline trio re-verified FIRST-HAND at HEAD `55a357e5`** (ACCEPTED): `dune build` rc 0,
+`pli80c.exe` = `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`,
+`timeout 600 python3 tools/hir_test.py` rc 0 (H01–H07 + semtest live/corrupt, F4/F7/F8/F9/F10/S8).
+
+* **LANDED + COMMITTED `3c4a2a25` (step 2, §P1-a1.4)** — ACCEPTED: `semantic_env.ml` array
+  projection (`stype SArray1`, `array1{a_elem;a_lo;a_hi}`, `symbol.e_array`, `arrays_of`
+  drops bind's 4th record component at first touch, `guard_arrays` split-channel refusals on
+  `HIR-E14`, `pp_stype … ARRAY[lo:hi]`); sid/scope/pid assignment untouched; verified
+  build rc 0 + T1 held + hir_test rc 0 + `git diff --exit-code hir/expected` CLEAN.
+  `diagnostic.ml` gained the appended codes `e_index=HIR-E12`, `e_whole_array=HIR-E13`,
+  `e_dims=HIR-E14` (deviation recorded: §P1-a1.9 puts diagnostic.ml in step 4, but the env
+  guard needs `e_dims` in step 2).
+* **UNCOMMITTED, BUILD CURRENTLY RED — the tree does NOT compile** (this is the hop-3
+  residual; the successor finishes step 4): `ocaml/hir/hir.ml` (§P1-a1.3, DONE on disk:
+  `ty Array1`, recursive `pp_ty` with `… ARRAY[lo:hi]`, `expr_kind Elem_read/Elem_ref`,
+  `type target = T_var{sid} | T_elem{base;subs}`, `Assign.target : target`, dump helpers
+  `pp_elem_base`/`pp_sym_ty`/`dump_target`, every dump helper threaded with `syms`,
+  `dump` passes `p.syms`) and `ocaml/hir/semtest.ml` (walk extended: `R_elem{base;write}`,
+  `walk_target`, I2 arm ignores `R_elem`).
+* **MEASURED LAW (ACCEPTED, T2-critical):** in every existing expected dump the assignment
+  TARGET line equals the statement line (`assign [line 5]` → `var sym(0) … line 5`), so
+  rendering a `T_var`/`T_elem` target at `s.st_line` reproduces H01–H04 bytes exactly; that
+  is why `target` carries no line field.
+* **FALSIFIED (recorded, never fitted):** §P1-a1.6 predicts "Convert on assign" for H08 —
+  `a(i) = t + 1` with all types `bin(15,0)` (result precision 16 CLAMPED to 15) is
+  type-EQUAL, so H08 gets NO Convert node; the Convert witness is H09 (`const 3`, profile
+  default bin(15,0), into a `bin(8)` element).
+* **WORK-ORDER NUANCE (accepted design):** hir.ml's `target` change BREAKS its consumers, so
+  steps 3+4 must land in ONE commit to keep every commit buildable (contract asks per-step
+  commits; record in RESULTS).
+
+## E2E-54/P1-a1 hop 3 (this session, 2026-11-09, renewal 3/12; ZERO oracle; ocaml/lib+bin byte-clean) — steps 1–3 LANDED (`e9990241`, `32cc4373`)
+
+* **FALSIFIED (checkpoint prose vs tree):** the previous checkpoint claimed `ocaml/hir/hir.ml`
+  "§P1-a1.3 COMPLETE on disk" — it did NOT compile: the render helpers used
+  `List.assoc_opt sid syms` but `program.syms` is a `sym list`, not an assoc list; two
+  mojibaked `Â§` comment bytes; `semtest.ml` I7 raised Warning 8 on `R_elem`. Fixed by
+  `find_sym` + mechanical edits, recorded in commit `e9990241`. Law re-confirmed: the
+  repository always outranks the checkpoint's self-description.
+* **ACCEPTED (MEASURED, step 1/2):** §P1-a1.5 implemented VERBATIM; T1 `172595d5…` held
+  DIRECT after every build; T2 `git diff --exit-code -- hir/expected` clean at the code
+  commit; T6 strip-grep (`stride|offset|bytes|esz|size|reloc|pool|0x`, hir_test's own
+  nesting-aware comment stripper) CLEAN on `hir.ml` + `semantic_env.ml`; the measured
+  assign-dump law (target printed at the STATEMENT line) reproduced H01–H04 byte-exactly.
+* **ACCEPTED (MEASURED, step 3 fixtures):** H08 rc 0 with NO Convert — the falsified
+  §P1-a1.6 prediction CONFIRMED (CLAMP makes `t + 1` type-equal to the bin(15) element);
+  H09 IS the Convert witness (`const 3` bin(15,0) → bin(8,0) element), bounds `[0:4]`
+  print from the TYPE, const subscript accepted. **H14's parse was UNPROVEN — it DOES
+  parse** as `Esuffix` with two subscripts and dies E14 exactly pre-registered. H11's
+  death is the single E02 array-element refusal: `project_syms` runs BEFORE lowering, so
+  out-of-band elements never reach the statement paths (registration-order law).
+  H10 keeps the E03 text byte-identical under the NARROWED dims-without-record guard.
+  Pin formats (measured): `.rc` = `2\n`; `.stderr.txt` = raw stderr ending in `\n`;
+  positive expected = raw stdout.
+* **ACCEPTED (MEASURED, known step-4 gap):** after the flip, `semtest/live` FAILS on the
+  three array positives (`invariant 1: type differs for a (env bin(15))`) — I1 compares
+  `Hir.sym.sty` against the env row type without array awareness. This is §P1-a1.7 scope,
+  recorded NOT fitted; hir_test is red until step 4 lands.
+* **PROPOSED→used:** unresolved `Esuffix` ASSIGNMENT target (no contract case) routes to
+  the existing e_unresolved NO-bind-row channel; documented in `e9990241` message; no
+  fixture exercises it.
