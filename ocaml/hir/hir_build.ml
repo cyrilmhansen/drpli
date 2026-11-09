@@ -389,7 +389,12 @@ and lower_call ctx bi line (key : string) (args : Ast.expr list) : H.expr =
     raise_err ~line D.e_call
       ("call to " ^ key ^ " passes " ^ string_of_int (List.length args) ^ " arguments to "
       ^ string_of_int nformal ^ " bind-registered formals");
-  let hargs = List.map (fun a -> lower_arith ctx bi a) args in
+  (* P1-a2 §P1-a2.5: arguments lower through bind's OWN passing evidence; the refusal
+     ORDER of this function stays frozen (callee -> arity -> args -> recursion ->
+     RETURNS) so every existing diagnostic byte is preserved (T10). *)
+  let hargs =
+    lower_args ctx bi ~caller_scope:bi.SE.escope ~callee_key:key ~callee_pid:pid line args
+  in
   let () =
     match callee.SE.esig with
     | Some { SE.srec = true; _ } | Some { SE.sattr_rec = true; _ } ->
@@ -406,7 +411,7 @@ and lower_call ctx bi line (key : string) (args : Ast.expr list) : H.expr =
     | _ -> raise_err ~line D.e_call
                 ("procedure " ^ key ^ " has no bind RETURNS fact: value use unlowered")
   in
-  let ef = List.fold_left (fun accx a -> ef_union accx a.H.ex_ef) H.Pure hargs in
+  let ef = List.fold_left (fun accx a -> ef_union accx a.H.ac_ef) H.Pure hargs in
   wrap rty ef line (H.Call_e { pid; args = hargs })
 
 (* §P1-a1.5(d): a subscript EXPRESSION. A plain integer literal is range-checked
@@ -452,6 +457,209 @@ and lower_array_ref ctx bi (line : int) (orig : string) (sy : H.sym)
         ^ " is not a 1-D array reference in the P1-a1 subset (bind recorded "
         ^ "no array for this name)")
 
+(* ---------- P1-a2 actual arguments (PLAN §P1-a2.4/.5) ---------- *)
+
+(* The callee's declared type at formal position [pos] — the §P1-a2.5 TYPE DISCIPLINE,
+   judged against bind's OWN formal description (§P1-a2.3 item 3), never against a
+   re-derived signature. Raises:
+   - E16 when there is no record to judge against (no signature, no description at the
+     position, or bind laid no row for that formal — P0's [params_of] E03 refuses such a
+     procedure before any caller lowers, so this stays a defensive witness);
+   - E17 when the formal's declared type is outside the FIXED BINARY subset — matrix
+     row 3 says NO evidence licenses a silent conversion, so none is invented. *)
+and formal_ty ctx line (callee_key : string) (callee_pid : int) (pos : int) : H.ty =
+  match SE.formals_of ctx.env callee_pid with
+  | None ->
+      raise_err ~line D.e_arg_evidence
+        ("call to " ^ callee_key ^ " has no bind formal record, so argument "
+        ^ string_of_int pos ^ " cannot be type-checked (defensive witness; the HIR "
+        ^ "never assumes a formal type)")
+  | Some fs ->
+      match List.find_opt (fun (fd : SE.formal_desc) -> fd.SE.f_pos = pos) fs with
+      | None ->
+          raise_err ~line D.e_arg_evidence
+            ("bind records no formal at position " ^ string_of_int pos ^ " of "
+            ^ callee_key ^ " (defensive witness)")
+      | Some fd ->
+          match fd.SE.f_stype with
+          | None ->
+              (* MEASURED (this step): blocks lower pid-ascending, so the CALLER's body
+                 is lowered before the callee's [params_of] runs — pinning H07 showed the
+                 undeclared-formal refusal MUST be re-emitted here to keep its pinned
+                 bytes. The refusal stays on the EXISTING E03 channel with the EXISTING
+                 wording and the formal's own declaration line (§P1-b [C358] law: bind
+                 lays no row for an undeclared formal). *)
+              let bparams = (SE.block_of_pid ctx.env callee_pid).SE.east.Ast.bparams in
+              (match List.nth_opt bparams pos with
+               | Some n ->
+                   raise_err ~line:n.Ast.pos.line D.e_decl
+                     ("explicit formal dcl required in P0: parameter " ^ n.Ast.orig
+                     ^ " produced no bind row")
+               | None ->
+                   raise_err ~line D.e_arg_evidence
+                     ("formal " ^ fd.SE.f_key ^ " of " ^ callee_key ^ " has no bind "
+                     ^ "declaration row to type argument " ^ string_of_int pos
+                     ^ " against (defensive witness)"))
+          | Some st ->
+              (match ty_of_rt st ~pr:(SE.pp_stype st) with
+               | Ok t -> t
+               | Error s ->
+                   raise_err ~line D.e_arg_type
+                     ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key
+                     ^ " has formal type " ^ s
+                     ^ "; P1-a2 lowers FIXED BINARY actual/formal pairs only (DR "
+                     ^ "conversion unmeasured [TBD])"))
+
+(* E17 naming BOTH sides (§P1-a2.5): the actual's declared type and the formal's. *)
+and refuse_arg_type line (callee_key : string) (pos : int) (have : H.ty)
+    (want : H.ty) =
+  raise_err ~line D.e_arg_type
+    ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key ^ " is "
+    ^ H.pp_ty have ^ " but the formal is " ^ H.pp_ty want
+    ^ "; DR's conversion at an argument position is unmeasured [TBD]")
+
+(* §P1-a2.5 decision list — MODE FIRST. Every admitted actual traces to a row of the
+   evidence matrix through bind's OWN classification (§P1-a2.3); nothing is inferred
+   from argument syntax alone and no disagreement is lowered silently. The formal type
+   is consulted only AFTER the structural refusals, so E15/E12/E14 keep priority. *)
+and lower_actual ctx bi ~caller_scope:_ ~callee_key ~callee_pid line (pos : int)
+    (pm : SE.passing_mode) (e : Ast.expr) : H.actual =
+  match pm with
+  | SE.PM_copy_in ->
+      raise_err ~line D.e_arg_evidence
+        ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key ^ " needs a "
+        ^ "DEC copy-in temp (widening): fixed-decimal actuals are outside the P1-a2 "
+        ^ "subset and no conversion is invented [C358] [TBD]")
+  | SE.PM_unknown ->
+      raise_err ~line D.e_arg_evidence
+        ("passing evidence for argument " ^ string_of_int pos ^ " of call to "
+        ^ callee_key ^ " is unknown or contradicts the argument syntax; the HIR "
+        ^ "never guesses a passing mode (defensive witness)")
+  | SE.PM_immediate ->
+      (match e.Ast.e with
+       | Ast.Enumber _ ->
+           let x = lower_arith ctx bi e in
+           let want = formal_ty ctx line callee_key callee_pid pos in
+           if x.H.ex_ty <> want then refuse_arg_type line callee_key pos x.H.ex_ty want;
+           { H.af = H.A_value x; ac_ty = want; ac_ef = x.H.ex_ef; ac_line = line }
+       | _ ->
+           raise_err ~line D.e_arg_evidence
+             ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key ^ ": bind "
+             ^ "recorded an immediate but the syntax is no numeric literal "
+             ^ "(contradiction; defensive witness)"))
+  | SE.PM_value_cell ->
+      (match e.Ast.e with
+       | Ast.Eident _ | Ast.Enumber _ ->
+           (* defensive: the classifier gives those own-cell/immediate evidence, and a
+              recorded value cell on either is an internal inconsistency (PM_unknown). *)
+           raise_err ~line D.e_arg_evidence
+             ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key ^ ": bind "
+             ^ "recorded a value cell for a name or a literal (contradiction; "
+             ^ "defensive witness)")
+       | _ ->
+           let x = lower_arith ctx bi e in
+           let want = formal_ty ctx line callee_key callee_pid pos in
+           if x.H.ex_ty <> want then refuse_arg_type line callee_key pos x.H.ex_ty want;
+           { H.af = H.A_value x; ac_ty = want; ac_ef = x.H.ex_ef; ac_line = line })
+  | SE.PM_own_cell ->
+      match e.Ast.e with
+      | Ast.Eident n ->
+          let key = SE.key_of n in
+          if SE.procedure ctx.env key <> None then
+            (* procedures are not values — the EXISTING wording (T10) *)
+            raise_err ~line D.e_call
+              ("procedure " ^ key ^ " used as a value: P0 admits calls only")
+          else
+            (match resolve ctx bi key with
+             | None ->
+                 raise_err ~line D.e_arg_evidence
+                   ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key
+                   ^ ": bind's own-cell evidence names " ^ n.Ast.orig
+                   ^ ", which resolves by NO bind row (contradiction; defensive witness)")
+             | Some sy ->
+                 (match sy.H.sty with
+                  | H.Array1 _ ->
+                      (* §P1-a2.5: E15 fires BEFORE the formal gate (BY NAME, [C175]) *)
+                      raise_err ~line D.e_arg_whole_array
+                        ("whole-array actual " ^ n.Ast.orig ^ " at argument "
+                        ^ string_of_int pos ^ " of call to " ^ callee_key
+                        ^ " is outside the P1-a2 subset (element designators only; "
+                        ^ "DR has no array calling convention [C175] and whole-array "
+                        ^ "actuals are unmeasured [TBD])")
+                  | have ->
+                      let want = formal_ty ctx line callee_key callee_pid pos in
+                      if have <> want then refuse_arg_type line callee_key pos have want;
+                      { H.af = H.A_reference (H.D_var { sid = sy.sid });
+                        ac_ty = want;
+                        ac_ef = H.Pure;
+                        ac_line = line }))
+      | Ast.Esuffix ({ e = Ast.Eident n; _ }, subs) ->
+          (* the array-ELEMENT actual [C175]: designates the element's OWN cell *)
+          let key = SE.key_of n in
+          (match resolve ctx bi key with
+           | None ->
+               (* defensive (the classifier resolved the head to an array row): the
+                  EXISTING no-bind-row wording, unchanged (T10) *)
+               raise_err ~line D.e_unresolved
+                 ("identifier " ^ n.Ast.orig
+                 ^ " resolved by NO bind row in this or any enclosing block")
+           | Some sy ->
+               match sy.H.sty with
+               | H.Array1 { elem; lo; hi } ->
+                   (match subs with
+                    | [ ix ] ->
+                        (* the EXISTING subscript gate and its E12 wording, verbatim *)
+                        let ixe = lower_index ctx bi line n.Ast.orig lo hi ix in
+                        let want = formal_ty ctx line callee_key callee_pid pos in
+                        if elem <> want then
+                          refuse_arg_type line callee_key pos elem want;
+                        { H.af =
+                            H.A_reference (H.D_elem { base = sy.sid; subs = [ ixe ] });
+                          ac_ty = want;
+                          ac_ef = ixe.H.ex_ef;
+                          ac_line = line }
+                    | l ->
+                        (* defensive: the classifier admits one subscript only *)
+                        raise_err ~line D.e_dims
+                          ("subscript form for " ^ n.Ast.orig
+                          ^ " is outside the 1-D P1-a1 subset ("
+                          ^ string_of_int (List.length l) ^ " subscript(s))"))
+               | _ ->
+                   (* defensive: the EXISTING E12 wording, unchanged (T10) *)
+                   raise_err ~line D.e_index
+                     ("subscript on " ^ n.Ast.orig
+                     ^ " is not a 1-D array reference in the P1-a1 subset (bind "
+                     ^ "recorded no array for this name)"))
+      | _ ->
+          raise_err ~line D.e_arg_evidence
+            ("argument " ^ string_of_int pos ^ " of call to " ^ callee_key
+            ^ ": bind's own-cell evidence designates a form the HIR cannot represent "
+            ^ "(defensive witness)")
+
+(* Per-call evidence lookup (§P1-a2.3 matching law): bind's recorded site for THIS
+   callee key whose argument NODES are the very nodes being lowered. No match, or a
+   positional-list length disagreement, is a typed absence and refuses loudly —
+   NEVER a positional guess (§P1-a2.10). *)
+and lower_args ctx bi ~caller_scope ~callee_key ~callee_pid line
+    (args : Ast.expr list) : H.actual list =
+  match SE.call_evidence ctx.env ~caller_scope ~callee_key args with
+  | None ->
+      raise_err ~line D.e_arg_evidence
+        ("no bind call-site record matches the call to " ^ callee_key
+        ^ " (its argument nodes are not the nodes bind walked); passing modes are "
+        ^ "never assumed (defensive witness)")
+  | Some ce ->
+      if List.length ce.SE.ce_args <> List.length args then
+        raise_err ~line D.e_arg_evidence
+          ("bind call-site evidence for " ^ callee_key ^ " carries "
+          ^ string_of_int (List.length ce.SE.ce_args) ^ " argument positions for "
+          ^ string_of_int (List.length args) ^ " arguments (defensive witness)")
+      else
+        List.mapi
+          (fun pos (pm, a) ->
+            lower_actual ctx bi ~caller_scope ~callee_key ~callee_pid line pos pm a)
+          (List.combine ce.SE.ce_args args)
+
 (* ---------- statements ---------- *)
 
 let rec lower_stmts ctx bi (ss : Ast.stmt list) : H.stmt list =
@@ -474,8 +682,8 @@ and flatten_group _ctx (_bi : SE.block_env) (s : Ast.stmt) : Ast.stmt list =
       else [ s ]
   | _ -> [ s ]
 
-(* §P1-a1.5(g): the assignment RHS machinery, shared by the scalar (T_var) and the
-   element (T_elem) targets. The Convert node, its language-rule reason and the E09
+(* §P1-a1.5(g): the assignment RHS machinery, shared by the scalar (D_var) and the
+   element (D_elem) targets. The Convert node, its language-rule reason and the E09
    refusal text are the EXISTING bytes moved verbatim (T10). [~tv] is the target
    type (the scalar type, or the ELEMENT type for an array element); [~line] is the
    statement line, as before. *)
@@ -557,13 +765,13 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
                      ^ " is outside the P1-a1 subset (element references only)")
                | tv ->
                    let v = assign_value ctx bi rhs ~tv ~line in
-                   node (H.Assign { target = H.T_var { sid = sy.sid }; value = v }))
+                   node (H.Assign { target = H.D_var { sid = sy.sid }; value = v }))
           | None ->
               raise_err ~line D.e_unresolved
                 ("assignment target " ^ n.Ast.orig ^ " resolved by NO bind row"))
       | Ast.Esuffix ({ e = Ast.Eident n; _ }, subs) ->
           (* §P1-a1.5(g): element DESIGNATION target. Array + exactly one
-             subscript ⇒ T_elem, the RHS typed against the ELEMENT type; wrong
+             subscript ⇒ D_elem, the RHS typed against the ELEMENT type; wrong
              count ⇒ E14; non-array ⇒ E12; unresolved ⇒ the existing
              NO-bind-row channel (defensive: no fixture reaches it). *)
           let key = SE.key_of n in
@@ -578,7 +786,7 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
                    let v = assign_value ctx bi rhs ~tv:elem ~line in
                    node
                      (H.Assign
-                        { target = H.T_elem { base = sy.sid; subs = [ ixe ] };
+                        { target = H.D_elem { base = sy.sid; subs = [ ixe ] };
                           value = v })
                | H.Array1 _, l ->
                    raise_err ~line D.e_dims
@@ -668,7 +876,16 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
                 raise_err ~line D.e_call
                   ("call to " ^ key ^ " passes " ^ string_of_int (List.length args)
                   ^ " arguments to " ^ string_of_int nformal ^ " bind-registered formals");
-              let hargs = List.map (fun a -> lower_arith ctx bi a) args in
+              (* Parser law (read first-hand, hop 5): an [Eident] statement target never
+                 carries an argument list — [Sprocedure_stmt.args] is always []. The guard
+                 keeps that law loud if the parser ever changes. This route deliberately
+                 consults NO call evidence: bind's [pl_calls] records no site for a plain
+                 identifier statement call, so there is nothing to align with (§P1-a2.5). *)
+              if args <> [] then
+                raise_err ~line D.e_expr
+                  ("internal: statement call to " ^ key
+                  ^ " carries arguments on an identifier target (parser law)");
+              let hargs : H.actual list = [] in
               (match callee.SE.esig with
               | Some { SE.srec = true; _ } | Some { SE.sattr_rec = true; _ } ->
                   raise_err ~line D.e_call ("recursive procedure " ^ key ^ " is outside the P0 subset")
@@ -677,6 +894,55 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
           | None ->
               raise_err ~line D.e_unresolved
                 ("call target " ^ key ^ " is no bind-registered procedure"))
+      | Ast.Esuffix ({ e = Ast.Eident n; _ }, sargs) ->
+          (* P1-a2 §P1-a2.5 — the INTENDED new coverage of this slice: a statement-position
+             call whose SUFFIX TARGET carries an argument list now lowers to [Call_s] with
+             per-position passing requirements. Parser law (read first-hand, hop 5): every
+             Sprocedure_stmt has [args = []] — the list lives in the target — so the guard
+             below refuses loudly if that ever changes. The zero-argument [Eident] route
+             above is untouched (it records NO bind call site, so it never consults
+             evidence); the refusal ORDER here mirrors lower_call (T10). *)
+          if args <> [] then
+            raise_err ~line D.e_expr
+              ("internal: statement call to " ^ SE.key_of n
+              ^ " carries arguments outside its target (parser law)")
+          ;
+          let key = SE.key_of n in
+          (match SE.procedure ctx.env key with
+           (* A non-procedure head keeps the EXISTING E04 wording: bind's [pl_calls]
+              proves a non-procedure suffix head records NO call site, so E04 — not a
+              resolution failure — is the honest refusal (T10). *)
+           | None ->
+               raise_err ~line D.e_expr
+                 "only direct procedure calls are lowered in P0"
+           | Some pid ->
+               let callee = SE.block_of_pid ctx.env pid in
+               (match callee.SE.esig with
+                | Some { SE.sret = Some _; _ } ->
+                    raise_err ~line D.e_call
+                      ("statement-level call to function " ^ key
+                      ^ " discards a value; unlowered in P0")
+                | _ -> ());
+               let nformal =
+                 match callee.SE.esig with
+                 | Some s -> s.SE.sptr_count
+                 | None -> List.length callee.SE.east.Ast.bparams
+               in
+               if List.length sargs <> nformal then
+                 raise_err ~line D.e_call
+                   ("call to " ^ key ^ " passes " ^ string_of_int (List.length sargs)
+                   ^ " arguments to " ^ string_of_int nformal
+                   ^ " bind-registered formals");
+               let hargs =
+                 lower_args ctx bi ~caller_scope:bi.SE.escope ~callee_key:key
+                   ~callee_pid:pid line sargs
+               in
+               (match callee.SE.esig with
+                | Some { SE.srec = true; _ } | Some { SE.sattr_rec = true; _ } ->
+                    raise_err ~line D.e_call
+                      ("recursive procedure " ^ key ^ " is outside the P0 subset")
+                | _ -> ());
+               node (H.Call_s { pid; args = hargs }))
       | _ -> raise_err ~line D.e_expr "only direct procedure calls are lowered in P0")
   | Ast.Sproc bs ->
       let ib = bs.Ast.blk in

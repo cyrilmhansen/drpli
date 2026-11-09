@@ -42,3 +42,21 @@ let e_whole_array = "HIR-E13" (* array name used whole, in value or target posit
                                  P1-a1 admits element references only (§P1-a1.2) *)
 let e_dims = "HIR-E14" (* subscript count /= 1, or a bind split-channel inconsistency
                           (an array record with no row, or duplicate records) *)
+
+(* E2E-54/P1-a2 additions (PLAN §P1-a2.5). Appended to the stable list; no existing
+   code changes meaning (falsifier T10). *)
+let e_arg_whole_array = "HIR-E15"
+  (* whole-array ACTUAL at an argument position (a name projecting Array1): P1-a2
+     admits element designators only — DR has no array calling convention [C175] and
+     whole-array actuals are unmeasured [TBD] (§P1-a2.5). Handover recorded: the same
+     input died on E13 (a value/target-position code) before this slice. *)
+let e_arg_evidence = "HIR-E16"
+  (* missing or contradictory bind PASSING evidence at an argument position: no
+     recorded call site matches the call node, a position classifies PM_unknown /
+     PM_copy_in, or an admitted shape is contradicted by bind's record. UNEXERCISED
+     defensive witness, exactly like the P0 dup_free and the P1-a1 §P1-a1.5(e) guards
+     — never fitted, never silently accepted. *)
+let e_arg_type = "HIR-E17"
+  (* actual/formal declared-TYPE mismatch at an argument position, naming both sides;
+     DR's conversion behaviour at argument positions is unmeasured [TBD], so no
+     conversion node is invented (§P1-a2.5). *)

@@ -59,13 +59,14 @@ let show ds = String.concat " / " (List.map D.pp ds)
 
 (* One element reference collected by the walk (§P1-a1.7 I8). [ety] is the
    NODE's type where a node has one (Elem_read / expression Elem_ref); the
-   T_elem target carries no type field, so [ety = None] there and the
-   comparison checks base soundness only. *)
+   D_elem TARGET carries no type field, so [ety = None] there and the
+   comparison checks base soundness only (a P1-a2 reference ACTUAL does carry
+   its recorded formal type, so [ety = Some] there — §P1-a2.6). *)
 type elem_ref = { base : int; write : bool; ety : H.ty option }
 
 type ref_item =
   | R_var of { sid : int; ty : H.ty option }
-      (** [ty] = the expression node's type where there is one; T_var targets
+      (** [ty] = the expression node's type where there is one; D_var targets
           have none (the type lives on the symbol, §P1-a1.3). *)
   | R_call of { pid : int; nargs : int }
   | R_elem of elem_ref (* P1-a1 I8: element read / designation *)
@@ -78,7 +79,9 @@ let rec walk_expr acc (e : H.expr) : ref_item list =
   | H.Neg { e = inner } -> walk_expr acc inner
   | H.Convert { e = inner; _ } -> walk_expr acc inner
   | H.Call_e { pid; args } ->
-      List.fold_left walk_expr (R_call { pid; nargs = List.length args } :: acc) args
+      List.fold_left walk_actual
+        (R_call { pid; nargs = List.length args } :: acc)
+        args
   | H.Elem_read { base; subs } ->
       List.fold_left walk_expr
         (R_elem { base; write = false; ety = Some e.H.ex_ty } :: acc)
@@ -88,10 +91,25 @@ let rec walk_expr acc (e : H.expr) : ref_item list =
         (R_elem { base; write = true; ety = Some e.H.ex_ty } :: acc)
         subs
 
+and walk_actual acc (a : H.actual) : ref_item list =
+  (* P1-a2 §P1-a2.6 walk law (MINIMAL compile-adaptation): an actual contributes
+     EXACTLY the item its old expression node contributed, so every measured
+     SEMANTIC-AUTHORITY count is preserved. A reference actual is a READ at an
+     argument position ([write] stays false; the callee's writes are its own
+     references), and its recorded type is the callee's declared formal type — equal
+     to the designated type by construction (the E17 discipline refuses otherwise). *)
+  match a.H.af with
+  | H.A_value e -> walk_expr acc e
+  | H.A_reference (H.D_var { sid }) -> R_var { sid; ty = Some a.H.ac_ty } :: acc
+  | H.A_reference (H.D_elem { base; subs }) ->
+      List.fold_left walk_expr
+        (R_elem { base; write = false; ety = Some a.H.ac_ty } :: acc)
+        subs
+
 and walk_target acc (t : H.target) : ref_item list =
   match t with
-  | H.T_var { sid } -> R_var { sid; ty = None } :: acc
-  | H.T_elem { base; subs } ->
+  | H.D_var { sid } -> R_var { sid; ty = None } :: acc
+  | H.D_elem { base; subs } ->
       List.fold_left walk_expr (R_elem { base; write = true; ety = None } :: acc)
         subs
 
@@ -105,7 +123,9 @@ let rec walk_stmt acc (s : H.stmt) : ref_item list =
         else_
   | H.While { cond; body } -> List.fold_left walk_stmt (walk_expr acc cond) body
   | H.Call_s { pid; args } ->
-      List.fold_left walk_expr (R_call { pid; nargs = List.length args } :: acc) args
+      List.fold_left walk_actual
+        (R_call { pid; nargs = List.length args } :: acc)
+        args
   | H.Return eo -> (match eo with Some x -> walk_expr acc x | None -> acc)
 
 let env_rows (env : SE.t) : SE.symbol list =
@@ -265,7 +285,7 @@ let elem_ref_mismatch env (p : H.proc) (r : elem_ref) : string option =
           with
           | Some found when found.SE.esid = r.base -> (
               match (r.ety, a.SE.a_elem) with
-              | None, _ -> None (* T_elem: no node type to judge (§P1-a1.3) *)
+              | None, _ -> None (* D_elem target: no node type to judge (§P1-a1.3) *)
               | Some t, SE.SFixed_bin p ->
                   if t = H.Fixed_bin (p, 0) then None
                   else

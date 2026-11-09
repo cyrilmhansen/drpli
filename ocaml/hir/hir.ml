@@ -44,7 +44,31 @@
        of duplicated state. Bounds are recovered for printing through [program]
        (rendering, not representation): the dump helpers take the symbol table.
    DR's historical evaluation order for subscripts is UNMEASURED [TBD]; what is
-   recorded here is an HIR representation choice, never a language law (§P1-a1.3). *)
+   recorded here is an HIR representation choice, never a language law (§P1-a1.3).
+
+   E2E-54/P1-a2 (PLAN §P1-a2.2, §P1-a2.4) — arguments and designation.
+
+   Evaluation-order adjudication (§P1-a2.2, DECIDED not deferred): the dump wording
+   [args left-to-right] is NOT an unsupported claim — it is DR-ABI-backed for the
+   measured shapes by [C093] (interleaved per-argument materialisation, source
+   order). It is an EMISSION-order fact about DR's ABI, not a portable PL/I
+   execution-order guarantee, and the language-level order of evaluation of actuals
+   remains [unmeasured]/[TBD]. The ordered [arg N] list is therefore a REPRESENTATION
+   ordering (source/positional order = bind's own [cs_args] order); the only backed
+   execution-order evidence is [C093] for internal fixed-type calls, with DEC/array/
+   external shapes unmeasured. Argument POSITIONS are kept ([arg N] = bind formal
+   position); no node here claims an evaluation order beyond that cited evidence.
+
+   Representation (§P1-a2.4): designation is ONE notion — a [designator] — used both
+   for assignment targets ([target], the P1-a1 [T_var]/[T_elem] RENAMED, bytes
+   unchanged) and for reference-passed actuals. An actual is [A_value] or
+   [A_reference], never a flag: the two passing requirements are different
+   constructors, so it is impossible for a backend to treat an unresolved
+   reference-passing requirement as ordinary by-value passing. An [A_value] is never
+   built from a bare name or an element designation (the classifier routes every such
+   actual to [A_reference]), and an unclassified case is not representable at all —
+   the lowering refuses (HIR-E15/E16/E17) instead of inventing a node. No
+   unrestricted pointer type and no dereference node is added. *)
 
 (* ---------- semantic types ---------- *)
 
@@ -122,7 +146,9 @@ and expr_kind =
   | Bin of { op : binop; left : expr; right : expr; typing : string }
   | Neg of { e : expr }
   | Convert of { from : ty; to_ty : ty; e : expr; reason : string }
-  | Call_e of { pid : int; args : expr list }  (** function call used as a value *)
+  | Call_e of { pid : int; args : actual list }
+      (** function call used as a value; P1-a2 §P1-a2.4: every argument carries its OWN
+          passing requirement — an [actual], never a bare expression. **)
   | Elem_read of { base : int; subs : expr list }
       (** LOAD of element [base(subs)] (§P1-a1.3). [ex_ty] is the ELEMENT type; [subs]
           holds EXACTLY ONE expression (the subset gate refuses any other count) and its
@@ -132,17 +158,44 @@ and expr_kind =
           type (§P1-a1.3). A whole-array load is unrepresentable: no node exists for it
           and the lowering refuses it (HIR-E13). *)
   | Elem_ref of { base : int; subs : expr list }
-      (** LVALUE designator of element [base(subs)]; [ex_ty] is the ELEMENT type. Legal
-          ONLY as an [Assign.target] ([T_elem] below): the value-lowering path never
+      (** LVALUE designator of element [base(subs)]; [ex_ty] is the ELEMENT type.
+          DEAD since P1-a1: designation lives ONLY in the [designator] type below
+          (assignment targets and reference actuals), the value-lowering path never
           constructs it, and semtest invariant I8 rejects it if anything ever does. *)
+(* Designation, not value (§P1-a2.4): the location a program talks about — used for
+   assignment targets ([target]) AND for reference-passed actuals, so the two roles
+   cannot drift apart. [D_elem] carries EXACTLY ONE subscript (the subset gate refuses
+   any other count) and its base sid names a symbol whose projected type is [Array1];
+   the declared bounds ride the type, never the node. *)
+and designator =
+  | D_var of { sid : int }
+  | D_elem of { base : int; subs : expr list }
+(* The passing requirement of ONE actual argument (§P1-a2.4), constructed ONLY by the
+   classifier from bind's own passing evidence (§P1-a2.3) — see [lower_actual]: the two
+   requirements are different constructors, no bool, no default. *)
+and actual_form =
+  | A_value of expr
+      (** by-value requirement: the callee receives a value; the caller's storage is NOT
+          addressable through it. The expression is never itself a bare-name read on
+          this path (the classifier routes every bare name/element to [A_reference]). **)
+  | A_reference of designator
+      (** reference requirement: the callee can read AND write the designated caller
+          cell [C093 R2011; C130 E28C; C175 EA2]. Built ONLY from a bare name or an
+          element designation — never from an expression. **)
+and actual = {
+  af : actual_form;
+  ac_ty : ty;  (** the callee's DECLARED formal type (§P1-a2.5 type discipline) **)
+  ac_ef : ef_kind;  (** the effect of evaluating/designating this argument **)
+  ac_line : int;  (** the call's line: designators carry no line of their own **)
+}
 
-(* ---------- assignment targets (P1-a1 §P1-a1.3) ---------- *)
+(* ---------- assignment targets (P1-a1 §P1-a1.3; P1-a2 §P1-a2.4) ---------- *)
 
-(* Designation, not value. [Elem_read] cannot appear here by typing, so read and
-   designate can never collapse into the same node (brief Phase 3). *)
-type target =
-  | T_var of { sid : int }
-  | T_elem of { base : int; subs : expr list }
+(* A target IS a designator: the same node type the reference actuals use. P1-a1's
+   [T_var]/[T_elem] are RENAMED [D_var]/[D_elem] and every dump byte is unchanged
+   (falsifier T2). [Elem_read] cannot appear here by typing, so reading and
+   designating can never collapse into the same node (brief Phase 3). *)
+type target = designator
 
 (* ---------- statements ---------- *)
 
@@ -150,10 +203,11 @@ type stmt = { st : stmt_kind; st_line : int }
 and stmt_kind =
   | Declare of int                        (** the sid introduced by a dcl statement *)
   | Assign of { target : target; value : expr }
-      (** target is a scalar variable or an array element designation (P1-a1) *)
+      (** target is a designator: a scalar variable or an array element (P1-a1/P1-a2) *)
   | If of { cond : expr; then_ : stmt list; else_ : stmt list }
   | While of { cond : expr; body : stmt list }  (** the single P0 loop form: DO WHILE *)
-  | Call_s of { pid : int; args : expr list }   (** call as a statement; result discarded *)
+  | Call_s of { pid : int; args : actual list }
+      (** call as a statement; result discarded; arguments carry passing requirements *)
   | Return of expr option
   | Stop                                  (** program end (no code: the backend decides how) *)
 
@@ -197,7 +251,42 @@ let pp_sym_ty syms sid =
   | Some { sty; _ } -> pp_ty sty
   | None -> "no-such-sym"
 
-let rec dump_expr syms buf indent e =
+(* P1-a2 §P1-a2.4: ONE designator renderer for BOTH roles — an assignment target and a
+   reference actual. The bytes are the old [dump_target] bytes exactly (T2): a variable
+   designation prints the line the old [T_var] printed, an element designation the line
+   the old [T_elem] printed. The element type is ALWAYS recovered through [find_sym]
+   (rendering, not representation); [dvar_ty] supplies the type text of the variable
+   line — the target role passes the symbol projection, an actual passes its recorded
+   formal type, which the E17 discipline makes equal to it. No reference line ever
+   carries a readonly marker: a designator IS a location. *)
+let rec dump_designator syms buf indent (ef : ef_kind) (dvar_ty : int -> string)
+    (line : int) (d : designator) =
+  let pad = String.make (2 * indent) ' ' in
+  let eff = match ef with Pure -> "pure" | Unknown_ef -> "unknown-effect" in
+  match d with
+  | D_var { sid } ->
+      Printf.bprintf buf "%svar sym(%d) : %s  [%s, line %d]\n" pad sid (dvar_ty sid) eff
+        line
+  | D_elem { base; subs } ->
+      let elem_ty =
+        match find_sym syms base with
+        | Some { sty = Array1 { elem; _ }; _ } -> pp_ty elem
+        | _ -> pp_elem_base syms base
+      in
+      Printf.bprintf buf "%selem_ref %s : %s  [%s, line %d]\n"
+        pad (pp_elem_base syms base) elem_ty eff line;
+      List.iter (dump_expr syms buf (indent + 1)) subs
+
+(* [A_value] renders exactly the expression line it renders today (byte-identical,
+   T2); [A_reference] renders the designator at the SAME indent (§P1-a2.4). *)
+and dump_actual syms buf indent (a : actual) =
+  match a.af with
+  | A_value e -> dump_expr syms buf indent e
+  | A_reference d ->
+      dump_designator syms buf indent a.ac_ef
+        (fun _ -> pp_ty a.ac_ty) a.ac_line d
+
+and dump_expr syms buf indent e =
   let pad = String.make (2 * indent) ' ' in
   let eff = match e.ex_ef with Pure -> "pure" | Unknown_ef -> "unknown-effect" in
   match e.ex with
@@ -227,7 +316,7 @@ let rec dump_expr syms buf indent e =
       List.iteri
         (fun i a ->
           Printf.bprintf buf "%s  arg %d\n" pad i;
-          dump_expr syms buf (indent + 2) a)
+          dump_actual syms buf (indent + 2) a)
         args
   | Elem_read { base; subs } ->
       Printf.bprintf buf "%selem_read %s : %s  [%s, line %d]\n"
@@ -238,23 +327,8 @@ let rec dump_expr syms buf indent e =
         pad (pp_elem_base syms base) (pp_ty e.ex_ty) eff e.ex_line;
       List.iter (dump_expr syms buf (indent + 1)) subs
 
-(* A designated target prints at its assignment statement's line (§P1-a1.3). *)
-let dump_target syms buf indent line t =
-  let pad = String.make (2 * indent) ' ' in
-  match t with
-  | T_var { sid } ->
-      Printf.bprintf buf "%svar sym(%d) : %s  [pure, line %d]\n"
-        pad sid (pp_sym_ty syms sid) line
-  | T_elem { base; subs } ->
-      let elem_ty =
-        match find_sym syms base with
-        | Some { sty = Array1 { elem; _ }; _ } -> pp_ty elem
-        | _ -> pp_elem_base syms base
-      in
-      Printf.bprintf buf "%selem_ref %s : %s  [pure, line %d]\n"
-        pad (pp_elem_base syms base) elem_ty line;
-      List.iter (dump_expr syms buf (indent + 1)) subs
-
+(* A designated target prints at its assignment statement's line, effect [pure]
+   (§P1-a1.3); the bytes are the pre-P1-a2 [dump_target] bytes verbatim. *)
 let rec dump_stmt syms buf indent s =
   let pad = String.make (2 * indent) ' ' in
   match s.st with
@@ -263,7 +337,7 @@ let rec dump_stmt syms buf indent s =
   | Assign { target; value } ->
       Printf.bprintf buf "%sassign  [line %d]\n" pad s.st_line;
       Printf.bprintf buf "%s  order: target address then value\n" pad;
-      dump_target syms buf (indent + 1) s.st_line target;
+      dump_designator syms buf (indent + 1) Pure (pp_sym_ty syms) s.st_line target;
       dump_expr syms buf (indent + 1) value
   | If { cond; then_; else_ } ->
       Printf.bprintf buf "%sif  [line %d]\n" pad s.st_line;
@@ -284,7 +358,7 @@ let rec dump_stmt syms buf indent s =
       List.iteri
         (fun i a ->
           Printf.bprintf buf "%s  arg %d\n" pad i;
-          dump_expr syms buf (indent + 2) a)
+          dump_actual syms buf (indent + 2) a)
         args
   | Return None -> Printf.bprintf buf "%sreturn  [line %d]\n" pad s.st_line
   | Return Some e ->
