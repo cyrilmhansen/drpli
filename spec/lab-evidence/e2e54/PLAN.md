@@ -3938,4 +3938,4 @@ Every negative is REFUSAL AT LOWERING: the MIR emitter is never reached, rc 2, z
 
 | slice | status | notes |
 |---|---|---|
-| P1-m1 | **OPEN 2026-11-10** (pre-registration committed) | minimal console I/O over the native MIR path; milestones m1a integers / m1b characters (literal-only) SEPARATE; ZERO oracle; contract §§P1-m1.1–.11; work order §P1-m1.11 |
+| P1-m1 | **CLOSED 2026-11-10** (steps 2–7 landed; runner rc 0 43 checks; FULL FROZEN regression ALL HIT) | minimal console I/O over the native MIR path: m1a integers AND m1b literal characters DELIVERED SEPARATELY; ZERO oracle; ledger 203/C380; deviations incl. `cu_nl = cu_put || cu_text`, N17 parse PROVEN, runner first-run defect fixed honestly; RESULTS §P1-m1; next stages PROPOSED ONLY |

@@ -7,6 +7,71 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54p1m1-9. **E2E-54/P1-m1 hop 9 CLOSED THIS SESSION 2026-11-10 — §P1-m1.11 steps 5–7 LANDED;
+§P1-m1 CLOSED (session 01a1c2a9, renewal 8/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean;
+ledger 203/C380).** Step 5: the never-run console runner executed — ONE runner-level defect
+self-caught and fixed honestly (`text_of` `encoding="replace"` → `encoding="utf-8",
+errors="replace"`; zero pins/expected-bytes/compiler files involved), then **rc 0, 43 checks**
+first-hand: all §P1-m1.7 legs EXECUTED byte-exact in fresh processes (42/123/-42, BAD rc2,
+EOF rc1, RANGE rc3, M06 EXACTLY 33 B), determinism legs reproduced, CT2 frozen shas held,
+**C-a/C-b/C-c ALL FAILED LOUDLY** (13 executed; OK-on-BAD and OK-at-EOF both rc 0 `0\n`) —
+commit `bf060051` (explicit path). Step 6: FULL FROZEN regression ALL HIT — gate
+1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54p1m1-reg.log`;
+`mir_aot_test.py` 27; `mir_aot_cosmo_test.py` 25; fresh `_build-e54p1m1` rc 0 ZERO Error hist
+**122** sha == kept `172595d5…` → `build/e54p1m1-freshbuild.log`. Step 7 (this close commit):
+RESULTS **§P1-m1** (m1a/m1b SEPARATELY; T1–T11 WITH measured values; deviations incl. the six
+pre-recorded, `cu_nl = cu_put || cu_text`, N17 parse PROVEN, runner first-run defect; matrix;
+reproduction; commits `51231164`→`c3db9ffc`→`d6ccb333`→`73b47176`→`bf060051`→close), arch
+**§7-7**, PLAN dashboard **CLOSED**, LEARNINGS § hop 9, PROGRESS live heading = closure.
+**SUCCESSOR: NOTHING FURTHER IS AUTHORIZED — STOP** (work-order §P1-m1.11 step 7). Report
+closure, await the OPERATOR; every next slice (char variables, ENDFILE/`ON` conditions,
+`PUT EDIT`, file streams, trailing-ctl parser repair, production backend adoption, ARM64/APE,
+broader MIR semantics) is **PROPOSED ONLY** — its own PROTOCOL #1 pre-registration + explicit
+operator authorization BEFORE any code byte. On re-authorization: re-verify the baseline
+FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…` DIRECT; `hir_test` 220 ok, 11 numbers
+UNMOVED; T2 clean; ledger 203/C380), READ `LEARNINGS.md` §§ hop 2..**9** + RESULTS §P1-m1
+FIRST. Standing: ZERO oracle; `handoff.config.json` NEVER staged; no push; explicit paths only;
+scratch (`build/p1m1-scratch/`, `ocaml/scratch-p1m1/`, `build/mir-*`) NEVER committed; lab
+`ccc92c5c`/`f541a7a5` never advanced; `hir/expected`+`hir/fixtures` FROZEN; `hir/mir-*` pins
+ADDITIVE-only; F8 law; `eval "$(opam env)"` every shell; rc DIRECT; NEVER batch build with
+tests; timeout 60 per fixture / 900 per suite.
+
+1e-e54p1m1-8. **E2E-54/P1-m1 hop 8 LANDED 2026-11-10 — §P1-m1.11 STEP 4 (m1b, literal put) COMMITTED
+`73b47176` (session 01a1c295, renewal 7/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger
+203/C380; baseline FIRST-HAND at `7eccc4ef`: build rc 0, T1 kept exe `172595d5…` DIRECT, hir_test rc
+0 **220 ok** with ALL 11 frozen numbers UNMOVED → ignored `build/p1m1-hop7-hirtest.log`, T2 clean,
+F8 green). hir_build `Ast.Estring s` arm: E22 empty + charset (codes 32..126, DECIMAL code point,
+never hex/never "size") replacing the transient m1a wording, validated literal → `H.P_text`; hir.ml
+UNTOUCHED (hop 5). mir_backend: `cu_text` + `p_text` proto (pos 3) + `pli_console_put_text` (pos 3 of
+the ONE import line) + `s<k>` string items (first use of each DISTINCT text, body order, escapes
+`\"`/`\\`, after import before func) + literal shape `mov <t>, <len>` / `call p_text … s<k>, <t>` /
+bne / p_nl / bne (PROVEN probe2). **DEVIATION recorded (not fitted): `p_nl` + `pli_console_put_nl`
+key on `cu_nl = cu_put || cu_text`** — every PUT closes with the newline call. `tools/mir_aot/
+{pli_console.c,console_check.c}` committed, bodies **byte-identical** to the measured hop-2 probes
+(diff from the first `#include`); headers document the ABI. MEASURED-FIRST CRLF+^Z pins: M06.pli msg1
+(rc 0, 714 B, `mov t4, 29`, expected run bytes **33 B** per §P1-m1.7 hand-checked), N17.pli — **the
+`put list('')` PARSE IS PROVEN GOOD: the E22 empty arm is EXERCISED, not defensive** (rc 2, zero
+stdout, no -o, ×2), N18.pli tab → charset arm naming position 2 / code point 9. M04/M05 `.mir`
+re-measured byte-EQUAL to pins (m1a path untouched); pipeline proof pli80hir rc 0 dumps == §P1-m1.4;
+`sh tools/mir_aot/build_native.sh` rc 0 (mir2o from the committed additive mir2o.c; lab
+`ccc92c5c`/`f541a7a5` clean, NEVER advanced).
+**SUCCESSOR = PROGRESS.md LIVE hop-8 heading VERBATIM: RUN THE STEP-5 RUNNER — `tools/
+mir_aot_console_test.py` is WRITTEN (V0–V5, §P1-m1.7 expected bytes copied VERBATIM, frozen CT2 .o
+shas pinned in-file, controls perturb ONLY scratch copies under `build/`) BUT HAS NEVER BEEN
+EXECUTED: `eval "$(opam env)" && timeout 900 python3 tools/mir_aot_console_test.py; echo RC=$?` —
+fix RUNNER defects only, never the expected bytes/pins; C-a (mul→add executes 13), C-b
+(get-OK-on-BAD), C-c (EOF-as-success) MUST ALL FAIL loudly first-hand; then commit the runner by
+explicit path → step 6 FULL FROZEN regression (gate → `build/gate-e54p1m1-reg.log`
+1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; mir_aot_test 27; cosmo 25; fresh
+`--build-dir _build-e54p1m1` rc 0 ZERO Error hist **122** sha == kept, each its OWN command) → step
+7 CLOSE (RESULTS §P1-m1 m1a/m1b SEPARATELY + T-panel WITH values + the two deviations + matrix;
+arch §7-7; PLAN §P1-m1.12 CLOSED; durables) → **STOP**. READ `LEARNINGS.md` §§ hop 2..**8** FIRST
+(hop 8 carries this landing + the runner design). Standing: ZERO oracle; ledger 203/C380;
+`handoff.config.json` NEVER staged; no push; explicit paths only; scratch (`build/p1m1-scratch/`,
+`ocaml/scratch-p1m1/`, `build/mir-*`) NEVER committed; lab never advanced; `hir/expected`+
+`hir/fixtures` FROZEN (T2); `hir/mir-*` pins ADDITIVE-only; F8 law; `eval "$(opam env)"` every
+shell; rc DIRECT; NEVER batch build with tests; timeout 60 per fixture / 900 per suite.
+
 1e-e54p1m1-7. **E2E-54/P1-m1 hop 7 CHECKPOINTED 2026-11-10 — step-4 ANCHOR RE-VERIFICATION ONLY,
 ZERO repository code byte changed (session 01a1c283, renewal 6/12; baseline FIRST-HAND: HEAD
 `661c73f2`; `cd ocaml && eval "$(opam env)" && dune build` rc 0; T1 kept exe `172595d52be44c9e…`
@@ -1938,20 +2003,23 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 704
-checkpoint-id: g704-56dac794ad3b
+checkpoint-generation: 708
+checkpoint-id: g708-b5f6e9db1a76
 checkpoint-kind: auto
-content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~2664, session 01a1c283-aa9d-7001-8c8d-6b04cccd5c5d)
-checkpointed: 2026-11-09T23:10:57.598Z
+content-delta: none
+readiness: attested
+status: checkpoint (guard level 4, remaining ~4478, session 01a1c295-7dcd-7001-8c8d-6b09828b4ac5)
+checkpointed: 2026-11-09T23:33:36.402Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c1a9fcf138208389d682c0df3c5626052202e9fa29cb8d2ba8fafe6d89ed22dc
-source-handoff: c8cfcc858a95f216d3a605093f067e4cfa551e3b14eac6f05dd45f824ca55149
-source-learnings: a72c93190116417a801ed5aa8fea83d28c0362f6c389580b9c302b20385d0ee1
+source-progress: 7814a531a798bbced3e9117190042f6a0af39dcc022226a37cd81d7044a3ef5b
+source-handoff: 7fcfc0e8e6c10e0fb922adae8f7f85c298184123fde0d4c0e613f36ed3a8efaf
+source-learnings: 6f7d372740fa6ffaa1539d684d662888f721cf850e853fca35ff9f5122a3712d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c295-7dcd-7001-8c8d-6b09828b4ac5
+readiness-at: 2026-11-09T23:33:58.279Z
+readiness-checkpoint: g708-b5f6e9db1a76
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
@@ -2726,5 +2794,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P1-m1 hop 5: step 2 (m1a HIR half) committed c3db9ffc, durables ba6910ff/ee126055. Successor = PROGRESS live hop-5 heading VERBATIM: PLAN P1-m1.11 step 3 (m1a MIR half: mir_backend P1-m1.5 emission replacing TRANSIENT E18 Put/Get arms; mir2o.c additive MIR_load_external block from build/p1m1-scratch/mir2o_ext.c; build_native.sh rebuild; CT2 .o pins 78656e6c/3822f777/02c15b1b FIRST-HAND; M04/M05 + N8..N16,N19..N21 measured-first CRLF+^Z pins; hir_test rc 0 220 ok 11 numbers UNMOVED + T2; commit), then step 4 m1b, 5 runner (expected bytes from P1-m1.7; C-a/C-b/C-c MUST FAIL), 6 FULL FROZEN regression, 7 CLOSE + STOP. READ LEARNINGS hops 2-5 first.
+Hop 8 landed step 4 (m1b) at commit 73b47176 (build rc 0; T1 172595d5 DIRECT; hir_test 220 ok, 11 numbers UNMOVED; T2 clean; ledger 203/C380; ZERO oracle). SUCCESSOR: tools/mir_aot_console_test.py is WRITTEN BUT NEVER RUN and is currently UNCOMMITTED in the working tree (do not lose it; do not commit until rc 0). Run: cd /home/john/projects/sushiworks/pli80 && eval "$(opam env)" && timeout 900 python3 tools/mir_aot_console_test.py; echo RC=$? — fix RUNNER defects only (never the §P1-m1.7 expected bytes, never hir/mir-expected pins); controls C-a/C-b/C-c MUST all FAIL loudly; then commit the runner by explicit path, then step 6 FULL FROZEN regression (gate -> build/gate-e54p1m1-reg.log; mir_aot_test 27; cosmo 25; fresh --build-dir _build-e54p1m1 hist 122 sha==kept, each its own command), then step 7 CLOSE + STOP. Full contract: PROGRESS.md LIVE hop-8 heading + LEARNINGS.md §§ hop 2..8.
 <!-- guard:end checkpoint -->

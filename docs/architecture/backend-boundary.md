@@ -402,3 +402,34 @@ ZERO oracle; the ledger stays **C380** — native-linking feasibility is DRPLi e
 evidence, never a DR behaviour claim. Next stage remains **PROPOSED ONLY**: P1-m1 minimal
 PL/I console I/O over Cosmopolitan (own PROTOCOL #1 pre-registration + operator
 authorization required). Panel: RESULTS §P1-mC.
+
+## 7-7 E2E-54/P1-m1 — Minimal console I/O over the native MIR path (CLOSED 2026-11-10)
+
+The native MIR path now **executes console I/O end-to-end**: `PUT LIST` of a
+`FIXED BIN(p,0)` expression and of a printable literal (codes 32..126), and `GET
+LIST` of a declared binary scalar, on the default streams. The HIR seam grows
+ADDITIVELY (`put_source`/`Put`/`Get` reusing the existing `designator` and
+`resolve`; new refusals `HIR-E21`/`HIR-E22` appended to `diagnostic.ml`); the
+backend emits used-only console protos before ONE canonical import line plus
+`string` items keyed by first distinct literal use, an `Lfail:` fail-fast tail,
+and the **WINDOW LAW** post-GET (`env sid := W(p)` — a GET proves exactly the
+declared window, nothing wider). The `mir2o` host-import gap (the madc fork
+cannot express WEAK imports from MIR text) is closed by a justified ADDITIVE
+block in OUR `tools/mir_aot/mir2o.c` (`MIR_load_external` per import item before
+`MIR_link`), proven byte-invisible to I/O-free modules: the frozen §P1-m0 object
+hashes `78656e6c…`/`3822f777…`/`02c15b1b…` still hold and the no-IO MIR bytes are
+untouched (T9 first-hand). The runtime is two small committed C adapters
+(`tools/mir_aot/{pli_console.c,console_check.c}`; statuses OK0/EOF1/BAD2/RANGE3/
+IOERR4; the backend — not the runtime — closes every PUT with the newline).
+Console programs link (Cosmopolitan `tiny`) into plain static x86-64 ELF and
+were **judged by EXECUTED BYTES** against independently hand-computed
+expectations (§P1-m1.7): `42\n`, `123\n`, `-42\n`, BAD rc 2 / EOF rc 1 / RANGE
+rc 3 with EMPTY stdout, and the 33-byte `DR PL/I-80 hello from Cosmo!!\n42\n`;
+all three non-vacuity controls (wrong arithmetic, ignored status, EOF-as-success)
+failed loudly. The historical compiler (`ocaml/lib`, `ocaml/bin`) and every H
+pin stay byte-clean; FULL gate FROZEN ALL HIT; `hir_test` 220 ok with the 11
+frozen numbers UNMOVED. PL/I condition designators, `PUT EDIT`, file streams,
+character variables and production adoption remain **PROPOSED ONLY** (each needs
+its own PROTOCOL #1 pre-registration + operator authorization); console
+semantics are DRPLi engineering evidence, never DR claims — the ledger stays
+**C380**. Panel: RESULTS §P1-m1.
