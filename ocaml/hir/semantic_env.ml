@@ -47,7 +47,20 @@
    declared index limits only, and the record's physical element width is dropped at
    the first touch like every other layout component. [resolve]/[symbol]/
    [scope_syms] are unchanged: an array fact rides the eparent chain exactly as an
-   enclosing scalar does (fact A-8). *)
+   enclosing scalar does (fact A-8).
+
+   E2E-54/P1-a2 amendment (PLAN §P1-a2.3): parameter PASSING EVIDENCE and FORMAL
+   descriptions are projected from bind's OWN records — [Bind.pl_calls] (the DFS
+   call-site list) and [Bind.pl_ptrs] (the formal-cell order). Like every other
+   physical quantity, the integer payload of the site records (descriptor slot,
+   value-cell and copy-in cell addresses) is DROPPED AT THE FIRST TOUCH: the
+   projection keeps the callee key, the PHYSICAL node identities of the argument
+   expressions (used for MATCHING, never interpreted), three parallel BOOLEAN
+   lists and bind's [cs_dec] flags as-is. Passing modes are symbolic
+   ([passing_mode] below) and a disagreement between bind's record and the
+   argument syntax is [PM_unknown] — a typed unknown the lowering must refuse
+   loudly (HIR-E16), never guess through. [cs_slot] is not read at all
+   (falsifier T5: it occurs nowhere in this directory). *)
 
 (* Cross-library aliases (P0 F1 law: these units live in the separate
    [pli80_hir] library; the historical front end is reached through [Pli80]). *)
@@ -173,6 +186,20 @@ type symbol = {
           A-5) and structure members (fact A-14, which never reach the channel). *)
 }
 
+(* Formal identity, position, declared type and OWNERSHIP scope (§P1-a2.3 item
+   3). [f_sid]/[f_stype] are [None] exactly together — bind laid no row for
+   this formal (P0 refuses such a procedure; the [None] stays typed, never an
+   invented symbol). Resolution is the callee block's OWN [esyms] association,
+   never [resolve] up the chain: a formal shadowing an outer name is the
+   [C358] shape and the callee's own row must win. *)
+type formal_desc = {
+  f_pos : int;            (** 0-based, bind pl_ptrs order (the semantic position) **)
+  f_key : string;         (** lowered formal name (bind fact) **)
+  f_sid : int option;     (** env symbol in the CALLEE's own scope **)
+  f_stype : stype option; (** declared row type; None exactly when f_sid is None **)
+  f_scope : int;          (** owning (callee) scope — ownership and lexical scope **)
+}
+
 (* ---------- procedure signatures (bind's own facts, projected) ---------- *)
 
 type proc_sig = {
@@ -182,15 +209,33 @@ type proc_sig = {
   sptr_count : int;         (** arity = number of bind formal cells *)
   srec : bool;              (** bind's derived recursion fact *)
   sattr_rec : bool;         (** RECURSIVE attribute written in the source *)
+  sformals : formal_desc list;
+      (** AMENDMENT (§P1-a2.3): the formal list projected WITH identity, type and
+          ownership, positions exactly in [pl_ptrs] order (matrix row 1: the
+          order is bind's semantic formal order; the cell addresses never
+          cross). **)
 }
 
-let sig_of_pl (pl : Bind.proc_layout) : proc_sig =
-  { sptrs = List.map fst pl.Bind.pl_ptrs
+let sig_of_pl (pl : Bind.proc_layout) ~(syms : (string * symbol) list)
+    ~(scope : int) : proc_sig =
+  let keys = List.map fst pl.Bind.pl_ptrs in
+  { sptrs = keys
   ; sret = Option.map type_of_rt pl.Bind.pl_ret
   ; sret_pr = Option.map Bind.rty_str pl.Bind.pl_ret
-  ; sptr_count = List.length pl.Bind.pl_ptrs
+  ; sptr_count = List.length keys
   ; srec = pl.Bind.pl_rec
-  ; sattr_rec = pl.Bind.pl_attr_rec }
+  ; sattr_rec = pl.Bind.pl_attr_rec
+  ; sformals =
+      List.mapi
+        (fun i key ->
+          match List.assoc_opt key syms with
+          | Some s ->
+              { f_pos = i; f_key = key; f_sid = Some s.esid
+              ; f_stype = Some s.ety; f_scope = scope }
+          | None ->
+              { f_pos = i; f_key = key; f_sid = None
+              ; f_stype = None; f_scope = scope })
+        keys }
 
 (* ---------- block environments ---------- *)
 
@@ -204,6 +249,48 @@ type block_env = {
   eformals : string list;  (** lowered AST bparams (the [O] formal set) *)
   esig : proc_sig option;  (** None = bind laid no procedure record *)
   east : Ast.block;        (** the syntax this block came from *)
+}
+
+(* ---------- parameter passing evidence (§P1-a2.3) ---------- *)
+
+(* The SYMBOLIC classification of what bind recorded at one argument position.
+   Evidence classes (matrix rows, §P1-a2.1): [PM_value_cell] is the anonymous
+   expression cell ([C145], cs_temps Some); [PM_own_cell] is a bare name or an
+   array-ELEMENT actual designating its own storage (no cell in bind's record,
+   [C093]/[C175]); [PM_immediate] is an [Enumber] actual (no cell; DR
+   materialises a descriptor constant); [PM_copy_in] is the DEC widening temp
+   ([C358], cs_copies Some) — OUTSIDE the lowering subset, refused by rule; and
+   [PM_unknown] is a typed disagreement between bind's record and the argument
+   syntax. This is evidence about DR's ABI materialisation, NOT a portable
+   language law (brief §2 warning). *)
+type passing_mode =
+  | PM_value_cell
+  | PM_own_cell
+  | PM_immediate
+  | PM_copy_in
+  | PM_unknown
+
+(* One projected call site: bind's callee key, the physical argument NODES (for
+   identity matching only — never inspected beyond their constructors by the
+   classifier below), and the positional flags. Every Some address in bind's
+   record became [true]; no integer entered this type (falsifier T6). *)
+type call_site = {
+  cs_proc : string;
+  cs_args : Ast.expr list;
+  cs_temps : bool list;
+  cs_copies : bool list;
+  cs_dec : bool list; (** carried as-is per §P1-a2.3; no lowering consumes it yet **)
+}
+
+(* The answer of [call_evidence]: the callee key and one passing mode per
+   recorded argument position, plus bind's scalar-DEC-formal flags carried
+   as-is. No position count or mode here is re-derived from the AST. The mode
+   FUNCTIONS live with the lookups below (they consume [t]); only the types
+   are declared here. *)
+type call_evidence = {
+  ce_proc : string;
+  ce_args : passing_mode list;
+  ce_dec : bool list;
 }
 
 (* ---------- external entries (pl_exts channel) ---------- *)
@@ -223,6 +310,12 @@ type t = {
   by_scope : (int * block_env) list;
   procs_by_name : (string * int) list; (** lowered key -> pid *)
   entries : (string * entry_sig) list;
+  sites : call_site list;
+      (** AMENDMENT (§P1-a2.3): bind's [pl_calls] projected ONCE at [create] —
+          DFS order preserved, every Some address replaced by [true], the slot
+          integer DROPPED unread (T5: [cs_slot] is named nowhere in this
+          directory). The physical node identities enable [call_evidence]
+          matching; nothing here interprets an expression. **)
 }
 
 (* Typed unsupported (brief Step 2): a lookup against an out-of-range scope id
@@ -376,7 +469,8 @@ let register_block st parent_scope pid (blk : Ast.block) (formals : string list)
       ename = (match blk.Ast.bname with Some n -> Some n.Ast.orig | None -> None);
       ekey = (match pl with Some p -> Some p.Bind.pl_name | None -> None);
       esyms = syms; eformals = formals;
-      esig = Option.map sig_of_pl pl; east = blk }
+      esig = Option.map (fun p -> sig_of_pl p ~syms ~scope:scope_id) pl;
+      east = blk }
   in
   st.blocks <- be :: st.blocks;
   be
@@ -499,10 +593,23 @@ let create (blk : Ast.block) (plan : Bind.prog_layout) :
             ; en_ptypes = List.map type_of_rt ptypes } ))
         plan.Bind.pl_exts
     in
+    (* §P1-a2.3: the call-site projection. The option payloads of bind's site
+       records are converted to booleans HERE, at the first and only touch; the
+       slot field is never read. *)
+    let sites =
+      List.map
+        (fun (cs : Bind.call_site) ->
+          { cs_proc = cs.Bind.cs_proc
+          ; cs_args = cs.Bind.cs_args
+          ; cs_temps = List.map Option.is_some cs.Bind.cs_temps
+          ; cs_copies = List.map Option.is_some cs.Bind.cs_copies
+          ; cs_dec = cs.Bind.cs_dec })
+        plan.Bind.pl_calls
+    in
     Ok
       { main_bd; all_blocks;
         by_scope = List.map (fun b -> (b.escope, b)) all_blocks;
-        procs_by_name = st.procs_by_name; entries }
+        procs_by_name = st.procs_by_name; entries; sites }
   with Refuse ds -> Error ds
 
 (* ---------- lookups ---------- *)
@@ -551,6 +658,92 @@ let procedure (t : t) (key : string) : int option =
 
 let signature (t : t) (pid : int) : proc_sig option =
   (block_of_pid t pid).esig
+
+(* §P1-a2.3 mode computation — functions over [t], defined with the lookups.
+
+An [O]-class organization over bind rows (same class as the Formal flag):
+   an array-ELEMENT actual is a 1-subscript [Esuffix] on a plain name whose env
+   symbol carries [e_array = Some], resolved from the CALLER's scope chain.
+   bind's own discriminator (section2) consults only the calling block's
+   records; where the two views disagree the classifier yields [PM_unknown]
+   rather than guessing (see [passing_mode_of]). *)
+let element_actual (t : t) (caller_scope : int) (e : Ast.expr) : bool =
+  match e.Ast.e with
+  | Ast.Esuffix (hd, [ _ ]) -> (
+      match hd.Ast.e with
+      | Ast.Eident h -> (
+          match resolve t caller_scope (key_of h) with
+          | Some s -> s.e_array <> None
+          | None -> false)
+      | _ -> false)
+  | _ -> false
+
+(* Per-position mode from bind's OWN discriminators, never re-derived (§P1-a2.3):
+   the copy-in flag wins, then the recorded cell flag, then the argument syntax.
+   The arms where bind recorded a value cell for a bare name, an immediate or an
+   element are internal inconsistencies (bind's own rule gives those no cell) and
+   classify [PM_unknown]; so does a genuine expression bind recorded no cell for. *)
+let passing_mode_of (t : t) (caller_scope : int) (temp : bool) (copy : bool)
+    (e : Ast.expr) : passing_mode =
+  if copy then PM_copy_in
+  else
+    match e.Ast.e with
+    | Ast.Eident _ -> if temp then PM_unknown else PM_own_cell
+    | Ast.Enumber _ -> if temp then PM_unknown else PM_immediate
+    | Ast.Esuffix ({ e = Ast.Eident _; _ }, [ _ ])
+      when element_actual t caller_scope e ->
+        if temp then PM_unknown else PM_own_cell
+    | _ -> if temp then PM_value_cell else PM_unknown
+
+(* §P1-a2.3: formal descriptions of a registered block. [None] = bind laid no
+   procedure record; typed [Not_found] for an out-of-range pid (same channel as
+   [signature]/[block_of_pid], §P1-b.2). *)
+let formals_of (t : t) (pid : int) : formal_desc list option =
+  match (block_of_pid t pid).esig with
+  | Some s -> Some s.sformals
+  | None -> None
+
+(* §P1-a2.3 matching law: the FIRST recorded site (bind DFS order) whose callee
+   key equals [callee_key] and whose [cs_args] are PHYSICALLY ([==]) the very
+   [Ast.expr] nodes being lowered. Determinism: these nodes are the nodes of the
+   parsed tree [bind_program] walked, and [Hir_build] re-runs bind on the SAME
+   tree, so identity is stable within a process; two zero-arity sites to one
+   callee are indistinguishable but both carry EMPTY evidence lists, making
+   first-match provably harmless. A typed [None] (no recorded site, or a site
+   whose positional lists disagree in length — impossible by bind construction,
+   loud if ever seen) makes the lowering refuse with HIR-E16 and never assume a
+   mode. §P1-a2.10 pins the falsification path: if this identity law ever fails
+   to match a real call, that failure IS the E16 refusal — re-audit, never a
+   positional guess. *)
+let call_evidence (t : t) ~(caller_scope : int) ~(callee_key : string)
+    (args : Ast.expr list) : call_evidence option =
+  let rec same_nodes l1 l2 =
+    match (l1, l2) with
+    | [], [] -> true
+    | a :: r1, b :: r2 -> a == b && same_nodes r1 r2
+    | _ -> false
+  in
+  List.find_map
+    (fun (cs : call_site) ->
+      if not (String.equal cs.cs_proc callee_key) then None
+      else if not (same_nodes cs.cs_args args) then None
+      else if
+        List.length cs.cs_temps <> List.length cs.cs_args
+        || List.length cs.cs_copies <> List.length cs.cs_args
+      then None
+        (* defensive: bind builds the three lists per argument by List.mapi, so
+           equal length is a construction; a mismatch would be an internal
+           inconsistency and is reported as NO evidence, never guessed past *)
+      else
+        Some
+          { ce_proc = cs.cs_proc
+          ; ce_args =
+              List.map2
+                (fun (temp, copy) e ->
+                  passing_mode_of t caller_scope temp copy e)
+                (List.combine cs.cs_temps cs.cs_copies) cs.cs_args
+          ; ce_dec = cs.cs_dec })
+    t.sites
 
 (* pid -> pid of the enclosing procedure (main, pid 0, has none). *)
 let enclosing (t : t) (pid : int) : int option =
