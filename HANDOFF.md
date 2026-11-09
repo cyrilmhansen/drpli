@@ -1723,25 +1723,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 638
-checkpoint-id: g638-5f44cfc87725
-checkpoint-kind: auto
+checkpoint-generation: 639
+checkpoint-id: g639-307b38c28e94
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3939, session 01a1bdbc-2574-73ad-8fbc-6a76ac01c9f7)
-checkpointed: 2026-11-09T01:04:30.644Z
+status: checkpoint (guard level 2, remaining ~10280, session 01a1beba-124f-74ee-84fe-84e837f466b2)
+checkpointed: 2026-11-09T05:29:46.292Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7e7834c7ef41311ef1fced3548e32c5d34785b8ef06ad91b9f92ebd1a4ee8bec
+source-progress: 3bb08422f7f19f28d4efa1626d4b07f16e241c182d238dbeb03e1eae6c4088cb
 source-handoff: 4aca2e1ea7d3d4020d69e27d9fbaf9e5d65a4065b2c1963ffdf4eb8ce8c5fb62
-source-learnings: fb31e75e608b9e875d782cf418365249e8db7fa341dd24941d456a59fb149341
+source-learnings: d2ca86931778810d62236fc9aa6b64bcdaca2b2626c2d465228e6739f36f34ab
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bdbc-2574-73ad-8fbc-6a76ac01c9f7
-readiness-at: 2026-11-09T01:04:56.661Z
-readiness-checkpoint: g638-5f44cfc87725
+readiness-by: session:01a1beba-124f-74ee-84fe-84e837f466b2
+readiness-at: 2026-11-09T05:29:46.329Z
+readiness-checkpoint: g639-307b38c28e94
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (finalize: E2E-54/P1-a2 hop 1 checkpoint at level-2 pressure: baseline verified first-hand (HEAD b716daf0→3d42aba7 durables, exe 172595d5…, hir_test rc 0, ledger C380); §2 parameter audit started, anchors in LEARNINGS; successor = execute PROGRESS live heading VERBATIM: finish §2 audit → PRE-REGISTER PLAN §P1-a2 by explicit paths (PROTOCOL #1 gate) BEFORE any ocaml/hir/ byte → implement → gate → CLOSE → STOP. Zero oracle; config never staged; no push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2467,5 +2467,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-a1 hop 2 IN FLIGHT. DONE: contract steps 1–2 first-hand (baseline trio green; probe-2 A-10..A-17 in LEARNINGS + build/p1a1-probe-2.log incl. byte-identical 20/20 probe-1 reproduction); §P1-a1 WRITTEN into spec/lab-evidence/e2e54/PLAN.md (brief verbatim 186/186 verified; A-1..A-17; subset/HIR/env/build contracts; H05 flip adjudication; fixtures H08–H15; semtest I8–I10 + --corrupt-array-hi/--corrupt-array-base; falsifiers T1–T10; work order). UNCOMMITTED: PLAN.md §P1-a1, LEARNINGS hop-2, guard-refreshed durables. SUCCESSOR: execute PROGRESS.md `## Next action (E2E-54/P1-a1 hop 2 IN FLIGHT…)` steps 1–6 VERBATIM — step 3 (commit spec/lab-evidence/e2e54/PLAN.md + LEARNINGS.md by EXPLICIT paths, NEVER handoff.config.json) is the PROTOCOL #1 gate: NOTHING in ocaml/hir/ may be touched before it. Then semantic_env → hir → hir_build+diagnostic → MEASURED fixtures → semtest → hir_test → FULL gate (build/gate-e54p1a1-reg.log, FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5) + fresh --build-dir _build-e54p1a1 → RESULTS §P1-a1 + arch §7-2 + PLAN dashboard CLOSED → STOP (no PUT/GET, no BEGIN repair, no MIR). Ledger C380 (203 `## C` headers); exe 172595d5… after EVERY build step; zero oracle; no push; every fixture under timeout.
+E2E-54/P1-a2 hop 1 checkpoint at level-2 pressure: baseline verified first-hand (HEAD b716daf0→3d42aba7 durables, exe 172595d5…, hir_test rc 0, ledger C380); §2 parameter audit started, anchors in LEARNINGS; successor = execute PROGRESS live heading VERBATIM: finish §2 audit → PRE-REGISTER PLAN §P1-a2 by explicit paths (PROTOCOL #1 gate) BEFORE any ocaml/hir/ byte → implement → gate → CLOSE → STOP. Zero oracle; config never staged; no push.
 <!-- guard:end checkpoint -->
