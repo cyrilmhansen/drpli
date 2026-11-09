@@ -10048,3 +10048,28 @@ hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → 
 - **PROPOSED (roadmap, unauthorized):** array ACTUALS in calls (descriptor passing),
   out-of-range DR behaviour probe (needs oracle), BEGIN/DO hygiene repair — each needs
   its own PROTOCOL #1 pre-registration.
+
+## E2E-54/P1-a2 hop 1 (2026-11-10, session 01a1beba; ZERO oracle) — baseline + parameter-authority anchors
+- **ACCEPTED (baseline, first-hand):** HEAD `b716daf0`; `dune build` rc 0; `pli80c.exe`
+  `172595d5…`; `timeout 900 python3 tools/hir_test.py` rc 0 (full panel incl. semtest live +
+  3 corrupt modes, T5/T6 greps); ledger 203 headers ending C380; `ocaml/lib`+`ocaml/bin`
+  byte-clean; guard checkpoint `current` at session start.
+- **ACCEPTED (anchors, read from source, not yet classified as evidence):** the binder's
+  parameter surface is `proc_layout.pl_ptrs` (formal name → 2-byte pointer-cell DATA address;
+  `bind.ml:1952`, built `List.mapi (fun i f -> (f, base + 2*i)) formals` at `:2557` — the
+  ORDER is bind's own formal order, the ADDRESS is physical and must never cross the HIR
+  seam) and the per-procedure `call_site` list `pl_calls` (`bind.ml:1650-1669`:
+  `cs_proc/cs_slot/cs_args/cs_temps/cs_copies/cs_dec`). The passing-mechanism decision
+  tree lives in `section2` (`bind.ml:~2376-2545`): bare name/`Enumber` ⇒ no value cell;
+  array-ELEMENT actual ⇒ no cell, reference to the element's own cell ([E2E-22/P3] comment
+  cites AB7 + PASSARAY); other expressions ⇒ anonymous 2-byte BIN temp ([C145]) or
+  formal-width DEC temp (`cs_dec`, [E2E-52/P3-13]); DEC widening copy-in temp (`cs_copies`,
+  [C358]) EXCLUDING caller-formal names (E27B forwarding), STATIC rows, array heads,
+  recursive/RECURSIVE callees (`callee` is `Some` only when `not recf && not attrf`).
+- **ACCEPTED (law re-confirmed):** every `cs_*` offset is POOL-EXCLUSIVE and PHYSICAL — a
+  DR-ABI fact, NOT a portable semantic rule (brief §2 warning); the HIR may consume only the
+  *classification* (which mechanism applies), never a cell number.
+- **PROPOSED (to verify next hop):** evaluation order of actuals is nowhere claimed so far —
+  the P0 dump wording `args left-to-right` perpetuates an assumption; §2 audit must read the
+  codegen consumers (`cs_*`, `deref`) and the claims C145/C167/C172..175/C358 before any
+  representation is designed; fixture ids H16.. unused (verify before pre-registering).

@@ -54,6 +54,72 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
+## Next action (E2E-54/P1-a2 authorized 2026-11-10 — RECOVERY DONE; §§2 PARAMETER AUDIT IN FLIGHT; PRE-REGISTER PLAN §P1-a2 BEFORE any `ocaml/hir/` byte — BINDING)
+**DONE this hop (session 01a1beba; ZERO oracle):** operator authorized **E2E-54/P1-a2**
+(procedure arguments + indirect references, starting reference `b716daf0`; P0/P1-b/P1-a1
+stays CLOSED, its evidence untouched). Baseline verified FIRST-HAND: HEAD `b716daf0`;
+`ocaml/lib`+`ocaml/bin` byte-clean (`git status --porcelain` empty under those paths — only
+pre-existing untracked golden `dir.txt`/`summary.txt` debris + dirty-never-staged
+`handoff.config.json` + scratch/build dirs); `dune build` rc **0**; `pli80c.exe` sha256
+**`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`**; `timeout 900
+python3 tools/hir_test.py` rc **0** (H01–H09 positives + H10–H15 pins, semtest live + ALL 3
+corrupt ×2, F4/F7/F8/F9/F10/S8/T5/T6 green — `tail` seen, log `/tmp/hirtest-baseline.log`, NOT
+evidence-file); ledger **203** `## C` headers ending **C380**; guard: checkpoint `current`,
+`lastRemaining ≈ 94.7k` at session start, cap-12 chain (renewal state file absent this session
+— `/handoff verify` is the authority). Read: AGENTS, PROTOCOL, HANDOFF/PROGRESS recovery
+prose, `spec/lab-evidence/e2e54/PLAN.md` §P0/§P1-b/§P1-a1 contracts, RESULTS §P0/§P1-b/
+§P1-a1, `docs/architecture/backend-boundary.md` §1.4/§1.5/§7-1/§7-2, and ALL of
+`ocaml/hir/{hir,semantic_env,hir_build}.ml` (semtest.ml/diagnostic.ml/backend.ml NOT yet re-read).
+**§2 AUDIT STARTED (reads done, findings NOT yet written anywhere):** bind's parameter-side
+authorities located first-hand — `proc_layout.pl_ptrs : (string * int) list` (formal → 2-byte
+pointer cell, `bind.ml:1952`, built by `List.mapi (fun i f -> (f, base + 2*i)) formals` at
+`:2557`); `call_site = {cs_proc; cs_slot; cs_args : Ast.expr list; cs_temps; cs_copies; cs_dec}`
+(`bind.ml:1650-1669`, the offsets are PHYSICAL and must NOT cross the HIR seam); per-arg passing
+mechanics in `section2` (`bind.ml:~2376-2545`): bare name / Enumber ⇒ NO value cell; array-
+ELEMENT actual (`Esuffix(Eident,[_])` with head in caller `bind_arrays`) ⇒ NO cell — passed by
+reference to the element's own cell ([E2E-22/P3] comment cites AB7 `call p(a(4))` + PASSARAY
+`call inner(argument(I))`); any other expression ⇒ anonymous 2-byte BIN temp ([C145]) or
+formal-width DEC temp ([E2E-52/P3-13] `cs_dec`); caller-decl DEC actual into WIDER same-scale DEC
+formal ⇒ copy-in temp ([C358], `cs_copies`), deliberately NOT for a caller FORMAL name (E27B
+forwarding route), STATIC row, array head, recursive/external callee; copy/temp allocation is
+skipped when callee is recursive/RECURSIVE-attributed (`callee` = `Some` only `not recf && not
+attrf`). Claim anchors located, NOT yet read: C145 (line 2665 region §E2E-14), C167 (§E2E-20
+3173), C172–C175 (§E2E-22 3367), C358 (8480), C375-377; evaluation order of actuals is nowhere
+claimed so far.
+**EXECUTE (successor), exact order:** (1) finish §2 audit — read `ocaml/hir/semtest.ml` +
+`diagnostic.ml` + `backend.ml`; read the cited claim bodies (C145/C167/C172..C175/C358 —
+`grep -n '^## C145' spec/CLAIMS.md` etc.; the §-headers at 2665/3173/3367 are E2E-phase
+section headers, actual `## C` ids may differ — locate them); audit codegen's call lowering
+sites for how `cs_temps/cs_copies/cs_slot/pl_ptrs` are consumed (descriptor cells, aliasing,
+formal write-back visibility, evaluation order) — `grep -n cs_args\|cs_temps\|cs_copies\|pl_ptrs\|deref ocaml/lib/codegen.ml`; check the manual (`manuals/`) ONLY as documented
+language-rule support. (2) WRITE `spec/lab-evidence/e2e54/PLAN.md` **§P1-a2** pre-registration
+(operator brief VERBATIM as §P1-a2.0 — recover EXACTLY as P1-a1 did; the evidence/unknowns
+matrix for the 8 §2 questions with the [bind-fact]/[language-rule]/[DR-ABI-backed]/[unmeasured]
+classification; the `Semantic_env` parameter-API amendment; the HIR designator/argument
+representation contract incl. the ORDERED-vs-EVALUATION-ORDER adjudication (P0's
+`args left-to-right` dump wording perpetuates an UNPROVEN execution-order claim — fix honestly
+with a named drift or keep with explicit [TBD] annotation, DECIDE and pre-register); the narrow
+lowering subset (scalar/expr/array-elem/formal actuals, aliasing pair); semtest invariants +
+corrupt controls incl. wrong-formal-identity/wrong-actual-base/wrong-position-type; fixtures
+H16.. with ids verified unused; falsifiers T1–T10-style reusing the FROZEN panel numbers) and
+**COMMIT BY EXPLICIT PATHS BEFORE ANY `ocaml/hir/` BYTE** (PROTOCOL #1). (3) Implement per the
+contract, `dune build` rc 0 + T1 `172595d5…` DIRECT after EVERY build step; MEASURED fixtures;
+extend semtest + `tools/hir_test.py`; FULL gate rc 0 → `build/gate-e54p1a2-reg.log` FROZEN
+1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5; fresh `--build-dir
+_build-e54p1a2` rc 0 ZERO Error (sha vs kept exe; fresh-dir logs print rc+headers only).
+(4) CLOSE: RESULTS §P1-a2, arch §7-3, PLAN dashboard P1-a2 CLOSED, roadmap PROPOSED ONLY;
+durables + guard; **STOP — no MIR, no PUT/GET, no BEGIN repair, ledger stays C380.**
+**CONSTRAINTS (standing, all hops):** ZERO oracle (none authorized); ledger stays **C380**
+(203 headers); `ocaml/lib`+`ocaml/bin` byte-clean vs HEAD; `handoff.config.json` NEVER staged;
+no push; explicit-path commits only; `eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`;
+NEVER batch a build with tests using its artifacts (race law); every fixture under `timeout 60`
+(BEGIN/DO hang pre-existing, NOT to be fixed); scratch never committed; `hir/expected/
+superseded/` never rewritten; H01–H15 pins/diagnostics preserved unless an evidence-backed
+adjudication says otherwise; do not modify GOAL.md or previous evidence; stray root S2..S5 +
+golden dir.txt debris untouched.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-a1 CLOSED 2026-11-09 — STOP: NOTHING IS AUTHORIZED; report to OPERATOR — BINDING) — CONSUMED: operator authorized E2E-54/P1-a2 on 2026-11-10 (this heading).
+
 ## Next action (E2E-54/P1-a1 CLOSED 2026-11-09 — STOP: NOTHING IS AUTHORIZED; report to OPERATOR — BINDING)
 **DONE (this session, renewal 4/12; ZERO oracle; ocaml/lib+bin byte-clean):** step 4
 §P1-a1.7 → `1399ff1a` (semtest I1 ARRAY-AWARE — the recorded KNOWN RED 9× → 0, the TEST
