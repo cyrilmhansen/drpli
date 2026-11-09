@@ -10120,3 +10120,6 @@ hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → 
 - **OPEN for the successor (the ONLY remaining work before implementation):** (a) verify fixture ids
   H16.. unused (`ls hir/fixtures` — H01..H15 taken); (b) WRITE + COMMIT `spec/lab-evidence/e2e54/PLAN.md`
   §P1-a2 by EXPLICIT PATHS **before any `ocaml/hir/` byte** (PROTOCOL #1); (c) then implement.
+- **ACCEPTED (id check, hop 2 close):** `ls hir/fixtures | grep -c 'H1[6-9]\|H2[0-9]'` = **0** — fixture
+  ids H16.. are UNUSED, so the §P1-a2 fixture plan may take H16.. without collision (verified first-hand
+  at HEAD `71ee96d0`; successor contract step 1 is therefore DONE).
