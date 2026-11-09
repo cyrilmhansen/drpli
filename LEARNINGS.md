@@ -10190,3 +10190,29 @@ hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → 
 - **ACCEPTED (tooling laws re-measured this hop):** OCaml nested-match offside — a `match` in a risky position (`else match …`, or a match whose closing paren count is off by one) silently swallows sibling `|` arms: two build failures were pure offside/paren bugs, not type bugs; the robust style here is to parenthesise every nested match before a following `|`. Doc-comments (`(** … *)`) placed between `and ty =` and its first `|` constructor are Warning 50 unattached and must become plain `(* … *)` comments. `~label:_` in a definition keeps the label for callers while silencing Warning 27.
 - **DEVIATION (signature detail, honest):** the pre-registered `dump_designator … (dvar_ty : string)` is implemented as `dvar_ty : int -> string`, because the assignment-target role must print the SYMBOL's type (`pp_sym_ty syms sid`, sid known only inside the arm) while an actual passes `fun _ -> pp_ty a.ac_ty` (equal by the E17 discipline). Rendering-only; every byte for H01–H15 unchanged (T2 measured).
 - **PROPOSED / OWED (step 4, next hop):** fixtures H16–H21 per §P1-a2.7 — H16 statement-call `call bump(x, y + 1);` (the first statement-position `Call_s` WITH args, i.e. the new intended coverage; if it dies E16 the matching law is falsified for statement sites — re-audit bind, never positional-guess), H17 element actuals + `call bump(x, x);` alias pair, H18 two-level forwarding ([C130] shape), H19 whole-array actual ⇒ E15, H20 `bin(7)` actual vs `bin(15)` formal ⇒ E17, H21 `y = dbl(dbl(2));` nested-call actual. Then step 5 (semtest I11–I13 + 4 corrupt modes + hir_test SEM_MODES ×4 + extended T5 grep list) → step 6 (FULL gate FROZEN → `build/gate-e54p1a2-reg.log`, fresh `--build-dir _build-e54p1a2`) → step 7 CLOSE → step 8 STOP. Ledger stays C380; H01–H15 stay frozen.
+
+## E2E-54/P1-a2 hop 7 (session 01a1bf4a, renewal 6/12; ZERO oracle) — STEP 4 LANDED `96e995fd`
+**ACCEPTED (measured first-hand):** the **PHYSICAL-NODE MATCHING LAW HOLDS AT STATEMENT SITES** —
+§P1-a2.10 left this ASSERTED-until-H16; H16/H17/H18/H21 all lowered rc 0 with ZERO HIR-E16, so bind's
+`pl_calls` `cs_args` are literally the `Ast.expr` nodes the CLI re-walks (identity `==`), at statement
+position too. All six fixtures measured EXACTLY as §P1-a2.7 pre-registered (nothing fitted, no
+prediction falsified this hop): H16 `call bump(x, y+1);` ⇒ `Call_s` `arg 0` = `var sym(0) … [pure, line 7]`
+(A_reference D_var) + `arg 1` = `binop +` at indent+2 (A_value/PM_value_cell), callee writes BOTH formals;
+H17 element actual ⇒ `elem_ref sym(0)[1:4]` + sub at +1, aliased pair ⇒ two identical `var sym(2)` lines
+(aliasing recorded, never invented away); H18 three-pid forwarding chain outer(x)→inner(y) ([C130] E27B);
+H19 ⇒ HIR-E15 211 B (E13→E15 handover landed; H13's E13 pin unmoved); H20 ⇒ HIR-E17 163 B naming both
+types; H21 ⇒ A_value(Call_e) nested, innermost const at indent 6. New semtest live OK counts (pin these
+for T7 review): **H16 12 refs/5 syms, H17 12/5, H18 7/3, H21 5/2**; all 3 existing corrupt modes rc 1
+SEM-FAIL on each. Full `tools/hir_test.py` rc 0 — **71 ok**, every H01–H15 count byte-identical, T2 clean
+for pre-existing expected, F4/F7/F8/F9/F10/S8/T5/T6 green; T1 exe `172595d5…` held DIRECT.
+**MEASURED TOOLING LAW (accepted):** expected files were produced by `cp` of the reviewed measured
+streams (never hand-written); negatives got `printf '2\n' > <n>.rc`. CRLF conversion = `text.replace("\n","\r\n")`
++ trailing `\x1a` — the fixtures are 178–326 B.
+**PROPOSED (unverified, for step 5):** I12's law "`A_value` is never a bare name/`Enumber` by construction"
+means the immediate shape is ONLY a `Const` node; if a corrupt control looks vacuous, the fix is the
+control's perturbation, NEVER weakening the shared comparison. Fixture-level note: H16's `s = x;` after the
+call was added so a post-call read of a passed-by-reference name is on record (a representation fact, not a
+runtime claim).
+**OPEN:** step 5 (semtest I11–I13 + `--corrupt-formal`/`--corrupt-actual-base`/`--corrupt-arg-position`/
+`--corrupt-mode` + `SEM_MODES`×7 + T5 grep list + `cs_slot` nowhere) → step 6 FULL gate FROZEN → step 7
+CLOSE → step 8 STOP. Full contract is the PROGRESS.md live hop-7 heading, VERBATIM.
