@@ -1784,25 +1784,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 670
-checkpoint-id: g670-ed7307d4f31c
+checkpoint-generation: 671
+checkpoint-id: g671-cfbd48844124
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~31706, session 01a1bfc1-9c20-74ee-84fe-8515ad21b2d8)
-checkpointed: 2026-11-09T10:18:55.681Z
+status: checkpoint (guard level 1, remaining ~10863, session 01a1bfe1-3e0a-763c-ab64-5e545a345d30)
+checkpointed: 2026-11-09T11:21:40.526Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b967c92e2cad9eb280ab1a7b0565c0ca4f1f32cca34110c97d698ae175c3edd3
-source-handoff: 8e116c6f912575f78378b9332587fcff6e1185fcb18912e870205fe95bc42c73
-source-learnings: 2ac4365b8bd4a6df39ad8f58068cfb4b334ad44a3429899d33333364fba63655
+source-progress: 13b43d3899fa4382b42c73b678561843534c18d4e94dc3fa578fb840854e8a2f
+source-handoff: 86cc234058a2cfdb5fabbac32156eadf86c91c0758a9d4e6e488c12e4352b3f0
+source-learnings: c4bf12c9cf2e5a6e43ce7b665b7df07024dbf2c212c8e5f3485e86822aaae7d5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1bfc1-9c20-74ee-84fe-8515ad21b2d8
-readiness-at: 2026-11-09T10:18:55.718Z
-readiness-checkpoint: g670-ed7307d4f31c
+readiness-by: session:01a1bfe1-3e0a-763c-ab64-5e545a345d30
+readiness-at: 2026-11-09T11:21:40.583Z
+readiness-checkpoint: g671-cfbd48844124
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-54/P1-a2 CLOSED 2026-11-10 (hop 12): steps 6-8 landed — FULL gate rc 0 FROZEN ALL HIT 1328/1328-190/190-9/9-149rows0/0-16/0/25/0-prose5 (build/gate-e54p1a2-reg.log), fresh _build-e54p1a2 rc 0 ZERO Error hist 122 sha==kept exe 172595d5…, hir_test rc 0 (120 ok, ALL 11 OK numbers unmoved, 77 corrupt controls), CLOSE ae0c6b4f (RESULTS §P1-a2 + arch §7-3 + dashboard CLOSED), durables 3ba122de. NOTHING FURTHER AUTHORIZED — await OPERATOR (MIR/PUT/GET/BEGIN repair/P2+ PROPOSED ONLY). Ledger C380; config never staged; no push.)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2575,5 +2575,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-a2 CLOSED 2026-11-10 (hop 12): steps 6-8 landed — FULL gate rc 0 FROZEN ALL HIT 1328/1328-190/190-9/9-149rows0/0-16/0/25/0-prose5 (build/gate-e54p1a2-reg.log), fresh _build-e54p1a2 rc 0 ZERO Error hist 122 sha==kept exe 172595d5…, hir_test rc 0 (120 ok, ALL 11 OK numbers unmoved, 77 corrupt controls), CLOSE ae0c6b4f (RESULTS §P1-a2 + arch §7-3 + dashboard CLOSED), durables 3ba122de. NOTHING FURTHER AUTHORIZED — await OPERATOR (MIR/PUT/GET/BEGIN repair/P2+ PROPOSED ONLY). Ledger C380; config never staged; no push.
+E2E-54/P1-h hop 2: execute PROGRESS.md live P1-h heading VERBATIM — §P1-h.7 steps 4–8: (4) fixtures H22–H29 measured-first in ocaml/scratch-p1h/ (timeout 60, CRLF+^Z, program names h22..; expected = cp of reviewed measured output; H28 BEG2-shape rc 0 bogus-duplicate GONE; H29 dcl-in-BEGIN pins LIVE HIR-E03 channel, E11 bdecls guard dead; empty begin;end; parse UNPROVEN — record deviation), hir_test rc 0 → commit; (5) semtest shared I6 comparison + --corrupt-owner + --corrupt-discovery + hir_test SEM_MODES live+9, first-hand non-vacuity spot checks → commit; (6) FULL gate FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → build/gate-e54p1h-reg.log + fresh --build-dir _build-e54p1h hist 122 sha==kept; (7) CLOSE RESULTS §P1-h + arch §7-4 + dashboard CLOSED + durables; (8) STOP. Standing: ZERO oracle; ledger C380; lib+bin byte-clean; exe 172595d5 after every build; config NEVER staged; no push; explicit paths; eval "$(opam env)" every shell; rc DIRECT; never batch build with tests; scratch never committed; H01–H21 frozen. Commits: prereg 04bccbac, fix 7144b3f1, durables d1f89ed7 at HEAD.
 <!-- guard:end checkpoint -->
