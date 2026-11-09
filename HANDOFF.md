@@ -1793,25 +1793,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 679
-checkpoint-id: g679-5f00a241de31
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 680
+checkpoint-id: g680-efee19701cba
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4574, session 01a1c09d-75a1-7161-b5f4-4908612798a4)
-checkpointed: 2026-11-09T14:31:03.631Z
+status: checkpoint (guard level 2, remaining ~8623, session 01a1c0dc-4504-700d-bdb6-dc2b98a19e20)
+checkpointed: 2026-11-09T15:49:42.655Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e37c0d80cd9c56ffde88b40df261d13b237ffe2d20d3cf78663608871087a81b
-source-handoff: fdd94376fd8a5ef748eae59aa310c7ba8b96c3c6a1bed072c8d40de59fdddd33
-source-learnings: 8d84c73986ce5b31e4d0bb91125398fac4d3c0ea0feae5cc0087a7a9a23e9beb
+source-progress: a3f5c4aab0928d24c596834b58cbbae473d1e32151fa0815f119d2af830bd344
+source-handoff: 89510662bf54556c798b7b32ed559b36cfaa5d512fa5522b13204450552e72f4
+source-learnings: 9364d26feb30b2659b5444c658e34b9d634bbd9ce315d1a15745968ab81c8958
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c09d-75a1-7161-b5f4-4908612798a4
-readiness-at: 2026-11-09T14:31:17.876Z
-readiness-checkpoint: g679-5f00a241de31
+readiness-by: session:01a1c0dc-4504-700d-bdb6-dc2b98a19e20
+readiness-at: 2026-11-09T15:49:42.700Z
+readiness-checkpoint: g680-efee19701cba
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (finalize: E2E-54/P1-m0 CLOSED (hop 3, session 01a1c0dc): five milestones all passed, 42/45/10 executed natively; §RD-COSMO amendment recorded 186a59d6; close e4cadf66. SUCCESSOR: STOP — nothing authorized; each future slice (P1-mC/P1-m1/IF-ELSE/params/arrays/calls/IO/AArch64/APE) needs own PROTOCOL #1 pre-registration + operator authorization. Chain 0/12; ledger C380; config dirty NEVER staged; no push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2584,5 +2584,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m0 hop 1: pre-registration 19a7c2c2 + durables ac322afd committed; step-3 implementation half-drafted (ocaml/hir/mir_backend.ml untracked, NEVER compiled — known defects listed in PROGRESS live heading). Successor: read LEARNINGS § P1-m0 hop 1 first, then execute PROGRESS live P1-m0 heading VERBATIM from step 3. ZERO oracle; ledger C380; config never staged; no push.
+E2E-54/P1-m0 CLOSED (hop 3, session 01a1c0dc): five milestones all passed, 42/45/10 executed natively; §RD-COSMO amendment recorded 186a59d6; close e4cadf66. SUCCESSOR: STOP — nothing authorized; each future slice (P1-mC/P1-m1/IF-ELSE/params/arrays/calls/IO/AArch64/APE) needs own PROTOCOL #1 pre-registration + operator authorization. Chain 0/12; ledger C380; config dirty NEVER staged; no push.
 <!-- guard:end checkpoint -->
