@@ -6,6 +6,8 @@ history is archived under `docs/history/` (index: `docs/history/README.md`); sci
 authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
+
+0d-e54p1a2-12. **E2E-54/P1-a2 CLOSED 2026-11-10 — steps 6–8 LANDED (close session 01a1bfc1, renewal 11/12; ZERO oracle; lib+bin byte-clean; ledger C380).** Step 6: `dune build` rc 0 + T1 exe `172595d5…` DIRECT + T2 clean + `timeout 900 python3 tools/hir_test.py` rc 0 (120 ok; ALL 11 OK numbers unmoved; 11×7 = 77 corrupt controls rc 1 loud, spot-verified FIRST-HAND incl. both `nothing was proven` cases on H04); FULL gate rc 0 → `build/gate-e54p1a2-reg.log` FROZEN ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5**; fresh `dune build --build-dir _build-e54p1a2` rc 0 ZERO `Error` hist **122**, fresh exe sha == kept exe (computed separately). Step 7: **CLOSE commit `ae0c6b4f`** — `spec/lab-evidence/e2e54/RESULTS.md` §P1-a2 (T1–T10 panel WITH measured values; 13 deviations recorded NOT fitted; alias-pair/nested pins = HIR REPRESENTATION only, never runtime; unknowns carried; reproduction set), `docs/architecture/backend-boundary.md` §7-3, PLAN dashboard P1-a2 **CLOSED 2026-11-10**. Step 8: **STOP — NOTHING is authorized.** §P0/§P1-b/§P1-a1/§P1-a2 all CLOSED; MIR, PUT/GET, BEGIN repair, P2+ and broader argument subsets are PROPOSED ONLY (RESULTS §P1-a2.7) — report closure, await the OPERATOR; each future slice needs its own PROTOCOL #1 pre-registration BY EXPLICIT PATHS before code. Standing: ledger C380 (203 headers); config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT; never batch build with tests; H01–H21 frozen (T2/T10); Eident zero-arg exclusion arm + E16 UNEXERCISED (honest).
 0d-e54p1a2-11. **E2E-54/P1-a2 hop 11 LANDED 2026-11-10 — STEP 5 COMMITTED `735b43af`; hir_test rc 0, ALL 11 OK numbers unmoved; exe `172595d5…` held; T2 clean (session 01a1bfa3, renewal 10/12; ZERO oracle; lib+bin byte-clean; ledger C380).** Full STEP 5 contract (I11–I13, shared comparisons, 4 corrupt controls, SEM_MODES ×7, T5 five-pattern + cs_slot-nowhere greps) executed; deviations + the walker `ci_key` defect fix + I13 main-None law + falsified stdlib assumptions recorded VERBATIM in `LEARNINGS.md` § "E2E-54/P1-a2 hop 11". **SUCCESSOR = PROGRESS.md live hop-11 heading VERBATIM: (6) FULL gate FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; (7) CLOSE RESULTS §P1-a2 (T1–T10 WITH values + deviations) + arch §7-3 + dashboard CLOSED; (8) STOP.** Standing: ledger C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT; never batch build with tests; H01–H21 frozen; F8 binds NEW STRINGS (strip-first).
 
 0d-e54p1a2-9. **E2E-54/P1-a2 hop 9 — STEP 5 FULLY DESIGNED; `cs_slot` COMMENT REWORDS LANDED UNCOMMITTED (session 01a1bf74, renewal 8/12; ZERO oracle; build rc 0 at `3f997e35`; exe `172595d5…` held DIRECT).** The complete item-by-step semtest.ml implementation plan (mode 8 constructors; `var_mismatch` extraction; pmap3 lockstep AST↔HIR `pair_*` walker + `collect_calls` with `call_item {ci_owner_pid; ci_owner_scope; ci_callee; ci_key; ci_ast_args : Ast.expr list option; ci_args}`; shared comparisons `arg_evidence_mismatch`/`formals_mismatch`/`designator_mismatch`; i11/i12/i13 AFTER i10 with calls collected BEFORE the fails-exit; corrupt_formal shift-first-f_sid, corrupt_actual repoint at a sym NOT resolvable from the caller scope (KEY: a visible alias passes the I2 law — the candidate must be foreign/shadowed), corrupt_arg_position `List.tl ce_args`, corrupt_mode flip first own⇄value-cell; argv/usage 7 flags; nothing-proven loud rc 1) is in `LEARNINGS.md` § "E2E-54/P1-a2 hop 9" — READ IT FIRST. Zero-arg Eident-route `Call_s` exclusion arm is UNEXERCISED (no positive fixture has one — record honestly). **SUCCESSOR = PROGRESS.md live hop-9 heading VERBATIM:** implement semtest.ml + hir_test.py (SEM_MODES ×7; T5 raw grep `pl_calls|cs_temps|cs_copies|cs_dec|bind_arrays` readers ONLY semantic_env.ml+semtest.ml, `cs_slot` NOWHERE in ocaml/hir; docstring+PASS honest; F8 binds semtest STRINGS) → build rc 0 (rc DIRECT) → T1 DIRECT → `timeout 900 python3 tools/hir_test.py` rc 0 with ALL 11 OK numbers unmoved (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2) → commit explicit paths → 6 FULL gate FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2` → 7 CLOSE (RESULTS §P1-a2 + arch §7-3 + dashboard) → 8 **STOP**. Standing: ledger C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT (first fresh-container build may lie rc 1 zero output); never batch build with tests; H01–H21 frozen; F8/T6 strip-first.
@@ -1780,25 +1782,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 668
-checkpoint-id: g668-ef9ea4691845
+checkpoint-generation: 669
+checkpoint-id: g669-2898139f4e30
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~942, session 01a1bfa3-55d8-74ee-84fe-8510aed5b4fb)
-checkpointed: 2026-11-09T10:01:02.293Z
+status: checkpoint (guard level 4, remaining ~-971, session 01a1bfa3-55d8-74ee-84fe-8510aed5b4fb)
+checkpointed: 2026-11-09T10:01:39.019Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 1f39b99a505feb2317e9466c479fdb569cc3033c419460f6ef41f39268aeeb13
-source-handoff: 4bcb25f3ce63caa512c02d7a1c54116bc9d1310d55c217ca5b50340beb0608f7
+source-handoff: f5a751f22a5feb1dd11e48c683281627a566d9248f22994010994bae83a46a61
 source-learnings: 521ee010e1c6eb69dddb1a376f7924162211bf3c041fcb7b6ad88376f93c5e6f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1bfa3-55d8-74ee-84fe-8510aed5b4fb
-readiness-at: 2026-11-09T10:01:02.330Z
-readiness-checkpoint: g668-ef9ea4691845
+readiness-at: 2026-11-09T10:01:39.073Z
+readiness-checkpoint: g669-2898139f4e30
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)

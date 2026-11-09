@@ -54,10 +54,12 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a2 hop 11 — **STEP 5 LANDED + COMMITTED `735b43af`; hir_test rc 0, ALL 11 OK numbers unmoved; exe `172595d5…` held; T2 CLEAN** — EXECUTE §P1-a2.9 steps 6–8, then STOP — BINDING)
-**DONE hop 11 (session renewal 10/12; ZERO oracle; lib+bin byte-clean):** §P1-a2.9 STEP 5 completed and committed `735b43af` (explicit paths `ocaml/hir/semtest.ml ocaml/hir/semantic_env.ml ocaml/hir/hir_build.ml tools/hir_test.py`; config NOT staged). All of hop-10 items (a)–(j) executed; measured deviations + fixes recorded VERBATIM in `LEARNINGS.md` § "E2E-54/P1-a2 hop 11" (READ IT FIRST): walker `ci_key` defect FIXED (predecessor's uncommitted draft raised "not an identifier" on every call-with-args); I13 main-None law (`formals_of` None tolerated iff params=[]); `cs_slot`+`pl_calls` comment rewords (T5 raw-grep law); corrupt-arg-position DROP-arm-only adjudication; `Option.flatten`/`List.mapi2` do NOT exist in OCaml 5.4 stdlib (FALSIFIED hop-9 assumption); `nothing_proven` what-string must carry "no"; Eident zero-arg exclusion arm UNEXERCISED (recorded). `dune build` rc 0 + T1 DIRECT; `timeout 900 python3 tools/hir_test.py` rc 0 — 120 ok, H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2 unmoved, live + ALL SEVEN corrupt modes rc 1 loud on every positive, T5/T6/F8 green; `git diff --exit-code -- hir/expected` CLEAN.
-**EXECUTE (successor) = §P1-a2.9 steps 6–8 VERBATIM:** (6) FULL gate `python3 tools/e2e_gate.py` rc 0 FROZEN **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** → `build/gate-e54p1a2-reg.log` + fresh `dune build --build-dir _build-e54p1a2` rc 0 ZERO `Error` (hist ≈122; rc DIRECT — first fresh-container build may lie rc 1 zero output; fresh logs record rc+headers only, sha checked against KEPT exe `172595d5…`); (7) CLOSE `spec/lab-evidence/e2e54/RESULTS.md` §P1-a2 (T1–T10 panel WITH measured values; deviations list in LEARNINGS hop-11 §; alias-pair/nested pins pin HIR REPRESENTATION only, never runtime) + `docs/architecture/backend-boundary.md` §7-3 + PLAN dashboard row P1-a2 **CLOSED**; (8) **STOP — no MIR, no PUT/GET, no BEGIN repair; ledger stays C380.**
-**CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); lib+bin byte-clean; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT; NEVER batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H21 frozen (T2/T10); F8 binds semtest NEW STRINGS (strip-first).
+## Next action (E2E-54/P1-a2 hop 12 CLOSE — **§P1-a2 CLOSED 2026-11-10 — steps 6–7 LANDED, T1–T10 panel WITH measured values, dashboard CLOSED — step 8: STOP; NOTHING FURTHER IS AUTHORIZED — BINDING)**
+**DONE hop 12 (close session 01a1bfc1, renewal 11/12; ZERO oracle; lib+bin byte-clean):** step 6 — `dune build` rc 0 DIRECT; T1 exe `172595d5…` held DIRECT; T2 `git diff --exit-code -- hir/expected` CLEAN; `timeout 900 python3 tools/hir_test.py` rc 0 — 120 ok, ALL 11 OK numbers unmoved (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2), 77 = 11×7 corrupt-control lines; FULL gate rc 0 DIRECT → `build/gate-e54p1a2-reg.log` (1537 lines) FROZEN ALL HIT 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; fresh `dune build --build-dir _build-e54p1a2` rc 0 ZERO `Error` hist **122** (`build/e54p1a2-freshbuild.log` records rc+headers only), fresh exe sha computed SEPARATELY == kept exe. Step 7 — **CLOSE commit `ae0c6b4f`** (explicit paths): RESULTS §P1-a2 (T1–T10 WITH measured values, 13 deviations recorded NOT fitted, 5 new carried unknowns, reproduction set, commit history, roadmap PROPOSED), arch doc §7-3 (argument/parameter projection landed; cs_slot not even READ outside bind.ml; EVIDENCE-DRIVEN lowering + physical-node law CONFIRMED), PLAN dashboard P1-a2 **CLOSED 2026-11-10**. FIRST-HAND spot re-verification at close: the four new corrupt modes on H16 AND H04 — exact SEM-FAIL strings match LEARNINGS hop-11 (formal sid shift 1003/1001; caller-invisible candidate `sym(3)`; length arm trips first on drop; value-cell flip), `nothing was proven` loud on H04 actual-base + H04 mode (immediate-only, as §P1-a2.6 predicted). Ledger re-verified 203 headers ending C380.
+**EXECUTE (successor): NOTHING is authorized.** §P0, §P1-b, §P1-a1 and **§P1-a2 are CLOSED**. MIR, PUT/GET, BEGIN/DO hygiene repair, P2+ and any broader argument subset are **PROPOSED ONLY** (RESULTS §P1-a2.7) — report the closure and await the OPERATOR; each future slice needs its own PROTOCOL #1 pre-registration committed BY EXPLICIT PATHS BEFORE any code byte.
+**CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); `ocaml/lib`+`ocaml/bin` byte-clean; `handoff.config.json` NEVER staged; no push; explicit-path commits only; `eval "$(opam env)"` every shell; rc DIRECT; NEVER batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H21 frozen (T2/T10); F8 binds NEW code strings (strip-first).
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-a2 hop 11 — STEP 5 LANDED + COMMITTED `735b43af`; hir_test rc 0, ALL 11 OK numbers unmoved; exe `172595d5…` held; T2 CLEAN — CONSUMED: the close session executed §P1-a2.9 steps 6–8 — FULL gate FROZEN ALL HIT → `build/gate-e54p1a2-reg.log`, fresh `_build-e54p1a2` rc 0 ZERO Error hist 122 sha == kept exe, CLOSE `ae0c6b4f` (RESULTS §P1-a2 + arch §7-3 + dashboard CLOSED); §P1-a2 CLOSED 2026-11-10. The hop-11 body remains quotable in git history for PROGRESS.md at `1697f0fc`.)
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-a2 hop 10 — STEP 5 HALF LANDED — consumed by hop 11: STEP 5 committed `735b43af`; deviations + remaining steps 6–8 above).
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-a2 hop 10 — STEP 5 HALF LANDED — CONSUMED: hop 11 finished STEP 5 and committed `735b43af`; the walker landed with a `ci_key` defect (fixed), I13 needed the main-None law, and `pl_calls` comment rewords joined the T5 set — all recorded in `LEARNINGS.md` § hop 11. The full hop-10 contract remains quotable in git history for PROGRESS.md at hop 10.
@@ -3916,16 +3918,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 667
-checkpoint-id: g667-00bc4e30c1cd
-checkpoint-kind: auto
+checkpoint-generation: 669
+checkpoint-id: g669-2898139f4e30
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T09:59:46.470Z
+checkpointed: 2026-11-09T10:01:39.019Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: bfc02c949cc31b4514f73c8083b16a5ae0677bc392e7ffe538a3c947b062f92a
-source-handoff: 4bcb25f3ce63caa512c02d7a1c54116bc9d1310d55c217ca5b50340beb0608f7
+source-progress: 1f39b99a505feb2317e9466c479fdb569cc3033c419460f6ef41f39268aeeb13
+source-handoff: f5a751f22a5feb1dd11e48c683281627a566d9248f22994010994bae83a46a61
 source-learnings: 521ee010e1c6eb69dddb1a376f7924162211bf3c041fcb7b6ad88376f93c5e6f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
@@ -4693,6 +4695,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1bfa3-55d8-74ee-84fe-8510aed5b4fb
+readiness-at: 2026-11-09T10:01:39.073Z
+readiness-checkpoint: g669-2898139f4e30
 <!-- guard:end checkpoint -->
 
 ## Blockers
