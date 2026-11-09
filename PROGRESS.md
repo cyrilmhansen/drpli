@@ -54,7 +54,12 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a2 hop 3 — PLAN §P1-a2 PRE-REGISTERED + COMMITTED (PROTOCOL #1 gate LANDED); IMPLEMENT per §P1-a2.9 — BINDING)
+## Next action (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED `426293dd`; EXECUTE §P1-a2.9 STEP 3 — hir.ml + hir_build.ml + diagnostic.ml (+ semtest minimal compile-adapt) as ONE commit — BINDING)
+**DONE hop 4 step 2 (session 01a1bf03, renewal 3/12; ZERO oracle; lib+bin byte-clean):** baseline trio verified FIRST-HAND at `69fd14bb` (build rc 0; exe `172595d5…` DIRECT; hir_test rc 0 full panel; ledger 203/C380). `ocaml/hir/semantic_env.ml` §P1-a2.3 API LANDED + COMMITTED `426293dd` by explicit path: `passing_mode` (PM_value_cell/PM_own_cell/PM_immediate/PM_copy_in/PM_unknown; copy-in wins, then recorded cell flag, then syntax; bare-name/Enumber/element WITH a recorded cell ⇒ PM_unknown inconsistency; genuine expression WITHOUT one ⇒ PM_unknown); `call_site` projection built ONCE in `create` from `pl_calls` (`cs_slot` DROPPED unread; Some⇒bool; `cs_dec` as-is; `cs_args` physical nodes for identity matching only); `call_evidence ~caller_scope ~callee_key args` — first bind-DFS site with equal key and `==`-identical node list, length-defensive ⇒ typed None (lowering must E16); `element_actual` = 1-subscript Esuffix on Eident whose env symbol (resolved AT CALLER SCOPE — bind's own is_arr_hd is block-local; the disagreement path yields PM_unknown, never a guess); `formal_desc {f_pos;f_key;f_sid;f_stype;f_scope}` resolved in the callee's OWN esyms (C358 shadow law), `proc_sig.sformals` in `pl_ptrs` order via `sig_of_pl ~syms ~scope`, accessor `formals_of`. MEASURED TOOLING LAW (bit once, fixed structurally): OCaml top-level items are ORDER-SENSITIVE — the type section must precede `proc_sig`'s use of `formal_desc` (a python-move; build rc 0 after). Build rc 0; T1 `172595d5…` held DIRECT; `timeout 600 tools/hir_test.py` rc 0 (F10/S8/T5/T6 green — T5 readers unchanged: env projection only); exe/lib/bin/ledger as required.
+**EXECUTE (successor) = PLAN.md §P1-a2.9 VERBATIM, starting at step 3:** (3) `ocaml/hir/hir.ml` (§P1-a2.4: `designator = D_var{sid} | D_elem{base;subs}`; `target = designator` RENAME T_var→D_var/T_elem→D_elem — dump bytes UNCHANGED; `actual_form = A_value of expr | A_reference of designator`; `actual = {af; ac_ty; ac_ef; ac_line}`; `Call_e.args`/`Call_s.args : actual list`; dump law: A_value → dump_expr byte-identical, A_reference D_var prints `var sym(%d) : %s  [%s, line %d]` with pp_ty ac_ty + ac_ef string, A_reference D_elem prints `elem_ref %s : %s  [%s, line %d]` (pp_elem_base + element type via find_sym) + subs at indent+1 — generalize dump_target→dump_designator; hir.ml header gains the §P1-a2.2 adjudication + representation notes VERBATIM from PLAN) + `ocaml/hir/hir_build.ml` (§P1-a2.5: shared `lower_args ctx bi ~caller_scope ~callee_pid line args` — SE.call_evidence typed-None ⇒ E16; per position PM_copy_in/PM_unknown ⇒ E16; bare Eident with PM_own_cell: Array1 symbol ⇒ **E15** whole-array actual, non-array resolved ⇒ A_reference D_var (ac_ty = FORMAL type via callee `SE.formals_of` f_stype gate through ty_of_rt, mismatch ⇒ **E17** naming both types + [TBD]; unresolved name ⇒ E16 loud), Enumber PM_immediate ⇒ A_value(lower_arith), element Esuffix PM_own_cell ⇒ A_reference D_elem via EXISTING lower_index/lower_array_ref shape (E12/E14 wording unchanged), other expr PM_value_cell ⇒ A_value(lower_arith — existing gates inside); frozen lower_call refusal order callee→arity→args→recursion→returns; Sprocedure_stmt with Esuffix target carrying args NOW lowers to Call_s (intended new coverage; statement args field is [], parser nests them in target — the Esuffix arm; zero-arg `call q;` keeps its EXACT current route/bytes)) + `ocaml/hir/diagnostic.ml` (append `e_arg_whole_array = "HIR-E15"`, `e_arg_evidence = "HIR-E16"`, `e_arg_type = "HIR-E17"` with §P1-a2.5 comments) + `ocaml/hir/semtest.ml` MINIMAL COMPILE-ADAPTATION ONLY (walk: Call_e/Call_s args are actual list — A_value e → walk_expr; A_reference D_var → exactly ONE R_var {sid; ty=Some ac_ty}; A_reference D_elem → R_elem {base;write=false;ety=Some ac_ty} + walk subs; walk_target arms renamed H.D_var/H.D_elem — WALK COUNTS AND OK LINES MUST NOT MOVE: H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2; the I11–I13 + corrupt-mode EXTENSION is step 5, NOT step 3). Then build rc 0 → T1 DIRECT → hir_test rc 0 + `git diff --exit-code -- hir/expected` CLEAN (T2) → ONE commit (explicit paths; args:actual breaks consumers — P1-a1 hop-3 law). Then (4) fixtures H16–H21 MEASURED (CRLF+^Z, one dcl item/statement, timeout 60; H16 call bump(x,y+1) stmt-call w/ formal read+write; H17 elem actuals + aliased pair; H18 forwarding chain; H19 E15; H20 E17 (bin(7) actual vs bin(15) formal); H21 dbl(dbl(2)); REVIEW every dump line against §P1-a2.4 BEFORE pinning; expected = copies of measured output) → hir_test rc 0 → commit; (5) semtest I11/I12/I13 + --corrupt-formal/--corrupt-actual-base/--corrupt-arg-position/--corrupt-mode SHARING THE SAME comparisons + hir_test.py SEM_MODES×4 new + T5 grep list `pl_calls|cs_temps|cs_copies|cs_dec|bind_arrays` only semantic_env.ml+semtest.ml, cs_slot NOWHERE in ocaml/hir → full rc 0 → commit; (6) FULL gate rc 0 FROZEN 1328/1328-190/190-9/9-149rows-0/0-16/0/25/0-prose5 → build/gate-e54p1a2-reg.log + fresh --build-dir _build-e54p1a2 (rc 0 ZERO Error, sha vs kept exe); (7) CLOSE RESULTS §P1-a2 + backend-boundary.md §7-3 + PLAN dashboard CLOSED + durables; (8) **STOP — no MIR/PUT/GET/BEGIN; ledger stays C380.** If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED (§P1-a2.10): re-audit bind's collector, NEVER positional-guess. F8/T6 vocabulary law binds NEW code strings (no offset/size/bytes/esz/stride/reloc/pool/0x after strip; no uppercase CALL/M/C/P/Z word-boundary opcode tokens; PM_* names safe). `A_value` bare-name note: §P1-a2.4 — the classifier routes every bare name/element to A_reference; by-value CANNOT masquerade by construction.
+**CONSTRAINTS (standing):** ZERO oracle; ledger C380 (203 headers); lib+bin byte-clean; `handoff.config.json` NEVER staged; no push; explicit-path commits; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; NEVER batch a build with tests using its artifacts; every fixture `timeout 60`; scratch never committed; `superseded/` never rewritten; H01–H15 frozen (T2/T10); HEAD now `426293dd`+.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-a2 hop 3 — PLAN §P1-a2 PRE-REGISTERED + COMMITTED (PROTOCOL #1 gate LANDED); IMPLEMENT per §P1-a2.9 — BINDING) — CONSUMED: step 2 landed at `426293dd` (see hop-4 heading above).
 **DONE hop 3 (session 01a1bee4, renewal 2/12; ZERO oracle; NO `ocaml/hir/` byte touched):**
 baseline re-verified first-hand (build rc 0; exe `172595d5…`; `ocaml/lib`+`ocaml/bin` clean; ledger
 203 headers ending C380; H16.. re-confirmed FREE). **`spec/lab-evidence/e2e54/PLAN.md` §P1-a2
@@ -3883,19 +3888,48 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 648
-checkpoint-id: g648-1edb3427f0e7
-checkpoint-kind: auto
+checkpoint-generation: 649
+checkpoint-id: g649-2965b7ca9970
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T06:32:19.448Z
+checkpointed: 2026-11-09T06:33:56.965Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a9d9e1b031856adbbd99fd0fe9968b5c895285467677c59e93f52b8fd7d48aa4
-source-handoff: c219d703a9f4692b5b3da1a52b2e115d9e0a58269bc73e33ca514a82e6e11668
-source-learnings: 28d3e6d0ae2d352ca0e71f37dcfef8cc67266603e285808e0c4c77b9120f9cda
+source-handoff: 86e85eeb0fec75807b81086d6db8e4043a0c8a8d67586522ce80499331d74263
+source-learnings: 052ec17373a8a097d2b88266c40ea6e0b953eab670a659b1375176790b03221d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM:** verify H16.. ids unused → WRITE + COMMIT
+next-action: (E2E-54/P1-a2 hop 3 — PLAN §P1-a2 PRE-REGISTERED…)` VERBATIM — execute §P1-a2.9 steps 2–8:** env → build+T1+hir_test → commit; hir+hir_build+diagnostic as ONE commit (args:actual breaks consumers) → build+T1+hir_test+T2 clean; measured fixtures H16..H21 (review dumps vs §P1-a2.4 BEFORE pinning); semtest I11–I13 + 4 corrupt modes + hir_test.py extension (SEM_MODES ×4, T5 list) → full rc 0; FULL gate rc 0 frozen + fresh build-dir; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard CLOSED; **STOP — no MIR, no PUT/GET, no BEGIN repair; ledger stays C380.** If H16 dies E16 the physical-node matching law is FALSIFIED: re-audit, never positional-guess. Standing: ZERO oracle; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests using its artifacts; timeout 60 per fixture; scratch never committed; superseded/ never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds NEW code strings.
+
+0d-e54p1a2-2. **E2E-54/P1-a2 hop 2 LANDED 2026-11-10 — §2 PARAMETER AUDIT COMPLETE + THE EVALUATION-ORDER
+QUESTION ADJUDICATED; NO CODE TOUCHED (session 01a1beca, renewal 1/12; ZERO oracle; `ocaml/lib`+`ocaml/bin`
+byte-clean; exe `172595d5…` verified FIRST-HAND at `582bc130`; ledger 203 headers/C380).** The operator
+brief was recovered VERBATIM (224 lines) from the parent transcript into the IGNORED
+`build/p1a2-brief-recovered.md` (sha `58fb3e4f…`) — §P1-a2.0 must embed it from there and machine-verify
+the line count. All six `ocaml/hir/` units read in full. Parameter authority read first-hand:
+`section2` (`bind.ml:~2370-2545`) allocates per site a 2-byte-per-arg descriptor block (`cs_slot`,
+POOL-EXCLUSIVE), a value cell ONLY for an EXPRESSION actual (`cs_temps`; bare names, `Enumber` and
+array-ELEMENT actuals get none), a FORMAL-width DEC temp (`cs_dec`) and a main-side DEC copy-in temp
+(`cs_copies`, excluding caller-formal names/STATIC/array heads/recursive-external callees);
+`pl_ptrs = List.mapi (fun i f -> (f, base + 2*i)) formals` — the ORDER is bind's formal order (semantic),
+the ADDRESS is physical. Claims read: **C093** (`CLAIMS.md:855`) DR materialises actuals per argument in
+SOURCE ORDER interleaved with each descriptor constant (R2001/R2032/R2034/R2035/DECPOLY), one
+`LXI H,*A(slot)`+CALL for the block, arity-1 peeled deref vs arity≥2 block copy, and formals are passed
+BY REFERENCE so a formal write is visible to the caller [R2011 runtime]; **C130** (`:2036`) forwarding a
+pointer formal writes the descriptor at RUNTIME; **C175** (`:3459`) NO array calling convention — an
+element actual rides the ordinary pointer-formal descriptor, no value cell (AB7/PASSARAY/EA2 runtime);
+**C145** (`:2668`), **C167** (`:3196`), **C358** (`:8480`). Tooling fact: those cited ids are INLINE
+`Cnnn.` paragraphs under `## E2E-nn` phase headers, NOT `## C` ledger headers, so quoting them never
+moves the 203-header count. **ADJUDICATION (brief §2), DECIDED not deferred:** the P0 dump wording
+`args left-to-right` is DR-ABI-BACKED for the measured internal fixed-type calls by [C093]; it is an
+EMISSION-order fact, not a portable PL/I execution-order guarantee, and the language-level order of
+evaluation of actuals remains [unmeasured] [TBD]. Decision: KEEP the wording (H01–H15 bytes stay frozen,
+NO named drift) and document in `PLAN.md` §P1-a2 + the `hir.ml` header that the ordered `arg N` list is a
+representation ordering whose only backed order evidence is [C093]. Recorded in `LEARNINGS.md`
+§ "E2E-54/P1-a2 hop 2" (accepted: baseline, brief recovery, audit reads, claim locations, bind
+authorities; adjudication; open items). **SUCCESSOR = PROGRESS.md live heading `## Next action
+(E2E-54/P1-a2 hop 2 — §2 AUDIT DONE + ADJUDICATED…)` VERBATIM:** verify H16.. ids unused → WRITE + COMMIT
 `PLAN.md` §P1-a2 (.0 brief verbatim, evidence/unknowns matrix for the 8 §2 questions with the four
 evidence classes, the ordered-vs-evaluation-order adjudication, the `Semantic_env` parameter-API
 amendment, the HIR designator/argument representation, the narrow lowering subset with BY-NAME refusals
@@ -4629,6 +4663,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1bee4-9402-74ee-84fe-84f17bf520fd
+readiness-at: 2026-11-09T06:33:57.006Z
+readiness-checkpoint: g649-2965b7ca9970
 <!-- guard:end checkpoint -->
 
 ## Blockers
