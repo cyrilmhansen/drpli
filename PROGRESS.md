@@ -3697,17 +3697,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 637
-checkpoint-id: g637-7d611707a9ef
+checkpoint-generation: 638
+checkpoint-id: g638-5f44cfc87725
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-09T00:36:26.551Z
+checkpointed: 2026-11-09T01:04:30.644Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a2afe27e9f9c0f23722f653f743feb038ae3de0c962e409e1487cf2bf82ed850
-source-handoff: 023db422cebc015b62cf0dc5038e9cdac253764802d618edf6ad6bd43e01bf2f
-source-learnings: d6cf5c542e2f87b00bc9bc1da9f4bdddf50b46dc35b03db7def99a922a49f55f
+source-progress: 7e7834c7ef41311ef1fced3548e32c5d34785b8ef06ad91b9f92ebd1a4ee8bec
+source-handoff: 4aca2e1ea7d3d4020d69e27d9fbaf9e5d65a4065b2c1963ffdf4eb8ce8c5fb62
+source-learnings: fb31e75e608b9e875d782cf418365249e8db7fa341dd24941d456a59fb149341
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a1 hop 3 LANDED steps 1–3…)` VERBATIM:** step 4 (§P1-a1.7: array-aware I1; I8 reference soundness; I9 bound preservation with esz DROPPED via live `Bind.bind_arrays`; I10 projection completeness; `--corrupt-array-hi` + `--corrupt-array-base` + `nothing was proven` non-vacuity; hir_test.py live+ALL corrupt ×2 fresh procs, T5 bind_arrays grep (only semantic_env.ml+semtest.ml), T6 strip-grep) → full hir_test rc 0 → commit; step 5 FULL gate rc 0 → `build/gate-e54p1a1-reg.log` FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 + fresh `--build-dir _build-e54p1a1` rc 0 ZERO Error + sha vs kept exe; step 6 CLOSE (RESULTS §P1-a1 T1–T10 panel WITH values + deviations incl. the falsified predecessor claim, arch §7-2, PLAN dashboard CLOSED) then **STOP — no PUT/GET, no BEGIN repair, no MIR.** Ledger C380 (203 headers); config NEVER staged; no push; explicit paths; every fixture under `timeout`; scratch `ocaml/scratch-p1a1/` NEVER committed; `superseded/` added once, never rewritten.
 
@@ -4427,9 +4427,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1bd9f-1df8-73ad-8fbc-6a7333957f4d
-readiness-at: 2026-11-09T00:36:26.592Z
-readiness-checkpoint: g637-7d611707a9ef
+readiness-by: session:01a1bdbc-2574-73ad-8fbc-6a76ac01c9f7
+readiness-at: 2026-11-09T01:04:56.661Z
+readiness-checkpoint: g638-5f44cfc87725
 <!-- guard:end checkpoint -->
 
 ## Blockers
