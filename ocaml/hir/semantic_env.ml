@@ -507,9 +507,20 @@ let check_top_authority (blk : Ast.block) (plan : Bind.prog_layout) : unit =
    allocates ids and mirrors bind's own block discovery (bind_program's
    collect descends through every Sproc child likewise); every NAME/TYPE/
    signature fact below comes from bind (falsifier F6): a Bproc child with no
-   pl_procs entry is a hard refusal, never a silently invented block. *)
-let rec register_children st (plan : Bind.prog_layout) (parent : block_env) :
-    unit =
+   pl_procs entry is a hard refusal, never a silently invented block.
+
+   §P1-h hygiene: the visitor SEPARATES the statement subtree under traversal
+   ([ss]) from the enclosing procedure's env ([parent], the semantic OWNER).
+   The pre-repair non-Bproc branch re-entered the OWNER's own statement list
+   (re-reading the same Sproc forever — the measured hang, RESULTS §P1-b.5
+   note 3, and a bogus duplicate-name refusal when a Bproc sibling came
+   first). Termination now follows structurally: the parser AST is a finite
+   tree and the recursion strictly DESCENDS into the nested block's own
+   statements, visiting each nested block exactly once along its path; the
+   descent mirrors bind's collect (bind.ml:2204-2231) exactly — through every
+   Sproc child, registering only Bprocs. *)
+let rec discover_stmts st (plan : Bind.prog_layout) (parent : block_env)
+    (ss : Ast.stmt list) : unit =
   List.iter
     (fun (s : Ast.stmt) ->
       match s.Ast.st with
@@ -553,14 +564,23 @@ let rec register_children st (plan : Bind.prog_layout) (parent : block_env) :
                 (List.map Bind.pl_l ib.Ast.bparams)
                 (Some pl)
             in
-            register_children st plan be
+            discover_stmts st plan be ib.Ast.bstmts
           end
           else
             (* BEGIN/DO blocks share the parent's scope (bind has no per-BEGIN
-               scoping — hop-1); descend for PROCEDURE DISCOVERY only. *)
-            register_children st plan parent
+               scoping — hop-1); descend the NESTED block's OWN statements for
+               PROCEDURE DISCOVERY, keeping the enclosing procedure as the
+               semantic context. No scope/pid/ownership is invented. *)
+            discover_stmts st plan parent ib.Ast.bstmts
       | _ -> ())
-    parent.east.Ast.bstmts
+    ss
+
+(* Discovery entry for one registered block: its own statement list, itself
+   as the enclosing-procedure context (§P1-h.2; identical registration
+   sequence to the pre-repair code for every tree without nested non-Bproc
+   blocks — the zero-drift preservation law). *)
+let register_children st plan (parent : block_env) : unit =
+  discover_stmts st plan parent parent.east.Ast.bstmts
 
 let create (blk : Ast.block) (plan : Bind.prog_layout) :
     (t, Diagnostic.t list) result =
