@@ -7,6 +7,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54p1m1-3. **E2E-54/P1-m1 IN FLIGHT — §P1-m1 PRE-REGISTERED + COMMITTED `51231164`
+(PROTOCOL #1 gate LANDED; explicit path `spec/lab-evidence/e2e54/PLAN.md` only; ZERO repo
+source byte beyond the PLAN; session 01a1c243, renewal 3/12; baseline re-verified FIRST-HAND
+at HEAD `96610195`: build rc 0, exe `172595d5…` DIRECT, lib+bin clean, ledger 203/C380).
+SUCCESSOR = PROGRESS.md live P1-m1 hop-4 heading VERBATIM: execute PLAN §P1-m1.11 steps 2–7 —
+(2) m1a HIR half (diagnostic E21/E22 APPEND; hir.ml `Put of put_source (P_value|P_text)` /
+`Get of designator` + dump arms; hir_build Sput/Sget arms in pre-registered order
+options→kind→ctl→item-count→item-class→lower_expr→E22 charset/empty (m1b)→GET target-shape;
+m1a refuses literals via item-class, transient, no pin; semtest minimal compile-adapt) →
+build+T1+hir_test 220 ok/11 numbers UNMOVED → commit; (3) m1a MIR half (mir_backend additive
+per §P1-m1.5 — NO-IO bytes frozen; mir2o.c additive MIR_load_external-before-MIR_link block;
+build_native.sh rebuild; CT2 re-check .o pins 78656e6c/3822f777/02c15b1b; M04/M05 +
+N8..N16,N19..N21 measured-first CRLF+^Z pins); (4) m1b literal put (E22 charset 32..126 /
+empty; s<k> items) + commit `tools/mir_aot/{pli_console.c,console_check.c}` from measured
+probes (console_check MUST use `extern long long`; statuses OK0/EOF1/BAD2/RANGE3/IOERR4);
+(5) runner `tools/mir_aot_console_test.py` — expected bytes COPIED FROM §P1-m1.7 (M04 42\n,
+M05 five legs 123/-42/rc2/rc1/rc3, M06 EXACTLY 33 B), controls C-a/C-b/C-c MUST FAIL;
+(6) FULL regression FROZEN panel (gate 1328/1328-190/190-9/9-149rows-0/0-16/0/25/0-prose5 →
+`build/gate-e54p1m1-reg.log`, mir_aot_test 27, cosmo 25, fresh _build hist 122 sha==kept);
+(7) CLOSE RESULTS §P1-m1 + arch §7-7 + dashboard CLOSED → STOP. READ `LEARNINGS.md`
+§§ "E2E-54/P1-m1 hop 2/3/4" FIRST (hop 4 records this hop's anchor re-reads + design
+decisions). Constraints standing: ZERO oracle; ledger C380; config NEVER staged; no push;
+explicit paths; scratch never committed; lab never advanced; m1a GREEN before any character
+work; F8 vocabulary law on NEW ocaml/hir strings.
+
 1e-e54p1m1-2. **E2E-54/P1-m1 IN FLIGHT — minimal console I/O AUTHORIZED by operator; hop 1 audit
 + hop 2 SCRATCH PROBES DONE AND GREEN (additive mir2o import route PROVEN; production console ABI
 MEASURED — LEARNINGS § "E2E-54/P1-m1 hop 2") + hop 3 DESIGN PROBES COMPLETE (every candidate
@@ -1825,17 +1850,17 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 695
-checkpoint-id: g695-0fac5d0d2302
+checkpoint-generation: 696
+checkpoint-id: g696-f4be7cb42812
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4720, session 01a1c22e-718d-7001-8c8d-6af583bf2243)
-checkpointed: 2026-11-09T21:42:02.173Z
+status: checkpoint (guard level 4, remaining ~4930, session 01a1c243-5974-7001-8c8d-6af964a4df0a)
+checkpointed: 2026-11-09T22:06:55.810Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a85267cf2717ee690c9bd42ba06a8133028c425a365000d91811ca8869246d6d
+source-progress: 851932a36fcc8b89607213df188a0083e59ea24b56a0fa75f7ddb21f7e33a540
 source-handoff: 6fd8ee0864ee0d92b28e83c349d675d6932dc823cf130e4acd7761388cfccb05
-source-learnings: 5225befd1849c9945b35f1abff475ad3d44630de40d59df1b518e3347618bd56
+source-learnings: c8ab01d67894fd425b535d9f2da33e14b509bac8a04a5a1dc74134453e661575
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 

@@ -10736,3 +10736,49 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   any run, corruption controls C-a wrong arithmetic / C-b ignored status / C-c EOF-as-success MUST fail, and
   the FROZEN regression panel (gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir_test 220 ok,
   11 numbers UNMOVED; mir_aot_test 27; mir_aot_cosmo_test 25; exe `172595d5…`).
+
+## E2E-54/P1-m1 hop 4 (2026-11-10, session 01a1c243, renewal 3/12) — §P1-m1 PRE-REGISTERED AND COMMITTED (PROTOCOL #1 gate LANDED)
+
+- **accepted (baseline, first-hand):** HEAD `96610195` (hop-3 close-out); `cd ocaml && eval
+  "$(opam env)" && timeout 600 dune build` rc 0; kept exe `172595d52be44c9e…` DIRECT;
+  `git diff --exit-code -- ocaml/lib ocaml/bin` rc 0; ledger 203 headers ending C380; dirty
+  HANDOFF/PROGRESS = g694/g695 managed blocks only; `handoff.config.json` dirty, NEVER staged.
+- **accepted (anchor re-verification, all first-hand this hop):** `hir.ml` `stmt_kind` enum +
+  dump law (`assign  [line N]` style: two spaces before `[`; `dump_designator` shared;
+  `pp_ty Fixed_bin(p,s)` prints `FIXED BINARY(%d,%d)`); `hir_build.ml` catch-all E05 at the
+  `| k ->` arm with `refuse_name` (names "PUT"/"GET"/"ON unit"); `resolve` returns `H.sym`;
+  `diagnostic.ml` ends at E20 (append-only); `mir_backend.ml` full emission order +
+  `stmt_kind_name`; `hir/mir-expected/M01.mir` bytes: instructions/`endfunc`/`export` are
+  TAB-indented, module items (`pli80_calc: func i64`) are not; probe2/probe4 module layout
+  re-read VERBATIM (protos unindented, `\timport\t…` one line, `s1: string`, `Lfail:`
+  unindented, tail `call p_exit, exit, st` + `ret st`).
+- **accepted (tooling facts measured):** F8 check GLOBS all `ocaml/hir/*.ml` (F8_FILES) — new
+  files are covered automatically; F8_PATTERNS VERBATIM incl. `\b(size|offset|reloc|pool)\b`
+  over STRINGS too (say "len"; say "32..126", never `0x`). `native_check.c` declares
+  `extern long ENTRY(void)` — the NEW `console_check.c` MUST declare `extern long long`
+  (i64 result; probe4 law). Fixtures live at repo-root `hir/mir-fixtures/` + `hir/mir-expected/`
+  (NOT under ocaml/). CT2 frozen `.o` shas re-verified present: `78656e6c…`, `3822f777…`,
+  `02c15b1b…`.
+- **accepted (design decisions landed in the pre-registration §P1-m1):** `get_kind = List_ |
+  Edit | Const_` (ast.ml) — the GET kind arms are EDIT/CONST; `put_kind` arms EDIT/ITEM
+  (Editsk never reached from LIST route). E21 arm ORDER pre-registered: options → kind →
+  item scan (ctl → item-count → item-class) → data-expression lowering (existing channels) →
+  literal charset/empty (E22, m1b) → GET target-shape (after `resolve`). During m1a a literal
+  PUT item refuses via the item-class arm with TRANSIENT wording — no pin, no superseded
+  record. String items `s<k>` numbered by FIRST USE of each DISTINCT literal; ONE `a1` per
+  function, `alloca a1, 8` re-emitted per GET statement (single-get modules pinned; repeated
+  pattern is representation, not new semantics). M06 literal FIXED at 29 characters
+  (`DR PL/I-80 hello from Cosmo!!`, wc-verified) ⇒ stdout EXACTLY 33 bytes.
+- **committed:** `51231164` = `spec/lab-evidence/e2e54/PLAN.md` ONLY (+410 lines, pure
+  insertion after §P1-mC.5): §§P1-m1.0 milestones / .1 measured facts (10 laws incl.
+  zero-pin, line-number, trailing-ctl-unpinnable, E01-ceiling, additive-mir2o PROVEN,
+  production layout, runtime ABI + statuses OK0/EOF1/BAD2/RANGE3/IOERR4, WINDOW LAW,
+  parser/AST shapes, F8) / .2 accepted syntax / .3 refusal contract / .4 HIR contract /
+  .5 MIR emission contract / .6 mir2o + runtime + driver / .7 fixtures + INDEPENDENT expected
+  bytes (M04 42\n; M05 five legs 123/-42/rc2/rc1/rc3; M06 33 B) and negative panel N8..N21 /
+  .8 runner V0–V5 with controls C-a/C-b/C-c / .9 falsifiers T1–T11 with the FROZEN panel /
+  .10 deviations pre-recorded / .11 work order / .12 dashboard OPEN.
+- **deviation note (recorded, not worth a re-commit):** §P1-m1.10-4 says "EXISTENT" (typo for
+  "EXISTING"); harmless prose.
+- **NEXT = §P1-m1.11 step 2 (m1a HIR half)** — see PROGRESS live heading; ZERO oracle; m1a
+  green BEFORE any character work.
