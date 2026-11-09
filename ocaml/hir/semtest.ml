@@ -54,6 +54,7 @@ let show ds = String.concat " / " (List.map D.pp ds)
 type ref_item =
   | R_var of int
   | R_call of { pid : int; nargs : int }
+  | R_elem of { base : int; write : bool }  (* P1-a1 I8: element read / designation *)
 
 let rec walk_expr acc (e : H.expr) : ref_item list =
   match e.H.ex with
@@ -64,11 +65,21 @@ let rec walk_expr acc (e : H.expr) : ref_item list =
   | H.Convert { e = inner; _ } -> walk_expr acc inner
   | H.Call_e { pid; args } ->
       List.fold_left walk_expr (R_call { pid; nargs = List.length args } :: acc) args
+  | H.Elem_read { base; subs } ->
+      List.fold_left walk_expr (R_elem { base; write = false } :: acc) subs
+  | H.Elem_ref { base; subs } ->
+      List.fold_left walk_expr (R_elem { base; write = true } :: acc) subs
+
+and walk_target acc (t : H.target) : ref_item list =
+  match t with
+  | H.T_var { sid } -> R_var sid :: acc
+  | H.T_elem { base; subs } ->
+      List.fold_left walk_expr (R_elem { base; write = true } :: acc) subs
 
 let rec walk_stmt acc (s : H.stmt) : ref_item list =
   match s.H.st with
   | H.Declare _ | H.Stop -> acc
-  | H.Assign { target; value } -> walk_expr (walk_expr acc target) value
+  | H.Assign { target; value } -> walk_target (walk_expr acc value) target
   | H.If { cond; then_; else_ } ->
       List.fold_left walk_stmt
         (List.fold_left walk_stmt (walk_expr acc cond) then_)
@@ -164,7 +175,7 @@ let i2 env prog =
       List.iter
         (fun r ->
           match r with
-          | R_call _ -> ()
+          | R_call _ | R_elem _ -> ()
           | R_var sid -> (
               match SE.symbol env sid with
               | None ->
@@ -355,7 +366,7 @@ let i7 env prog =
       List.iter
         (fun r ->
           match r with
-          | R_var _ -> ()
+          | R_var _ | R_elem _ -> ()
           | R_call { pid; nargs } ->
               match (try Some (SE.signature env pid) with SE.Not_found _ -> None) with
               | Some (Some sg) ->

@@ -73,34 +73,61 @@ let ty_of_rt (s : SE.stype) ~(pr : string) : (H.ty, string) result =
   | SE.SFixed_bin p -> Ok (H.Fixed_bin (p, 0))
   | _ -> Error pr
 
+(* P1-a1 §P1-a1.5: the ARRAY ELEMENT gate. The admitted band is FIXED BINARY 7..15
+   — the MEASURED bind-recordable window (facts A-7/A-10/A-11/A-12: bind itself
+   refuses 1-byte elements with [C159], bit(8) sizes to 1, char(1) refuses; the
+   manual prose never decides this — HIR keys on the projected runtime type).
+   Out-of-band elements refuse on the EXISTING HIR-E02 channel with the
+   pre-registered array wording; the scalar gate above stays byte-identical. *)
+let ty_of_array_elem (s : SE.stype) : (H.ty, unit) result =
+  match s with
+  | SE.SFixed_bin p when 7 <= p && p <= 15 -> Ok (H.Fixed_bin (p, 0))
+  | _ -> Error ()
+
 (* Eager sid-ordered projection (blocks pid-ascending, rows in bind order —
    the same sequence register_block consumed at aaf295f0, so the FIRST
    out-of-subset refusal is the same symbol on the same line with the same
    message; the P0 per-block interleaving of registration guards with this
    gate is the §P1-b.3 predicted drift, recorded, never silent). *)
 let project_syms ctx =
+  (* ONE emitter for both channels, so the sid order never moves (§P1-a1.5). *)
+  let add (s : SE.symbol) (ty : H.ty) =
+    let storage =
+      match s.SE.estorage with
+      | SE.S_formal -> H.Formal
+      | SE.S_auto -> H.Auto
+      | SE.S_static -> H.Static
+    in
+    ctx.syms <-
+      ( s.SE.esid,
+        { H.sid = s.SE.esid; skey = s.ekey; sorig = s.eorig;
+          scope = s.escope; sty = ty; sstorage = storage;
+          sline = s.eline } )
+      :: ctx.syms
+  in
   List.iter
     (fun (be : SE.block_env) ->
       List.iter
         (fun (_key, (s : SE.symbol)) ->
-          match ty_of_rt s.SE.ety ~pr:s.epr with
-          | Ok ty ->
-              let storage =
-                match s.SE.estorage with
-                | SE.S_formal -> H.Formal
-                | SE.S_auto -> H.Auto
-                | SE.S_static -> H.Static
-              in
-              ctx.syms <-
-                ( s.SE.esid,
-                  { H.sid = s.SE.esid; skey = s.ekey; sorig = s.eorig;
-                    scope = s.escope; sty = ty; sstorage = storage;
-                    sline = s.eline } )
-                :: ctx.syms
-          | Error rt_s ->
-              raise_err ~line:s.SE.eline D.e_type
-                ("declared type " ^ rt_s ^ " for " ^ s.SE.ekey
-                ^ " is outside the P0 HIR subset (FIXED BINARY scalars only)"))
+          match s.SE.e_array with
+          | None ->
+              (* scalar gate and message BYTE-IDENTICAL (T10 — the H06 pin) *)
+              (match ty_of_rt s.SE.ety ~pr:s.epr with
+               | Ok ty -> add s ty
+               | Error rt_s ->
+                   raise_err ~line:s.SE.eline D.e_type
+                     ("declared type " ^ rt_s ^ " for " ^ s.SE.ekey
+                     ^ " is outside the P0 HIR subset (FIXED BINARY scalars only)"))
+          | Some a ->
+              (* array row: gate the ELEMENT type (the row's ety is the element
+                 type too — fact A-1); the declared bounds ride the Hir type. *)
+              (match ty_of_array_elem a.SE.a_elem with
+               | Ok elem -> add s (H.Array1 { elem; lo = a.a_lo; hi = a.a_hi })
+               | Error () ->
+                   raise_err ~line:s.SE.eline D.e_type
+                     ("array element type " ^ s.epr ^ " for " ^ s.SE.ekey
+                     ^ " is outside the P1-a1 array subset (1-D FIXED BINARY(7..15) "
+                     ^ "elements only)") ))
         be.SE.esyms)
     (SE.blocks ctx.env)
 
@@ -188,6 +215,15 @@ let rec lower_expr ctx (bi : SE.block_env) (e : Ast.expr) : H.expr =
           if SE.procedure ctx.env key <> None then
             raise_err ~line D.e_call
               ("procedure " ^ key ^ " used as a value: P0 admits calls only")
+          else if
+            match s.H.sty with H.Array1 _ -> true | _ -> false
+          then
+            (* §P1-a1.5: an ARRAY name is not a value either — no whole-array
+               load node exists in the HIR; the use refuses loudly (A-16: bind
+               recorded nothing about this use, the HIR decides). *)
+            raise_err ~line D.e_whole_array
+              ("whole-array use of " ^ n.Ast.orig
+              ^ " is outside the P1-a1 subset (element references only)")
           else wrap s.H.sty H.Pure line (H.Var { sid = s.sid; addressable = true })
       | None ->
           if SE.procedure ctx.env key <> None then
@@ -223,7 +259,15 @@ let rec lower_expr ctx (bi : SE.block_env) (e : Ast.expr) : H.expr =
             "binary operator outside the P0 subset (lowered: + - * arithmetic and \
              = ^= < <= > >= only under IF/DO WHILE heads)")
   | Ast.Esuffix ({ e = Ast.Eident f; _ }, args) ->
-      lower_call ctx bi line (SE.key_of f) args
+      (* §P1-a1.5(c): a suffix on a plain name is a CALL or an ELEMENT READ, decided
+         by the env — procedure ⇒ existing lower_call UNCHANGED; resolved
+         non-procedure ⇒ lower_array_ref (array ⇒ Elem_read, scalar ⇒ E12, wrong
+         count ⇒ E14); unresolved ⇒ existing lower_call (keeps its E06 wording). *)
+      let key = SE.key_of f in
+      (match (SE.procedure ctx.env key, resolve ctx bi key) with
+       | Some _, _ -> lower_call ctx bi line key args
+       | None, Some s -> lower_array_ref ctx bi line f.Ast.orig s args
+       | None, None -> lower_call ctx bi line key args)
   | _ ->
       raise_err ~line D.e_expr
         "expression form outside the P0 HIR subset (lowered: integer literals, \
@@ -321,11 +365,16 @@ and lower_call ctx bi line (key : string) (args : Ast.expr list) : H.expr =
     match SE.procedure ctx.env key with
     | Some pid -> pid
     | None ->
-        (* maybe an array/built-in suffix call — all out of P0, name them distinctly *)
+        (* DEFENSIVE GUARD (P1-a1 §P1-a1.5(e)): since the Esuffix dispatch above routes
+           every resolved non-procedure name to lower_array_ref, a name that resolves
+           but is not a procedure can no longer reach this function — the old
+           "arrays unlowered" text became FALSE with P1-a1 and is replaced. UNEXERCISED
+           by any probe/fixture (recorded, like the dup_free/E14 witnesses). *)
         (match resolve ctx bi key with
         | Some _ ->
             raise_err ~line D.e_expr
-              ("indexed/bounded reference " ^ key ^ " is outside the P0 subset (arrays unlowered)")
+              ("internal: non-procedure name " ^ key
+              ^ " reached call lowering (defensive guard; unreachable in P1-a1)")
         | None ->
             raise_err ~line D.e_unresolved
               ("call target " ^ key ^ " is no bind-registered procedure"))
@@ -360,6 +409,49 @@ and lower_call ctx bi line (key : string) (args : Ast.expr list) : H.expr =
   let ef = List.fold_left (fun accx a -> ef_union accx a.H.ex_ef) H.Pure hargs in
   wrap rty ef line (H.Call_e { pid; args = hargs })
 
+(* §P1-a1.5(d): a subscript EXPRESSION. A plain integer literal is range-checked
+   against the declared bounds — a compile-time HIR subset rule, NOT a DR law: bind
+   performs NO out-of-range check (fact A-9) and DR's runtime behaviour is unmeasured.
+   Everything else lowers through the existing arithmetic gate (variable subscripts
+   are FIXED BINARY by the P0 arithmetic rules). *)
+and lower_index ctx bi (line : int) (orig : string) (lo : int) (hi : int)
+      (ix : Ast.expr) : H.expr =
+  (match ix.Ast.e with
+   | Ast.Enumber text ->
+       (match lit_int text with
+        | Some v when v < lo || v > hi ->
+            raise_err ~line D.e_index
+              ("constant subscript " ^ string_of_int v ^ " for array " ^ orig
+              ^ " is outside the declared bounds [" ^ string_of_int lo ^ ":"
+              ^ string_of_int hi
+              ^ "] (compile-time HIR subset rule; DR out-of-range behaviour "
+              ^ "unmeasured [TBD])")
+        | _ -> ())
+   | _ -> ());
+  lower_arith ctx bi ix
+
+(* §P1-a1.5(d): the VALUE-position element read. One subscript on an Array1 ⇒
+   Elem_read; any other count ⇒ E14; a resolved NON-array name ⇒ E12 (A-15: bind
+   is blind to subscripts, the HIR decides). The element type rides the node. *)
+and lower_array_ref ctx bi (line : int) (orig : string) (sy : H.sym)
+      (args : Ast.expr list) : H.expr =
+  match sy.H.sty with
+  | H.Array1 { elem; lo; hi } ->
+      (match args with
+       | [ ix ] ->
+           let ixe = lower_index ctx bi line orig lo hi ix in
+           wrap elem ixe.H.ex_ef line (H.Elem_read { base = sy.sid; subs = [ ixe ] })
+       | l ->
+           raise_err ~line D.e_dims
+             ("subscript form for " ^ orig
+             ^ " is outside the 1-D P1-a1 subset ("
+             ^ string_of_int (List.length l) ^ " subscript(s))"))
+  | _ ->
+      raise_err ~line D.e_index
+        ("subscript on " ^ orig
+        ^ " is not a 1-D array reference in the P1-a1 subset (bind recorded "
+        ^ "no array for this name)")
+
 (* ---------- statements ---------- *)
 
 let rec lower_stmts ctx bi (ss : Ast.stmt list) : H.stmt list =
@@ -382,6 +474,30 @@ and flatten_group _ctx (_bi : SE.block_env) (s : Ast.stmt) : Ast.stmt list =
       else [ s ]
   | _ -> [ s ]
 
+(* §P1-a1.5(g): the assignment RHS machinery, shared by the scalar (T_var) and the
+   element (T_elem) targets. The Convert node, its language-rule reason and the E09
+   refusal text are the EXISTING bytes moved verbatim (T10). [~tv] is the target
+   type (the scalar type, or the ELEMENT type for an array element); [~line] is the
+   statement line, as before. *)
+and assign_value ctx (bi : SE.block_env) (rhs : Ast.expr) ~(tv : H.ty)
+      ~(line : int) : H.expr =
+  let v = lower_expr ctx bi rhs in
+  if v.H.ex_ty <> tv then
+    match (v.H.ex_ty, tv) with
+    | H.Fixed_bin (p1, s1), H.Fixed_bin (p2, s2) ->
+        wrap tv v.H.ex_ef v.H.ex_line
+          (H.Convert
+             { from = v.ex_ty; to_ty = tv; e = v;
+               reason =
+                 Printf.sprintf
+                   "language-rule:fixed-assignment %d,%d->%d,%d (rounding/overflow profile-UNKNOWN)"
+                   p1 s1 p2 s2 })
+    | _ ->
+        raise_err ~line D.e_conv
+          ("assignment of " ^ H.pp_ty v.H.ex_ty ^ " to " ^ H.pp_ty tv
+          ^ " is not representable in the P0 subset")
+  else v
+
 and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
   let line = s.Ast.spos.line in
   let node k = [ { H.st = k; st_line = line } ] in
@@ -393,8 +509,19 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
           if d.dlevel <> None then
             raise_err ~line D.e_decl "level-numbered structure declaration is outside the P0 subset"
           ;
-          if d.ddims <> [] then
-            raise_err ~line D.e_decl ("array declaration for " ^ d.dname.orig ^ " is outside the P0 subset")
+          (* §P1-a1.5(f): the ddims guard NARROWED to DIMS-WITHOUT-RECORD (A-5/A-14:
+             bind silently drops a(1) and never records member arrays — those must
+             keep refusing with the UNCHANGED text, H10 pins it). An admitted
+             declaration (row present AND e_array = Some) lowers to Declare. *)
+          let key = SE.key_of d.dname in
+          let row = List.assoc_opt key bi.SE.esyms in
+          if d.ddims <> []
+             && (match row with
+                 | Some (s : SE.symbol) -> s.SE.e_array = None
+                 | None -> true)
+          then
+            raise_err ~line D.e_decl
+              ("array declaration for " ^ d.dname.orig ^ " is outside the P0 subset")
           ;
           if d.dinit <> None then
             raise_err ~line D.e_decl "INITIAL values are outside the P0 subset (storage-init evidence is DR-layout)"
@@ -405,8 +532,7 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
           if d.dpre <> None then
             raise_err ~line D.e_decl "preprocessor-spliced declaration is outside the P0 subset"
           ;
-          let key = SE.key_of d.dname in
-          match List.assoc_opt key bi.SE.esyms with
+          match row with
           | Some sy -> node (H.Declare sy.SE.esid)
           | None ->
               raise_err ~line D.e_decl
@@ -421,29 +547,52 @@ and lower_stmt ctx bi (s : Ast.stmt) : H.stmt list =
               if SE.procedure ctx.env key <> None then
                 raise_err ~line D.e_call ("assignment target " ^ key ^ " names a procedure")
               ;
-              let t = wrap sy.H.sty H.Pure lhs.Ast.epos.line (H.Var { sid = sy.sid; addressable = true }) in
-              let v = lower_expr ctx bi rhs in
-              let v =
-                if v.H.ex_ty <> sy.sty then
-                  match (v.H.ex_ty, sy.sty) with
-                  | H.Fixed_bin (p1, s1), H.Fixed_bin (p2, s2) ->
-                      wrap sy.sty v.ex_ef v.ex_line
-                        (H.Convert
-                           { from = v.ex_ty; to_ty = sy.sty; e = v;
-                             reason =
-                               Printf.sprintf
-                                 "language-rule:fixed-assignment %d,%d->%d,%d (rounding/overflow profile-UNKNOWN)"
-                                 p1 s1 p2 s2 })
-                  | _ ->
-                      raise_err ~line D.e_conv
-                        ("assignment of " ^ H.pp_ty v.H.ex_ty ^ " to " ^ H.pp_ty sy.sty
-                        ^ " is not representable in the P0 subset")
-                else v
-              in
-              node (H.Assign { target = t; value = v })
+              (match sy.H.sty with
+               | H.Array1 _ ->
+                   (* §P1-a1.5(g): whole-array assignment — the HIR has no
+                      whole-array node; refuse loudly (A-16: bind recorded
+                      nothing about this use, the HIR decides). *)
+                   raise_err ~line D.e_whole_array
+                     ("whole-array use of " ^ n.Ast.orig
+                     ^ " is outside the P1-a1 subset (element references only)")
+               | tv ->
+                   let v = assign_value ctx bi rhs ~tv ~line in
+                   node (H.Assign { target = H.T_var { sid = sy.sid }; value = v }))
           | None ->
               raise_err ~line D.e_unresolved
                 ("assignment target " ^ n.Ast.orig ^ " resolved by NO bind row"))
+      | Ast.Esuffix ({ e = Ast.Eident n; _ }, subs) ->
+          (* §P1-a1.5(g): element DESIGNATION target. Array + exactly one
+             subscript ⇒ T_elem, the RHS typed against the ELEMENT type; wrong
+             count ⇒ E14; non-array ⇒ E12; unresolved ⇒ the existing
+             NO-bind-row channel (defensive: no fixture reaches it). *)
+          let key = SE.key_of n in
+          (match (SE.procedure ctx.env key, resolve ctx bi key) with
+           | Some _, _ ->
+               raise_err ~line D.e_call
+                 ("assignment target " ^ key ^ " names a procedure")
+           | None, Some sy -> (
+               match (sy.H.sty, subs) with
+               | H.Array1 { elem; lo; hi }, [ ix ] ->
+                   let ixe = lower_index ctx bi line n.Ast.orig lo hi ix in
+                   let v = assign_value ctx bi rhs ~tv:elem ~line in
+                   node
+                     (H.Assign
+                        { target = H.T_elem { base = sy.sid; subs = [ ixe ] };
+                          value = v })
+               | H.Array1 _, l ->
+                   raise_err ~line D.e_dims
+                     ("subscript form for " ^ n.Ast.orig
+                     ^ " is outside the 1-D P1-a1 subset ("
+                     ^ string_of_int (List.length l) ^ " subscript(s))")
+               | _ ->
+                   raise_err ~line D.e_index
+                     ("subscript on " ^ n.Ast.orig
+                     ^ " is not a 1-D array reference in the P1-a1 subset (bind "
+                     ^ "recorded no array for this name)"))
+           | None, None ->
+               raise_err ~line D.e_unresolved
+                 ("assignment target " ^ n.Ast.orig ^ " resolved by NO bind row"))
       | _ ->
           raise_err ~line D.e_expr
             "only simple variable assignment targets are lowered in the P0 subset")
