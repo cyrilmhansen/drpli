@@ -1,0 +1,8 @@
+h09: procedure options(main);
+   dcl b(0:4) fixed bin(8);
+   dcl y fixed bin(8);
+   b(0) = 3;
+   y = b(2);
+   stop;
+end h09;
+

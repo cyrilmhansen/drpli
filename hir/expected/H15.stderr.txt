@@ -1,0 +1,1 @@
+HIR-E12: line 4: constant subscript 9 for array a is outside the declared bounds [1:3] (compile-time HIR subset rule; DR out-of-range behaviour unmeasured [TBD])

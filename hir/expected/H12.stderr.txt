@@ -1,0 +1,1 @@
+HIR-E12: line 3: subscript on y is not a 1-D array reference in the P1-a1 subset (bind recorded no array for this name)

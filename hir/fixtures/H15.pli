@@ -1,0 +1,7 @@
+h15: procedure options(main);
+   dcl a(3) fixed bin(15);
+   dcl i fixed bin(15);
+   i = a(9);
+   stop;
+end h15;
+

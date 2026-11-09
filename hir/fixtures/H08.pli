@@ -1,0 +1,10 @@
+h08: procedure options(main);
+   dcl a(4) fixed bin(15);
+   dcl i fixed bin(15);
+   dcl t fixed bin(15);
+   i = 2;
+   t = a(i);
+   a(i) = t + 1;
+   stop;
+end h08;
+

@@ -1,0 +1,21 @@
+HIR-DUMP schema=v0 profile=dr-pli80-v1.4
+SCOPE 0 parent=- kind=program
+SYM 0 name=b key=b scope=0 type=FIXED BINARY(8,0) ARRAY[0:4] storage=auto line=2
+SYM 1 name=y key=y scope=0 type=FIXED BINARY(8,0) storage=auto line=3
+PROC 0 name=h09 main=true scope=0 params=[] returns=none
+BODY proc(0)
+  declare sym(0)  [line 2]
+  declare sym(1)  [line 3]
+  assign  [line 4]
+    order: target address then value
+    elem_ref sym(0)[0:4] : FIXED BINARY(8,0)  [pure, line 4]
+      const 0 : FIXED BINARY(15,0)  [pure, line 4]
+    convert FIXED BINARY(15,0) -> FIXED BINARY(8,0)  [pure, line 4; reason=language-rule:fixed-assignment 15,0->8,0 (rounding/overflow profile-UNKNOWN)]
+      const 3 : FIXED BINARY(15,0)  [pure, line 4]
+  assign  [line 5]
+    order: target address then value
+    var sym(1) : FIXED BINARY(8,0)  [pure, line 5]
+    elem_read sym(0)[0:4] : FIXED BINARY(8,0)  [pure, line 5]
+      const 2 : FIXED BINARY(15,0)  [pure, line 5]
+  stop  [line 6]
+END proc(0)

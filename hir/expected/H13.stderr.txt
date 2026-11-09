@@ -1,0 +1,1 @@
+HIR-E13: line 3: whole-array use of a is outside the P1-a1 subset (element references only)

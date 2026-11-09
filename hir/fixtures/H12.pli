@@ -1,0 +1,6 @@
+h12: procedure options(main);
+   dcl y fixed bin(15);
+   y(1) = 2;
+   stop;
+end h12;
+

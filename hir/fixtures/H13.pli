@@ -1,0 +1,6 @@
+h13: procedure options(main);
+   dcl a(3) fixed bin(15);
+   a = 1;
+   stop;
+end h13;
+

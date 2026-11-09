@@ -1,0 +1,1 @@
+HIR-E02: line 2: array element type CHAR(2) for a is outside the P1-a1 array subset (1-D FIXED BINARY(7..15) elements only)

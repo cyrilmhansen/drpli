@@ -1,0 +1,29 @@
+HIR-DUMP schema=v0 profile=dr-pli80-v1.4
+SCOPE 0 parent=- kind=program
+SYM 0 name=a key=a scope=0 type=FIXED BINARY(15,0) ARRAY[1:4] storage=auto line=2
+SYM 1 name=i key=i scope=0 type=FIXED BINARY(15,0) storage=auto line=3
+SYM 2 name=t key=t scope=0 type=FIXED BINARY(15,0) storage=auto line=4
+PROC 0 name=h08 main=true scope=0 params=[] returns=none
+BODY proc(0)
+  declare sym(0)  [line 2]
+  declare sym(1)  [line 3]
+  declare sym(2)  [line 4]
+  assign  [line 5]
+    order: target address then value
+    var sym(1) : FIXED BINARY(15,0)  [pure, line 5]
+    const 2 : FIXED BINARY(15,0)  [pure, line 5]
+  assign  [line 6]
+    order: target address then value
+    var sym(2) : FIXED BINARY(15,0)  [pure, line 6]
+    elem_read sym(0)[1:4] : FIXED BINARY(15,0)  [pure, line 6]
+      var sym(1) : FIXED BINARY(15,0)  [pure, line 6]
+  assign  [line 7]
+    order: target address then value
+    elem_ref sym(0)[1:4] : FIXED BINARY(15,0)  [pure, line 7]
+      var sym(1) : FIXED BINARY(15,0)  [pure, line 7]
+    binop + : FIXED BINARY(15,0)  [pure, line 7; typing=language-rule:max+1; clamped to profile ceiling 15 (language-rule result precision 16; DR intermediate typing unmeasured [TBD])]
+      order: left then right
+      var sym(2) : FIXED BINARY(15,0)  [pure, line 7]
+      const 1 : FIXED BINARY(15,0)  [pure, line 7]
+  stop  [line 8]
+END proc(0)
