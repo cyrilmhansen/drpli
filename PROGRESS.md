@@ -54,7 +54,7 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a2 authorized 2026-11-10 — RECOVERY DONE; §§2 PARAMETER AUDIT IN FLIGHT; PRE-REGISTER PLAN §P1-a2 BEFORE any `ocaml/hir/` byte — BINDING)
+## Next action (E2E-54/P1-a2 authorized 2026-11-10 — RECOVERY DONE; §2 PARAMETER AUDIT IN FLIGHT; PRE-REGISTER PLAN §P1-a2 BEFORE any `ocaml/hir/` byte — BINDING)
 **DONE this hop (session 01a1beba; ZERO oracle):** operator authorized **E2E-54/P1-a2**
 (procedure arguments + indirect references, starting reference `b716daf0`; P0/P1-b/P1-a1
 stays CLOSED, its evidence untouched). Baseline verified FIRST-HAND: HEAD `b716daf0`;
@@ -70,7 +70,7 @@ evidence-file); ledger **203** `## C` headers ending **C380**; guard: checkpoint
 prose, `spec/lab-evidence/e2e54/PLAN.md` §P0/§P1-b/§P1-a1 contracts, RESULTS §P0/§P1-b/
 §P1-a1, `docs/architecture/backend-boundary.md` §1.4/§1.5/§7-1/§7-2, and ALL of
 `ocaml/hir/{hir,semantic_env,hir_build}.ml` (semtest.ml/diagnostic.ml/backend.ml NOT yet re-read).
-**§2 AUDIT STARTED (reads done, findings NOT yet written anywhere):** bind's parameter-side
+**§2 AUDIT STARTED (source reads done, findings written ONLY in LEARNINGS § E2E-54/P1-a2 hop 1):** bind's parameter-side
 authorities located first-hand — `proc_layout.pl_ptrs : (string * int) list` (formal → 2-byte
 pointer cell, `bind.ml:1952`, built by `List.mapi (fun i f -> (f, base + 2*i)) formals` at
 `:2557`); `call_site = {cs_proc; cs_slot; cs_args : Ast.expr list; cs_temps; cs_copies; cs_dec}`
@@ -3767,7 +3767,7 @@ checkpoint-generation: 641
 checkpoint-id: g641-9a213fcee2e0
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 3
 checkpointed: 2026-11-09T05:30:40.143Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -4497,6 +4497,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1beba-124f-74ee-84fe-84e837f466b2
+readiness-at: 2026-11-09T05:31:03.848Z
+readiness-checkpoint: g641-9a213fcee2e0
 <!-- guard:end checkpoint -->
 
 ## Blockers

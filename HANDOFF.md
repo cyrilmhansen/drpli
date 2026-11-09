@@ -1729,7 +1729,7 @@ checkpoint-generation: 641
 checkpoint-id: g641-9a213fcee2e0
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 3, remaining ~6946, session 01a1beba-124f-74ee-84fe-84e837f466b2)
 checkpointed: 2026-11-09T05:30:40.143Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -1739,6 +1739,9 @@ source-learnings: d2ca86931778810d62236fc9aa6b64bcdaca2b2626c2d465228e6739f36f34
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1beba-124f-74ee-84fe-84e837f466b2
+readiness-at: 2026-11-09T05:31:03.848Z
+readiness-checkpoint: g641-9a213fcee2e0
 ### Last verified state
 guard level 3; checkpoint requested (auto at level 3)
 
