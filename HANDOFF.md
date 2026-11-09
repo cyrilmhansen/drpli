@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0c-e54p1a1-5. **E2E-54/P1-a1 CLOSED 2026-11-09 — steps 4–6 LANDED, FULL PANEL GREEN, NOTHING AUTHORIZED (session renewal 4/12; ZERO oracle; ocaml/lib+bin byte-clean; T1 `172595d5…` held).** Step 4 §P1-a1.7 → `1399ff1a`: semtest I1 array-aware (KNOWN RED 9×→0 — TEST was blind, NOT the projection; scalar branch byte-for-byte P1-b), I8/I9/I10 with corrupt controls sharing THE SAME comparison functions (`--corrupt-array-hi` hi+1, `--corrupt-array-base` repoint; `nothing was proven` rc 1 on H01–H04/H05-base — non-vacuity never faked), hir_test.py positives live+ALL corrupt ×2 + T5 RAW bind_arrays grep + T6 strip-grep → **full rc 0** (live H01 4/3 H02 7/2 H03 7/4 H04 4/2 unchanged + H05 1/1 H08 7/3 H09 3/2). Step 5: FULL gate rc 0 → `build/gate-e54p1a1-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5; fresh `--build-dir _build-e54p1a1` rc 0 ZERO Error hist 122, sha == kept exe. Step 6 CLOSE: RESULTS §P1-a1 (T1–T10 WITH values; 10 deviations incl. falsified predecessor claim + H08 NO-Convert + H14 parse-resolved), arch §7-2, PLAN dashboard **P1-a1 CLOSED**. **SUCCESSOR: NOTHING is authorized — report closure, await the OPERATOR.** PUT/GET, BEGIN repair, MIR, P2+ PROPOSED ONLY; each needs own PROTOCOL #1 pre-registration. Ledger C380 (203 headers); config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; NEVER batch build with tests using its artifacts (race law, LEARNINGS); every fixture under timeout; scratch never committed; superseded/ never rewritten.
+
 0c-e54p1a1-4. **E2E-54/P1-a1 hop 3 LANDED steps 1–3 — TREE BUILDS, FIXTURES MEASURED+PINNED, H05 FLIPPED (2026-11-09, session 01a1bd9f, renewal 3/12; ZERO oracle; ocaml/lib+bin byte-clean).** FALSIFIED checkpoint claim first: the predecessor's hir.ml was NOT "complete" — it did not compile (`List.assoc_opt` vs `sym list`, two mojibaked `§`, semtest Warning 8); mechanically fixed, then §P1-a1.5 implemented VERBATIM in `hir_build.ml` → `e9990241` (steps 3+4 ONE commit; T1 `172595d5…` DIRECT; T2 `git diff --exit-code -- hir/expected` clean; H01–H04/H06/H07 + F7/F8/F10/S8 green; T6 strip-grep clean). §P1-a1.6 → `32cc4373`: H08..H15 fixtures (CRLF+^Z, ONE refusal each) MEASURED, expected files copied from actual output; H05 flip via `git mv` → `hir/expected/superseded/2026-11-09/` + dated README. MEASURED LAWS: H08 has NO Convert (falsified §P1-a1.6 prediction CONFIRMED — CLAMP makes `t+1` type-equal); H09 IS the Convert witness (bin(15,0) const → bin(8) element); H14 PARSES (was UNPROVEN) and dies E14 `2 subscript(s)`; H11 single-dies E02 array wording (project_syms precedes lowering); H10 E03 byte-identical. KNOWN RED, recorded not fitted: `tools/hir_test.py` fails 9× — ONLY semtest/live on H05/H08/H09, I1 is not array-aware (`env bin(15)` vs `Array1`) — that is step 4. **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-a1 hop 3 LANDED steps 1–3…)` VERBATIM:** step 4 (§P1-a1.7: array-aware I1; I8 reference soundness; I9 bound preservation with esz DROPPED via live `Bind.bind_arrays`; I10 projection completeness; `--corrupt-array-hi` + `--corrupt-array-base` + `nothing was proven` non-vacuity; hir_test.py live+ALL corrupt ×2 fresh procs, T5 bind_arrays grep (only semantic_env.ml+semtest.ml), T6 strip-grep) → full hir_test rc 0 → commit; step 5 FULL gate rc 0 → `build/gate-e54p1a1-reg.log` FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 + fresh `--build-dir _build-e54p1a1` rc 0 ZERO Error + sha vs kept exe; step 6 CLOSE (RESULTS §P1-a1 T1–T10 panel WITH values + deviations incl. the falsified predecessor claim, arch §7-2, PLAN dashboard CLOSED) then **STOP — no PUT/GET, no BEGIN repair, no MIR.** Ledger C380 (203 headers); config NEVER staged; no push; explicit paths; every fixture under `timeout`; scratch `ocaml/scratch-p1a1/` NEVER committed; `superseded/` added once, never rewritten.
 
 0c-e54p1a1-3. **E2E-54/P1-a1 hop 3 — step 2 LANDED `3c4a2a25`, step 4 HALF-DONE, THE TREE DOES NOT BUILD (2026-11-09, session 01a1bd86, renewal 2/12; ZERO oracle; ZERO `ocaml/lib`+`ocaml/bin` byte).** Baseline trio verified FIRST-HAND at `55a357e5` (build rc 0; exe `172595d5…`; hir_test rc 0; ledger C380). **ACCEPTED/LANDED:** `ocaml/hir/semantic_env.ml` §P1-a1.4 array projection (stype `SArray1` never produced by `type_of_rt` — bind rows carry the ELEMENT type, A-1; `array1{a_elem;a_lo;a_hi}`; `symbol.e_array` merged by lowered key from `Bind.bind_arrays`, per-block A-8/A-13; `arrays_of` drops bind's 4th (physical) record component at first touch — T6; `guard_arrays` split-channel refusals on new `HIR-E14`, UNEXERCISED by any probe like the P0 dup_free witness; `pp_stype … ARRAY[lo:hi]`; sid/scope/pid assignment untouched) + `diagnostic.ml` appended codes `e_index`/`e_whole_array`/`e_dims` (deviation: §P1-a1.9 pairs diagnostic.ml with step 4, the env guard needs `e_dims` in step 2) — verified build rc 0, T1 held, hir_test rc 0, `git diff --exit-code hir/expected` CLEAN. **UNCOMMITTED, NON-COMPILING:** `ocaml/hir/hir.ml` (§P1-a1.3 COMPLETE on disk: `ty Array1`, `Elem_read`/`Elem_ref`, `type target = T_var|T_elem`, `Assign.target : target`, syms-threaded dump + `dump_target`) and `ocaml/hir/semtest.ml` (walk gains `R_elem`/`walk_target`); `hir_build.ml` still passes an `expr` target ⇒ type errors. **MEASURED T2-critical law (accepted):** every existing expected dump prints the assign TARGET at the statement line, so rendering `T_var`/`T_elem` at `s.st_line` reproduces H01–H04 bytes exactly. **FALSIFIED (recorded, not fitted):** §P1-a1.6's "Convert on assign" for H08 — `a(i) = t + 1` is type-equal after the precision CLAMP, so H08 has NO Convert; the witness is H09 (`const 3` : bin(15,0) into a bin(8) element). **SUCCESSOR = PROGRESS.md `## Next action (E2E-54/P1-a1 hop 3 IN FLIGHT…)` VERBATIM** — step 1 finishes §P1-a1.5 in `hir_build.ml` with the exact pre-registered refusal strings written out there, then build rc 0 + T1 + hir_test (H01–H04/H06/H07 must stay green, H05 flips to an `elem_ref sym(0)[1:5]` dump measured VERBATIM) and ONE commit for steps 3+4 (the `target` change breaks its consumers); then fixtures (H14's parse is UNPROVEN — pin what is measured), semtest I8/I9/I10 + two array corrupt modes, hir_test, FULL gate → `build/gate-e54p1a1-reg.log`, CLOSE, **STOP**. Ledger C380; config NEVER staged; no push; explicit paths; every fixture under `timeout`; `ocaml/scratch-p1a1/` NEVER committed.
@@ -1721,13 +1723,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 636
-checkpoint-id: g636-ad2b3d1af2af
+checkpoint-generation: 637
+checkpoint-id: g637-7d611707a9ef
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 3, remaining ~6931, session 01a1bd9f-1df8-73ad-8fbc-6a7333957f4d)
-checkpointed: 2026-11-09T00:35:37.585Z
+status: checkpoint (guard level 4, remaining ~4011, session 01a1bd9f-1df8-73ad-8fbc-6a7333957f4d)
+checkpointed: 2026-11-09T00:36:26.551Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a2afe27e9f9c0f23722f653f743feb038ae3de0c962e409e1487cf2bf82ed850
 source-handoff: 023db422cebc015b62cf0dc5038e9cdac253764802d618edf6ad6bd43e01bf2f
@@ -1736,10 +1738,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1bd9f-1df8-73ad-8fbc-6a7333957f4d
-readiness-at: 2026-11-09T00:35:58.062Z
-readiness-checkpoint: g636-ad2b3d1af2af
+readiness-at: 2026-11-09T00:36:26.592Z
+readiness-checkpoint: g637-7d611707a9ef
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

@@ -54,68 +54,41 @@ SUPERSEDED-BY-ABOVE: ## Next action (E2E-53/P3 hop 6 — ARM + CLOSE — recon C
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-53 **CLOSED — §P1/§P2/§P3/§P4 ALL CLOSED at hop 16**; hop 17 = **GET THE E2E-54 BRIEF FROM THE OPERATOR, THEN PRE-REGISTER** — BINDING) — CONSUMED: the operator restated the E2E-54 brief verbatim on 2026-11-08; it is recorded as §0 of `spec/lab-evidence/e2e54/PLAN.md` (commit `c89a9df3`).
 
-## Next action (E2E-54/P1-a1 hop 3 LANDED steps 1–3 — TREE BUILDS, FIXTURES PINNED — EXECUTE STEP 4 (semtest arrays) THEN 5 (gate) THEN 6 (CLOSE+STOP) — BINDING)
-**DONE (session 01a1bd9f, renewal 3/12; ZERO oracle; ocaml/lib+bin byte-clean):**
-(1) The tree DID NOT build as claimed by the predecessor checkpoint (hir.ml render helpers
-used `List.assoc_opt` against a `sym list`; two mojibaked `§`; semtest I7 Warning 8) — fixed
-mechanically. (2) §P1-a1.5 implemented VERBATIM in `hir_build.ml` → commit `e9990241`
-(steps 3+4 in ONE commit, target-type breakage; T1 `172595d5…` DIRECT, T2 clean, hir_test
-H01–H04/H06/H07 + F7/F8/F10/S8 green, H05 flipped to rc 0 with the measured
-`elem_ref sym(0)[1:5]` dump recorded VERBATIM). (3) §P1-a1.6 → commit `32cc4373`: fixtures
-H08..H15 (CRLF+^Z, ONE refusal path each) MEASURED and pinned; H05 flip executed via
-`git mv` into `hir/expected/superseded/2026-11-09/` + dated README. MEASURED LAWS: H08 has
-NO Convert (falsified §P1-a1.6 prediction CONFIRMED — CLAMP makes `t+1` type-equal); H09 is
-the Convert witness (bin(15,0) const into bin(8) element); **H14 PASSES the parser**
-(was UNPROVEN) and dies E14 with `2 subscript(s)`; H11's single death is E02 array wording
-(`project_syms` precedes lowering — registration-order law); H10 E03 text byte-identical.
-**KNOWN RED (recorded, NOT fitted):** `tools/hir_test.py` currently FAILS 9× — exactly
-semtest/live on H05/H08/H09 (corrupt controls pass): I1 compares `Hir.sym.sty` against the
-env row type without array awareness (`type differs for a (env bin(15))`). THAT IS STEP 4.
-**EXECUTE (exact order):**
-4. §P1-a1.7 in `ocaml/hir/semtest.ml` + `tools/hir_test.py`: (a) make **I1 array-aware** —
-   when the env symbol carries `e_array = Some a`, the projected `Hir.sym.sty` must be
-   `Array1` with `lo/hi` = `a_lo/a_hi` and element rendering matching; when `e_array = None`,
-   the existing comparison stays byte-for-byte. (b) **I8** reference soundness: walk gains
-   element refs (already: `R_elem{base;write}`): every `Elem_read`/`T_elem` base sid resolves
-   (AT THE REFERRING PROC'S SCOPE) to a symbol with `e_array = Some`; node `ex_ty` equals the
-   env element projection (mapped the same way as I1); NO `Var` node carries an `Array1`
-   type. (c) **I9** bound preservation: every array symbol's `(lo,hi)` equals the live
-   `Bind.bind_arrays` triple for its block with `esz` DROPPED (semtest IS an authority
-   reader — T5 law: `bind_arrays` grep hits ONLY `semantic_env.ml` + `semtest.ml`).
-   (d) **I10** projection completeness: every `bind_arrays` entry of every block appears as
-   `Some e_array` on the matching-key env symbol; every `e_array` has an `Array1`
-   `Hir.sym.sty` — never a silent drop. (e) corrupt controls: keep `--corrupt` (wrong sid)
-   EXACTLY as at P1-b; add `--corrupt-array-hi` (perturb one `a_hi` before the I9
-   comparison — the SAME comparison must reject it) and `--corrupt-array-base` (point one
-   `Elem_read` base at a non-array sid — I8 must reject); NON-VACUITY: on a fixture with
-   nothing to perturb print `SEM-FAIL: ... nothing was proven`, rc 1, ZERO stdout (H05 has
-   only a target Elem — think which modes can act; H12-shape fixtures have no array at all;
-   negative fixtures never reach semtest). (f) `tools/hir_test.py`: positive fixtures are now
-   H01–H05, H08, H09 — each runs CLI x2 determinism + semtest LIVE and BOTH new corrupt
-   modes, twice, fresh processes (T8); add the T5 grep law (`grep -rn bind_arrays` over
-   ocaml/hir ocaml/bin → the two files only) and the T6 strip-grep
-   `\b(stride|offset|bytes|esz|size|reloc|pool)\b|0x` on `semantic_env.ml` + `hir.ml`
-   (reuse `strip_ocaml_comments`). Full `timeout 600 python3 tools/hir_test.py` rc 0 → commit
-   explicit paths (`ocaml/hir/semtest.ml tools/hir_test.py`). Re-check T1 after the stanza-
-   side edits (no new stanzas expected).
-5. FULL gate rc 0 → `build/gate-e54p1a1-reg.log` (FROZEN 1328/1328, 190/190, 9/9, coverage
-   149 rows 0/0, census 16/0/25/0, prose 5; ANY move = STOP, record VERBATIM, never force) +
-   fresh `cd ocaml && eval "$(opam env)" && dune build --build-dir _build-e54p1a1` rc 0
-   ZERO `Error` (log records rc+headers only; sha checked against the kept exe `172595d5…`).
-6. CLOSE: `spec/lab-evidence/e2e54/RESULTS.md` §P1-a1 — T1–T10 panel WITH measured values,
-   deviations (step-2 diagnostic.ml pairing; the ONE-commit steps 3+4; the predecessor
-   non-compiling checkpoint claim; H14-parse-resolved; the NO-Convert falsification; the
-   e_unresolved defensive choice; I1 array-awareness), §P0/§P1-b-style dependency notes;
-   `docs/architecture/backend-boundary.md` §7-2 (addressability/array projection); PLAN
-   §P1-a1.11 dashboard row → P1-a1 **CLOSED 2026-11-09**; roadmap (PUT/GET, BEGIN hygiene,
-   MIR) PROPOSED ONLY. Durables + guard. Then **STOP — no PUT/GET, no BEGIN repair, no MIR.**
-**CONSTRAINTS:** ZERO oracle; ledger stays C380 (203 `## C` headers); `ocaml/lib`+`ocaml/bin`
-byte-clean; `handoff.config.json` NEVER staged; no push; explicit-path commits only;
-`eval "$(opam env)"` every shell; rc DIRECT/`${PIPESTATUS[0]}`; never glue `rm`; every fixture
-under `timeout`; scratch `ocaml/scratch-p1a1/` NEVER committed; stray root S2..S5 + golden
-dir.txt debris untouched; `superseded/` added once, never rewritten.
+## Next action (E2E-54/P1-a1 CLOSED 2026-11-09 — STOP: NOTHING IS AUTHORIZED; report to OPERATOR — BINDING)
+**DONE (this session, renewal 4/12; ZERO oracle; ocaml/lib+bin byte-clean):** step 4
+§P1-a1.7 → `1399ff1a` (semtest I1 ARRAY-AWARE — the recorded KNOWN RED 9× → 0, the TEST
+was blind, projection already correct; I8 reference soundness via shared
+`elem_ref_mismatch` — base resolves AT THE REFERRING SCOPE, node `ex_ty` = env element
+image, `T_elem` has no node type by representation, no `Var` carries `Array1`; I9
+3-tuple live `bind_arrays` compare via shared `bounds_mismatch` (esz dropped); I10
+projection completeness; `--corrupt-array-hi`/`--corrupt-array-base` perturb THE SAME
+comparisons, `nothing was proven` rc 1 on H01–H04 (both) and H05 (base); hir_test.py:
+positives H01–H05/H08/H09 live+ALL corrupt ×2 fresh procs, T5 RAW bind_arrays reader
+grep (semantic_env+semtest only), T6 strip-grep; full rc 0 — live counts H01 4/3 H02
+7/2 H03 7/4 H04 4/2 UNCHANGED, H05 1/1 H08 7/3 H09 3/2 NEW; T1 held DIRECT at every
+step; two dune warnings fixed in-stream). Step 5: FULL gate rc 0 DIRECT →
+`build/gate-e54p1a1-reg.log` FROZEN ALL HIT 1328/1328, 190/190, 9/9, 149 rows 0/0,
+census 16/0/25/0, prose 5 + fresh `--build-dir _build-e54p1a1` rc 0 ZERO Error hist 122,
+fresh exe sha == kept exe `172595d5…`. Step 6: CLOSE — RESULTS.md §P1-a1 (T1–T10 panel
+WITH values + 10 deviations/measured notes), arch doc §7-2 (addressability landed), PLAN
+dashboard P1-a1 **CLOSED 2026-11-09**; commit by explicit paths.
+**EXECUTE (successor): NOTHING is authorized.** §P0 CLOSED; §P1-b CLOSED; **§P1-a1
+CLOSED 2026-11-09**. PUT/GET, BEGIN/DO hygiene repair, MIR, P2+ are PROPOSED ONLY
+(RESULTS §P1-a1.7, §P1-b.6, §P0 §6) — report closure, await the OPERATOR; each future
+slice needs its own PROTOCOL #1 pre-registration by EXPLICIT paths BEFORE code.
+**CONSTRAINTS (standing):** ZERO oracle; ledger stays C380 (203 `## C` headers);
+`ocaml/lib`+`ocaml/bin` byte-clean vs HEAD; `handoff.config.json` NEVER staged; no
+push; explicit-path commits only; `eval "$(opam env)"` every shell; rc DIRECT/
+`${PIPESTATUS[0]}`; NEVER batch a build with a test that runs its artifacts; every
+fixture under `timeout 60`; scratch `ocaml/scratch-p1a1/` NEVER committed;
+`hir/expected/superseded/` never rewritten; stray root S2..S5 + golden dir.txt debris
+untouched; regression set: `dune build` rc 0 + `python3 tools/hir_test.py` rc 0 + gate
+rc 0 `build/gate-e54p1a1-reg.log` FROZEN + exe `172595d5…`.
+**STATE:** HEAD = this durables/guard pair; tree clean except ignored evidence +
+dirty-never-staged `handoff.config.json` + pre-existing untracked debris; build rc 0;
+exe `172595d5…`; chain 4/12 cap 12.
 
-SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-a1 hop 3 IN FLIGHT — steps 2 LANDED, step 4 HALF-DONE, TREE DOES NOT BUILD — FINISH STEP 4 FIRST — BINDING) — CONSUMED: fixed the non-compiling draft, §P1-a1.5 landed at `e9990241`, fixtures+pins+H05 flip at `32cc4373`; see the live heading above.
+SUPERSEDED-BY-BELOW: SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-a1 hop 3 IN FLIGHT — steps 2 LANDED, step 4 HALF-DONE, TREE DOES NOT BUILD — FINISH STEP 4 FIRST — BINDING) — CONSUMED: fixed the non-compiling draft, §P1-a1.5 landed at `e9990241`, fixtures+pins+H05 flip at `32cc4373`; see the live heading above.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-a1 hop 2 IN FLIGHT — band measurement DONE; §P1-a1 WRITTEN, REVIEW+COMMIT OWED BEFORE any `ocaml/hir/` byte — BINDING)
 **DONE hop 2 (session 01a1bd6f, renewal 1/12; ZERO oracle; ZERO `ocaml/lib`+`ocaml/bin` byte):** (1) contract step 1 VERIFIED FIRST-HAND: HEAD `aa7789d5`, `dune build` rc 0, exe sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`, `timeout 600 python3 tools/hir_test.py` rc 0 (H01 4refs/3syms, H02 7/2, H03 7/4, H04 4/2, H05–H07 pinned, F4/F7/F8/F9/F10/S8 green). (2) contract step 2 COMPLETE: probe-2 inputs A23..A33 written (CRLF+^Z) and run; raw record `build/p1a1-probe-2.log` (ignored) INCLUDING a full reproduction run of the 20 probe-1 inputs — machine-compared, **all 20 blocks byte-identical, all RCs equal**; results appended to `LEARNINGS.md` as **A-10..A-17** (UNCOMMITTED): bin(1,3,6) refuse `array of 1-byte elements [C159]` with `bind_rows` EMPTY at the refusal point; `bit(8)` refuses (esz=(n+7)/8=1; bit(9..15) UNMEASURED `[TBD]`); `char(1)` refuses, `char(2)`/`char(3)` ACCEPTED — the refusal PROSE is inaccurate, the real rule = class list ∪ `elem_sz=2` fallback ∪ earlier bin(16) death; nested procs OWN `pl_arrays` (A30 `b:1:2:2`); **structure-member arrays NEVER reach `bind_arrays`** (A31: rows `a`/`s.a` MEMBER OF S@2, `auto=false`, no record); scalar-subscript invisible to bind (A32); whole-array use records nothing (A33). S1 re-held after scratch rebuild. (3) operator P1-a1 brief recovered VERBATIM from the parent transcript `01a1bd4d…jsonl` (starts with a stray leading `g` — reproduced as received); `spec/lab-evidence/e2e54/PLAN.md` **§P1-a1 WRITTEN** (UNCOMMITTED): .0 brief verbatim in a blockquote (programmatically verified 186/186 lines equal), .1 A-1..A-17 table, .2 subset contract (1-D; element `SFixed_bin p` p∈7..15 measured band; binder-literal non-negative bounds; merge-law identity; dims-without-record → E03 unchanged text), .3 HIR nodes `Array1{elem;lo;hi}` + `Elem_read`/`Elem_ref` + **new `target = T_var|T_elem` variant (internal representation change — an AMENDMENT beyond the predecessor contract's constructor list; dump bytes stay frozen; same precedent as the P0 `effect`→`ef_kind` rename)**, .4 env additions `SArray1`/`array1{a_elem;a_lo;a_hi}`/`e_array` merged from `bind_arrays` with esz dropped at first touch, .5 `hir_build` gate/lowering + NEW codes **HIR-E12 e_index / HIR-E13 e_whole_array / HIR-E14 e_dims**, .6 fixtures **H08,H09 positive; H10 dims-without-record, H11 char(2) element, H12 scalar-subscript, H13 whole-array, H14 2-subscript, H15 out-of-range constant** + **H05 flip adjudication** (`git mv H05.stderr.txt H05.rc hir/expected/superseded/2026-11-09/` + README dated record; H01–H04/H06/H07 frozen), .7 semtest I8/I9/I10 + `--corrupt-array-hi`/`--corrupt-array-base`, .8 falsifiers T1–T10 VERBATIM per the predecessor contract, .9 work order, .10 expected outcomes, .11 dashboard row.
@@ -3724,13 +3697,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 636
-checkpoint-id: g636-ad2b3d1af2af
+checkpoint-generation: 637
+checkpoint-id: g637-7d611707a9ef
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-guard-level: 3
-checkpointed: 2026-11-09T00:35:37.585Z
+guard-level: 4
+checkpointed: 2026-11-09T00:36:26.551Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a2afe27e9f9c0f23722f653f743feb038ae3de0c962e409e1487cf2bf82ed850
 source-handoff: 023db422cebc015b62cf0dc5038e9cdac253764802d618edf6ad6bd43e01bf2f
@@ -4455,8 +4428,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1bd9f-1df8-73ad-8fbc-6a7333957f4d
-readiness-at: 2026-11-09T00:35:58.062Z
-readiness-checkpoint: g636-ad2b3d1af2af
+readiness-at: 2026-11-09T00:36:26.592Z
+readiness-checkpoint: g637-7d611707a9ef
 <!-- guard:end checkpoint -->
 
 ## Blockers

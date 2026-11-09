@@ -10026,3 +10026,25 @@ hir_build → measured fixtures → semtest → hir_test → gate → CLOSE → 
 * **PROPOSED→used:** unresolved `Esuffix` ASSIGNMENT target (no contract case) routes to
   the existing e_unresolved NO-bind-row channel; documented in `e9990241` message; no
   fixture exercises it.
+
+## E2E-54/P1-a1 hop 3 steps 4–6 (session renewal 4/12, 2026-11-09) — ACCEPTED unless marked
+
+- **ACCEPTED (tooling law, self-caught):** `dune build` and any test that EXECUTES
+  `_build` artifacts must run SEQUENTIALLY — a parallel tool-call batch ran hir_test
+  against the STALE semtest.exe and reproduced the predecessor's known-red failures
+  verbatim; a "still failing" panel right after an edit is first suspect of a race.
+- **ACCEPTED (design law, measured):** non-vacuity is never faked: an inapplicable
+  corrupt control prints `SEM-FAIL: ... (nothing was proven)`, rc 1, ZERO stdout —
+  measured honest cases H01–H04 (no array at all) and H05 (`--corrupt-array-base`:
+  element refs exist but the only symbol IS the array). The live invariant and its
+  corrupt control share THE SAME comparison function (`bounds_mismatch`,
+  `elem_ref_mismatch`) — a copied control could drift vacuous.
+- **ACCEPTED (T5 sharpens S5):** the `bind_arrays` seam grep is RAW (comments
+  included) — writing that identifier in any other `ocaml/hir`/`ocaml/bin` file, even
+  in prose, fails the gate; the F10 Bind grep is the comment-STRIPPED variant.
+- **ACCEPTED (gate law re-confirmed):** fresh-`--build-dir` logs record rc + warning
+  headers only (hist 122, ZERO `Error`); the T1 sha is checked against the kept exe,
+  never against a log line.
+- **PROPOSED (roadmap, unauthorized):** array ACTUALS in calls (descriptor passing),
+  out-of-range DR behaviour probe (needs oracle), BEGIN/DO hygiene repair — each needs
+  its own PROTOCOL #1 pre-registration.

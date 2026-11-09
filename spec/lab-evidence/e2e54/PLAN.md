@@ -1535,4 +1535,4 @@ new diagnostic codes. Deviations predicted and honestly open:
 
 | slice | status | gate log | notes |
 |---|---|---|---|
-| P1-a1 | **PRE-REGISTERED 2026-11-09** (hop 2) | owed: `build/gate-e54p1a1-reg.log` | ZERO oracle; Phase 1 authority A-1..A-17 MEASURED first-hand; contract §§P1-a1.2–.8; H05 flip adjudicated |
+| P1-a1 | **CLOSED 2026-11-09** (hop 3) | `build/gate-e54p1a1-reg.log` rc 0 FROZEN 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 | ZERO oracle; env Array1 + HIR Elem_read/Elem_ref/target + E12/E13/E14; fixtures H01–H09 positive/pins H10–H15 + H05 flip; semtest I1 array-aware + I8/I9/I10 + 3 corrupt modes; T1 `172595d5…` held; RESULTS §P1-a1 |

@@ -259,3 +259,21 @@ it testable, it did not delete a second binder. The six facts Bind still does no
 (§P1-b.6 / RESULTS §P1-b.4) remain documented gaps; per-`BEGIN` scoping is the one that
 BLOCKS the corresponding P1-a construct. Items 2–4 stay PROPOSED, untouched. **P1-a is NOT
 authorized.**
+
+### 7-2. E2E-54/P1-a1 LANDED — arrays and addressable references (CLOSED 2026-11-09)
+
+Item: **addressability** (§1.4 "Addressable values and aliasing") gains its first
+HIR-side representation. Measured outcome: the HIR now expresses one-dimensional
+arrays **semantically only** — `Array1{elem;lo;hi}` carries the element type and the
+DECLARED index bounds; `Elem_read` (load) and `Elem_ref`/`T_elem` (designation) are
+distinct constructors so read and designate cannot collapse; assignment targets are the
+typed `target = T_var | T_elem`, not value expressions. Every physical array fact
+(element width, placement, stride) STOPS at the `Semantic_env` boundary: bind's
+`bind_arrays` channel is read by exactly two modules — the projection and the test
+binary — and the width is dropped at first touch (T5/T6 greps, enforced by
+`tools/hir_test.py`). Out-of-subset array uses (whole-array, subscript-on-scalar,
+wrong dims, out-of-band elements, dims-without-record) refuse loudly on stable codes
+HIR-E02/E03/E12/E13/E14 with ZERO output; DR's runtime bounds and intermediate-typing
+behaviour remain UNMEASURED `[TBD]` — the E12 constant range-check is an HIR subset
+rule, never a language claim. Descriptor/actual array passing is out of scope (future
+slice). Full panel: RESULTS §P1-a1.
