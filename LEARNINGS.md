@@ -11748,3 +11748,135 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   pins FROZEN / mir pins ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch build+tests;
   timeouts 60/120/900; cosmo chmod +x; console cosmo links MUST include tools/mir_aot/pli_console.c;
   runners/gdb FROM REPO ROOT; printf %s\n; byte-exact via Python subprocess.
+
+## E2E-54/P1-m3 hop 3 (2026-11-13, session 01a1c78b renewal 2/12; ZERO oracle; ledger 203/C380; ZERO repo source byte — baseline re-verify + first-hand anchor reads + HIR candidate probes CAND06..CAND11 in ignored build/p1m3-scratch/) — FIXTURE/ABI ANCHORS SETTLED; READY TO PRE-REGISTER §P1-m3
+
+- Baseline FIRST-HAND at `c9a74ded` (hop-2 probes commit): `cd ocaml && eval "$(opam env)" && dune
+  build` rc 0; T1 `ocaml/_build/default/bin/pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT;
+  T2 `git diff --exit-code -- ocaml/hir/expected ocaml/hir/fixtures ocaml/lib ocaml/bin` rc 0;
+  `timeout 900 python3 tools/hir_test.py` rc 0 **220 ok**, ok-set `cmp`-IDENTICAL to
+  build/e54p1m3-baseline-hirtest.log → build/e54p1m3-hop3-hirtest.log; ledger 203/C380; tree dirty
+  ONLY the two managed blocks + operator handoff.config.json + pre-existing scratch. ACCEPTED.
+- Tool fact (accepted): `pli80hir.exe` takes NO `--export` (usage `pli80hir [--profile NAME]
+  INPUT.PLI`); `pli80mir.exe` DOES. Executables are at `ocaml/_build/default/hir/{pli80hir,pli80mir}.exe`.
+- Diagnostic codes (accepted, read from ocaml/hir/diagnostic.ml): backend refusals are
+  **HIR-E18** `e_mir_node`, **HIR-E19** `e_mir_numeric`, **HIR-E20** `e_mir_export`, HIR-E10 profile;
+  call/arg refusals HIR-E07 `e_call`, E15 `e_arg_whole_array`, E16 `e_arg_evidence`, E17
+  `e_arg_type`, E06 unresolved, E03 decl, E11 duplicate-internal-name (seen in CAND08 output).
+  ⇒ the §P1-m3 pre-registration must cite E18/E19/E20 (NOT E13) for backend arms.
+- hop-2 scratch probes read FIRST-HAND (syntax authority for the PLAN ABI section; all were EXECUTED
+  green in hop 2): `probe_byvalue.mir` — module layout is `M0:\tmodule` / protos / func-items /
+  `\texport pli80_main` / `\tendmodule`; callee `pli80_helper:\tfunc\ti64, i64:x` (result type as a
+  BARE leading type, formal as `i64:<reg>` IN THE TITLE, not in `\tlocal`), caller `\tlocal\ti64:r,
+  i64:t1` (result reg `r` lives in the CALLER locals), call `call pcal, pli80_helper, r, t1`, callee
+  returns `ret t1`; temps `t1` reused in BOTH funcs (per-func reg scoping proven).
+  `probe_void.mir` — void callee `pli80_side:\tfunc` + proto `pv:\tproto` + `call pv, pli80_side`
+  (no result operand) + bare `ret`. `probe_alias.mir` — caller `alloca a1, 8` + `mov i64:(a1), t1` +
+  `call pbyref, pli80_clob, r, a1, a1` (SAME slot twice) + callee `mov i64:(x), t1` /
+  `mov t2, i64:(y)`; caller observes (`add v, t2, r` = 7+5 = 10, executed). `probe_console.mir` —
+  console protos + ONE import line + `pcal` proto BEFORE the funcs; TWO funcs each with its OWN `st`
+  local and its OWN per-func `Lfail0:`/`Lfail1:` tail (`call p_exit, exit, st` / `ret st`); executed
+  stdout `5\n4\n`, `driver-return=4`.
+- Fixture-program facts (HIR candidate probes, pli80hir rc + dumps, CRLF+^Z via
+  build/p1m2-scratch/mkpli.py — ACCEPTED, all first-hand):
+  1. Entry block is **SCOPE 0** with `PROC 0 name=<entry> main=true scope=0` and level-1 siblings
+     `SCOPE n parent=0 kind=proc(n)`; subsidiary syms carry `scope = proc-scope`, formal
+     `storage=formal`, and `params=[sids]` in declaration order (CAND06/CAND09 dumps). Program header
+     form `name: procedure returns(fixed bin(15));` is PROVEN (used by M01..M06 and all CF fixtures).
+  2. CAND06 = planned **CALL02** (`call side(4 + x);` void sibling with a LOCAL `dcl t` and
+     `t = n + 1;`): rc 0, args are `binop +` A_value, `PROC 1 … returns=none`, body
+     `declare sym(1)` (FORMAL dcl) then `declare sym(2)` (auto) then assign. ⇒ void subsidiary with
+     locals is representable; m3a contract MUST treat a Formal-storage `Declare sid` as the
+     already-registered arg (today's `declare` refuses non-Auto storage).
+  3. CAND07 = planned **CALLN4** 3-node cycle `p1→p2→p1`: rc 0 (HIR blind to the cycle) ⇒ the
+     BACKEND DFS refusal is the only line of defence; names the cycle path. ACCEPTED as designed.
+  4. **FALSIFIED (design correction):** a folded-name COLLISION fixture is IMPOSSIBLE at HIR level —
+     CAND08 (`sub` + `sUB` siblings) dies rc 2 **HIR-E11: duplicate internal procedure name sub**.
+     ⇒ the planned `_<pid>` collision suffix stays a deterministic code path but is
+     **UNEXERCISED-by-fixtures and must be recorded as such** (no invented negative; collision is a
+     HIR-side refusal, NOT a backend one). The hop-2 "collision suffix on folded-name collision"
+     ABI clause is therefore moot for the fixture panel — pre-register the suffix rule as
+     unreachable-in-subset and keep the code deterministic.
+  5. CAND09 = planned **CALLN6** nested proc inside a sibling (`mid` containing `deep`,
+     `SCOPE 2 parent=1 kind=proc(2)`): rc 0 ⇒ nesting depth ≥ 2 IS representable in HIR, so the
+     backend must refuse it BY NAME (proposed E18 "nested procedure inside a subsidiary is outside
+     the native subset"); the existing per-symbol `s.scope <> p.scope` guard remains the
+     lexical-capture mechanism.
+  6. CAND10 = planned **CALL07/CALL08** value-returning sibling used as a Call_e: rc 0; dump shows
+     `call proc(1) : FIXED BINARY(15,0) [pure, line 3]` with three `const` A_value args and the
+     callee `params=[1,2,3] returns=FIXED BINARY(15,0)` ending `return value` ⇒ **m3c shape is
+     HIR-expressible exactly as pre-registered (whole-RHS and whole-Return)**; note a Call_e with all
+     PURE actuals is typed `pure` (confirms the hop-1 ex_ef audit: judge the NODE class).
+  7. CAND11 (planned narrow-formal overflow probe) died rc 2 **HIR-E06 line 4: assignment target z
+     resolved by NO bind row** (my probe omitted `dcl z`) — probe defect, NOT a finding; the
+     narrow-formal question is answered by reading instead: `lower_actual` compares
+     `x.ex_ty <> want` (E17 `e_arg_type`) for PM_immediate/PM_value_cell, and `formal_ty` returns
+     the formal's own declared type ⇒ **an actual expression whose type differs from the formal's
+     type refuses HIR-side**, and every literal/binop on the P1-a2 route is `FIXED BINARY(15,0)`
+     (literals typed bin(15); binop max+1 clamped to 15) ⇒ **every bin(15) expression actual admits
+     only a bin(15) formal**. CONSEQUENCE (pre-register): the m3b window-overflow-at-formal class is
+     UNEXERCISABLE in the subset — do NOT invent a fixture; record the limitation like CFN6.
+- Design decisions now READY to write into §P1-m3 (all awaiting the pre-registration commit; none
+  implemented): callee-first DFS post-order emission with the entry LAST and the ONLY export;
+  entry-level procs only (depth ≥ 2 refuses E18); reachability = DFS from entry, UNREACHED procs are
+  DROPPED from the artifact (a non-exported dead func would need its own scope validation); one proto
+  per callee `pc<pid>` emitted used-only in pid-ascending order BEFORE the single import line and
+  before the func items; formal regs `i64:v<sid>` ride the func title and are EXCLUDED from the
+  module-wide `t<k>`/locals line; temps stay MODULE-WIDE `fresh ()` (existing numbering law,
+  deterministic across funcs); `st`/`a1` become PER-FUNC between the func's own ascending v<sid>
+  locals and its temps; per-func failure tail `Lfail_<pid>` (entry `Lfail_0`) replacing the single
+  shared `Lfail` whenever the module has >1 func — the single-func artifact bytes stay byte-
+  IDENTICAL (§P1-m2 I6 falsifier extended to `Lfail_0`? NO: proposed law is multi-func only renames,
+  single-func keeps `Lfail` EXACTLY, pre-register it that way and let measurement confirm); void
+  subsidiary = no-result `func` + bare trailing `ret`; value-returning subsidiary MUST end with
+  `RETURN(expr)` (fall-through refuses E18 by name); Call_s to a value-returning proc discards the
+  result into a fresh temp; Call_e (m3c) only as whole Assign RHS / whole Return expr with all
+  actuals A_value, result interval = W(ret-p); env after a by-value call is PRESERVED (no blanket
+  kill — probe x7/x8 prove live-across-call safety and write isolation); m3b: by-ref actual
+  (A_reference D_var) ⇒ caller hoists `alloca h<sid>, 8` at ENTRY, MOVES the var to that home for
+  the whole func (all reads/writes `i64:(v<sid>)`… proposed name `h<sid>` in the per-func locals),
+  passes the home reg, callee formal accessed via `i64:(v<sid>)`, uninitialized-by-ref REFUSES by
+  name, after any call every by-ref-designated caller sid widens to W(declared), D_elem actuals
+  refuse (arrays out of subset); -g + multi-proc REFUSES by name (sidecar is hard single-func,
+  `func 0`); recursion/cycle DFS refusal; label law restated: every branch target defined in the
+  SAME func and module-unique (cross-func/undefined target = mir2o SEGFAULT rc 139 SILENT — hop 2).
+- Fixture panel DESIGNED (program texts to be written OUT in the PLAN with independent bytes; the
+  brief itself was NEVER SAVED so these are MY programs honoring the recorded hop-1/hop-2 values):
+  CALL01 (m3b, the brief's `show`→stdout `5\n4\n` ret 4), CALL02 (m3a void callee w/ local, expression
+  actual, no console), CALL03 (m3a two calls + live-across-call, native-only, ret 37), CALL04 (m3a
+  transitive chain entry→mid→deep-sibling + console in the deepest callee, `91\n`), CALL05 (m3a
+  bare `RETURN;` fall-through law decision), CALL06 (m3b `alias(x,x)` + differential `alias(x, x+0)`,
+  `7\n2\n7\n` ret 7 family), CALL07 (m3c whole-RHS Call_e), CALL08 (m3c whole-Return Call_e, ret 42);
+  negatives CALLN1 (by-value→value-use E07 "no bind RETURNS fact"), CALLN2 (statement call to a
+  value-returning proc E07 "discards a value"), CALLN3 (arity E07), CALLN4 (3-node cycle, backend),
+  CALLN5 (unreached proc?), CALLN6 (nested proc, backend), CALLN7 (-g multi-proc), CALLN8 (m3b
+  uninitialized by-ref), CALLN9 (m3c Call_e nested inside a larger expression), CALLN10 (m3a: a
+  by-ref actual while m3a admits only by-value → MUST refuse BY NAME at m3a and pass at m3b —
+  the milestone discriminator). Controls C-M3a (swap callee-first order / delete a call's arg reg ⇒
+  predicted WRONG execution), C-M3b (pass the VALUE instead of the home address ⇒ caller's cell
+  unchanged ⇒ stdout differs from the `7\n…` prediction), C-M3c (use a stale result reg ⇒ wrong
+  returned value).
+- NEXT (successor, VERBATIM order): (1) WRITE §P1-m3 into spec/lab-evidence/e2e54/PLAN.md using the
+  §P1-m2.0–.14 template (milestones m3a/m3b/m3c SEPARATE; MEASURED design facts citing hop 1/2/3
+  sections; ABI contract with the exact syntax lines above; per-fixture PL/I source written OUT in
+  full + independently hand-derived stdout/driver-return; negatives with predicted code AND refusing
+  layer (HIR E06/E07/E11/E15/E16/E17 vs backend E18/E19/E20); numeric-safety invariants I1–I6
+  restated + by-value-preservation and by-ref-widening laws; native panel methodology §P1-m2.6 style;
+  controls; amendments §P1-m2.8 analogue = NONE expected beyond the multi-func `Lfail_<pid>` law and
+  the E20 one-proc refusal arm replacement — record which existing pins must stay byte-identical
+  (ALL `hir/mir-expected/*`, `hir/mir-cf-expected/*`, M05/CF debug pins, .o shas
+  78656e6c/3822f777/02c15b1b, debug .o cb263c2c…3984782); T-panel expected counts mir_aot 32 / cosmo
+  25 / console 43 / debug 23 / CF 83 + CALL panel measured-count; fresh `_build-e54p1m3` hist 122
+  sha==kept; complexity-stop + FORBIDDEN routes; work order; dashboard row) and COMMIT explicit path
+  BEFORE any source byte (PROTOCOL #1). (2) m3a in ocaml/hir/mir_backend.ml ONLY → gates each OWN
+  command (build → T1 → T2 → hir_test 220/11 → cmp EVERY mir + CF pin UNMOVED) → measured-first
+  ADDITIVE hir/mir-call-fixtures + hir/mir-call-expected → native panel + C-M3a LOUD → commit;
+  m3a gate before any m3b byte; m3b gate before m3c. (3) runner tools/mir_aot_call_test.py written to
+  the PLAN before first run, from repo root. (4) FULL FROZEN regression T1–T11 → CLOSE RESULTS
+  §P1-m3 + arch docs/architecture/backend-boundary.md §7-10 + dashboard + durables → STOP.
+- STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; explicit paths
+  only; build/p1m3-scratch NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/p1mc-deps NEVER
+  touched; hir pins FROZEN / mir pins ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch
+  build+tests; timeouts 60/120/900; cosmo chmod +x; console links include tools/mir_aot/pli_console.c;
+  runners/gdb from repo root; printf %s\n; byte-exact via Python subprocess; NEVER hand-edit managed
+  checkpoint blocks.
