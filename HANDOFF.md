@@ -7,7 +7,25 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-1e-e54pmD-8. **E2E-54/P1-mD CLOSED 2026-11-11 (session 01a1c63f, renewal 7/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380; close HEAD `74d40fde`).** Step 4: the never-run debug runner executed — TWO runner-level defects self-caught and fixed honestly (`cli_leg` argv missing the input fixture; W6 `info line` substring vs gdb's interleaved end address — same pinned +97/+139 tokens), pre-run stale-loop-variable end-row check made direct — third run **rc 0, 23 checks**, **D-C1/D-C2/D-C3 ALL FAILED LOUDLY INSIDE THE RUNNER** (break refused on no-debug link gdb rc 1; sha/count/opcode tampers rc 8 named, NO object); committed `2e8fdc9e`. Step 5: FULL FROZEN regression ALL HIT — gate **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** → `build/e54pmD-reg-gate.log`; hir_test **220 ok**/11 UNMOVED; mir_aot **27**; cosmo **25**; fresh `_build-e54pmD` rc 0 ZERO Error hist **122** sha==kept; CT2 + T1 + T2 held. CLOSE: RESULTS **§P1-mD** (D1 file/line+bt GREEN and D2 `print n`=`$1 = 77` SEPARATELY; T1–T11 WITH values; 8 deviations incl. K[56] hex-transcription falsification→hashlib-true `0x748f82ee`, `str->sh_name`, cwd-dependent `file` row, benign wine noise, the runner first-run defects; controls; unsupported-scope matrix: single-file/one-func/scalar-auto-single-home ONLY), arch **§7-8**, PLAN dashboard **CLOSED**, LEARNINGS § hop 7 CLOSE (+ never-quote-evidence-from-memory lesson). **SUCCESSOR: NOTHING FURTHER IS AUTHORIZED — §P1-mD.10 step 5 STOP; report closure, await the OPERATOR.** Production adoption, params/aggregates/multi-home/multi-CU, `PUT EDIT` debugging, APE, ARM64 and all broader slices are **PROPOSED ONLY** (own PROTOCOL #1 pre-registration + explicit authorization BEFORE any code byte). On re-authorization: baseline FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…` DIRECT; T2 clean; hir_test 220 ok/11 UNMOVED; ledger 203/C380), READ RESULTS §P1-mD + LEARNINGS §§ hop 7 CLOSE/7/6/5 FIRST; debug runner from the REPO ROOT only. Standing: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`.
+2a-e54p1m2-2. **E2E-54/P1-m2 hop 2 CHECKPOINTED 2026-11-12 (session 01a1c691, renewal 1/12; ZERO
+oracle; ledger 203/C380; durables at `81ec5498`; HEAD `81ec5498`).** §P1-m2 PRE-REGISTRATION is
+COMMITTED at `d6bb1274` BEFORE any source byte (PROTOCOL #1) — it is the BINDING contract (PLAN
+§P1-m2.0–.14: m2a shapes + drop-not-inherit join; m2b counted-loop proof + exact ceil exit
+formula; CF fixtures with INDEPENDENT bytes; §P1-m2.8 resolves the brief §2-vs-§9 contradiction —
+N2→POSITIVE value 2, N7 re-pin at m2b, N1 stderr path-truth re-measure, mir_aot_test 27→32
+deviation; EVERYTHING else frozen). The **m2a edit is APPLIED to `ocaml/hir/mir_backend.ml` —
+UNCOMMITTED, NEVER COMPILED (keep it; never revert)**; full record in LEARNINGS § P1-m2 hop 2 —
+READ VERBATIM. NEXT (PROGRESS live heading VERBATIM): `cd ocaml && eval "$(opam env)" && dune
+build` (fix COMPILE defects only) → T1 `172595d5…` DIRECT → T2 → hir_test **220 ok**/11 UNMOVED →
+cmp ALL existing `hir/mir-expected` pins UNMOVED → §P1-m2.13 steps 2–8 (re-measurements, measured-
+first CF01../CFN1.. fixtures, native panel + C-M2a, commit m2a; THEN m2b; DWARF; runner
+`tools/mir_aot_cf_test.py` written before first run; FULL FROZEN regression; CLOSE + **STOP**).
+Standing: ZERO oracle; config NEVER staged; no push; explicit paths; scratch `build/p1m2-scratch/`+
+`build/mir-cf/` NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only
+(§P1-m2.8 amendments excepted); F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests;
+timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`.
+
+SUPERSEDED-BY-ABOVE: 1e-e54pmD-8. **E2E-54/P1-mD CLOSED 2026-11-11 (session 01a1c63f, renewal 7/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380; close HEAD `74d40fde`).** Step 4: the never-run debug runner executed — TWO runner-level defects self-caught and fixed honestly (`cli_leg` argv missing the input fixture; W6 `info line` substring vs gdb's interleaved end address — same pinned +97/+139 tokens), pre-run stale-loop-variable end-row check made direct — third run **rc 0, 23 checks**, **D-C1/D-C2/D-C3 ALL FAILED LOUDLY INSIDE THE RUNNER** (break refused on no-debug link gdb rc 1; sha/count/opcode tampers rc 8 named, NO object); committed `2e8fdc9e`. Step 5: FULL FROZEN regression ALL HIT — gate **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** → `build/e54pmD-reg-gate.log`; hir_test **220 ok**/11 UNMOVED; mir_aot **27**; cosmo **25**; fresh `_build-e54pmD` rc 0 ZERO Error hist **122** sha==kept; CT2 + T1 + T2 held. CLOSE: RESULTS **§P1-mD** (D1 file/line+bt GREEN and D2 `print n`=`$1 = 77` SEPARATELY; T1–T11 WITH values; 8 deviations incl. K[56] hex-transcription falsification→hashlib-true `0x748f82ee`, `str->sh_name`, cwd-dependent `file` row, benign wine noise, the runner first-run defects; controls; unsupported-scope matrix: single-file/one-func/scalar-auto-single-home ONLY), arch **§7-8**, PLAN dashboard **CLOSED**, LEARNINGS § hop 7 CLOSE (+ never-quote-evidence-from-memory lesson). **SUCCESSOR: NOTHING FURTHER IS AUTHORIZED — §P1-mD.10 step 5 STOP; report closure, await the OPERATOR.** Production adoption, params/aggregates/multi-home/multi-CU, `PUT EDIT` debugging, APE, ARM64 and all broader slices are **PROPOSED ONLY** (own PROTOCOL #1 pre-registration + explicit authorization BEFORE any code byte). On re-authorization: baseline FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…` DIRECT; T2 clean; hir_test 220 ok/11 UNMOVED; ledger 203/C380), READ RESULTS §P1-mD + LEARNINGS §§ hop 7 CLOSE/7/6/5 FIRST; debug runner from the REPO ROOT only. Standing: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`.
 
 SUPERSEDED-BY-ABOVE: 1e-e54pmD-7. **E2E-54/P1-mD hop 7 IN FLIGHT — mir2o debug mode PROVEN GREEN + COMMITTED `b14756e9`; runner WRITTEN, NEVER RUN (session 01a1c5c2, renewal 6/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380).** DONE first-hand: baseline at `8eee4bd3` all green; ONE compile defect fixed (`new_sec_off/_size` maybe-uninitialized); TWO REAL DEFECTS caught by measurement and fixed honestly — (1) embedded C sha256 `K[56]` hex transcription `0x0748f8ee` → TRUE `0x748f82ee` (= hop-5's correct decimal 1955562222; `sha256.ml` always right; caught as rc-8 sha mismatch against the pinned map; fixed C == hashlib on lengths 0/3/55/56/63/64/65/1000 + M05.mir `f41b358e…`; LESSON: hand-copied tables are NOT oracles); (2) `elf_drop_named` read names from `str->sh_name` instead of `sh[i].sh_name` (rc 9). DEBUG LEG GREEN: `mir2o --debug-map` on M05 → 3464 B object **byte-identical to hop-3 `M05_dbg2.o`**, sha **`cb263c2c…3984782`** frozen BEFORE linking; readelf laws (named `.debug_frame`, NO `.eh_frame`, decodedline 3/3/4/5 @0xc0/0xd6/0x121/0x14b, FDE 0xc0..0x176, `nm T pli80_iorw`); cosmo optlinux EXEC `77\n` rc 0; **gdb battery ALL GREEN incl. `print n`=77 (D2) and bt `#0 pli80_iorw … M05.pli:4`/`#1 main`**; rc 7/8 arms all MEASURED-FIRST on scratch tampers (named reasons, no file); D-C1 measured (no-debug: EXEC fine, break refused rc 1). T9 default-path `.o` ×2 byte-identical CT2 after every fix. **SUCCESSOR (PROGRESS live hop-7 heading VERBATIM): (1) RUN `timeout 900 python3 tools/mir_aot_debug_test.py` — NEVER executed; fix RUNNER defects only (known suspect: stale-`addr` line in `readelf_panel`); D-C1/C2/C3 must fail loudly INSIDE the runner; commit explicit path; (2) FULL FROZEN regression T1–T11 each own command (gate →`build/e54pmD-reg-gate.log` 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir 220/11; mir_aot 27; cosmo 25; fresh `_build-e54pmD` hist 122 sha==kept); (3) CLOSE RESULTS §P1-mD D1/D2 SEPARATELY + arch §7-8 + dashboard CLOSED + durables → STOP.** READ LEARNINGS § hop 7 FIRST (then hop 6/5). Standing: ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`.
 
@@ -2077,25 +2095,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 729
-checkpoint-id: g729-07c44aa6763d
+checkpoint-generation: 730
+checkpoint-id: g730-015553926d2d
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~1826, session 01a1c673-bd04-7331-86b6-70c8e0bac886)
-checkpointed: 2026-11-10T17:45:45.351Z
+status: checkpoint (guard level 1, remaining ~12376, session 01a1c691-1f05-7331-86b6-70cc0a1921f3)
+checkpointed: 2026-11-10T18:12:07.211Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7da0974fb56e2feb91d1c020a89ac9ae70224c80796c7a3ea7a8183abfde7f54
+source-progress: 9582f8fe0619df6872936775eb528a99eca45b9a69558e9b9c9e0315e96eaedd
 source-handoff: e5702d97f6c9e207ff93623d00afb4f8144b42502cf014d751ed548cf6d50358
-source-learnings: 12949c9e7c58506e1de585eb61f521298023bba50d22eca76620fadf029dcf91
+source-learnings: 289620eeaa84cbc81e0dc571debae9a6116a39a02fc61c64aeb17e33d3911086
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c673-bd04-7331-86b6-70c8e0bac886
-readiness-at: 2026-11-10T17:45:45.501Z
-readiness-checkpoint: g729-07c44aa6763d
+readiness-by: session:01a1c691-1f05-7331-86b6-70cc0a1921f3
+readiness-at: 2026-11-10T18:12:07.312Z
+readiness-checkpoint: g730-015553926d2d
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2868,5 +2886,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m2 hop 1 CHECKPOINTED at 5abe9c82 (baseline green at 2609d0ea; brief at build/p1m2-brief-true.md; design in LEARNINGS § P1-m2 hop 1; NEXT = PLAN §P1-m2 preregistration commit BEFORE any source byte, then m2a per PROGRESS live heading VERBATIM).
+E2E-54/P1-m2 hop 2 CHECKPOINTED at 81ec5498 (preregistration committed d6bb1274 BEFORE any source byte; baseline green at 5abe9c82). The m2a edit is APPLIED to ocaml/hir/mir_backend.ml — UNCOMMITTED, NEVER COMPILED; keep it, never revert. Successor: read PLAN §P1-m2 (binding) + LEARNINGS § P1-m2 hop 2 VERBATIM, then run §P1-m2.13 step-2 gates each own command: cd ocaml && eval "$(opam env)" && dune build (fix COMPILE defects only) → T1 172595d5… DIRECT → T2 → hir_test 220 ok/11 UNMOVED → cmp ALL existing hir/mir-expected pins UNMOVED; then §P1-m2.8 re-measurements, measured-first CF fixtures, native panel + C-M2a, commit m2a; ONLY then m2b; STOP after CLOSE. ZERO oracle; config NEVER staged; no push.
 <!-- guard:end checkpoint -->
