@@ -4175,4 +4175,4 @@ DEFERRED with its measured blocker while D1 stands.
 
 | slice | status | notes |
 |---|---|---|
-| P1-mD | OPEN (pre-registration committed at `d48564b6` + this commit; probes hops 1–3 green except hop-2 bt, RESOLVED via `.debug_frame` read-back route hop 3) | native DWARF debugging of AOT MIR objects; D1/D2 SEPARATE; ZERO oracle; cosmo bt GREEN via named `.debug_frame` |
+| P1-mD | **CLOSED 2026-11-11 (hop 7; D1 and D2 SEPARATELY BOTH GREEN)** | native DWARF debugging of AOT MIR objects landed: `-g` sidecar map (byte-frozen default path), `mir2o --debug-map` validate-then-annotate, in-C `.eh_frame` drop + `.debug_frame` read-back route; gdb battery GREEN incl. `bt` on cosmo optlinux and `print n = $1 = 77`; runner `tools/mir_aot_debug_test.py` rc 0 23 checks, D-C1/D-C2/D-C3 failing loudly; FULL FROZEN regression T1–T11 ALL HIT; ZERO oracle; commits `a22dc0a5`→`b400b3b9`→`b0966931`→`b14756e9`→`2e8fdc9e`→close |

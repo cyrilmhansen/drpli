@@ -11311,3 +11311,54 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
 - **accepted (D-C1 control measured first-hand):** no-debug optlinux link of the SAME `.mir` EXECUTES `77` fine but gdb `break M05.pli:4` → `No source file named M05.pli`, no breakpoint, gdb rc 1 (`build/mir-debug/arms/gdb_nodebug.log`). Non-vacuity real.
 - **proposed / UNVERIFIED (runner):** `tools/mir_aot_debug_test.py` WRITTEN (W0 toolchain+prereq; W1 CLI pin panel from REPO ROOT — explicit `--debug-map` AND default `OUT.mir.p1md` path arms, stdout/file==MIR pin, map==sidecar pin, determinism ×2; W2 debug `.o` ×2 fresh procs byte-equal + sha == `cb263c2c…` BEFORE linking; W3 readelf law panel; W4 optlinux primary + tiny secondary links, chmod +x; W5 EXEC `77\n` legs + determinism; W6 gdb battery assertions incl. `#0`/`#1` and exit 0; W7 controls D-C1 preflight EXEC-green-but-break-refused, D-C2 sha→8, D-C3 count+opcode→8, ALL asserted to FAIL LOUDLY; W8 glibc gcc diagnostic leg recorded as EVIDENCE ONLY, never a gate — §P1-mD.1 fact 8). **IT HAS NEVER BEEN EXECUTED — expect Python-level defects (fix RUNNER defects ONLY; expected values are COPIED from pins+PLAN+this session's measurements, NEVER re-fit).** Known suspects: a leftover `if f"{addr}" in …` line in `readelf_panel` uses the stale loop variable (intended the end-row check; harmless if 0x176 present but REVIEW on first run).
 - **NEXT (successor, hop 7 remaining, BINDING order):** (1) `cd /home/john/projects/sushiworks/pli80 && eval "$(opam env)" && timeout 900 python3 tools/mir_aot_debug_test.py; echo RC=$?` — runner rc 0, D-C1/C2/C3 observed failing loudly INSIDE the runner; fix runner defects only; commit `tools/mir_aot_debug_test.py` by explicit path. (2) FULL FROZEN regression T1–T11, each its OWN command: `timeout 900 python3 tools/e2e_gate.py > build/e54pmD-reg-gate.log 2>&1` rc 0 FROZEN ALL HIT 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; `timeout 900 python3 tools/hir_test.py` rc 0 220 ok/11 UNMOVED/F8; `timeout 900 python3 tools/mir_aot_test.py` rc 0 27; `timeout 900 python3 tools/mir_aot_cosmo_test.py` rc 0 25; `cd ocaml && timeout 900 dune build --build-dir _build-e54pmD` rc 0 ZERO Error hist 122, fresh sha == kept `172595d5…` (computed separately); T1/T2/T9 as gates around. (3) CLOSE: RESULTS §P1-mD (D1/D2 SEPARATELY, both GREEN; T1–T11 WITH measured values; deviations incl. cwd-dependent `file` row, the K[56] hex-transcription bug caught by the measured-first sha law, the str->sh_name bug, wine noise benign; controls panel with values; unsupported-scope matrix: one func, one auto var single home, i64 carrier line 0 tail; reproduction set; commits `b0966931`→`b14756e9`→runner→close), `docs/architecture/backend-boundary.md` §7-8, PLAN §P1-mD.11 dashboard CLOSED, durables + attest → **STOP** (§P1-mD.10 step 5). Standing: ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN/mir ADDITIVE; F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo chmod +x.
+
+## E2E-54/P1-mD hop 7 CLOSE (2026-11-11, session 01a1c63f, renewal 7/12; ZERO oracle; ledger 203/C380) — runner RUN GREEN; §P1-mD CLOSED
+
+- **accepted (runner UNVERIFIED → VERIFIED, first-hand):** the first-ever
+  execution of `tools/mir_aot_debug_test.py` (HEAD `610ecd5f`; `dune build` rc 0;
+  T1 `172595d5…` DIRECT; T2 clean; `sh tools/mir_aot/build_native.sh` rc 0 with
+  lab pins ccc92c5c/f541a7a5 re-verified — mir2o judged as REBUILT FROM THE
+  COMMITTED SOURCE). Run 1 died in W1 rc 2 `one input .pli file is required` —
+  runner defect: `cli_leg` never appended the FIXTURE to argv. Run 2: 22 ok, one
+  FAIL — W6 `info line` assertion expected `<pli80_iorw+97> and ends at
+  <pli80_iorw+139>` but gdb interleaves `0x40226b`; re-assembled around the SAME
+  pinned +97/+139 tokens (the failing run's own log showed the true line).
+  Run 3: **rc 0, 23 checks** — W1 pins×3 + determinism, W2 debug `.o` == frozen
+  `cb263c2c…` ×2 fresh procs, W3 readelf laws, W4 optlinux+tiny, W5 EXEC
+  `77\n`×3, W6 FULL gdb battery GREEN, W7 **D-C1/D-C2/D-C3 ALL FAILED LOUDLY
+  INSIDE THE RUNNER** (break refused `No source file named M05.pli` gdb rc 1;
+  sha/count/opcode tampers rc 8 named, NO object). Pre-run I replaced the known
+  stale-loop-variable end-row check in `readelf_panel` with the direct `0x176`
+  check (same expected value; review-driven, honest). NO expected byte, NO pin,
+  NO compiler file was ever involved in the three fixes. Committed `2e8fdc9e`.
+- **accepted (FULL FROZEN regression, each own command):** T4 gate rc 0 FROZEN
+  ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** (1537 lines)
+  → `build/e54pmD-reg-gate.log`; T3 hir_test rc 0 **220 ok**, 11 numbers
+  UNMOVED; T5 mir_aot 27; T6 cosmo 25; T8 fresh `--build-dir _build-e54pmD` rc 0
+  ZERO Error hist **122**, fresh sha == kept `172595d5…` (separate command); T9
+  CT2 shas `78656e6c…/3822f777…/02c15b1b…` held on the freshly regenerated
+  `build/mir-aot/M0*.o`; T1/T2 clean. **LESSON (one self-caught slip at close):
+  I first transcribed the bt addresses into RESULTS as `0x4000402244`/`0x4000…
+  401e65` from memory — WRONG; the measured values are `#0 0x0000000000402244` /
+  `#1 0x0000000000401e65` and the close text was corrected from the log
+  GREP. Quoted evidence values must ALWAYS come from the file, never recall —
+  the same failure mode as the K[56] table one hop earlier.**
+- **accepted (CLOSE landed):** RESULTS **§P1-mD** (D1/D2 SEPARATELY — both
+  GREEN; T1–T11 with measured values; controls with values; 8 deviations incl.
+  the two hop-7 bugs, the cwd `file`-row law, `Source language is c.`, wine
+  noise benign; unsupported-scope matrix; reproduction; commit list),
+  `docs/architecture/backend-boundary.md` **§7-8**, PLAN §P1-mD.11 dashboard
+  **CLOSED**, durables + finalize attest.
+- **STOP (§P1-mD.10 step 5 / §P1-mD.0):** NOTHING FURTHER IS AUTHORIZED.
+  Production-backend adoption of the debug route, parameters/aggregate/multi-home/
+  multi-CU debug info, `PUT EDIT` debugging, APE, ARM64 and every broader slice
+  remain **PROPOSED ONLY** — each needs its own PROTOCOL #1 pre-registration +
+  explicit operator authorization BEFORE any code byte. Report closure, await
+  the OPERATOR. If re-authorized on this axis: re-verify the baseline FIRST-HAND
+  at the close HEAD (build rc 0; T1 `172595d5…` DIRECT; T2 clean; hir_test 220
+  ok/11 UNMOVED; ledger 203/C380) and READ RESULTS §P1-mD + LEARNINGS §§ hop
+  7-close/7/6/5 FIRST. Standing: ZERO oracle; config NEVER staged; no push;
+  explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins
+  FROZEN / mir pins ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never
+  batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo
+  chmod +x; debug runner from the REPO ROOT.

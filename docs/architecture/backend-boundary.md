@@ -433,3 +433,40 @@ character variables and production adoption remain **PROPOSED ONLY** (each needs
 its own PROTOCOL #1 pre-registration + operator authorization); console
 semantics are DRPLi engineering evidence, never DR claims — the ledger stays
 **C380**. Panel: RESULTS §P1-m1.
+
+## 7-8 E2E-54/P1-mD — Native DWARF source debugging of MIR AOT objects (CLOSED 2026-11-11)
+
+The native MIR path is now **source-level debuggable**: `pli80mir -g` writes,
+alongside the byte-frozen `.mir`, a line-oriented **sidecar debug map**
+(`OUT.mir.p1md` by default; `mir_backend.ml` ADDITIVELY carries the HIR
+`st_line`/`ex_line` already in scope on every emit and the `v<sid>`→`sorig`
+law — the assembly drops the line, so the default `.mir` bytes move NOWHERE),
+and `mir2o --debug-map MAP` folds it into a genuine MIR-produced object. The
+map is machine-validated **before any annotation** (magic, sha256 of the exact
+`.mir` bytes, func resolution, per-func insn COUNT, per-index OPCODE name,
+duplicates, var existence, absolute `file` path); every mismatch is a loud rc 8
+with the exact named delta and NO object (rc 7 map-read). The sha256 is
+re-implemented in C inside `mir2o.c` and in OCaml in `ocaml/hir/sha256.ml`
+(decimal tables); both were cross-checked against Python `hashlib` — the debug
+leg itself caught a hex-transcription bug in the hand-copied C `K[56]`
+(**a hand-copied constant table is not an oracle**). The cosmo blocker (hop-2:
+`ape.lds` folds `.eh_frame` into `.data`) is closed by the PUBLIC read-back
+route: `MIR_gen_object_emit` capture → IN-C structural ELF drop of
+`.eh_frame`/`.rela.eh_frame` (pure ELF bookkeeping, sh_link/sh_info/st_shndx
+re-indexed) → `MIR_object_create`+`MIR_object_read` → fresh debug builder →
+`MIR_object_set_debug` BEFORE emit — the builder then writes a NAMED
+`.debug_frame`, which every ape.lds keeps. The debug object (M05, sha
+`cb263c2c…`, pinned BEFORE linking) links via the pinned Cosmopolitan recipe
+and a full gdb 18.1 battery is GREEN: `break M05.pli:4`, hit at `pli80_iorw`,
+`print n` = `$1 = 77` (scalar auto homes only), `stepi` on line 4, `info line`
+= the exact line-map bounds `+97..+139`, `bt` `#0 pli80_iorw … M05.pli:4 / #1
+main`, continue exit 0; controls D-C1/D-C2/D-C3 all fail loudly. The default
+(non-`-g`, non-`--debug-map`) paths call NOTHING new — CT2 objects, all MIR/HIR
+pins, `hir_test` (220 ok, 11 numbers UNMOVED) and the FULL gate (1328/1328 …
+prose 5) stayed FROZEN ALL HIT; the debug `.o` route even reproduces the hop-3
+objcopy probe byte-for-byte. Scope ends at single-file, one-function, scalar
+non-param auto variables; parameters, aggregates, multi-home/multi-CU, APE and
+production adoption are **PROPOSED ONLY** (each needs its own PROTOCOL #1
+pre-registration + operator authorization). Zero oracle: this is toolchain
+engineering evidence, never a DR claim — the ledger stays **C380**. Panel:
+RESULTS §P1-mD.
