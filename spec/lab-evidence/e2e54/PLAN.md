@@ -4176,3 +4176,395 @@ DEFERRED with its measured blocker while D1 stands.
 | slice | status | notes |
 |---|---|---|
 | P1-mD | **CLOSED 2026-11-11 (hop 7; D1 and D2 SEPARATELY BOTH GREEN)** | native DWARF debugging of AOT MIR objects landed: `-g` sidecar map (byte-frozen default path), `mir2o --debug-map` validate-then-annotate, in-C `.eh_frame` drop + `.debug_frame` read-back route; gdb battery GREEN incl. `bt` on cosmo optlinux and `print n = $1 = 77`; runner `tools/mir_aot_debug_test.py` rc 0 23 checks, D-C1/D-C2/D-C3 failing loudly; FULL FROZEN regression T1–T11 ALL HIT; ZERO oracle; commits `a22dc0a5`→`b400b3b9`→`b0966931`→`b14756e9`→`2e8fdc9e`→close |
+
+## §P1-m2 — Pre-registration: native control flow (IF/ELSE and bounded DO WHILE) (committed BEFORE any repository source byte)
+
+Operator authorization of 2026-11-12: **E2E-54/P1-m2 AUTHORIZED** — a bounded extension of the
+native MIR backend to PL/I `IF/ELSE` (m2a) and `DO WHILE` (m2b), executed through the existing
+HIR → MIR AOT → Cosmopolitan static-ELF pipeline, preserving sound numeric analysis and the
+P1-mD DWARF sidecar. The full brief is preserved VERBATIM at the IGNORED `build/p1m2-brief-true.md`
+(same law as P1-m0/P1-mD). Type of work: **backend engineering, ZERO oracle calls** (none planned
+or authorized; nothing here is or becomes a DR historical claim — the ledger stays 203 headers
+ending **C380**). Starting reference `2609d0ea` (§P1-mD close; verified first-hand at P1-m2 hop 1,
+baseline ALL GREEN); this pre-registration lands BEFORE any source byte, hop-1 recon committed at
+`5abe9c82` with ZERO repo source byte.
+
+All design authority is MEASURED in hop 1 against the PINNED lab (`ccc92c5c`/`f541a7a5`, never
+advanced, never edited), the pinned Cosmopolitan toolchain (`build/p1mc-deps`, never edited) and
+the LIVE parser/hir_build/mir_backend, in the IGNORED scratch `build/p1m2-scratch/` (NEVER
+committed): `LEARNINGS.md` § "E2E-54/P1-m2 hop 1" — READ IT VERBATIM FIRST. Every expectation below
+either cites a first-hand measurement or is explicitly marked MEASURED-FIRST at pin time. No
+expected byte in this section was produced by running the compiler on a fixture pinned below —
+the expectations are hand-derived here, BEFORE any run.
+
+### P1-m2.0 Milestones (SEPARATE deliverables)
+
+- **m2a — conditional branches and control-flow joins.** `Hir.If` (with and without ELSE, nested,
+  all six relational operators `Eq/Ne/Lt/Le/Gt/Ge`) lowers to native MIR branches; the value-
+  interval environment gains a SOUND join (drop-not-inherit + interval hull, §P1-m2.2). GREEN
+  means: the `choose` fixture (brief §4) EXECUTES both arms in fresh cosmo-tiny processes with the
+  §P1-m2.5 byte expectations; the m2a gate (§P1-m2.11) passes; the corruption control C-M2a
+  (§P1-m2.7) fails natively as designed.
+- **m2b — bounded `DO WHILE` loops and loop-state invariants.** `Hir.While` lowers to the PROVEN
+  header/backedge shape (§P1-m2.3, `probe_loop.mir`/`probe_loop_ind.mir` executed values 3) with
+  the RESTRICTED counted-loop proof — initialized induction variable, constant nonzero monotonic
+  step, relational guard, every iteration value AND the exact exit value inside the declared
+  window; anything else refuses EXPLICITLY, never silently. GREEN means: `count` EXECUTES three
+  genuine body iterations natively (stdout `0\n1\n2\n`, return `3`), zero/one-iteration and
+  descending fixtures hold their independently derived values, the loop corruption control
+  C-M2b fails natively, and §P1-m2.3's proof is written down such that every accepted loop's value
+  set was hand-checked.
+
+**Complete the m2a gate before implementing m2b** (brief §1). CLOSE after both (or m2a GREEN +
+m2b closed-DEFERRED with its measured blocker, brief §12): RESULTS §P1-m2 (m2a/m2b SEPARATELY),
+`docs/architecture/backend-boundary.md`, dashboard row, durables, then **STOP** — no next phase is
+authorized automatically (brief §12).
+
+### P1-m2.1 MEASURED design facts (hop 1, first-hand; this section pre-registers, it does not re-measure)
+
+1. **HIR shapes (accepted, live parser):** the brief's `choose`/`count` sources parse VERBATIM
+   (scratch `CHOOSE.pli`/`COUNT.pli`, CRLF+`^Z`, `pli80hir.exe` rc 0). `if c then s; else s;` →
+   `Ast.Sif` → `Hir.If {cond; then_; else_}`; `do while(c); … end;` → `Sdowhile` →
+   `Hir.While {cond; body}`; both carry `stmt list` arms in SOURCE ORDER. A relational condition is
+   `Hir.Bin {op; left; right; typing="language-rule:relational"}` with `ex_ty = Condty` and
+   `ex_ef = Pure` for pure operands; `y = -1` lowers to `Neg {e = Const "1"}` (the `Neg` arm exists).
+2. **MIR branch/label syntax PROVEN on the pinned parser+emitter with NATIVE execution** (scratch
+   `probe_{labels,ind,loop,loop_ind}.mir`, all rc 0, glibc-exec values 1, 7, 3 — LEARNINGS hop 1):
+   `blt L, x, y` / `bge L, x, y` take the LABEL FIRST and branch when the signed 64-bit comparison
+   is TRUE; the next instruction runs when false (no delay slot); unconditional `jmp L`; labels on
+   their OWN line, tab-indented OR unindented — both parse; **label scope is the whole module ⇒ CF
+   label names MUST be globally unique in the artifact**. Mnemonics `beq/bne/ble/bgt` are documented
+   (MIR.md) but `beq/ble/bgt/ne-inversion` EXECUTION is MEASURED-FIRST at the first fixture that
+   needs each (PREDICTION, never pin-authority: the §P1-m2.2 inversion table holds).
+3. **Current backend anchors (read first-hand this hop):** the value env is `Int_map.find_opt sid
+   env : (int*int) option` — ABSENCE means "not definitely initialized" (the existing straight-line
+   law); `window p = ±(2^(p-1)-1)`; `in_window`, `show_iv`, `prove`, the fresh-temp counter `fresh ()`
+   (`t<k>`, evaluation order), the string-item counter `s<k>`, `declared`, `v_regs`, and the shared
+   unindented `Lfail:` tail. `Hir.If`/`Hir.While` are refused TODAY at mir_backend.ml:441/446
+   (HIR-E18) — those refusals, and only those, are replaced (§2 of the brief). Console legs:
+   `cu_put/cu_get/cu_text` are a TOP-LEVEL fold over `body` — nested uses are INVISIBLE to it, so
+   the fold must become a recursive walk (deviation law §P1-m2.8 item 0: straight-line bytes stay
+   byte-identical because the walk visits the same statements in the same order).
+4. **Fixture/pin law (accepted):** new PL/I fixtures are CRLF+`^Z` in the NEW ADDITIVE directories
+   `hir/mir-cf-fixtures/` (inputs) and `hir/mir-cf-expected/` (pins), generated with the hop-1
+   scratch tool `build/p1m2-scratch/mkpli.py`; pins are `cp` of measured CLI output ONLY after
+   line-by-line review against this section (NEVER hand-written); negatives pin rc + stderr bytes
+   with ZERO stdout and NO `-o` file (refusal totality, §P1-m0 law).
+
+### P1-m2.2 m2a contract — IF/ELSE lowering, labels, joins (`ocaml/hir/mir_backend.ml` ONLY)
+
+Emission (every instruction rides the existing `emit ?line` with the IF statement's `st_line`;
+the condition operands lower through the EXISTING `lower` at their own `ex_line`):
+
+- `if cond then THEN else ELSE` (cf-n counts IF statements in source order from 1):
+
+      <lower cond operands -> rl, rr>
+      b<cc>  Lthen<n>, rl, rr
+      jmp    Lelse<n>
+      Lthen<n>:
+      <THEN in env-copy>
+      jmp    Ljoin<n>
+      Lelse<n>:
+      <ELSE in env-copy>
+      Ljoin<n>:
+
+- `if cond then THEN` (no ELSE — the else path is the IDENTITY):
+
+      <lower cond operands -> rl, rr>
+      b<inv-cc>  Ljoin<n>, rl, rr
+      <THEN in env-copy>
+      Ljoin<n>:
+
+  where `inv-cc` inverts the guard so the body is SKIPPED when the condition is false. The
+  inversion table (Lt→Ge, Le→Gt, Gt→Le, Ge→Lt, Eq→Ne, Ne→Eq) is PROVEN ONLY for Lt→Ge and Ge→Lt
+  (hop-1 probes); the other rows are MEASURED-FIRST at their fixtures — a mismatch is a falsifier,
+  never a re-fit.
+- `lower_cond env e ltarget` accepts EXACTLY a `Hir.Bin` relational node with `op ∈ {Eq,Ne,Lt,Le,
+  Gt,Ge}` whose two operands lower through the existing integer `lower` (each operand keeps its
+  OWN declared-type window proof — no new type rule; a `Convert`, an unknown-effect operand, a
+  condition literal, or any other shape refuses BY NAME at HIR-E18). The relational node's `Condty`
+  is never passed to `bin_p`.
+- **Label discipline:** a NEW counter `cf_n` (names `Lthen<n>`/`Lelse<n>`/`Ljoin<n>`,
+  `Lh<n>`/`Lx<n>`) INDEPENDENT of `fresh ()`; names are globally unique (fact 1.2); the control
+  flow NEVER emits, reuses or shadows `Lfail`; the failure tail stays the single shared unindented
+  tail after the body's final `ret`.
+- **Join law (the scientific core; brief §3):** each arm lowers in a COPY of the pre-IF env; arms
+  never share mutable state. At `Ljoin<n>` the env is merged per sid: `Some a` + `Some b` →
+  `(min lo, max hi)` (sound hull); `Some` + `None` → `None` (**DROP — never inherit an assignment
+  executed only in the opposite arm**); `None` + `None` → `None`. Untouched variables keep their
+  prior state (both sides equal). A missing ELSE is the identity arm in that merge. NO
+  branch-condition interval refinement in m2a (permitted but not required; deferred honestly).
+  Early/nested `RETURN` inside an arm keeps its existing refusal (the ONE final top-level
+  `RETURN(expr)` law is UNCHANGED). Existing-window checks apply INSIDE each arm unchanged — the
+  window law is never weakened.
+- The final `RETURN(expr)` lowers with the JOINED env, so a variable live only on one path reads as
+  uninitialized → HIR-E19 (see the message amendment, §P1-m2.8 item 0).
+
+### P1-m2.3 m2b contract — bounded DO WHILE + counted-loop proof
+
+Loop emission (cf counter shared with m2a; loop k gets `Lh<k>`/`Lx<k>`), the PROVEN hop-1 shape
+(`probe_loop.mir` executed 3):
+
+      Lh<k>:
+      <lower cond operands -> rl, rr>          (reevaluated EVERY iteration)
+      b<inv-cc>  Lx<k>, rl, rr
+      <body in env-copy of the header env>
+      jmp  Lh<k>
+      Lx<k>:
+
+- **Recognized counted-loop form (the whole of m2b's acceptance; everything else refuses BY
+  NAME, HIR-E18 unless a numeric window is the primary reason, then HIR-E19):**
+  1. the guard is `Var sid OP expr_B` with `OP ∈ {Lt,Le,Gt,Ge}` (Eq/Ne guards cannot prove
+     monotonic exit — refuse); `expr_B` lowers to a CONSTANT interval `[blo,bhi]` in the pre-loop
+     env (no read of any variable the body writes);
+  2. `sid` is definitely initialized immediately before the loop as a CONSTANT interval
+     `[iv0,iv0]` (an assignment of a proved constant — including the `Neg` form);
+  3. the body contains EXACTLY ONE write to `sid` and it is the monotonic step
+     `sid = sid + C` or `sid = sid - C` where `C` is a positive integer literal (`Bin{Add/
+     Sub;left=Var sid;right=Const}` with `c = ±C ≠ 0` computed exactly); ANY other statement
+     touching `sid` (assign, GET, compound) anywhere in the body tree → refuse;
+  4. direction match: `OP ∈ {Lt,Le} ⇒ c > 0`; `OP ∈ {Gt,Ge} ⇒ c < 0` (a mismatched guard is a
+     non-terminating form the proof cannot discharge → refuse);
+  5. **exact exit value** (integers are exact; `p ≤ 15` so every product fits the 63-bit OCaml
+     int): for `c > 0`, `T = bhi` for `Lt` and `bhi + 1` for `Le` (first failing value guard);
+     `exit = iv0` if `iv0 ≥ T` (ZERO iterations) else `iv0 + c * ceil((T - iv0) / c)`;
+     for `c < 0`, `T = blo` for `Gt` and `blo - 1` for `Ge`; `exit = iv0` if `iv0 ≤ T` else
+     `iv0 + c * ceil((iv0 - T) / (-c))`. (For a literal bound `B`: `T = B` (Lt), `B+1` (Le),
+     `B` (Gt), `B-1` (Ge).)
+  6. **window obligation (the brief's "each update stays inside the declared precision"):** the
+     smallest/largest value taken inside the body is `iv0` and the last pre-exit iterate; require
+     `min(iv0, exit) ≥ W_lo` and `max(iv0, exit) ≤ W_hi` for `sid`'s declared precision; the guard
+     bound interval must also lie within the operand's window via the EXISTING `lower` proofs.
+- **Loop-state discipline (brief §5):** the header env for `sid` is the single exit-value interval
+  `[exit, exit]`; inside the body `sid` is refined to the values the guard admits
+  (`Lt`: `[iv0, T-1]`, `Le`: `[iv0, T]`, `Gt`: `[T+1, iv0]`, `Ge`: `[T, iv0]`) — sound by the
+  monotonic direction. EVERY other sid written by ANY body statement (assign or GET, at any
+  nesting depth) is DROPPED (`None`) at the header — a body assignment is NEVER treated as
+  definitely executed, and multi-iteration accumulation is out of the subset (refusal names it);
+  a sid written ONLY inside a loop has `None` after `Lx<k>` (zero-iteration path); variables not
+  written by the body keep their pre-loop env. The zero-iteration path is exact: `exit = iv0`.
+- Nested `While` inside a body refuses BY NAME (nested loops out of the subset); a nested `If` is
+  admitted ONLY through the m2a machinery (its own join) and its arms must not write the `sid`.
+- Condition reevaluation is structural (the guard lowers INSIDE `Lh<k>` every time — never peeled);
+  the backedge `jmp Lh<k>` is mandatory; the loop body may contain PUT/GET (console legs unchanged;
+  `Lfail` still shared and never per-iteration).
+
+### P1-m2.4 Numeric-safety invariants (NEVER weakened; falsifiers if violated)
+
+- I1 the window law: every arithmetic node is proved inside its declared window exactly as today —
+  branches and loops add NO bypass; the `prove`/Assign/Return checks are unchanged.
+- I2 drop-not-inherit: no expression ever lowers with an env entry that was assigned on only one
+  path (join law §P1-m2.2/§P1-m2.3). A `Some` may NEVER override a `None`.
+- I3 interval hulls are over ACTUAL arm intervals only — never widened by hand, never clamped to
+  the window (which would lie about the bound).
+- I4 GET inside a branch/loop records EXACTLY the runtime-proved `[lo,hi]` window (existing law).
+- I5 the exit-value formula is exact integer arithmetic (ceil on ints); a zero or negative step, a
+  bound interval overlapping the iteration domain, or any guard direction mismatch REFUSES — an
+  unprovable loop is never accepted to make a fixture pass.
+- I6 existing straight-line bytes: every artifact for a program WITHOUT If/While is byte-identical
+  to its `hir/mir-expected/` pin (§P1-m0/m1/mD pins are falsifiers, not references to re-fit).
+
+### P1-m2.5 Fixtures and INDEPENDENT expected results (recorded HERE, BEFORE any run)
+
+Procedure names are case-folded for `--export`. All fixture files CRLF+`^Z` via
+`build/p1m2-scratch/mkpli.py`. Positive MIR pins = `cp` of reviewed measured stdout; native legs
+per §P1-m2.6.
+
+POSITIVE — m2a (cosmo TINY exec via the console driver; stdout bytes and `driver-return=` are the
+independent expectations, hand-computed from PL/I semantics — never from generated code):
+
+| id | proc | program (essence) | stdin | stdout | driver-return | rc |
+|---|---|---|---|---|---|---|
+| CF01 | `choose` | brief §4 verbatim shape: `get x; if x < 0 then y = -1; else y = 1; put list(y); return (y)` | `-2\n` | `-1\n` | -1 | 0 |
+| | | | `0\n` | `1\n` | 1 | 0 |
+| | | | `7\n` | `1\n` | 1 | 0 |
+| CF02 | `nocls` | `y = 7; get x; if x > 5 then y = 9; put list(y); return (y)` (IF without ELSE; join hull [7,9]) | `10\n` | `9\n` | 9 | 0 |
+| | | | `5\n` | `7\n` | 7 | 0 |
+| CF03 | `nest` | `get x; if x < 0 then y = -1; else if x = 0 then y = 0; else y = 2; put; return` (nested IF, Eq arm) | `-3\n` | `-1\n` | -1 | 0 |
+| | | | `0\n` | `0\n` | 0 | 0 |
+| | | | `5\n` | `2\n` | 2 | 0 |
+| CF04 | `eqne` | `get x; if x ^= 3 then y = 1; else y = -1; if x >= 2 then y = y + 10; else y = y - 10; put; return` (Ne + Ge; both signed directions) | `3\n` | `9\n` | 9 | 0 |
+| | | | `4\n` | `11\n` | 11 | 0 |
+| | | | `1\n` | `-9\n` | -9 | 0 |
+| CF05 | `iocond` | `get x; if x <= 0 then y = -2; else get list(y); put list(y); return (y)` (console calls INSIDE branches; Le) | `5\n7\n` | `7\n` | 7 | 0 |
+| | | | `-1\n` | `-2\n` | -2 | 0 |
+| | | | `5\nabc\n` | `` (empty) | — (exit 2 via Lfail) | 2 |
+| | | | `abc\n` | `` (empty) | — | 2 |
+
+POSITIVE — m2b (executed legs per §P1-m2.6):
+
+| id | proc | program (essence) | stdout | driver-return / native value | rc |
+|---|---|---|---|---|---|
+| CF06 | `count` | brief §6 verbatim: `i = 0; do while (i < 3); put list(i); i = i + 1; end; return (i)` — THREE genuine iterations | `0\n1\n2\n` | 3 | 0 |
+| CF07 | `zero` | `i = 5; do while (i < 2); i = i + 1; end; return (i)` — ZERO iterations (guard false at entry; exit = iv0) | `` | 5 | 0 |
+| CF08 | `oneit` | `i = 2; do while (i <= 2); i = i + 1; end; return (i)` — exactly ONE iteration (Le; exit = 2 + 1*ceil(1/1) = 3) | `` | 3 | 0 |
+| CF09 | `loopcond` | `i = 0; j = 9; do while (i < 2); if i = 0 then put list(j); i = i + 1; end; put list(i); return (i)` (IF inside loop; body writes ONLY the IV) | `9\n2\n` | 2 | 0 |
+| CF10 | `stepdn` | `i = 6; do while (i > 2); put list(i); i = i - 2; end; return (i)` (descending c = -2; exit = 6 - 2*ceil(4/2) = 2) | `6\n4\n` | 2 | 0 |
+
+CF07/CF08 have NO console leg: native verification is the glibc `native_check` leg (EXPECTED =
+the returned value) AND a cosmo-tiny leg (`driver-return=`). CF07 additionally falsifies the
+zero-iteration discipline; the CF06 exit value `3` is the brief's own independent expectation.
+
+NEGATIVE (compile-time refusals; each rc 2, ZERO stdout, NO `-o` file, deterministic ×2 fresh
+processes; PREDICTED code/first-reason recorded here, MEASURED-FIRST at pin time — a deviation is
+recorded, never fitted):
+
+| id | proc | program | PREDICTED refusal |
+|---|---|---|---|
+| CFN1 | `cfn1` | brief §3 second example: `get x; if x > 0 then y = 1; put list(y); return (y)` (y initialized on ONE path only) | HIR-E19 uninitialized read of y — join DROPPED it (message per the §P1-m2.8-0 amendment) |
+| CFN2 | `cfn2` | `dcl y fixed bin(3); get x; if x > 0 then y = 3; else y = 4; put; return` (branch that overflows the declared type) | HIR-E19 Assign-window inside the ELSE arm (`[4,4]` leaving `[-3,3]`) |
+| CFN3 | `cfn3` | `do while (i < 3); i = i + 1; end;` with NO init of i (uninitialized IV) | HIR-E19 uninitialized induction variable (named) |
+| CFN4 | `cfn4` | `i = 0; do while (i < 3); i = 2; end;` (body write is not the recognized monotonic step) | HIR-E18 body writes the induction variable outside the recognized step form |
+| CFN5 | `cfn5` | `i = 0; do while (i < 2); j = 0; do while (j < 2); j = j + 1; end; i = i + 1; end;` (nested loop) | HIR-E18 nested loop outside the proven subset |
+| CFN6 | `cfn6` | `dcl i fixed bin(3); i = 0; do while (i < 4); i = i + 1; end; return (i)` (update escapes W(3)=±3) | HIR-E19 Assign-window at the step (`[1,4]` leaving `[-3,3]`) |
+
+### P1-m2.6 Native validation panel methodology (brief §10, per positive)
+
+(1) real PL/I → Parser/Bind/HIR (pipeline proof `pli80hir.exe` rc 0 on the same fixture);
+(2) deterministic MIR: `pli80mir --export <p> -o X.mir fixture` TWICE in FRESH processes — stdout,
+`-o` file and the reviewed `hir/mir-cf-expected/<id>.mir` pin all byte-equal;
+(3) `mir2o -f X.mir X.o` rc 0 (this run IS the pinned-parser acceptance);
+(4) cosmo TINY link via `tools/mir_aot/cosmo_link.sh` (timeout 120, `chmod +x` law) + no-`-g`
+object; static-ELF laws: no `PT_INTERP`, no dynamic section/`DT_NEEDED`, `nm T pli80_<n>`;
+(5) EXEC each stdin leg in a FRESH process (timeout 60): stdout bytes EXACT, rc EXACT,
+`driver-return=<v>` on stderr per the console-driver contract;
+(6) negatives: the §P1-m2.5 table arms; NO emitter run for negatives.
+The existing `pli_console.c`/`console_check.c`/`cosmo_link.sh`/`mir2o.c` are UNTOUCHED (brief §8):
+m2a/m2b emit the SAME import/proto/tail structure.
+
+### P1-m2.7 Corruption controls (non-vacuity; DISPOSABLE copies under `build/` only)
+
+- **C-M2a (branch polarity):** take CF01's measured `.mir` copy and flip the conditional branch
+  mnemonic (`blt` → `bge` — the two hop-1-PROVEN mnemonics). Re-`mir2o`, re-link, execute stdin
+  `-2\n`: the program MUST take the WRONG arm — stdout `1\n` where the independent expectation is
+  `-1\n` ⇒ the native test FAILS. A control that merely greps for a branch is insufficient (brief
+  §6).
+- **C-M2b (backedge removal):** take CF06's measured `.mir` copy and delete the loop's
+  `jmp Lh<k>` backedge instruction; re-`mir2o`, re-link, execute: stdout MUST NOT equal `0\n1\n2\n`
+  (prediction: exactly ONE iteration, `0\n`) ⇒ the native test FAILS.
+- Controls run inside the new CF runner and MUST be observed failing LOUDLY first-hand; a control
+  that passes fails the suite. Perturbations touch ONLY ignored `build/mir-cf/` copies, NEVER a
+  pin, NEVER the compiler.
+
+### P1-m2.8 Pre-registered amendments to PRE-EXISTING artifacts (the §2-vs-§9 contradiction, resolved honestly BEFORE any code)
+
+The brief simultaneously REQUIRES (§2) "Replace only these refusals [`Hir.If`/`Hir.While` at
+HIR-E18] with justified, explicitly tested lowering" and (§9) "No changes to existing HIR or MIR
+expected files" + "MIR AOT: 27 checks" green. These are **contradictory as literally stated**:
+`hir/mir-expected/N2.*` pins the exact E18 if-refusal and `N7.*` the exact E18 while-refusal, so
+implementing §2 necessarily invalidates those pins. Resolution (operator brief authorizes the
+replacement; the deviation is recorded here IN ADVANCE, never silently):
+
+- **item 0 (message truthfulness):** the uninitialized-read refusal (mir_backend `Hir.Var` arm)
+  says "on the only path of this straight-line body" — FALSE once joins exist. AMENDED to name
+  the true reason ("not definitely initialized on every reachable path"). Blast radius: the
+  pre-existing straight-line pin **`hir/mir-expected/N1.stderr.txt` is RE-MEASURED** (rc 2 and the
+  zero-artifact law UNCHANGED). This is a WORDING amendment forced by P1-m2's own semantics.
+- **item 1:** **`hir/mir-expected/N2.rc` + `N2.stderr.txt` are DELETED** — the fixture `n2: … if
+  x = 1 then x = 2; return (x);` BECOMES a positive under §2: `x` initialized [1,1]; THEN arm [2,2];
+  ELSE identity [1,1]; join hull **[1,2] ⊆ W(15)** ⇒ accepted (brief §3: IF without ELSE with a
+  PRE-INITIALIZED variable is sound). `N2.pli` MOVES to the `mir_aot_test.py` POSITIVES panel with
+  the INDEPENDENT value **2** (hand-derived: `x = 1` assigns 1; the guard `x = 1` is TRUE; the
+  THEN arm assigns 2; there is no ELSE — the returned value is 2). Additive pin `hir/mir-expected/N2.mir` (measured-first).
+- **item 2:** **`hir/mir-expected/N7.stderr.txt` is RE-MEASURED at m2b** (fixture stays a
+  negative — the uninitialized IV still refuses, now with the §P1-m2.3 CFN3-class reason;
+  predicted HIR-E19 named, MEASURED-FIRST; `N7.rc` = 2 unchanged). At m2a landing (m2b not yet
+  implemented) N7 keeps its CURRENT while-refusal.
+- **item 3:** `tools/mir_aot_test.py` NEGATIVES/POSITIVES tables gain those rows — the historical
+  **check count 27 becomes 4 positives×6 + 6 negatives + 2 controls = 32**; recorded as a
+  measured deviation (the suite stays GREEN and its semantics are strictly stronger). All OTHER
+  pins (M01–M06, N1 [modulo item 0], N3–N6, N8–N21) are byte-FROZEN falsifiers; the `cu_*` top-level
+  fold becoming a recursive walk must leave EVERY existing `.mir` pin and the P1-mC/P1-m1/P1-mD
+  `.o`/map hashes byte-identical (I6).
+Nothing else — not `ocaml/lib`, `ocaml/bin`, `hir/expected`, `hir/fixtures`, the historical gate,
+or the ledger — moves. If measurement shows ANY other pre-existing byte moving, that is a STOP-
+and-attribute falsifier, never a re-pin.
+
+### P1-m2.9 DWARF sidecar compatibility (brief §7)
+
+- Control-flow instructions are emitted through the existing `emit ?line` with the statement's
+  `st_line`, so the §P1-mD.3 sidecar counts and opcode-validates branches, jumps AND label insns
+  automatically (labels ARE insns — P1-mD hop-2 accepted fact); no new sidecar record type.
+- Existing debug pins UNMOVED: `hir/mir-debug-expected/M05.p1md` and the debug `.o` sha
+  `cb263c2c…3984782` are byte-frozen falsifiers (no fixture with If/While today carries `-g`
+  pins); the non-debug `.mir` bytes and default objects stay byte-identical (T2/T9).
+- New `-g` legs: CF01 through `pli80mir -g` → reviewed sidecar (every CF insn counted, branch/jmp/
+  label rows at the IF statement line); `mir2o --debug-map` → cosmo **optlinux** → gdb
+  `break CF01.pli:<branch line>` + `run` + `print x`/`print y` on BOTH arms' lines + `continue`
+  (exit 0). CF06 loop: DWARF line table (`readelf --debug-dump=decodedline`) MUST show the loop
+  body line; a gdb leg stepping the backedge (e.g. `break CF06.pli:<put line>`, three `continue`s
+  hitting `i = 0/1/2`) where feasible — evidence to ignored `build/mir-cf/`.
+- D2 scope is NOT expanded (no params/arrays/optimized homes); NO handwritten DWARF.
+
+### P1-m2.10 Runner — NEW `tools/mir_aot_cf_test.py` (ADDITIVE panel; historical suites UNMOVED)
+
+Separate panel (brief §9 "Run new test panels separately"): V0 prerequisites; V1 pins
+(pli80mir ×2 fresh procs, stdout == `-o` == pin, line-by-line review was done at pin time); V2
+negative arms (rc/stderr pins, zero stdout, no file, ×2); V3 native legs (§P1-m2.6 per positive:
+mir2o → cosmo tiny → fresh-process stdin legs → exact bytes/rc/driver-return; CF07/CF08 also the
+glibc native_check leg); V4 corruption controls C-M2a/C-M2b **observed failing loudly**; V5 static
+laws (`readelf -d`: no PT_INTERP/DT_NEEDED); evidence files under `build/mir-cf/` (NEVER
+committed). Every leg a DIRECT rc, separate processes, short timeouts (60 per fixture leg, 120 per
+link, 900 per suite). The DWARF legs (§P1-m2.9) run in the EXISTING debug-test idiom from the
+repo root (cwd law), evidence under `build/mir-cf/`.
+
+### P1-m2.11 Gate and falsifiers (each a STOP-and-attribute gate)
+
+**m2a gate (BEFORE m2b):** MIR text accepted by the pinned parser (mir2o rc 0 on CF01–CF05);
+correct native execution of BOTH arms (CF01 legs, §P1-m2.5 bytes); stable MIR over fresh
+processes; valid cosmo static links (§P1-m2.6); existing console failure behaviour UNCHANGED
+(console runner 43 checks green); corruption control C-M2a FAILS natively.
+**m2b gate:** §P1-m2.3 proof written + implemented; CF06 executes ≥3 genuine iterations; loop
+controls fail natively; refused forms refuse BY NAME (CFN3–CFN6).
+
+FULL FROZEN regression (T-panel, each its OWN command, rc DIRECT, never batched):
+- **T1** kept exe `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT before/after every build.
+- **T2** `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0 every step.
+- **T3** `timeout 900 python3 tools/hir_test.py` rc 0 **220 ok**, 11 frozen numbers UNMOVED, F8 green.
+- **T4** FULL gate rc 0 FROZEN ALL HIT **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5** → `build/e54p1m2-reg-gate.log`.
+- **T5** `mir_aot_test.py` rc 0 (per §P1-m2.8: 27 pre-m2a; post-m2a the amended panel — deviations recorded).
+- **T6** `mir_aot_cosmo_test.py` rc 0 **25**. **T7-console** `mir_aot_console_test.py` rc 0 **43**. **T7-debug** `mir_aot_debug_test.py` rc 0 **23** (from repo root).
+- **T8** fresh `cd ocaml && timeout 900 dune build --build-dir _build-e54p1m2` rc 0 ZERO `Error`, warning hist **122**, fresh exe sha == kept (computed separately).
+- **T9** every existing `hir/mir-expected/*.mir` byte-UNMOVED (M01–M06 + the surviving negatives); CT2 `.o` shas `78656e6c…/3822f777…/02c15b1b…` held; debug `.o` pin held.
+- **T10** the NEW CF panel (§P1-m2.10) rc 0 with C-M2a/C-M2b observed failing loudly.
+- **T11** ZERO oracle; ledger stays **203/C380**; `handoff.config.json` NEVER staged; explicit-path commits; scratch `build/p1m2-scratch/`, `build/mir-cf/`, `build/mir-*` NEVER committed; lab `ccc92c5c`/`f541a7a5` + `build/p1m*-deps`/`build/p1mc-deps` NEVER edited/advanced; no push.
+
+### P1-m2.12 Complexity-stop thresholds and FORBIDDEN routes
+
+STOP and attribute (exact reproducer) if: the pinned parser refuses any PROVEN branch form; the
+counted-loop proof cannot discharge a §P1-m2.5 fixture (then REFUSE that fixture honestly and
+record the limitation — brief §5 "record the exact limitation"); any pre-existing byte moves
+outside §P1-m2.8; a cosmo leg needs a toolchain change. FORBIDDEN, ever: weakening I1–I5; a general
+abstract interpreter / fixpoint solver (explicitly NOT required); re-pinning a failing native test
+to its output; a second control-flow representation in Semantic_env; re-parsing PL/I in the
+backend; new C runtime files; touching `pli_console.c`/`cosmo_link.sh`/`mir2o.c` without a
+preregistered, independently reproduced defect; early/nested RETURN, parameters, arrays, FILE
+streams, ON conditions, string variables (out of scope, brief §11). m2b may close DEFERRED with its
+measured blocker while m2a stands (brief §12).
+
+### P1-m2.13 Work order (successor contract — exact order)
+
+1. **THIS COMMIT**: pre-registration (§P1-m2, explicit path `spec/lab-evidence/e2e54/PLAN.md`).
+2. **m2a implementation** in `ocaml/hir/mir_backend.ml` ONLY (+ the §P1-m2.8-item-0 message and the
+   recursive `cu_*` walk): build → T1 → T2 → hir_test 220 → cmp ALL existing `hir/mir-expected/*.mir`
+   UNMOVED → §P1-m2.8 items 0/1 re-measurement (N1 stderr, N2 to positive) + `mir_aot_test.py`
+   amendment → mir_aot/console/debug suites.
+3. m2a fixtures CF01–CF05 + CFN1–CFN2 MEASURED-FIRST (review EVERY MIR line vs §P1-m2.2 before
+   `cp`; determinism ×2; negatives ×2), native panel, C-M2a observed failing loudly; commit m2a
+   (explicit paths) — **m2a gate CLOSED here**.
+4. **m2b**: implementation (§P1-m2.3) → same gates → fixtures CF06–CF10 + CFN3–CFN6 measured-first
+   → native panel + C-M2b → N7 re-pin (§P1-m2.8 item 2) → commit.
+5. DWARF legs (§P1-m2.9): CF01 `-g` sidecar reviewed vs §P1-m2.3-insn law; gdb branch-line
+   breakpoint + both-arm prints; CF06 line-table/backedge evidence.
+6. FULL FROZEN regression T1–T11 (each its OWN command).
+7. NEW runner `tools/mir_aot_cf_test.py` committed (written to §P1-m2.5/§P1-m2.10 BEFORE its first
+   run; expected bytes COPIED from §P1-m2.5, NEVER from output; runner defects fixed honestly).
+8. CLOSE: RESULTS §P1-m2 (m2a/m2b SEPARATELY + accepted/unsupported matrix + deviations),
+   `docs/architecture/backend-boundary.md` §7-9, PLAN dashboard row, durables + guard attest →
+   **STOP** — no next phase authorized without the OPERATOR.
+
+### P1-m2.14 Dashboard update
+
+| slice | status | notes |
+|---|---|---|
+| P1-m2 | **PRE-REGISTERED (this commit); m2a IN FLIGHT** | native control flow: m2a IF/ELSE + joins (drop-not-inherit), m2b bounded DO WHILE + counted-loop proof; §P1-m2.8 pre-registers the ONLY pre-existing-artifact amendments the brief's §2/§9 contradiction forces |
