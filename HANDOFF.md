@@ -7,7 +7,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-2a-e54p1m2-2. **E2E-54/P1-m2 hop 2 CHECKPOINTED 2026-11-12 (session 01a1c691, renewal 1/12; ZERO
+2a-e54p1m2-3. **E2E-54/P1-m2 hop 3 — m2a MEASURED GREEN + COMMITTED `ac56dd1d` (m2a gate CLOSED); m2b NOT YET IMPLEMENTED 2026-11-12 (session 01a1c6a9, renewal 2/12; ZERO oracle; ledger 203/C380; HEAD `ac56dd1d`).** ALL step-2 gates HIT first-hand (build; T1 `172595d5…` DIRECT; T2; hir 220/11; cmp ALL existing pins UNMOVED incl. N3..N21 negatives); §P1-m2.8 LANDED (N1 stderr re-pinned path-truth; N2 refusal pins deleted + `N2.mir` additive + N2 POSITIVE value 2; `tools/mir_aot_test.py` amended → rc 0 **32** checks, the 27→32 deviation as pre-registered, stale hardcoded count fixed honestly; console 43 + debug 23 UNMOVED). CF01..CF05+CFN1..CFN2 fixtures/pins MEASURED-FIRST (every MIR line reviewed vs §P1-m2.2; CFN2 DEVIATION recorded not fitted — measures the E19 CONVERSION refusal since Convert 15→3 always wraps a literal into `fixed bin(3)`). NATIVE §P1-m2.6 ALL GREEN: mir2o rc 0 on all five pins; cosmo tiny static links; **all 15 stdin legs EXECUTED the §P1-m2.5 bytes EXACTLY**; **C-M2a failed loudly** (blt→bge executes the WRONG arm). FULL record: LEARNINGS § "E2E-54/P1-m2 hop 3" — READ VERBATIM FIRST, then PLAN §P1-m2 (binding). NEXT (PROGRESS live heading VERBATIM): baseline at `ac56dd1d` (build→T1→T2→hir 220/11, each own command) → MEASURE-FIRST the HIR integer-literal Const shape (the `P_int 9` grep on CF02.hir.txt is EMPTY — read hir.ml/hir_build.ml + COUNT.pli scratch dump) → m2b §P1-m2.3 (point-bound restriction + body-before-orbit ordering per hop-3 PROPOSED) → gates + fixtures CF06..CF10/CFN3..CFN6 measured-first + N7 re-pin → native panel + glibc legs for CF07/CF08 + **C-M2b** (backedge removal ⇒ stdout ≠ `0\n1\n2\n`) failing loudly → commit m2b → DWARF §P1-m2.9 → runner `tools/mir_aot_cf_test.py` written to §P1-m2.5 BEFORE first run → FULL FROZEN regression T1–T11 → CLOSE + **STOP**. Standing: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only (§P1-m2.8 amendments excepted); F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`; printf `%s\n` for negative stdin; byte-exact compares via Python subprocess.
+
+SUPERSEDED-BY-ABOVE: 2a-e54p1m2-2. **E2E-54/P1-m2 hop 2 CHECKPOINTED 2026-11-12 (session 01a1c691, renewal 1/12; ZERO
 oracle; ledger 203/C380; durables at `81ec5498`; HEAD `81ec5498`).** §P1-m2 PRE-REGISTRATION is
 COMMITTED at `d6bb1274` BEFORE any source byte (PROTOCOL #1) — it is the BINDING contract (PLAN
 §P1-m2.0–.14: m2a shapes + drop-not-inherit join; m2b counted-loop proof + exact ceil exit
@@ -2095,25 +2097,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 730
-checkpoint-id: g730-015553926d2d
-checkpoint-kind: manual
+checkpoint-generation: 732
+checkpoint-id: g732-238b5edebbac
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~12376, session 01a1c691-1f05-7331-86b6-70cc0a1921f3)
-checkpointed: 2026-11-10T18:12:07.211Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6826, session 01a1c6a9-f41e-7331-86b6-70d04b116873)
+checkpointed: 2026-11-10T18:39:30.327Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9582f8fe0619df6872936775eb528a99eca45b9a69558e9b9c9e0315e96eaedd
-source-handoff: e5702d97f6c9e207ff93623d00afb4f8144b42502cf014d751ed548cf6d50358
-source-learnings: 289620eeaa84cbc81e0dc571debae9a6116a39a02fc61c64aeb17e33d3911086
+source-progress: 1b538ef3bdad6a1ce43d92bf928b9dac6035c6b5b1ffe8cdde1c050b23c8a641
+source-handoff: d40e769a56adc879173f623d9e2ffe7ece442f56b7fbb2c5542fa3eea01881a3
+source-learnings: 2e8d434b3546263ed9739fa93859e1c0259d82f7b314f627c52acd58f4a2a582
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c691-1f05-7331-86b6-70cc0a1921f3
-readiness-at: 2026-11-10T18:12:07.312Z
-readiness-checkpoint: g730-015553926d2d
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

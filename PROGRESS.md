@@ -50,7 +50,16 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-54/P1-m2 hop 2 IN FLIGHT — PREREGISTRATION COMMITTED `d6bb1274`; m2a EDIT APPLIED to `ocaml/hir/mir_backend.ml`, UNCOMMITTED and NEVER COMPILED; session 01a1c691, renewal 1/12; ZERO oracle; ledger 203/C380; HEAD `d6bb1274`)
+## Next action (E2E-54/P1-m2 hop 3 — **m2a MEASURED GREEN + COMMITTED `ac56dd1d`, m2a gate CLOSED; m2b NOT YET IMPLEMENTED**; session 01a1c6a9 renewal 2/12 → successor; ZERO oracle; ledger 203/C380; HEAD `ac56dd1d`)
+
+DONE first-hand this hop (FULL record + classifications: LEARNINGS § "E2E-54/P1-m2 hop 3" — READ VERBATIM FIRST, then PLAN §P1-m2, binding): the hop-2 m2a draft compiled FIRST TRY; ALL step-2 gates HIT (build rc 0; T1 `172595d5…` DIRECT; T2 clean; hir_test 220 ok/11 UNMOVED/F8; cmp ALL existing pins UNMOVED incl. negatives N3..N21 rc/stderr/zero-artifact). §P1-m2.8 LANDED: N1 stderr re-pinned path-truth; N2 refusal pins deleted, N2.mir additive measured-first pin, N2 POSITIVE value 2; `tools/mir_aot_test.py` amended (stale hardcoded 26-count fixed to measured counter — runner defect, honest) → rc 0 **32 checks** (deviation as pre-registered); console **43** + debug **23** UNMOVED. CF01..CF05+CFN1..CFN2 fixtures/pins MEASURED-FIRST (CRLF+^Z; every MIR line reviewed vs §P1-m2.2; ×2 fresh procs; CFN2 DEVIATION recorded not fitted: measures the E19 CONVERSION refusal — hir_build always inserts Convert 15→3 for a literal into `fixed bin(3)`). NATIVE §P1-m2.6 ALL GREEN: mir2o rc 0 on all five pins (pinned parser ACCEPTS beq/bne/ble/bge + labels + double alloca); cosmo tiny links + static laws; **ALL 15 stdin legs EXECUTED THE §P1-m2.5 BYTES EXACTLY**; C-M2a blt→bge flip EXECUTED THE WRONG ARM (`1\n` vs `-1`) — failed loudly on a DISPOSABLE build/mir-cf/ copy. m2a committed `ac56dd1d` by explicit paths.
+
+SUCCESSOR = execute §P1-m2.13 steps 4–8 VERBATIM, ZERO oracle, in order: (0) baseline at `ac56dd1d`: `cd ocaml && eval "$(opam env)" && dune build` → T1 → T2 → hir_test 220/11 (each OWN command). (1) **MEASURE-FIRST the HIR INTEGER-LITERAL Const shape** (the `P_int 9` grep on CF02.hir.txt returned EMPTY — read hir.ml/hir_build.ml + build/p1m2-scratch/COUNT.pli dump) BEFORE writing step/bound recognisers; read the hop-3 PROPOSED m2b design decisions VERBATIM (point-bound restriction E18 by name; zero-iteration body env sid=[exit,exit]; lower body BEFORE the orbit check so CFN6 fires at the step Assign as predicted; scan body BEFORE any emission). (2) **m2b** per §P1-m2.3 in `ocaml/hir/mir_backend.ml` ONLY (Lh<k>/Lx<k> on shared cf_n; inverted guard EVERY iteration re-evaluated; counted-loop proof; header env IV=[exit,exit], non-IV bodyWriters DROPPED; nested While/CFN4-class IV writes refuse BY NAME; every CF insn rides st_line) → same gates → cmp ALL pins UNMOVED → fixtures CF06..CF10 + CFN3..CFN6 MEASURED-FIRST vs §P1-m2.5 (bytes: count `0\n1\n2\n` dr 3; zero no-stdout dr 5; oneit dr 3; loopcond `9\n2\n` dr 2; stepdn `6\n4\n` dr 2; negatives rc 2 zero stdout no `-o` ×2) → N7 RE-PIN (§P1-m2.8 item 2, stays rc 2, CFN3-class named reason) → native panel (mir2o → cosmo tiny, chmod +x, fresh procs, CF07/CF08 ALSO glibc native_check legs) → **C-M2b** (remove `jmp Lh` from DISPOSABLE build/mir-cf/ CF06 copy — stdout MUST NOT equal `0\n1\n2\n`, prediction `0\n`) observed failing LOUDLY → commit m2b explicit paths.
+
+(3) DWARF §P1-m2.9: CF01 `-g` sidecar reviewed (labels counted, branch/jmp/label rows at IF line); mir2o --debug-map → optlinux → gdb break CF01.pli branch line + both-arm prints (repo-root cwd law, `-batch -nx` debuginfod off, ≤120); CF06 decodedline loop-body row + backedge leg if feasible; M05 pins + debug `.o` sha `cb263c2c…3984782` UNMOVED. (4) Runner `tools/mir_aot_cf_test.py` WRITTEN TO §P1-m2.5/§P1-m2.10 BEFORE FIRST RUN (expected bytes COPIED from the PLAN table, NEVER from output; V0–V5; controls fail loudly inside; fix RUNNER defects only). (5) FULL FROZEN regression T1–T11 EACH OWN command (gate → build/e54p1m2-reg-gate.log FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir 220/11; mir_aot **32** now; cosmo 25; console 43; debug 23; fresh `--build-dir _build-e54p1m2` rc 0 ZERO Error hist **122** sha==kept) → CLOSE RESULTS §P1-m2 (m2a/m2b SEPARATELY + accepted/unsupported matrix + CFN2 deviation + 27→32 deviation + runner-count defect) + arch `docs/architecture/backend-boundary.md` §7-9 + PLAN §P1-m2.14 dashboard CLOSED + durables → **STOP**.
+Standing: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; explicit paths; scratch build/p1m2-scratch + build/mir-cf + build/mir-* NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/build/p1mc-deps NEVER touched; hir/expected+hir/fixtures FROZEN; mir pins ADDITIVE-only except §P1-m2.8 amendments; F8 law; eval "$(opam env)"; rc DIRECT; never batch build+tests; timeout 60 per fixture / 900 per suite / 120 per link / ≤120 gdb; gdb -batch -nx debuginfod off; cosmo chmod +x; bash printf needs `%s\n` for negative stdin; byte-exact leg compares via Python subprocess, NEVER `$(...)`.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m2 hop 2 IN FLIGHT — PREREGISTRATION COMMITTED `d6bb1274`; m2a EDIT APPLIED to `ocaml/hir/mir_backend.ml`, UNCOMMITTED and NEVER COMPILED; session 01a1c691, renewal 1/12; ZERO oracle; ledger 203/C380; HEAD `d6bb1274`)
 
 DONE first-hand: baseline at `5abe9c82` (build rc 0; T1 `172595d5…` DIRECT; T2 clean; ledger 203/C380); **PLAN §P1-m2 pre-registration COMMITTED BEFORE any source byte** (PROTOCOL #1, explicit path, §P1-m2.0–.14); the brief §2-vs-§9 CONTRADICTION (N2/N7 pins freeze the very refusals §2 orders replaced + the straight-line uninitialized message becomes false with joins) resolved IN ADVANCE in §P1-m2.8 (items 0–3: N1 stderr re-measure, N2→POSITIVE value 2 with stale refusal pins DELETED + additive `N2.mir` pin, N7 re-pin at m2b, mir_aot_test.py 27→32 recorded deviation); m2a draft applied per §P1-m2.2 (cf_n labels, join_env drop-not-inherit+hull, lower_cond six relational ops only, no_return_in scan, If arm both shapes riding st_line, Var-None message amendment, recursive cu_scan walk; Hir.While refusal INTENTIONALLY unchanged until m2b). FULL detail + classifications: LEARNINGS § "E2E-54/P1-m2 hop 2" — READ VERBATIM FIRST, then PLAN §P1-m2 (the binding contract).
 
@@ -4043,17 +4052,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 730
-checkpoint-id: g730-015553926d2d
-checkpoint-kind: manual
+checkpoint-generation: 732
+checkpoint-id: g732-238b5edebbac
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-10T18:12:07.211Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-10T18:39:30.327Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9582f8fe0619df6872936775eb528a99eca45b9a69558e9b9c9e0315e96eaedd
-source-handoff: e5702d97f6c9e207ff93623d00afb4f8144b42502cf014d751ed548cf6d50358
-source-learnings: 289620eeaa84cbc81e0dc571debae9a6116a39a02fc61c64aeb17e33d3911086
+source-progress: 1b538ef3bdad6a1ce43d92bf928b9dac6035c6b5b1ffe8cdde1c050b23c8a641
+source-handoff: d40e769a56adc879173f623d9e2ffe7ece442f56b7fbb2c5542fa3eea01881a3
+source-learnings: 2e8d434b3546263ed9739fa93859e1c0259d82f7b314f627c52acd58f4a2a582
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4820,9 +4829,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1c691-1f05-7331-86b6-70cc0a1921f3
-readiness-at: 2026-11-10T18:12:07.312Z
-readiness-checkpoint: g730-015553926d2d
 <!-- guard:end checkpoint -->
 
 ## Blockers
