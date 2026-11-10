@@ -4568,3 +4568,715 @@ measured blocker while m2a stands (brief §12).
 | slice | status | notes |
 |---|---|---|
 | P1-m2 | **CLOSED 2026-11-12** (hops 1–7; m2a `ac56dd1d`, m2b `9672455b`, sidecar fix `f7750038`, runner `2c08a90b` rc 0 **83 measured checks**) | native control flow GREEN end-to-end: IF/ELSE with drop-not-inherit joins and bounded DO WHILE with the exact counted-loop proof; every §P1-m2.5 leg EXECUTED byte-exactly natively; C-M2a/C-M2b/W3 observed failing loudly inside the runner; §P1-m2.8 amendments landed exactly as pre-registered (N2→positive 2, N7 re-pin, 27→32); FULL FROZEN regression ALL HIT; RESULTS §P1-m2 + arch §7-9; **STOP — no next phase authorized without the OPERATOR** |
+
+## §P1-m3 — Pre-registration: native procedure calls (by-value m3a, by-reference/aliasing m3b, value-call Call_e m3c) (committed BEFORE any repository source byte)
+
+Operator authorization (recorded at hops 1–4, LEARNINGS §§ "E2E-54/P1-m3 hop 1/2/3/4" + hop-5
+probe results, READ VERBATIM FIRST): **E2E-54/P1-m3 AUTHORIZED** — extend the native MIR backend
+from one procedure to a REACHED SET of procedures with real calls, through the existing
+HIR → MIR AOT → Cosmopolitan static-ELF pipeline. The OPERATOR BRIEF WAS NEVER SAVED (no
+`build/p1m3-brief-true.md` exists); only the hop-1/hop-2 recorded expectation bytes survive
+(`show` → stdout `5\n4\n`, driver-return 4; `alias(x,x)` → `7\n` ret 7; `alias(x,x+0)` differential
+→ `2\n7\n` ret 7). The fixture programs below are MINE, honoring those recorded values; deviations
+are RECORDED, NEVER fitted. Type of work: **backend engineering, ZERO oracle calls**; nothing here
+is or becomes a DR historical claim — the ledger stays 203 headers ending **C380**. Starting
+reference `b335280a`→`ff3b8c4e`→HEAD (hops 1–5; baseline verified first-hand each hop); this
+pre-registration lands BEFORE any source byte (PROTOCOL #1).
+
+All design authority is MEASURED first-hand against the PINNED lab (`ccc92c5c`/`f541a7a5`, never
+advanced/edited), the pinned `build/p1m0-deps/mir2o` and `build/p1mc-deps` toolchain (never
+edited), the LIVE parser/hir_build/mir_backend, and the pinned MIR syntax law (MIR.md). No
+expected byte below was produced by running the compiler on a fixture pinned below — every
+expectation is hand-derived HERE, BEFORE any run.
+
+### P1-m3.0 Milestones (SEPARATE deliverables)
+
+- **m3a — by-value calls.** A REACHED set of procedures lowers to one MIR module: callee-first
+  emission, per-callee protos, HOME-PASS ABI (§P1-m3.2). Every actual is `A_value` (literal or
+  expression); `Call_s` to a void callee lowers; a value callee ends `RETURN(expr)`. GREEN means:
+  CALL02–CALL05 + CALL09 EXECUTE their §P1-m3.6 bytes natively; every existing pin is byte-UNMOVED
+  (I6); the corruption control C-M3a fails natively; the m3a gate (§P1-m3.12) passes.
+- **m3b — by-reference actuals and aliasing.** `A_reference (D_var)` actuals pass the caller's
+  entry-hoisted HOME; the callee's writes are visible through the alias; env widening after calls;
+  uninitialized-by-ref refusal. GREEN means: CALL01 (`5\n4\n` dr 4), CALL06A (`7\n` dr 7) and the
+  differential CALL06B (`2\n7\n` dr 7) and the mixed-mode discriminator CALL10 (`7\n9\n` dr 9 —
+  see the DEVIATION pre-registered in §P1-m3.10 item 5) EXECUTE exactly; CALLN8/CALLN10 land as
+  predicted (N10 now POSITIVE); C-M3b fails natively; the m3b gate passes.
+- **m3c — value-position calls (`Call_e`).** Admitted ONLY as the whole RHS of an Assign or the
+  whole expression of a Return, all actuals `A_value`; result interval `W(ret-p)`. GREEN means:
+  CALL07/CALL08 EXECUTE; CALLN9 refuses; C-M3c fails natively; the m3c gate passes.
+
+**Complete the m3a gate before implementing ANY m3b byte; the m3b gate before ANY m3c byte.**
+CLOSE after all three (or later milestones closed-DEFERRED with measured blockers while earlier
+ones stand): RESULTS §P1-m3 (m3a/m3b/m3c SEPARATELY), `docs/architecture/backend-boundary.md`
+§7-10, dashboard row, durables, then **STOP** — no next phase is authorized automatically.
+
+### P1-m3.1 MEASURED design facts (hops 1–5, first-hand; this section pre-registers, it does not re-measure)
+
+1. **HIR (hir_build read first-hand, hops 3–4):** passing-mode dispatch is PER-SITE on the ACTUAL
+   syntax: `PM_immediate`/`PM_value_cell` require `ex_ty = formal_ty` (HIR-E17) and yield
+   `A_value`; `PM_own_cell` (bare name) yields `A_reference (D_var sid | D_elem)`; `PM_copy_in`
+   refuses E16; whole-array E15. `Call_s` to a value-returning proc refuses **HIR-E07**
+   ("statement-level call to function <key> discards a value; unlowered in P0") on BOTH arms ⇒ the
+   backend NEVER sees a value-discarding `Call_s` (hop-3 clause FALSIFIED/moot). `Call_e` with no
+   bind RETURNS fact refuses E07 ("has no bind RETURNS fact"). Direct self-recursion refuses E07
+   ("recursive procedure <key> is outside the P0 subset"); MUTUAL recursion is HIR-blind ⇒ BACKEND
+   DFS cycle refusal. HIR-E11 makes folded procedure names unique ⇒ the `pli80_<folded>` symbol is
+   unique by construction; the `_<pid>` collision suffix is UNREACHABLE in the subset (recorded,
+   no fixture, no invented negative). Entry is `procs` head: `pid 0`, `is_main`; `proc` carries
+   `pid/name/scope/params/ret/body`; NO `parent` field — parentage = scope graph (§P1-m3.2 law 2).
+2. **MIR syntax EXECUTION-PROVEN (hop-2 probes + hop-5 y1/y2, all executed green):** callee title
+   carries formals (`func i64, i64:x` = result type FIRST, then arg regs; `func i64:m` = void WITH
+   formals; `func` = void no-formals; `func i64` = value no-formals); formals are NOT in `local`;
+   call row `call <proto>, <name>, <res…>, <args…>` (result operands iff the PROTO has a leading
+   bare result type; the callee name may be a DEFINED func — `R_X86_64_PC32` into .text, nm shows
+   non-exported callee as LOCAL `t`); result regs live in the CALLER locals; per-func register
+   scoping (`t1` reused in two funcs); func items MUST be CALLEE-FIRST (forward def ⇒ mir2o rc 1
+   `undeclared name`); module-scope labels — cross-func branch target or undefined target ⇒ mir2o
+   **SEGFAULT rc 139 SILENT**; duplicate definition ⇒ clean rc 1; `alloca <reg>, 8` at function
+   ENTRY in ANY func; callee store through a passed home is observed by the caller (alias EXEC);
+   by-value write isolation (x8 EXEC 38); caller vregs live across calls (x7 EXEC 111 — NO manual
+   save/restore); **a NO-RESULT func REJECTS `ret <op>`** — measured error VERBATIM: `func
+   pli80_out: in instruction 'ret': number of operands in return does not correspond number of
+   function returns. Expected 0, got 1` ⇒ VOID failure tails end with BARE `ret` (hop-5 y2).
+3. **Backend anchors (first-hand):** refusals today — multi-proc E20 at mir_backend.ml:131 (the arm
+   §P1-m3.9 replaces); `Hir.Call_s` E18 at :922; `Hir.Call_e` E18 at :295; auto vars live in
+   registers `v<sid>`; `fresh ()` numbers `t<k>` module-wide; `cf_n` numbers `Lthen/Lelse/Ljoin/
+   Lh/Lx` module-wide; `declared : Int_map` precision per sid; `v_regs` filters
+   `scope = p.scope && sstorage = Auto`; locals line = ascending `v<sid>` then `st?` then `a1?`
+   then ascending `t<k>`; protos used-only, fixed relative order, BEFORE the ONE import line;
+   `exit` ALWAYS imported (failure tail). Diagnostic codes (diagnostic.ml): backend E18 node /
+   E19 numeric / E20 export (NOT E13).
+4. **Fixture/pin law (unchanged):** new inputs CRLF+`^Z` in the NEW ADDITIVE directories
+   `hir/mir-call-fixtures/`, pins (MEASURED-FIRST `cp` after line-by-line review vs this section,
+   NEVER hand-written) in `hir/mir-call-expected/`; generated with `build/p1m2-scratch/mkpli.py`;
+   negatives pin rc + stderr bytes with ZERO stdout and NO `-o` file, ×2 fresh processes.
+
+### P1-m3.2 ABI and emission contract (`ocaml/hir/mir_backend.ml` ONLY; THE binding law)
+
+1. **Selection:** `prog.procs` non-empty; entry = head (`pid 0`); `--export` must fold-equal the
+   ENTRY name (the existing message shape stays); entry `params = []` and entry `ret = Some
+   Fixed_bin(p,0)` keep their EXISTING E20 refusals (entries remain value-returning,
+   zero-parameter — unchanged law).
+2. **Reachability + validation (pre-lowering scans, in this order):**
+   (a) NESTING: for every NON-ENTRY proc p whose scope has a CHILD scope (a proc lexically inside
+   a subsidiary — the CAND09/depth-2 shape), refuse E18 by name ("a nested procedure inside a
+   subsidiary procedure is outside the native subset"); the scan runs for ALL non-entry procs
+   BEFORE dropping, so an unreached depth-2 proc still refuses (CALLN6). Nesting inside the ENTRY
+   (ordinary siblings) is the accepted shape.
+   (b) DFS from the entry over `Call_s`/`Call_e` pids (arguments left-to-right, statements in
+   source order); a revisit of a node ON THE CURRENT PATH ⇒ refuse E18 NAMING the cycle path; a
+   direct self-call is caught HIR-side first and never reaches here.
+   (c) UNREACHED procs are **DROPPED** from the artifact (their bodies were never lowered; bind
+   already validated them) — the CALL09 pin falsifies the drop.
+   (d) per reachable proc: portable folded name; every `dcl` row inside the proc already lowers
+   `Declare sid` (formals included — the existing `declare` must route `sstorage = Formal` as the
+   already-registered arg register instead of refusing); formal `dcl` type must equal the
+   `bin_p`-admitted type; a VALUE callee's FINAL body statement must be `Return (Some expr)`
+   (fall-through or bare `RETURN;` ⇒ E18 by name); a VOID callee's tail is a bare `ret`; a `Return
+   (Some …)` inside a VOID callee and early/`If`/`While`-nested `Return` keep the EXISTING
+   subsidiary refusals.
+3. **Emission order:** func items in DFS POST-ORDER (callees before callers; ties resolved by
+   ascending pid), entry LAST and the ONLY `export`. Module layout (multi-proc):
+   `M0:\tmodule` / callee protos `pc<pid>:\tproto\t[i64, ][i64:v<s1>[, i64:v<s2>…]]` (used-only,
+   ascending pid; a value callee has the LEADING BARE `i64` result) / console protos (existing
+   fixed relative order, used-only across ALL funcs) / the ONE import line (existing canonical
+   order + `exit`) / func items / `\texport pli80_<entry-folded>` / `\tendmodule`. SINGLE-proc
+   programs emit the CURRENT bytes EXACTLY (no `pc0`, `Lfail`, same lines) — falsifier I6.
+4. **Func item shape:** title `pli80_<folded>:\tfunc\t[i64, ][i64:v<s1>[, …]]` (bare leading
+   result type iff the proc `ret <> None`; formal regs in DECLARATION order, EXCLUDED from the
+   locals line; callee accesses formals ONLY via `i64:(v<sid>)`). Locals line, ascending within
+   each class: own `Auto` ascending `v<sid>`; then `st` (iff THIS func contains any console call);
+   then `a1` (iff this func contains GET); then `h<sid>` (this func's by-ref homes, ascending sid,
+   m3b); then `hv<k>` (this func's value cells, ascending k, m3b); then the func's `t<k>` temps in
+   MODULE-WIDE ascending numbering (the existing `fresh ()` counter continues across funcs).
+   Entry hoists (`alloca <reg>, 8` as the first instructions after `func`/`local`): `a1` (GET law,
+   existing), then each `h<sid>`, then each `hv<k>` — ALL hoisted at ENTRY, never at the call site
+   (no per-iteration stack growth).
+5. **Failure tails:** per func, after its final `ret`: `Lfail_0:` (entry pid 0) / `Lfail_<pid>:`
+   (subsidiary) with `call p_exit, exit, st` then **`ret st` in the ENTRY (value func)** and **BARE
+   `ret` in EVERY VOID func** (hop-5 measured law; the exit call never returns anyway). When the
+   REACHED set is exactly one func the tail is the EXISTENT shared `Lfail:` with `ret st` —
+   byte-frozen (I6). `p_exit`'s proto carries the leading bare `i64` result so the `call …, st`
+   row is legal in void funcs too.
+6. **Actual lowering (HOME-PASS; one representation for ALL sites):** every call passes ADDRESSES.
+   - `A_value x`: lower `x` in the CALLER env through the existing `lower` (its own window proof;
+     E17 typing already HIR-side) → `rv`; fresh cell `hv<k>` (module-wide counter):
+     `alloca hv<k>, 8` hoisted at caller entry + `mov i64:(hv<k>), <rv>` immediately before the
+     `call`; pass `hv<k>`. The cell is REWRITTEN at every call and NEVER read back by the caller
+     (copy semantics). One `hv<k>` PER (call-site, argument-position); a call inside a loop reuses
+     its cells.
+   - `A_reference (D_var sid)` (m3b): sid must be an `Auto` of the CALLER proc (else E18 by name);
+     `D_elem` refuses E18 (arrays outside the subset). The caller gives sid a HOME `h<sid>` for the
+     WHOLE func: `alloca h<sid>, 8` at entry; while designated, EVERY read/write of sid rides
+     `i64:(h<sid>)` (the var has NO register). If the caller env proves sid UNINITIALIZED
+     (`find_opt = None`) at the call site, refuse E19 by name (the callee could read garbage). The
+     HOME REG `h<sid>` is passed.
+   - The callee's formal sids enter the callee env with interval `W(formal-precision)` (a sound
+     over-approximation; no caller-interval propagation in m3).
+7. **Call rows:** void callee (`Call_s`): `call pc<pid>, pli80_<folded>, <argregs…>` (NO result
+   operand). Value callee (`Call_e`, m3c): the CALLER declares one fresh result reg `r<k>` in ITS
+   locals (class order after `hv<k>`, ascending) and emits `call pc<pid>, pli80_<folded>, r<k>,
+   <argregs…>`; the result interval is `W(ret-p)` (no interprocedural value propagation — sound
+   over-approximation); the value-position admission is §P1-m3.5.
+8. **Env law across calls (brief-safety core):** after a call, EVERY caller sid designated by a
+   by-ref actual in that call widens to its declared `W(p)` (I2); by-value actuals change NOTHING
+   (x8 write-isolation; the value cell is dead afterwards); caller locals NOT passed keep their
+   env (x7 live-across-call is a MIR-allocator property, PROVEN). Window checks (I1) keep
+   validating every read.
+9. **`-g` / `--debug-map` with a REACHED multi-proc set:** refuse E18 BY NAME (the §P1-mD.3 sidecar
+   format is hard single-func: one `func 0`, one instruction table). Single-proc `-g` bytes stay
+   byte-frozen.
+10. **Label law (hop-2 SEGFAULT hazard):** every branch target (`Lfail_<pid>`, `Lthen/Lelse/Ljoin/
+    Lh/Lx`) is defined IN THE SAME func and is module-unique; `cf_n` stays module-wide.
+
+### P1-m3.3 m3a scope precisely
+
+Items 1–5, 6 (`A_value` only), 7 (void), 8 (by-value half), 10, plus the `Hir.Call_s` arm replacing
+mir_backend.ml:922 and the E20 arm replacement (§P1-m3.9). An `A_reference` actual refuses E18 BY
+NAME ("by-reference actual argument N of call to <key> is admitted at milestone P1-m3b") — this is
+CALLN10, the milestone discriminator, DELETED at m3b landing (§P1-m3.9 item 2).
+
+### P1-m3.4 m3b scope precisely
+
+Item 6 `A_reference`/home law + item 8 widening + uninitialized-by-ref E19 + `D_elem` E18; the
+CALLN10 arm DELETED and its fixture re-measured as POSITIVE behaviour (its PASS is part of the m3b
+gate); CALL01/06A/06B/10 fixtures + pins + native legs; C-M3b.
+
+### P1-m3.5 m3c scope precisely
+
+`Hir.Call_e` lowers ONLY in the two admitted shapes: `Assign (D_var sid, ex)` where `ex` is the
+`Call_e` node WHOLE, and `Return (Some ex)` where `ex` is the WHOLE expression (value callee as the
+FINAL statement — the value-entry law). A `Call_e` anywhere else (inside a `Bin`, a `Convert`, a
+PUT item, a GET target, a condition operand) refuses E18 by name (CALLN9). All actuals must be
+`A_value`; a value callee MUST end `RETURN(expr)` (law 2d). Result reg + interval per §P1-m3.2-7.
+Value callees reached ONLY via `Call_e` may now also be VOID-mixed; CALL05/CALL08 pin both tail
+shapes.
+
+### P1-m3.6 Fixtures and INDEPENDENT expected results (recorded HERE, BEFORE any run)
+
+All files CRLF+`^Z` via `build/p1m2-scratch/mkpli.py`. `--export` names the ENTRY (folded,
+case-insensitive). Value legs run BOTH the glibc `native_check` driver (`-DENTRY=pli80_<entry>
+-DEXPECTED=<v>`, stdout `<v>\n`, rc 0) AND the cosmo-tiny console-driver leg (stdout EXACT, stderr
+`driver-return=<v>\n`, rc 0). Every derivation is by PL/I semantics ONLY — never from generated
+MIR.
+
+POSITIVE — m3a (no by-ref actuals; every bare-name use is m3b):
+
+CALL02.pli — entry `call02` (void callee with a LOCAL, expression actual):
+
+    call02: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 2;
+       call side(4 + x);
+       put list(x);
+       return (x);
+       side: procedure(n);
+          dcl n fixed bin(15);
+          dcl t fixed bin(15);
+          t = n + 1;
+       end side;
+    end call02;
+
+  Hand-derivation: x = 2; actual 4+2 = 6 by value; side computes t = 7 into a LOCAL — x is
+  UNTOUCHED; `put list(x)` prints 2. Expected: **stdout `2\n`, driver-return=2, native_check
+  EXPECTED=2**, rc 0. (Honors the CAND06 program verbatim.)
+
+CALL03.pli — entry `two` (two calls; live-across-call; NO console ⇒ no stdout at all):
+
+    two: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 30;
+       call side(5);
+       x = x + 7;
+       call side(9);
+       return (x);
+       side: procedure(m);
+          dcl m fixed bin(15);
+       end side;
+    end two;
+
+  Derivation: 30 + 7 = 37; the void callee reads nothing. Expected: **native_check EXPECTED=37
+  stdout `37\n` rc 0; tiny console-driver stdout `` (EMPTY), `driver-return=37\n`, rc 0**.
+
+CALL04.pli — entry `chain` (transitive chain entry→mid→leaf; console PUT inside the DEEPEST
+callee; all actuals by value via `+ 0`):
+
+    chain: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 51;
+       call mid(x + 0);
+       x = x + 40;
+       return (x);
+       mid: procedure(m);
+          dcl m fixed bin(15);
+          dcl t fixed bin(15);
+          t = m + 40;
+          call leaf(t + 0);
+       end mid;
+       leaf: procedure(d);
+          dcl d fixed bin(15);
+          put list(d);
+       end leaf;
+    end chain;
+
+  Derivation: mid receives 51; t = 91; leaf PUTs 91 (`91\n`); leaf cannot write d's actual; x = 51
+  + 40 = 91. Expected: **stdout `91\n`, driver-return=91, EXPECTED=91**, rc 0. (The `91` coincidence
+  is arithmetic, not fitted: 51 + 40 = 91 and 51 + 40 = 91.)
+
+CALL05.pli — entry `retvoid` (VOID callee ending with BARE `RETURN;` — the law decision of this
+pre-registration: a void callee's `Return None` lowers to bare `ret`; a VALUE callee with
+fall-through or bare `RETURN;` refuses E18 by name; hop-3 "DECIDE + WRITE"):
+
+    retvoid: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 9;
+       call nope(1);
+       return (x);
+       nope: procedure(a);
+          dcl a fixed bin(15);
+          RETURN;
+       end nope;
+    end retvoid;
+
+  Derivation: callee writes nothing reachable; returns 9. Expected: **EXPECTED=9 (stdout `9\n`);
+  tiny stdout ``, `driver-return=9\n`, rc 0**.
+
+CALL09.pli — entry `uncalled` (unreached-sibling DROP POSITIVE — the pin MUST show exactly TWO
+func items, `pli80_dsub` then `pli80_uncalled`; `pli80_dead` ABSENT):
+
+    uncalled: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 3;
+       call dsub(x + 0);
+       return (x);
+       dsub: procedure(q);
+          dcl q fixed bin(15);
+       end dsub;
+       dead: procedure(r);
+          dcl r fixed bin(15);
+       end dead;
+    end uncalled;
+
+  Derivation: dead is unreached; x = 3 unchanged. Expected: **EXPECTED=3; tiny stdout ``,
+  `driver-return=3\n`, rc 0**; pin law above is a REVIEW criterion (a dead func present =
+  falsifier).
+
+POSITIVE — m3b (by-reference homes; the recorded brief values):
+
+CALL01.pli — entry `main3` (the brief's `show` CONTRACT `5\n4\n` dr 4; program mine — the brief was
+never saved; `show` receives x by REFERENCE and PUTs it):
+
+    main3: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 5;
+       call show(x);
+       put list(4);
+       return (4);
+       show: procedure(b);
+          dcl b fixed bin(15);
+          put list(b);
+       end show;
+    end main3;
+
+  Derivation: x = 5 designated; show PUTs the home's value 5; main PUTs literal 4; returns 4. The
+  MIR-level bytes of exactly this program were ALREADY EXECUTED by probe y2 (hop 5). Expected:
+  **stdout `5\n4\n`, `driver-return=4\n`, rc 0; EXPECTED=4** (the recorded brief bytes VERBATIM).
+
+CALL06A.pli — entry `aliasin` (aliasing; brief family `7\n` dr 7):
+
+    aliasin: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 2;
+       call alias(x, x);
+       put list(x);
+       return (x);
+       alias: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          b = 7;
+          a = b;
+       end alias;
+    end aliasin;
+
+  Derivation: BOTH actuals designate the SAME home h(x); `b = 7` writes x := 7; `a = b` reads 7
+  writes 7; caller PUTs 7, returns 7. Expected: **stdout `7\n`, `driver-return=7\n`, EXPECTED=7**
+  (recorded brief value honored).
+
+CALL06B.pli — entry `diffal` (the DIFFERENTIAL: same aliasing callee, second actual a VALUE copy
+⇒ the callee sees the PRE-CALL value; binding text, single version):
+
+    diffal: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 2;
+       call alias(x, x + 0);
+       put list(x);
+       return (x);
+       alias: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          a = 7;
+          put list(b);
+       end alias;
+    end diffal;
+
+  Derivation: `a` designates x's home; `b` is a value cell holding the PRE-CALL copy 2. Inside the
+  callee `a = 7` writes x := 7 through the home; `put list(b)` prints the COPY 2; the caller then
+  PUTs x = 7 and returns 7. Expected: **stdout `2\n7\n`, `driver-return=7\n`, EXPECTED=7** (the
+  recorded brief differential VERBATIM — the copy-vs-alias DISCRIMINATOR: a wrong ABI passing x's
+  home twice would print `7\n7\n`).
+
+CALL10.pli — entry `mixmod` (MIXED-MODE discriminator: ONE callee whose BOTH formals are
+designated at site 1 and VALUES at site 2 — impossible under any per-formal fixed representation;
+the HOME-PASS law makes it legal; binding text, single version):
+
+    mixmod: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       dcl y fixed bin(15);
+       x = 2;
+       y = 2;
+       call clob(x, x);
+       put list(x);
+       call clob(20, 40);
+       x = x + y;
+       return (x);
+       clob: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          b = 3;
+          a = 7;
+       end clob;
+    end mixmod;
+
+  Derivation (binding): site 1 passes BOTH actuals by reference (same home h(x)); `b = 3` writes
+  x := 3; `a = 7` writes x := 7; `put list(x)` prints **7**. Site 2 passes VALUES 20 and 40 into
+  the two value cells; the callee writes ONLY the cells (b's cell ← 3, a's cell ← 7) — caller
+  x = 7 and y = 2 are UNCHANGED (by-value write isolation); `x = x + y` = 9. Expected: **stdout
+  `7\n9\n`, `driver-return=9\n`, EXPECTED=9**. **DEVIATION PRE-REGISTERED (§P1-m3.10 item 5):
+  the hop-4 panel sketched `7\n34\n` dr 48 for a program whose text was never saved; with the
+  hop-4 callee shape (`b = 7; a = b;`) the sketch leaves `y` UNINITIALIZED at `x = x + y` —
+  honestly UNDERIVABLE; this binding text replaces the sketch, recorded BEFORE any run.**
+
+POSITIVE — m3c (Call_e whole shapes):
+
+CALL07.pli — entry `thrice` (whole-RHS Assign; three value actuals):
+
+    thrice: procedure returns(fixed bin(15));
+       dcl z fixed bin(15);
+       z = thrice3(1, 2, 3);
+       put list(z);
+       return (z);
+       thrice3: procedure(a, b, c) returns(fixed bin(15));
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          dcl c fixed bin(15);
+          dcl t fixed bin(15);
+          t = a + b + c;
+          return (t);
+       end thrice3;
+    end thrice;
+
+  Derivation: 1+2+3 = 6. Expected: **stdout `6\n`, `driver-return=6\n`, EXPECTED=6**.
+
+CALL08.pli — entry `wret` (whole-Return Call_e; honors hop-3's recorded `ret 42`; value actual is
+an EXPRESSION so no by-ref is involved):
+
+    wret: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 41;
+       return (addone(x + 0));
+       addone: procedure(n) returns(fixed bin(15));
+          dcl n fixed bin(15);
+          dcl t fixed bin(15);
+          t = n + 1;
+          return (t);
+       end addone;
+    end wret;
+
+  Derivation: (41+0) + 1 = 42. Expected: **EXPECTED=42 (stdout `42\n`); tiny stdout ``,
+  `driver-return=42\n`, rc 0**.
+
+NEGATIVE (each predicted code + REFUSING LAYER; rc 2, ZERO stdout, NO `-o` file, ×2 fresh
+processes; MEASURED-FIRST — a deviation is RECORDED, never fitted):
+
+| id | entry (export) | program | PREDICTED refusal | LAYER | milestone |
+|---|---|---|---|---|---|
+| CALLN1 | `pval` | `pv: procedure(n) returns(fixed bin(15)); dcl n fixed bin(15); return (n); end pv;` entry `y = pv(1);` | E07 `procedure pv used as a value: P0 admits calls only` | HIR | all |
+| CALLN2 | `disc` | entry calls `call addone(1);` where addone RETURNS a value | E07 `statement-level call to function addone discards a value; unlowered in P0` | HIR | all |
+| CALLN3 | `nar` | `call side(5);` where `side: procedure(a, b);` (arity 2, called with 1) | E07 `call to side passes 1 arguments to 2 bind-registered formals` | HIR | all |
+| CALLN4 | `cyc` | entry `cyc` → `call p1(1);`; `p1(n): call p2(n);`; `p2(n): call p1(n);` (3-node cycle, CAND07) | E18 naming the cycle path | BACKEND | all |
+| CALLN5 | `vusage` | `z = side2(5);` where `side2` is VOID (no RETURNS fact) | E07 `procedure side2 has no bind RETURNS fact: value use unlowered` | HIR | all |
+| CALLN6 | `nest2` | CAND09 shape: entry → `call mid(x + 0);`, `mid` CONTAINS `deep` (deep NEVER called) | E18 nested procedure outside the subset (validation scan, unreached does NOT rescue) | BACKEND | all |
+| CALLN7 | `main3` (CALL01 text) | SAME program compiled with `-g --debug-map <map>` | E18 multi-proc debug refusal BY NAME; NO `.mir`, NO map written | BACKEND | m3b+ |
+| CALLN8 | `uninit` | `dcl y …; call alias(y, y);  y = 1; …` (by-ref actual of a NEVER-ASSIGNED var) | E19 uninitialized-by-reference refusal | BACKEND | m3b |
+| CALLN9 | `deep9` | `z = thrice3(1, 2, 3) + 5;` (Call_e INSIDE a larger expression) | E18 value-position call outside the whole-RHS/whole-Return shapes | BACKEND | m3c |
+| CALLN10 | `refm3a` | `x = 2; call clob2(x, x); …` with clob2 void writing formals (CALL10-site shape) | m3a: E18 by-reference actual admitted only at milestone m3b; **TRANSITIONAL — DELETED at m3b landing**, fixture then must lower clean (m3b gate) | BACKEND | m3a only |
+
+NEGATIVE program texts (binding, full; CRLF+`^Z`; the PREDICTED reasons above cite these exact
+programs):
+
+CALLN1.pli — entry `pval` (procedure used as a value; HIR):
+
+    pval: procedure returns(fixed bin(15));
+       dcl y fixed bin(15);
+       y = pv(1);
+       return (y);
+       pv: procedure(n) returns(fixed bin(15));
+          dcl n fixed bin(15);
+          return (n);
+       end pv;
+    end pval;
+
+CALLN2.pli — entry `disc` (statement call discarding a value; HIR):
+
+    disc: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 1;
+       call addone(x + 0);
+       return (x);
+       addone: procedure(n) returns(fixed bin(15));
+          dcl n fixed bin(15);
+          dcl t fixed bin(15);
+          t = n + 1;
+          return (t);
+       end addone;
+    end disc;
+
+CALLN3.pli — entry `nar` (arity mismatch; HIR):
+
+    nar: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 1;
+       call side(x + 0);
+       return (x);
+       side: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+       end side;
+    end nar;
+
+CALLN4.pli — entry `cyc` (3-node cycle; BACKEND DFS names the path):
+
+    cyc: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 1;
+       call p1(x + 0);
+       return (x);
+       p1: procedure(n);
+          dcl n fixed bin(15);
+          call p2(n + 0);
+       end p1;
+       p2: procedure(n);
+          dcl n fixed bin(15);
+          call p1(n + 0);
+       end p2;
+    end cyc;
+
+CALLN5.pli — entry `vusage` (value use of a VOID callee; HIR E07 no-RETURNS):
+
+    vusage: procedure returns(fixed bin(15));
+       dcl z fixed bin(15);
+       z = side2(5);
+       return (z);
+       side2: procedure(m);
+          dcl m fixed bin(15);
+       end side2;
+    end vusage;
+
+CALLN6.pli — entry `nest2` (depth-2 nesting, CAND09 shape; BACKEND; the nested `deep` is NEVER
+called — unreached does NOT rescue):
+
+    nest2: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 4;
+       call mid(x + 0);
+       return (x);
+       mid: procedure(m);
+          dcl m fixed bin(15);
+          dcl u fixed bin(15);
+          u = m;
+          deep: procedure(dd);
+             dcl dd fixed bin(15);
+             dd = 1;
+          end deep;
+       end mid;
+    end nest2;
+
+CALLN7 — NO separate program: the CALL01.pli text compiled with `-g --debug-map <map>` (backend
+multi-proc debug refusal; pins rc 2 + stderr, NO `.mir`, NO map file).
+
+CALLN8.pli — entry `uninit` (by-ref actual of a NEVER-ASSIGNED variable; BACKEND E19; m3b):
+
+    uninit: procedure returns(fixed bin(15));
+       dcl y fixed bin(15);
+       call al(y, y);
+       y = 1;
+       return (y);
+       al: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          a = 1;
+       end al;
+    end uninit;
+
+CALLN9.pli — entry `deep9` (Call_e INSIDE a larger expression; BACKEND; m3c):
+
+    deep9: procedure returns(fixed bin(15));
+       dcl z fixed bin(15);
+       z = thrice3(1, 2, 3) + 5;
+       return (z);
+       thrice3: procedure(a, b, c) returns(fixed bin(15));
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          dcl c fixed bin(15);
+          dcl t fixed bin(15);
+          t = a + b + c;
+          return (t);
+       end thrice3;
+    end deep9;
+
+CALLN10.pli — entry `refm3a` (by-ref actual at m3a; TRANSITIONAL, deleted at m3b):
+
+    refm3a: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 2;
+       call clob2(x, x);
+       return (x);
+       clob2: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          a = 7;
+       end clob2;
+    end refm3a;
+
+SELF-RECURSION note (accepted pre-registered fact, NO new fixture): `rp: procedure(n); call
+rp(n); end rp;` refuses HIR-E07 `recursive procedure rp is outside the P0 subset` (read first-hand
+at hir_build.ml:425) — HIR-side, never reaches the backend DFS.
+
+### P1-m3.7 Native validation panel methodology (per positive; §P1-m2.6 idiom)
+
+(1) pipeline proof `pli80hir.exe <fixture>` rc 0 (HIR admits); (2) `pli80mir --export <entry> -o
+X.mir fixture` TWICE in FRESH processes — `-o` file byte-equal to the reviewed
+`hir/mir-call-expected/<id>.mir` pin (EVERY line reviewed against §P1-m3.2 BEFORE the `cp`; the
+pin is NEVER hand-written); (3) `build/p1m0-deps/mir2o -f X.mir X.o` rc 0 (pinned-parser acceptance;
+THIS run is the syntax authority); (4) glibc leg `gcc -O0 -DENTRY=pli80_<entry> -DEXPECTED=<v>
+tools/mir_aot/native_check.c X.o -o …` + EXEC (stdout `<v>\n`, rc 0); (5) cosmo TINY console leg
+(`tools/mir_aot/cosmo_link.sh tiny`, WITH `tools/mir_aot/pli_console.c` + `console_check.c`,
+timeout 120, `chmod +x`, fresh-process exec vs the §P1-m3.6 bytes; console fixtures MUST link
+`pli_console.c`); (6) static laws: no `PT_INTERP`, no dynamic section, `nm T pli80_<entry>` and
+subsidiaries present as LOCAL `t` symbols; (7) negatives: rc 2 + stderr pins + ZERO stdout + NO `-o`
+file, ×2. Timeouts 60 per leg.
+
+### P1-m3.8 Corruption controls (non-vacuity; DISPOSABLE copies under `build/p1m3-scratch/` ONLY — never a pin, never the compiler)
+
+- **C-M3a (order law):** take a measured m3a pin `.mir` copy and move the CALLEE func item AFTER
+  its caller (the x5-proven failure); re-`mir2o` MUST FAIL (rc 1 `undeclared name`) — the native
+  panel step for the perturbed copy fails LOUDLY (a link/exec that silently succeeds = falsifier
+  that the control is vacuous).
+- **C-M3b (home vs value):** on a DISPOSABLE CALL06B copy, replace the by-ref actual register
+  `h<sid>` in the FIRST call row with the caller's value copy (pass `hv<…>` for BOTH args — the
+  wrong ABI); re-`mir2o`, link, EXEC: stdout MUST NOT equal `2\n7\n` (prediction `7\n7\n` — the
+  alias dies). Observed failing LOUDLY inside the runner.
+- **C-M3c (result corruption):** on a DISPOSABLE CALL07 copy, insert `add <rt>, <rt>, 1`
+  immediately BEFORE the callee's final `ret <rt>` (perturb the RETURNED value only). Re-`mir2o`
+  (rc 0 expected — the artifact stays valid), link the glibc driver with the ORIGINAL
+  `-DEXPECTED=6`: the EXECUTED value is 7 ⇒ `native_check` rc 1 ⇒ the native panel step for the
+  perturbed copy fails LOUDLY; the runner treats a control that PASSES (executes 6) as SUITE
+  FAILURE.
+- Every control MUST be OBSERVED failing first-hand during its milestone; a control that executes
+  the CORRECT bytes is itself a falsifier (the test is vacuous).
+
+### P1-m3.9 Pre-registered amendments to PRE-EXISTING artifacts (the complete list; nothing else moves)
+
+- **item 1 (E20 arm replacement):** the blanket multi-proc refusal at mir_backend.ml:131
+  ("P1-m0 exports exactly one procedure…") is REPLACED by the §P1-m3.2-1/2 selection+validation
+  arms. NO pre-existing pinned negative exercises the multi-proc arm (grep of every
+  `hir/mir-expected/*.stderr.txt` + `hir/mir-cf-expected/*.stderr.txt` for `exactly one procedure`
+  is EMPTY — verified first-hand this hop), so NO existing pin changes.
+- **item 2 (TRANSITIONAL CALLN10):** the m3a by-ref refusal + its fixture/pins are DELETED at m3b
+  landing (the §P1-m2.8 idiom); the deletion is pre-registered HERE; the CALL10/CALL06 family then
+  covers the same code as POSITIVES.
+- **item 3 (multi-func `Lfail` rename):** ONLY when the REACHED set has >1 func; the SINGLE-func
+  artifact keeps `Lfail:` byte-EXACT (I6 falsifier).
+- FROZEN FALSIFIERS (byte-IDENTICAL through ALL of m3a/m3b/m3c): EVERY `hir/mir-expected/*` (M01–
+  M06, N2.mir, all N*.rc/.stderr.txt), EVERY `hir/mir-cf-expected/*`, `hir/mir-debug-expected/*`
+  (M05.p1md), the CT2 `.o` shas `78656e6c…/3822f777…/02c15b1b…`, the debug `.o`
+  `cb263c2c…3984782`. Suite counts: `mir_aot_test.py` **32**, cosmo **25**, console **43**, debug
+  **23**, CF **83** — all UNMOVED; the gate **1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose
+  5**; fresh `--build-dir _build-e54p1m3` hist **122** sha == kept `172595d5…`; hir_test **220
+  ok**/11 numbers UNMOVED. `ocaml/lib`, `ocaml/bin`, `hir/expected`, `hir/fixtures` stay
+  byte-clean (T2).
+
+### P1-m3.10 Deviations recorded IN ADVANCE (honest, never fitted)
+
+1. hop-4 pre-registered the void failure tail as `ret st`; mir2o REJECTED it (hop-5 measured
+   VERBATIM); the LAW is bare `ret` on void tails — §P1-m3.2-5 states the measured law.
+2. The brief was never saved; the CALL fixture PROGRAMS are mine, honoring the recorded bytes
+   `5\n4\n`/`7\n`/`2\n7\n` exactly where an honest program yields them.
+3. The `_<pid>` collision suffix is UNREACHABLE (HIR-E11) — the code path may exist but NO fixture
+   exercises it (recorded like CFN6).
+4. The narrow-formal/window-overflow-at-formal class is UNEXERCISABLE (E17 typing: every literal/
+   binop actual is `FIXED BINARY(15,0)`) — no fixture (recorded).
+5. The hop-4 CALL10 note `7\n34\n` dr 48 was NEVER reproducible from any initialized program whose
+   text survives; the settled CALL10 (with `dcl y; y = 2`) derives `7\n9\n` dr 9 — recorded HERE
+   BEFORE any run (this pre-registration OVERRIDES the hop-4 sketch; the hop-4 panel was explicitly
+   "full texts + independent derivations GO IN THE PLAN").
+6. The CALL panel check count is MEASURED (no formula), like the CF 27→32 precedent.
+
+### P1-m3.11 Numeric-safety invariants (NEVER weakened; falsifiers if violated)
+
+- I1 the window law unchanged (every arithmetic read proved inside its declared window, incl.
+  inside every subsidiary body).
+- I2 no read EVER lowers with a `Some` that a call could invalidate: by-ref-designated sids widen
+  to `W(declared)` after each call that passes them; uninitialized-by-ref refuses E19.
+- I3 by-value isolation: a `Call_e`/`Call_s` result carries `W(ret-p)`/callee-env intervals ONLY;
+  no caller interval survives into a callee and vice versa (no interprocederal propagation is
+  claimed).
+- I4 the DROP law never drops a DESIGNATED home's initialization state silently past a widening —
+  widening is monotone to `W(p)`, never to `Some` narrower.
+- I5 label law: every branch target same-func + module-unique (SEGFAULT hazard).
+- I6 SINGLE-proc bytes byte-identical to every existing pin (mir + cf + debug + `.o` shas above).
+
+### P1-m3.12 Gate and falsifiers (each a STOP-and-attribute gate)
+
+**m3a gate:** build → T1 `172595d5…` DIRECT → T2 clean → hir_test 220/11 → cmp EVERY mir + CF pin
+UNMOVED; CALL02–CALL05 + CALL09 pins reviewed + native legs (§P1-m3.7) green; CALLN1–CALLN6 +
+CALLN10 refuse as predicted (layers included); C-M3a observed failing loudly.
+**m3b gate (BEFORE any m3c byte):** all of m3a re-green; CALL01/06A/06B/10 green natively (brief
+bytes VERBATIM); CALLN7/CALLN8 predicted refusals; CALLN10 fixture now POSITIVE (arm deleted);
+C-M3b loud.
+**m3c gate:** all prior re-green; CALL07/08 green; CALLN9 refuses; C-M3c loud.
+FROZEN regression (T1–T11, each OWN command): gate → `build/e54p1m3-reg-gate.log` FROZEN ALL HIT;
+T3 220/11; mir_aot 32; cosmo 25; console 43; debug 23 (repo root); CF 83; fresh `_build-e54p1m3`
+hist 122 sha == kept; T10 = NEW `tools/mir_aot_call_test.py` (measured count, controls loud inside);
+T11 ZERO oracle, ledger 203/C380, config unstaged.
+
+### P1-m3.13 Work order (successor contract — exact order)
+
+1. **THIS COMMIT:** pre-registration §P1-m3 (explicit path `spec/lab-evidence/e2e54/PLAN.md`)
+   BEFORE any source byte (PROTOCOL #1).
+2. **m3a** in `ocaml/hir/mir_backend.ml` ONLY (+ the `declare` Formal routing if needed) → gates
+   each OWN command (build → T1 → T2 → hir 220/11 → cmp ALL pins UNMOVED) → measured-first
+   ADDITIVE `hir/mir-call-fixtures/CALL02–CALL05, CALL09, CALLN1–CALLN6, CALLN10.pli` +
+   `hir/mir-call-expected/` pins → §P1-m3.7 native legs → C-M3a LOUD → commit explicit paths =
+   **m3a gate CLOSED**.
+3. **m3b** (§P1-m3.4) → same gates → CALL01/06A/06B/10 + CALLN7/CALLN8 measured-first; CALLN10
+   deletion (fixture + pins removed as §P1-m3.9-2) → native → C-M3b LOUD → commit = **m3b gate**.
+4. **m3c** (§P1-m3.5) → gates → CALL07/08 + CALLN9 → C-M3c LOUD → commit = **m3c gate**.
+5. Runner `tools/mir_aot_call_test.py` WRITTEN TO §P1-m3.6/.7 (expected bytes COPIED from this
+   section, NEVER from output) BEFORE its first run; run FROM REPO ROOT; fix RUNNER defects only;
+   controls failing LOUDLY inside → commit explicit path.
+6. FULL FROZEN regression T1–T11 each OWN command.
+7. CLOSE: RESULTS §P1-m3 (m3a/m3b/m3c SEPARATELY + T-panel WITH values + deviations + matrix +
+   reproduction + commit chain), `docs/architecture/backend-boundary.md` §7-10, dashboard row
+   CLOSED, durables + guard attest → **STOP** — no next phase authorized without the OPERATOR.
+
+### P1-m3.14 Complexity-stop thresholds and FORBIDDEN routes
+
+STOP-and-attribute (exact reproducer) if: the pinned parser refuses ANY §P1-m3.1-2 proven shape at
+a fixture; a per-func register/temp interaction forces a redesign (hop-2 scoping is PROVEN); any
+pre-existing byte moves outside §P1-m3.9; a value cell's stack growth cannot be hoisted; a cosmo
+leg needs a toolchain change. FORBIDDEN ever: weakening I1–I5; interprocedural value analysis;
+early/nested `RETURN` in subsidiaries; arrays/`D_elem`; FILE streams; `PUT EDIT`; changing
+`pli_console.c`/`console_check.c`/`mir2o.c`/`cosmo_link.sh`; touching lab/deps; re-pinning a
+failing native test to its output; oracle runs. Later milestone bytes BEFORE its gate: FORBIDDEN.

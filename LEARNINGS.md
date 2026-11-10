@@ -11973,3 +11973,78 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   build+tests; timeouts 60/120/900; cosmo chmod +x; console links include tools/mir_aot/pli_console.c;
   runners/gdb from repo root; printf %s\n; byte-exact via Python subprocess; NEVER hand-edit managed
   checkpoint blocks.
+
+## E2E-54/P1-m3 hop 5 (2026-11-13, session 01a1c7b6 renewal 4/12; ZERO oracle; ledger 203/C380; ZERO repo source byte — scratch probes RUN + baseline re-verify) — Y1/Y2 PROBES MEASURED GREEN; VOID-TAIL `ret st` FALSIFIED, BARE `ret` LAW ACCEPTED; §P1-m3 WRITING IS NEXT
+
+- Successor recovery: HEAD `7fbcc979` (hop-4 durables + guard g751 commits `52cdf15b`/`3990a2d2`/
+  `12171069`/`7fbcc979` on top of PARTIAL `ff3b8c4e`; ZERO repo source byte in those — diff
+  ff3b8c4e..HEAD touches ONLY HANDOFF.md/PROGRESS.md/LEARNINGS.md managed/live blocks). Baseline
+  verified FIRST-HAND at HEAD: `cd ocaml && eval "$(opam env)" && dune build` rc 0; ledger
+  `grep -c '^## C' spec/CLAIMS.md` = 203, last C380; tree dirty ONLY managed blocks + operator
+  `handoff.config.json` (NEVER staged) + pre-existing untracked scratch. ACCEPTED.
+- **Y1 `build/p1m3-scratch/y1_void_formal.mir` — ALL GREEN, EVERY PREDICTION HELD (ACCEPTED):**
+  void callee WITH formals parses and emits: `pv1: proto i64:m` + `pli80_deep: func i64:m` (title
+  carries the formal reg, NO leading bare result type) is legal MIR; mixed proto
+  `pc2: proto i64, i64:m` with callee `func i64, i64:m` + `ret t1` is legal (result reg FIRST,
+  formal regs after). `mir2o -f` rc 0 → 1608 B / 3 functions. glibc leg
+  `gcc -O0 -DENTRY=pli80_main -DEXPECTED=232 tools/mir_aot/native_check.c y1_void_formal.o` rc 0;
+  EXECUTED stdout `232\n` rc 0 — the hand-derived HOME-PASS chain (5→deep 6→+100 106→mid 116
+  stored AND returned→116+116=232) is EXACT. ⇒ the HOME-PASS ABI shape (callee reads/writes
+  `i64:(v<sid>)` via title-carried home regs; caller passes an ADDRESS at every call) is
+  EXECUTION-PROVEN at MIR level, including a home passed to TWO callees.
+- **Y2 `build/p1m3-scratch/y2_void_console.mir` — ONE DEVIATION, MEASURED FIRST, FIXED PER THE
+  PRE-REGISTERED FALLBACK (never fitted):** first form ended the VOID callee `pli80_out` failure
+  tail with `call p_exit, exit, st` + `ret st`. mir2o rc 1, stderr VERBATIM:
+  `func pli80_out: in instruction 'ret': number of operands in return does not correspond number of
+  function returns. Expected 0, got 1`. **LAW (ACCEPTED): a `func` with NO bare leading result type
+  in its title rejects ANY `ret <op>` — even on the exit-carrying failure tail; the void tail MUST
+  end with BARE `ret`.** (The `call p_exit, exit, st` still TYPE-CHECKS because `p_exit`'s leading
+  bare `i64` is the RESULT of the call, not of the enclosing func.) With the tail changed to bare
+  `ret` (pre-authorized fallback of the hop-4 record): mir2o rc 0 → 2888 B / 2 functions; cosmo TINY
+  link WITH `tools/mir_aot/pli_console.c` + `console_check.c` `-DENTRY=pli80_main` rc 0 (wine
+  `fixme:` noise only); chmod +x; fresh-proc EXEC via Python subprocess: **rc 0, stdout EXACTLY
+  `5\n4\n`, stderr `driver-return=4\n`** — the brief-recorded bytes EXECUTED at MIR level.
+- Consequences for the backend (feeds §P1-m3): per-func failure tails carry the RESULT signature of
+  their OWN func — entry (value) tail keeps `ret st`; void subsidiary tail ends BARE `ret`; the
+  `call p_exit, exit, st` row is unchanged in both. Void callee proto/title carry NO result and the
+  call row has NO result operand (`call pcv, pli80_out, a1`).
+- NEXT (this hop, VERBATIM order): (1) WRITE + COMMIT §P1-m3 in spec/lab-evidence/e2e54/PLAN.md
+  BEFORE any source byte (PROTOCOL #1; §P1-m2.0–.14 template; full CRLF+^Z fixture texts with
+  INDEPENDENT bytes; ABI = hop-4 HOME-PASS list + this hop's void-tail law; amendments ONLY the E20
+  one-proc arm replacement + multi-func Lfail_<pid> rename + TRANSITIONAL CALLN10 deletion at m3b);
+  (2) m3a in ocaml/hir/mir_backend.ml ONLY → gates OWN commands → measured-first ADDITIVE
+  hir/mir-call-fixtures/+hir/mir-call-expected/ → native panel → C-M3a LOUD → commit; m3a gate
+  before any m3b byte; m3b; gate; m3c; (3) runner tools/mir_aot_call_test.py written to PLAN before
+  first run, repo-root; (4) FULL FROZEN regression → CLOSE RESULTS §P1-m3 + arch §7-10 + dashboard +
+  durables → STOP.
+- STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; explicit paths
+  only; build/p1m3-scratch NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/p1mc-deps NEVER
+  touched; hir pins FROZEN / mir pins ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch
+  build+tests; timeouts 60/120/900; cosmo chmod +x; console links include tools/mir_aot/pli_console.c;
+  runners/gdb from repo root; printf %s\n; byte-exact via Python subprocess; NEVER hand-edit managed
+  checkpoint blocks.
+- CHECKPOINT ADDENDUM (same hop, after §P1-m3 drafted): the full §P1-m3 pre-registration was
+  WRITTEN into spec/lab-evidence/e2e54/PLAN.md (~640 lines, sections P1-m3.0–.14): HOME-PASS ABI
+  as the binding law (§P1-m3.2: callee protos `pc<pid>` used-only ascending BEFORE console protos +
+  the ONE import; DFS post-order callee-first, entry LAST/only export; title `func [i64,
+  ][i64:v<s1>…]`; per-func locals ascending v<sid>, st?(per-func console), a1?(per-func GET),
+  h<sid> homes, hv<k> value cells, r<k> result regs, then module-wide t<k>; ALL allocas
+  entry-hoisted; per-func tails `Lfail_0`/`Lfail_<pid>`, ENTRY tail `ret st`, EVERY VOID tail BARE
+  `ret`; A_value ⇒ per-slot `hv<k>` rewritten before each call, never read back; A_reference ⇒
+  whole-func home `h<sid>`, env `W(p)` after widening, uninitialized-by-ref E19; nesting scan =
+  child-scope-of-any-non-entry-proc refuses E18 BEFORE dropping; cycle DFS E18 names path;
+  unreached DROP). Fixture panel with BINDING full texts + independent bytes: CALL01 `5\n4\n` dr 4;
+  CALL02 `2\n` dr 2; CALL03 dr 37 no-stdout; CALL04 `91\n` dr 91; CALL05 dr 9 (bare-`RETURN;`-in-
+  void = bare `ret` LAW DECIDED here); CALL06A `7\n` dr 7; CALL06B `2\n7\n` dr 7 (copy-vs-alias
+  discriminator); CALL09 dr 3 + pin-shape law (exactly 2 func items); CALL10 `7\n9\n` dr 9 —
+  **the hop-4 sketch `7\n34\n` dr 48 was UNDERIVABLE with its callee shape (uninitialized `y` at
+  `x = x + y`); replaced with a fully-initialized binding program, deviation pre-registered
+  §P1-m3.10 item 5, recorded BEFORE any run (accepted-as-superseded: hop-4 panel was explicitly
+  "texts + derivations GO IN THE PLAN")**. Negatives CALLN1–N10 FULL texts + predicted code +
+  LAYER (N1/N2/N3/N5 HIR-E07 pre-existing; N4 cycle, N6 nesting, N7 `-g` multi-proc, N9 Call_e
+  shape = backend E18; N8 uninitialized-by-ref E19 m3b; N10 by-ref-at-m3a E18 TRANSITIONAL).
+  Verified first-hand this checkpoint: NO existing pin exercises the multi-proc E20 arm (grep of
+  all mir/cf stderr pins for "exactly one procedure" EMPTY) ⇒ amendment blast radius ZERO.
+  Controls C-M3a (callee-after-caller ⇒ mir2o rc 1), C-M3b (home→value-cell ⇒ `7\n7\n` ≠ `2\n7\n`),
+  C-M3c (insert `add rt, rt, 1` before callee final `ret` ⇒ glibc leg executes 7 ≠ EXPECTED 6).
+  NEXT: COMMIT PLAN.md explicit path (PROTOCOL #1 gate), then m3a implementation.
