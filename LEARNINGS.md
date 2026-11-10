@@ -11050,3 +11050,68 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   controls D-C1/D-C2/D-C3 → FULL FROZEN regression gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/
   0-prose 5, hir 220 ok 11 UNMOVED, mir_aot 27, cosmo 25, fresh _build hist 122 sha==kept →
   RESULTS+CLOSE+STOP). Timeouts: 60 fixture / 120 link / 900 suite; gdb batch legs ≤120.
+
+## E2E-54/P1-mD hop 3 (2026-11-10, session 01a1c559, renewal 2/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380; ZERO repo source byte — scratch only + PLAN/LEARNINGS/durables) — D-a/D-b RESOLVED: MIR CFI VALID (glibc bt GREEN); NO public eh_frame switch, BUT the public read-back route lands `.debug_frame` THROUGH the pinned cosmo link — BACKTRACE GREEN on tiny AND optlinux; **PLAN.md §P1-mD PRE-REGISTRATION COMMITTED (the hop-2 gate)**
+
+- **accepted (baseline):** started at HEAD `6c76702b`; build rc 0 DIRECT; guard-managed renewal
+  blocks (g714) committed by explicit path as boundary commit `d48564b6` (config NEVER staged).
+- **accepted (D-a, the hop-2 discriminator):** system-gcc glibc link `gcc -O2 -DENTRY=pli80_iorw
+  tools/mir_aot/{pli_console,console_check}.c build/p1mD-scratch/M05_dbg.o` rc 0 (recipe shape of
+  `mir_aot_cosmo_test.py` P6, the established diagnostic route); linked ELF carries a REAL named
+  `.eh_frame` (0x13c) + `.eh_frame_hdr` + **PT_GNU_EH_FRAME**; run rc 0 stdout `77`; gdb batch
+  `break M05.pli:4` + `bt` → **#0 pli80_iorw at M05.pli:4, #1 main** and `info frame` shows CFI
+  save-locations (rbx/rbp/r12/rip positions == the FDE rules measured at break: CFA=rbp+16, ra
+  c-8, rbp c-16) — **MIR's emitted CFI is VALID; the hop-2 cosmo `bt` blocker is PURELY the
+  ape.lds fold of `.eh_frame` into `.data`** (no named section, no PT_GNU_EH_FRAME).
+- **accepted (D-b investigation):** NO public switch suppresses the capture's `.eh_frame` —
+  `gen_eh_capture` (mir-gen.c:11006) runs unconditionally in x86-64 object mode for every
+  non-`jret_p` func with `cfi != NULL && code_len != 0`; `struct MIR_object` is opaque
+  (`ehframe.len` not clearable); `MIR_debug_emit` is JIT-shaped (absolute addrs, NOBITS .text,
+  no relocations — useless for AOT link); the merge reader maps `.eh_frame` by name (mir-debug.c
+  1356–1357) so reading ANY `.eh_frame`-bearing image refills it. BUT the documented fallback
+  stands: mir-debug.c:1561 `if (obj->ehframe.len == 0) emit_frame(...)` writes `.debug_frame`
+  from the `MIR_debug_add_func` cfi, **and ape.lds of ALL FOUR modes keeps `.debug_frame` as its
+  own named output section** (tiny/dbg 202, optlinux 199; verified first-hand, read-only).
+- **accepted (probe 2 = the PUBLIC read-back route, GREEN end-to-end):**
+  `build/p1mD-scratch/probe_mir2o_dbg2.c` (scratch, NEVER committed): debug-config gen →
+  `MIR_gen_object_emit` plain capture (2336 B, builder NOT attached) → `objcopy
+  --remove-section=.eh_frame --remove-section=.rela.eh_frame` (2016 B; probe-stage structural
+  stand-in — mir2o proper will do the drop in-C per PLAN) → `MIR_object_create` +
+  `MIR_object_read` rc 0 → fresh debug builder (add_file id 1, base_type, find_symbol `.text` off
+  **192** size **182**, add_func line_map 22→3/97→4/139→5 + cfi, reg_frame_offset **−8**,
+  add_var n) → `MIR_object_set_debug` → `MIR_object_emit` → **3464 B `.o` with named
+  `.debug_frame` 0x40 + `.rela.debug_frame` ×3 (CIE-pointer + PC slots against .text — AOT
+  relocatable) and NO `.eh_frame`**; `decodedline` rows identical (3@0xc0, 3@0xd6, 4@0x121,
+  5@0x14b, end 0x176); `frames-interp` decodes CIE (cf=1 df=−8 ra=16) + FDE rules; `.text`,
+  `.data`, `.mir.addrpool` **byte-IDENTICAL** and `nm` set IDENTICAL vs hop-2 direct-route
+  `M05_dbg.o` (round trip lossless).
+- **accepted (THE bt legs on the pinned cosmo link):** `cosmo_link.sh tiny` and `optlinux` links
+  of `M05_dbg2.o` rc 0, `.debug_frame` SURVIVES as named section in both linked ELFs;
+  `chmod +x` + EXEC rc 0 stdout `77\n` both modes; **gdb 18.1 batch on optlinux: break M05.pli:4
+  → `pli80_iorw+97` real PL/I line; `bt` → `#0 pli80_iorw … M05.pli:4`, `#1 … main`; `print n`
+  → `$1 = 77`; `stepi` +97→+100; `info line` +97..+139; `info source` producer mir-debug DWARF 4;
+  `continue` → `77`, `driver-return=77`, exited normally** (evidence
+  `build/p1mD-scratch/gdb_dbg2_{tiny,opt}.log`). tiny link `bt` GREEN too (`info frame` CFI rules
+  confirmed there). **D1 is now FULLY GREEN on the pinned cosmo route — no STOP clause, no lds
+  edit, no lab change; the hop-2 hop-1-era blocker is CLOSED by design, not by waiver.**
+- **accepted (PLAN §P1-mD committed BEFORE any repo source byte, the hop-2 gate):** section
+  appended to `spec/lab-evidence/e2e54/PLAN.md` (§P1-mD.0 milestones D1/D2 SEPARATE with the
+  measured D2 scalar scope; .1 the ten measured laws incl. the 14-insn sidecar coverage law and
+  line-0⇒file_id-0; .2 exact CLI `pli80mir -g [--debug-map MAP]` / `mir2o --debug-map`, default
+  bytes FROZEN both tools; .3 sidecar `p1md 1`/`mir <sha256>`/`file`/`func`/`insn`/`var` contract
+  with all-or-nothing validate-then-annotate refusals; .4 the mir2o sequence = probe-2 route with
+  the ELF drop IN C (no subprocess, no temp file, reader refuses malformed output loudly); .5
+  measured-first ADDITIVE pins; .6 runner `tools/mir_aot_debug_test.py` panel incl. optlinux
+  primary/tiny secondary gdb legs + controls D-C1/D-C2/D-C3; .7 env laws; .8 FROZEN T1–T11
+  regression panel (1328/190/9/149/16-0-25-0/5-prose; hir 220/11; mir_aot 27; cosmo 25; fresh
+  `_build-e54pmD` hist 122 sha==kept); .9 STOP thresholds + FORBIDDEN routes (never a new DWARF
+  generator, never lds/lab/toolchain edits); .10 work order; .11 dashboard).
+- **proposed (implementation deltas for the work-order hops):** multiple `debug_home`s per func
+  (D2 var lists) MEASURED-FIRST; base_type label wording (`"fixed bin(15)"` measured fine) pinned
+  from output; mir2o new rc arms measured-first; hop-2's failing `bt` reproductions (gdb logs on
+  `M05_dbg.o` cosmo links) stay as honest historical evidence, never rewritten.
+- **standing:** ZERO oracle; ledger 203/C380; config NEVER staged; scratch NEVER committed; lab
+  untouched; no push; explicit paths; hir pins FROZEN / mir pins ADDITIVE; F8 law; `eval "$(opam
+  env)"`; rc DIRECT; never batch build with tests; timeouts 60/120/900; gdb `set debuginfod
+  enabled off`; cosmo artifacts `chmod +x` law. NEXT hop: work order step 1 (mir_backend sidecar,
+  ADDITIVE, default path calls NOTHING) per PLAN §P1-mD.10.

@@ -3939,3 +3939,240 @@ Every negative is REFUSAL AT LOWERING: the MIR emitter is never reached, rc 2, z
 | slice | status | notes |
 |---|---|---|
 | P1-m1 | **CLOSED 2026-11-10** (steps 2–7 landed; runner rc 0 43 checks; FULL FROZEN regression ALL HIT) | minimal console I/O over the native MIR path: m1a integers AND m1b literal characters DELIVERED SEPARATELY; ZERO oracle; ledger 203/C380; deviations incl. `cu_nl = cu_put || cu_text`, N17 parse PROVEN, runner first-run defect fixed honestly; RESULTS §P1-m1; next stages PROPOSED ONLY |
+
+## §P1-mD — Pre-registration: native DWARF source debugging of AOT MIR objects (committed BEFORE any repository source byte)
+
+Operator authorization of 2026-11-10: **native source-level debugging of the AOT MIR path is
+AUTHORIZED** (brief: D1 file/line + breakpoints + stepping + backtrace, D2 variable inspection,
+SEPARATE milestones). Type of work: **backend engineering, ZERO oracle calls** (none planned or
+authorized; debugger behaviour is DRPLi engineering evidence, never a DR claim — the ledger stays
+203 headers ending **C380**). Starting reference `1e14ada6` (§P1-m1 close; verified first-hand at
+P1-mD hop 1); this pre-registration lands at HEAD `d48564b6` with **zero repo code bytes** since
+the starting reference. Baseline re-verified first-hand each hop: `dune build` rc 0; kept exe
+`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; `ocaml/lib` +
+`ocaml/bin` byte-clean; ledger 203/C380.
+
+All design authority is MEASURED in three probe hops against the PINNED lab (`ccc92c5c` /
+`f541a7a5`, never advanced, never edited) and the pinned Cosmopolitan toolchain
+(`build/p1mc-deps`, never edited) in the IGNORED scratch `build/p1mD-scratch/` (NEVER committed):
+`LEARNINGS.md` §§ "E2E-54/P1-mD hop 1/2/3" — READ hop 2 + hop 3 FIRST. Every expectation below
+either cites a first-hand measurement or is explicitly marked MEASURED-FIRST at pin time.
+
+### P1-mD.0 Milestones (SEPARATE deliverables)
+
+- **D1 — file/line truth.** `break <file>.pli:<line>`, `run`, `stepi`, `info line`, `info source`,
+  and **`bt`** on the pinned cosmo link, PROVEN end-to-end in scratch hop 3 on M05: `.debug_frame`
+  (named, survives `ape.lds` of EVERY mode) carries the MIR FDEs and gdb 18.1 unwinds
+  `#0 pli80_iorw at M05.pli:4` → `#1 main`. GREEN means: the runner panel (§P1-mD.6) rc 0 with
+  every leg on the link/mode proven in scratch (§P1-mD.1 fact 9) and the full FROZEN regression
+  (§P1-mD.8) all hit.
+- **D2 — variable inspection.** `print <source-name>` at a breakpoint reads the homed slot.
+  PROVEN in scratch for the M05 scalar (`print n` → `$1 = 77` on glibc, tiny and optlinux links).
+  Scope of THIS slice: **scalar non-param variables homed via `MIR_set_reg_debug_home`**; params,
+  deref/aggregate homes and arrays stay OUT (the API supports them — `add_var(deref_p,
+  member_offset)` — but nothing is claimed unmeasured; a follow-up slice may extend). D2 lands
+  only after D1 is green; D1 is independently deliverable.
+
+CLOSE after both milestones (or D1 green + D2 closed-with-measured-scope): RESULTS §P1-mD +
+`docs/architecture/backend-boundary.md` + dashboard + durables, then **STOP**. Everything else
+(production-backend adoption, `put edit` debugging, multi-CU, APE) remains PROPOSED ONLY.
+
+### P1-mD.1 MEASURED design facts (hops 1–3, first-hand; this section pre-registers, it does not re-measure)
+
+1. **Stamping is PUBLIC and pre-gen (accepted):** `insn->file_id` / `insn->line` (mir.h) are set on
+   the parsed `func->insns` BEFORE generation; `gen_record_line` (mir-gen.c:439) skips ONLY when
+   line==0 AND file_id==0 ⇒ **line-0 insns MUST carry file_id 0**. `label` insns ARE members of
+   `func->insns` (M05 `pli80_iorw` = **14** insns: hop-2 FALSIFIED the hop-1 guess otherwise); the
+   line list MUST cover EVERY entry in dlist order.
+2. **line_map coalescing (accepted):** stamping 14 insns (lines 3×4, 4×5, 5×2, 0×3) yields exactly
+   3 `line_map` rows `22→3, 97→4, 139→5` in `.text` of offset 192, size 182; `code_len`/`line_map`/
+   `cfi` are filled on the object-mode path although `machine_code` stays NULL — hence
+   `MIR_object_find_symbol` for the `.text` section offset (AOT law).
+3. **Debug codegen config (accepted):** level 0 + `MIR_set_inline_permission(0)` +
+   `MIR_set_spill_all(1)` + `MIR_func_debug_homes_only(func)` + `MIR_set_reg_debug_home(reg, func)`
+   per homed var; reg number = index in `func->vars` **+ 1**; `MIR_reg_frame_offset` → **−8**;
+   `MIR_debug_add_var(name, 0, type, −8, 0, 0)`; DWARF shows `DW_OP_fbreg −8`, `frame_base
+   DW_OP_reg6`. The gen DEFAULT level is 2 (mir-gen.c:11438) — the debug switches MUST NEVER touch
+   the default path.
+4. **`.eh_frame` capture is unconditional (accepted, hop 3):** on x86-64 object mode
+   `gen_eh_capture` (mir-gen.c:11006, `#if GEN_EH_OBJECT_P`) appends CIE+FDE per non-`jret_p`
+   function whenever `func->cfi != NULL && code_len != 0`; **no public runtime switch exists** to
+   suppress it, and `struct MIR_object` internals (incl. `ehframe.len`) are opaque.
+5. **The pinned fallback law (accepted):** mir-debug.c:1561/2320 — the debug builder emits
+   `.debug_frame` (from the `MIR_debug_add_func` cfi, i.e. the very same `func->cfi` bytes)
+   **exactly when the object's `.eh_frame` is EMPTY**; `MIR_debug_add_func`'s own header comment
+   documents this design ("written to .debug_frame unless the artifact has .eh_frame").
+6. **Cosmo link layout is the ONLY cosmo blocker (accepted, D-a + D-b discriminated):** the pinned
+   `ape.lds` (tiny 149 / optlinux 147 / dbg 149) folds `KEEP(*(.eh_frame))` INTO the `.data`
+   output section ⇒ no named `.eh_frame`, no `PT_GNU_EH_FRAME` ⇒ gdb cannot discover the MIR FDE
+   (the frame layout itself is standard; a plain-C `-g` control backtraces via fp-scan heuristics).
+   The SAME `M05_dbg.o` through the SYSTEM gcc link keeps a real `.eh_frame` + `PT_GNU_EH_FRAME`
+   and gdb `bt` is GREEN ⇒ **MIR CFI is VALID**; the blocker is purely the pinned lds. NO lds or
+   toolchain change is authorized. Conversely `.debug_frame` IS kept as its own named output
+   section by ape.lds of EVERY mode (tiny/dbg line 202, optlinux 199) and survives the link.
+7. **The public read-back route (accepted, hop 3 probe 2, M05 end-to-end):**
+   `MIR_gen_object_emit` (capture WITHOUT attached debug builder) → structural ELF section drop of
+   `.eh_frame` + `.rela.eh_frame` → `MIR_object_create` + `MIR_object_read` (public merge reader;
+   concatenates sections at their alignments, unifies symbols, rebases relocations) →
+   `MIR_debug_init`/`add_file`/`base_type`/`find_symbol`/`add_func(line_map, cfi)`/
+   `reg_frame_offset`/`add_var` → `MIR_object_set_debug` BEFORE `MIR_object_emit`. Result measured:
+   named `.debug_frame` 0x40 + `.rela.debug_frame` (3 relocations — FDE CIE-pointer and PC slots
+   against `.text`, exactly AOT-linkable); NO `.eh_frame`; `decodedline` rows identical to the
+   direct route; `.text`/`.data`/`.mir.addrpool` BYTE-IDENTICAL and `nm` sets IDENTICAL vs the
+   hop-2 direct `.o`.
+8. **glibc diagnostic link (accepted, hop 3):** `gcc -O2 -DENTRY=pli80_iorw
+   tools/mir_aot/pli_console.c tools/mir_aot/console_check.c M05_dbg.o -o …exe` keeps `.eh_frame`
+   (section + PT_GNU_EH_FRAME + PT_LOAD mapping); kept as DIAGNOSTIC REFERENCE leg only — the
+   deliverable link stays cosmo (RD-COSMO).
+9. **GDB evidence (accepted, gdb 18.1, `-batch -nx -ex "set debuginfod enabled off"`):** M05
+   direct-route `.o` on glibc link AND on cosmo tiny/optlinux: `break M05.pli:4` resolves
+   (relocated; shows the real PL/I source line of the CRLF+`^Z` fixture), `print n` = 77, `stepi`
+   +97→+100 stays on line 4, `info line` = `+97..+139` exactly the line_map bounds, `info source`
+   producer `mir-debug` DWARF 4. **bt: GREEN glibc link and GREEN on cosmo tiny + optlinux via the
+   read-back `.debug_frame` route** (`#0 pli80_iorw` → `#1 main`, saved regs from CFI); the
+   hop-2 garbage-bt reproducers stand as evidence.
+10. **`-DEXPECTED` deviation (accepted, hop 2):** `console_check.c` ignores `-DEXPECTED` (declares
+    no EXPECTED by contract); the runner judges stdout bytes — deviation recorded, never fitted.
+
+### P1-mD.2 Exact CLI (ADDITIVE flags; default behaviour FROZEN)
+
+- `pli80mir [-g] [--debug-map MAP] --export NAME -o OUT.mir IN.pli` — with `-g` the backend ALSO
+  writes the sidecar debug map (section P1-mD.3). Default path (no `-g`, no `--debug-map`): the
+  `.mir` bytes and all existing pins UNMOVED; with `-g` the `.mir` bytes themselves are ALSO
+  byte-identical (the sidecar is a separate file; the map path defaults to `OUT.mir` + `.p1md`
+  when `-g` is given without `--debug-map`; `--debug-map` without `-g` is a usage error rc 2).
+- `mir2o -f IN.mir OUT.o [--debug-map MAP]` — without the flag: byte-identical behaviour (all
+  §P1-m0/§P1-m1/§P1-mC pins UNMOVED; the debug code MUST call NOTHING on this path). With the
+  flag: §P1-mD.4. Exit-code convention continues mir2o's existing table (usage 2, input 3, …)
+  with NEW codes measured-first for map read (7), map validation (8), ELF drop (9), read-back
+  (10); every refusal prints its named reason.
+
+### P1-mD.3 Sidecar debug-map format and validation law
+
+Text file, line-oriented; any deviation is a LOUD refusal, never a silent drop:
+
+    p1md 1
+    mir <64-hex sha256 of the EXACT OUT.mir bytes>
+    file <absolute path of the .pli source>
+    func <func-item index in module order> <MIR function name>
+    insn <func-name> <i> <MIR_insn_name opcode> <line>     (one PER func->insns entry, i from 0,
+                                                            dlist order, LABELS INCLUDED;
+                                                            unlocated tail rows carry line 0)
+    var <mir-local-name> <source-name>                      (MIR v<sid> sanitized name → sorig)
+
+mir2o validates BEFORE annotating anything (all-or-nothing): magic + version; sha256 of the input
+`.mir` bytes (self-contained embedded C implementation — no external dependency); every `func`
+name resolves; `insn` count per func EQUALS the parsed `func->insns` length; every opcode name
+matches `MIR_insn_name` at its index; no duplicate `insn`/`var` records; every `var` MIR name
+exists in `func->vars`; the `file` path is absolute. Refusal rc ≠ 0 names the exact mismatch
+(count, index, expected-vs-got opcode, duplicate key, bad sha). On the backend side mir_backend
+emits one `insn` record per instruction it WRITES (it knows labels it emits) with the HIR line
+already carried by the existing `ex_line`/`st_line` fields — NO second line resolver, NO dump
+parsing, NO regex (hop-1 audit law); unlocated trailing instructions get line 0.
+
+### P1-mD.4 mir2o debug-mode sequence (the PROVEN probe-2 route, in order)
+
+1. Load `.mir` into the context (as today); parse + fully validate the sidecar (§P1-mD.3).
+2. Stamp `insn->file_id`/`insn->line` (line 0 ⇒ file_id 0) on every listed func.
+3. Enable the debug codegen config (§P1-mD.1 fact 3) for each debug func: level 0,
+   inline-permission 0, spill_all, `homes_only` + one `debug_home` per sidecar `var` record
+   (multiple homes per func: MEASURED-FIRST at implementation; M05 pins the single-home case).
+4. Imports/link/gen exactly as the default path (same `MIR_load_external` dummy route).
+5. `MIR_gen_object_emit` → plain capture in memory; **in-C structural ELF drop** of `.eh_frame`
+   and `.rela.eh_frame` (re-index `sh_link`/`sh_info`/`st_shndx`, drop the section symbol, rewrite
+   `e_shstrndx`-relative tables as needed — pure ELF bookkeeping, ZERO DWARF semantics, NO
+   subprocess, NO temp file). A malformed result is caught LOUDLY by step 6's reader return.
+6. `MIR_object_create` + `MIR_object_read` (rc −1 ⇒ refuse with the reader's `err_msg`).
+7. Fresh `MIR_debug` builder: `add_file` (id law §P1-mD.1), `base_type` carrier label
+   `"fixed bin(15)"` SIGNED size 8 (truthful 8-byte carrier; final label wording MEASURED-FIRST
+   and pinned from output, per §P1-m1.10.5 law), then per func `find_symbol` → `add_func`
+   (`func->line_map`, `func->cfi`) and per var `reg_frame_offset` (failure ⇒ refusal, never a
+   silent un-homed var) + `add_var`; `MIR_object_set_debug` BEFORE `MIR_object_emit`; write
+   `OUT.o`.
+
+### P1-mD.5 Fixtures and pins (MEASURED-FIRST; ADDITIVE only)
+
+- D1/D2 fixture: **M05** (`hir/mir-fixtures/M05.pli`, CRLF+`^Z` bytes; the MIR pin `M05.mir`
+  stays BYTE-IDENTICAL — the sidecar is a NEW expected file, e.g. `hir/mir-debug-expected/M05.p1md`
+  (new ADDITIVE directory; hir pins FROZEN, mir pins ADDITIVE law respected).
+- Pins written only from measured CLI output; the debug `.o` is pinned by sha256 recorded in the
+  runner table (byte-pinned sidecar + sha-pinned `.o` + gdb evidence files, never the other way
+  round; NEVER fit tests to output).
+- Negative panel: sidecar tamper refusals (sha/count/opcode/dup) pinned as rc ≠ 0 + message arms.
+
+### P1-mD.6 Runner panel — NEW `tools/mir_aot_debug_test.py`
+
+Per fixture, every command DIRECT rc, separate processes, NEVER batched with builds:
+(1) `pli80mir -g --debug-map MAP --export … -o OUT.mir IN.pli`; (2) `mir2o -f OUT.mir
+OUT.o --debug-map MAP`; (3) readelf panel laws on OUT.o: named `.debug_frame` PRESENT, `.eh_frame`
+ABSENT, `.rela.debug_frame` present, `decodedline` rows == pin, `frames-interp` decodes CIE+FDE,
+`nm T pli80_*`; (4) cosmo **optlinux** link (primary; tiny as secondary leg) via
+`tools/mir_aot/cosmo_link.sh`, `chmod +x` law; (5) EXEC: stdin pin → stdout bytes EXACT;
+(6) gdb batch legs: `break M05.pli:4`, `run`, `print n`, `stepi`, `info line`, `info source`,
+`bt` (assert `#0 pli80_iorw … M05.pli:4` and `#1 … main`), `continue` (exit 0) — evidence captured
+to `build/mir-debug/`; (7) controls, each OBSERVED FAILING LOUDLY FIRST (non-vacuity never faked):
+**D-C1** no-debug link ⇒ `break M05.pli:4` does NOT resolve; **D-C2** sidecar sha tampered ⇒
+`mir2o` refuses rc ≠ 0; **D-C3** insn-count/opcode tampered ⇒ refuses rc ≠ 0. Plus the glibc
+diagnostic-reference leg (§P1-mD.1 fact 8) recorded as evidence, not as a delivery gate.
+
+### P1-mD.7 Environment laws (all measured first-hand)
+
+gdb 18.1; batch mode `-batch -nx` with `set debuginfod enabled off`; `ptrace_scope` 1 works;
+cosmo artifacts are `rw-r--r--` after link ⇒ **`chmod +x` REQUIRED**; link stderr carries known
+benign wine/fixme noise (judge stdout/rc only); `LC_ALL=C` for parsed tool output; timeouts: 60
+per fixture leg, 120 per cosmo link, ≤120 per gdb batch, 900 per suite; `eval "$(opam env)"` in
+every shell; rc checked DIRECT; never batch `dune build` with tests; no push; explicit-path
+commits; scratch never committed; config never staged; lab pins never advanced.
+
+### P1-mD.8 Falsifiers (each a STOP-and-attribute gate; FROZEN regression panel)
+
+- **T1** kept exe `172595d5…` verified DIRECT before/after every build step.
+- **T2** `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0 at every
+  step (hir pins FROZEN; `ocaml/lib`/`ocaml/bin` untouched); ALL existing `hir/mir-expected/*.mir`
+  byte-UNMOVED with and without `-g`.
+- **T3** `timeout 900 python3 tools/hir_test.py` rc 0: **220 ok**, 11 frozen semtest numbers
+  UNMOVED; F8 strip-greps green over new/edited `ocaml/hir/*.ml`.
+- **T4** FULL gate rc 0 FROZEN ALL HIT: byte panel **1328/1328**, negatives **190/190**,
+  divergence **9/9**, coverage **149 rows 0/0**, census **16/0/25/0**, prose **5** →
+  `build/e54pmD-reg-gate.log`.
+- **T5** `timeout 900 python3 tools/mir_aot_test.py` rc 0 — **27 checks** (default mir2o bytes
+  unmoved). **T6** `timeout 900 python3 tools/mir_aot_cosmo_test.py` rc 0 — **25 checks**.
+- **T7** `tools/mir_aot_debug_test.py` rc 0 with ALL controls D-C1/D-C2/D-C3 observed failing
+  loudly first-hand.
+- **T8** fresh `cd ocaml && timeout 900 dune build --build-dir _build-e54pmD` rc 0, ZERO
+  `Error`, warning history **122**, fresh exe sha == kept `172595d5…` (computed separately).
+- **T9** the no-`--debug-map` `mir2o` output stays byte-identical to the frozen `.o` panel on
+  every existing fixture (CT2-style cmp legs, never replaced by sha).
+- **T10** sidecar refusal panel: each malformed-map arm pinned MEASURED-FIRST (rc + first line).
+- **T11** ZERO oracle; ledger stays 203/C380; `handoff.config.json` NEVER staged; explicit-path
+  commits only; `build/p1mD-scratch/` and `build/mir-debug/` NEVER committed; lab (
+  `thirdparty/mir-madc-aot-lab`) and `build/p1mc-deps`/`build/p1m0-deps` NEVER edited or advanced;
+  no push.
+
+### P1-mD.9 Complexity-stop thresholds and FORBIDDEN routes
+
+STOP and attribute (exact reproducer + interface diagnosis) if: the ELF drop/read-back round trip
+refuses a valid image; `MIR_object_read`+`set_debug` mislocates any symbol/reloc (panel mismatch);
+multiple `debug_home`s per func misbehave (then land the single-home subset, record the boundary
+honestly); or any gdb leg fails on the PROVEN link/mode. FORBIDDEN, ever: a new DWARF generator;
+editing `ape.lds`, the pinned toolchain or the lab; a repo-owned replacement linker script;
+fitting gdb assertions to garbage output; reusing `-g` on the DEFAULT gen path. D2 may close
+DEFERRED with its measured blocker while D1 stands.
+
+### P1-mD.10 Work order (successor contract — exact order)
+
+1. `ocaml/hir/mir_backend.ml` ADDITIVE: sidecar emission (lines from existing `ex_line`/`st_line`,
+   sorig from `sid` law; `-g` opt-in; default path calls NOTHING) → build → byte-identity T-panel.
+2. `pli80mir` CLI flags; measured-first sidecar pin under the new ADDITIVE expected dir.
+3. `tools/mir_aot/mir2o.c` debug mode (§P1-mD.4; validate-then-annotate; embedded sha256; in-C ELF
+   drop; NO new subprocess/dependency) + refusal arms.
+4. Fixtures/pins measured-first; runner `tools/mir_aot_debug_test.py` + gdb evidence + controls
+   D-C1/D-C2/D-C3 observed failing loudly first; then the FULL FROZEN regression T1–T11.
+5. CLOSE: RESULTS §P1-mD (milestones D1/D2 SEPARATELY; deviations + unsupported-scope matrix),
+   `docs/architecture/backend-boundary.md`, dashboard row, durables + guard attest → **STOP**.
+
+### P1-mD.11 Dashboard update
+
+| slice | status | notes |
+|---|---|---|
+| P1-mD | OPEN (pre-registration committed at `d48564b6` + this commit; probes hops 1–3 green except hop-2 bt, RESOLVED via `.debug_frame` read-back route hop 3) | native DWARF debugging of AOT MIR objects; D1/D2 SEPARATE; ZERO oracle; cosmo bt GREEN via named `.debug_frame` |
