@@ -11927,7 +11927,7 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
 - NEW scratch probes WRITTEN (ignored build/p1m3-scratch/, NEVER committed) — **NOT YET RUN** (the
   only unproven syntax classes left: void callee WITH formals in proto+title; void callee with a
   console failure tail):
-  `y1_void_args.mir` — `pv1: proto i64:m` + `pli80_deep: func i64:m` (NO leading bare type) +
+  `y1_void_formal.mir` — `pv1: proto i64:m` + `pli80_deep: func i64:m` (NO leading bare type) +
   3-func chain + homes passed twice (deep then mid) + result-reg call; glibc native_check
   EXPECTED 232 hand-derived: a1=5→deep→6→+100→106→mid→116 (stored AND returned)→116+116=232.
   `y2_brief_show.mir` — the brief's `show` bytes at MIR level: void callee `out(m)` PUTs the home
