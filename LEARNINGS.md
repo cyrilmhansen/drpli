@@ -11115,3 +11115,66 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   env)"`; rc DIRECT; never batch build with tests; timeouts 60/120/900; gdb `set debuginfod
   enabled off`; cosmo artifacts `chmod +x` law. NEXT hop: work order step 1 (mir_backend sidecar,
   ADDITIVE, default path calls NOTHING) per PLAN §P1-mD.10.
+
+## E2E-54/P1-mD hop 4 (2026-11-11, session 01a1c577, renewal 3/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380; ZERO repo source byte — recon hop only) — BASELINE GREEN; every hop-4 code anchor READ FIRST-HAND; the 14-row M05 sidecar law CONFIRMED against the live emitter; F8 consequences for sha256.ml ENUMERATED
+
+- **accepted (baseline, first-hand at HEAD `907f58c3`):** `cd ocaml && eval "$(opam env)" && dune
+  build` rc 0; kept exe sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+  computed DIRECT; T2 `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0;
+  ledger `grep -c '^## C'` = 203 ending C380 (claim headers are level-2); tree dirty = the two
+  guard-managed blocks + operator `handoff.config.json` (NEVER staged).
+- **accepted (the sidecar line law, derived from the LIVE emitter + the M05 pin, matches the
+  pre-registered 14 rows EXACTLY):** `mir_backend.ml` keeps the body in `insns : string list ref`
+  prepended by `emit` (Printf.ksprintf), reversed once in the assembly; M05 emit order is
+  `alloca a1,8` / `call p_get…` / `bne Lfail, st, 0` / `mov v0, i64:(a1)` (all from the GET
+  statement, `st_line = 3`) / `mov t1, v0` (`lower` of the put value, `ex_line = 4`) /
+  `call p_put…` / `bne` / `call p_nl…` / `bne` (PUT statement, 4) / `mov t2, v0` (`ex_line = 5`) /
+  `ret t2` (RETURN statement, 5) and then the tail block the assembly writes DIRECTLY into the
+  buffer — `Lfail:` (the LABEL insn = entry index 11, NOT in `insns`), `\tcall p_exit, exit, st`,
+  `\tret st` — lines 0,0,0. ⇒ sidecar lines 3,3,3,3,4,4,4,4,4,5,5,0,0,0 == §P1-mD.1 fact 1. NOTE the
+  off-by-context: the M05 pin shows the get `mov v0` at position 4 in the FILE (after the local
+  line) — the sidecar index `i` counts ONLY insns.
+- **accepted (edit sites, read first-hand):** statement arms bind `let line = s.Hir.st_line in`;
+  `lower` binds `let line = e.Hir.ex_line in` at its top and every `emit` inside it is that
+  expression's own emission ⇒ the minimal ADDITIVE change is `emit ?line`-style line-carrying
+  pairs `(text, line)` with the assembly dropping the line. The tail is emitted AFTER
+  `List.rev !insns` in the assembly section (`cu_any` branch), so the three tail sidecar records
+  must be appended by the sidecar builder, not by `emit`.
+- **accepted (`var` law):** the MIR local names are built in the assembly from
+  `v_regs = List.filter_map (scope = p.Hir.scope && sstorage = Hir.Auto) prog.Hir.syms` as
+  `"v" ^ string_of_int sid`; `Hir.sym.sorig` (hir.ml:116 "source spelling") is the source name —
+  the sidecar `var v<sid> <sorig>` rows come from that same filtered list (M05: one row
+  `var v0 n`). No second resolver, no dump parsing.
+- **accepted (module-constraint feasibility, OCaml subtyping):** adding `debug_map : string option`
+  to `artifact` and a `?debug_source:string option` OPTIONAL labelled arg to `compile` keeps
+  `module For (E) : Backend.BACKEND with type artifact = artifact` satisfiable (optional args may be
+  added in the implementation; `Backend.BACKEND` only demands the two mandatory args), so the
+  compile-time witness stays and the CLI can pass the source path. The record type stays `entry_sym`
+  + `mir_text` positional-independence — construction sites are record literals.
+- **accepted (F8 consequences for the NEW `ocaml/hir/sha256.ml`, from F8_PATTERNS read verbatim at
+  tools/hir_test.py:284):** forbidden after comment strip = `\bRel80\b`, `\bCodegen\b`,
+  `\bbytes_of\b`, `\bop_[a-zA-Z_]+`, `0x[0-9a-fA-F]+`, the uppercase 8080/word list
+  `\b(MOV|MVI|LXI|DAD|INX|DCX|PCHL|SHLD|LHLD|STA|LDA|CALL|JMP|XCHG|HLT|JNZ|NZ|Z|C|M|P)\b`, and
+  `\b(size|offset|reloc|pool)\b`. ⇒ SHA-256 constants as a SPACE-SEPARATED DECIMAL string parsed
+  at init (no `0x`); the words "size"/"offset" must not appear as identifiers or in strings
+  (use "len"/"count", "shift"/"base"); single uppercase letters are dangerous — the digest
+  variables MUST NOT be named `a b c …` is fine (lowercase) but never `C`/`M`/`P`/`Z`; the hex
+  formatter `Printf.sprintf "%02x"` is SAFE (no `0x` literal, no uppercase). `tools/` (mir2o.c) is
+  NOT F8-globbed: the embedded C sha256 MAY use hex literals.
+- **accepted (CLI shape, §P1-mD.2 + the existing pli80mir code):** argument parsing is the explicit
+  `go profile export out files` loop; `-g` is a flag (no value) and `--debug-map MAP` takes a value
+  (both "given twice" = usage error, matching the existing arms); default MAP path `OUT.mir ^
+  ".p1md"` requires `-o`; `--debug-map` without `-g` = rc 2; the absolute-source-path law needs
+  `Unix.getcwd` ONLY in the `pli80mir` executable stanza (`(libraries pli80 pli80_hir unix)`) —
+  the `pli80_hir` library stanza's `libraries` stays `(libraries pli80)` and `modules` gains
+  `sha256`; the MAP file is written after the `.mir` write and only on the `Ok` path (a refusal
+  still means rc 2, ZERO stdout, NO files).
+- **proposed (mir2o side, hop 5; UNVERIFIED until measured):** the new rc arms 7 (map read) / 8
+  (map validation) / 9 (ELF drop) / 10 (read-back) per §P1-mD.2; in-C structural `.eh_frame` +
+  `.rela.eh_frame` section drop with `sh_link`/`sh_info`/`st_shndx` re-indexing (the objcopy
+  stand-in of hop-3 probe 2 proves the RESULT shape, not the in-C route).
+- **standing:** ZERO oracle; ledger 203/C380; config NEVER staged; scratch NEVER committed; lab
+  NEVER advanced; hir pins FROZEN / mir pins ADDITIVE; F8; `eval "$(opam env)"`; rc DIRECT; never
+  batch build with tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo chmod +x.
+  NEXT = execute the PROGRESS live hop-4 heading steps (1)–(6) (sha256.ml → mir_backend →
+  pli80mir CLI → gates → measured-first M05.p1md → commit), then hop 5 §P1-mD.10 step 3.
