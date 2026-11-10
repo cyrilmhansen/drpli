@@ -50,7 +50,11 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-54/P1-m2 hop 7 CLOSE — **§P1-m2 CLOSED 2026-11-12: CF runner rc 0 83 MEASURED checks committed `2c08a90b`; FULL FROZEN regression ALL HIT; RESULTS §P1-m2 + arch §7-9 + dashboard CLOSED; STOP — await the OPERATOR**; session 01a1c708 renewal 6/12; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3 hop 1 RECON LANDED — **procedure calls AUTHORIZED; ZERO repo source byte; NEXT = MIR scratch probes, then PREREGISTRATION COMMIT, then m3a**; session 01a1c75f fresh chain renewal 0/12; ZERO oracle; ledger 203/C380; baseline `3a8a6284` verified first-hand; g743 = attested finalized managed blocks, NEVER hand-edit/replace) — READ LEARNINGS § "E2E-54/P1-m3 hop 1" VERBATIM FIRST (every first-hand anchor: the one-proc refusal arm, the Call_s/Call_e refusal sites, the **ex_ef AUDIT RESULT (a Call_e with all-Pure actuals is typed PURE — judge the NODE class, never the flag)**, Declare-includes-formal-dcl, the literal-Convert 15→p law (fixtures bin(15) end-to-end), MUTUAL recursion undetected HIR-side ⇒ backend DFS cycle refusal, MIR.md facts: proto leading bare type = RESULT (p_put's st IS the result reg), `call pc, name, res..., args...`, module-scope LABELS (Lfail must become per-func unique), per-func REG scoping UNPROVEN, `alloca` = DYNAMIC stack reserve (hoist to function entry; in-loop behavior UNMEASURED), void `func`/bare `ret` PREDICTED not yet parsed). PROPOSED ABI + full remaining plan in that section.
+
+NEXT VERBATIM: (1) SCRATCH probes in `build/p1m3-scratch/` (NEVER committed): hand-written `.mir` proving — multi-func module parse + mir2o object (`build/p1m0-deps/mir2o -f X.mir X.o`; `sh tools/mir_aot/build_native.sh` if the emitter binary is absent — its pins are verified by the script itself); call to a DEFINED (non-imported) func at OBJECT level (nm/readelf relocations; cosmo tiny link `tools/mir_aot/cosmo_link.sh` + chmod +x + exec vs `native_check.c` driver, non-console legs also glibc `native_check`); per-func register scoping (t1 twice); void func + bare `ret`; result-reg call (Call_e shape); function-entry `alloca` cell + TWO references to the SAME slot + callee store ⇒ caller observes (the alias end-to-end proof, console legs MUST link `tools/mir_aot/pli_console.c`); Lfail uniqueness per func. Record every measured syntax in LEARNINGS (ACCEPTED only after execution). (2) PREREGISTER §P1-m3 in `spec/lab-evidence/e2e54/PLAN.md` (m3a/m3b/m3c SEPARATE sections, own fixtures/expected bytes/negatives/falsifiers/close criteria; brief's `show`→stdout `5\n4\n` ret 4; `alias(x,x)`→`7\n` ret 7; differential `alias(x, x+0)`→`2\n7\n` ret 7 — all INDEPENDENTLY hand-derived; C-M3a/b/c; the entry vs subsidiary RETURN policy; -g multi-proc REFUSAL proposed) → COMMIT explicit path BEFORE ANY source byte (PROTOCOL #1). (3) m3a implementation in `ocaml/hir/mir_backend.ml` ONLY → gates each OWN command: `cd ocaml && eval "$(opam env)" && dune build` rc 0 → T1 exe `172595d5…` DIRECT → T2 `git diff --exit-code -- hir/expected ocaml/lib ocaml/bin` → `timeout 900 python3 tools/hir_test.py` 220 ok/11 UNMOVED → cmp EVERY existing pin UNMOVED (`hir/mir-expected/*`, `hir/mir-cf-expected/*`) (I6 falsifier) → measured-first ADDITIVE fixtures `hir/mir-call-fixtures/` + pins `hir/mir-call-expected/` (CRLF+^Z via `build/p1m2-scratch/mkpli.py`; every MIR line reviewed vs the pre-registration; ×2 determinism fresh procs; negatives rc 2 zero stdout no -o ×2) → native panel §(mir2o→cosmo tiny→exec vs PREREGISTERED bytes) → C-M3a fails loudly → commit m3a. (4) m3a gate GREEN before ANY m3b byte; m3b (stack homes, by-ref ABI, aliasing + differential fixtures) same discipline; m3b gate before m3c. (5) m3c (Call_e admitted ONLY as whole Assign RHS / whole Return expr, pure args, result interval = W(ret-p)). (6) interprocedural safety tests (widening, uninitialized-ref refusal, recursion cycle refusal, wrong-arity/type are HIR-gate refusals — DISTINGUISH and document which layer refuses). (7) DWARF regression (M05/CF debug pins UNMOVED; multi-proc -g refusal or documented behavior per pre-registration). (8) runner `tools/mir_aot_call_test.py` WRITTEN TO THE PLAN BEFORE first run, controls fail loudly inside; commit. (9) FULL FROZEN regression T1–T11 each own command (gate → `build/e54p1m3-reg-gate.log` 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23 repo-root; CF 83; fresh `cd ocaml && dune build --build-dir _build-e54p1m3` rc 0 ZERO Error hist 122 sha==kept). (10) CLOSE RESULTS §P1-m3 (m3a/m3b/m3c SEPARATELY) + arch `docs/architecture/backend-boundary.md` §7-10 + PLAN dashboard + durables → **STOP — no following phase authorized**. CFN6 window-guard coverage gap REMAINS OPEN (documented, not claimed fixed).
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m2 hop 7 CLOSE — **§P1-m2 CLOSED 2026-11-12: CF runner rc 0 83 MEASURED checks committed `2c08a90b`; FULL FROZEN regression ALL HIT; RESULTS §P1-m2 + arch §7-9 + dashboard CLOSED; STOP — await the OPERATOR**; session 01a1c708 renewal 6/12; ZERO oracle; ledger 203/C380)
 
 CLOSED THIS SESSION (first-hand, each own command, repo root): CF runner
 `tools/mir_aot_cf_test.py` FIRST-EVER RUN — first run rc 1 with **three
@@ -4101,17 +4105,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 742
-checkpoint-id: g742-87f77736f51e
+checkpoint-generation: 743
+checkpoint-id: g743-ad2a7e46016f
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-10T19:56:03.292Z
+guard-level: 0
+checkpointed: 2026-11-10T20:18:55.477Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5e4c859940c5549a39176e31ca81c012e48775959d8aa5ab38c2e704dc563a00
-source-handoff: 3b0d0d38a73a63e1a7e0262b65b7ca6bb0891c4f09718b80e4775ec2af8b17e2
-source-learnings: 24136ea15d5068b3e524392f47dc17a04d11119d0f8504c6bde434c941230268
+source-progress: 570f61a78485a75471701712667b8194a371a69bf23e7b1d39af2aff6f6cd93c
+source-handoff: d89e73b31fddaceb62f10477a2885db8078bcae160c5a685986f0767df739558
+source-learnings: 21df9f9b73cc216350ecd09791471f07736d766e5fd4ea8a7e82dc88fcd5604e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4878,9 +4882,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1c6f1-b9d8-7331-86b6-70dc4a88eae6
-readiness-at: 2026-11-10T19:56:03.434Z
-readiness-checkpoint: g742-87f77736f51e
+readiness-by: session:01a1c708-2a31-7331-86b6-70e0f7cf8e1b
+readiness-at: 2026-11-10T20:18:55.583Z
+readiness-checkpoint: g743-ad2a7e46016f
 <!-- guard:end checkpoint -->
 
 ## Blockers

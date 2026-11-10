@@ -11539,3 +11539,125 @@ lab/deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only (§P1-m2.8
 excepted); F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests;
 timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
 `chmod +x`; printf `%s\n`; byte-exact via Python subprocess.
+
+## E2E-54/P1-m3 hop 1 (2026-11-12, session 01a1c75f, fresh chain renewal 0/12; ZERO oracle; ledger 203/C380; ZERO repo source byte — RECON ONLY) — E2E-54/P1-m3 (procedure calls, by-value/by-reference/Call_e) AUTHORIZED; g743 RECONCILED; every anchor read FIRST-HAND; ABI design PROPOSED awaiting probes + pre-registration
+
+- g743 RECONCILED (brief §1): g743-ad2a7e46016f is the guard checkpoint GENERATION
+  (attested + finalized at session 01a1c708 end, 2026-11-10T20:18:55Z, ts recorded in
+  .pi-guard/diagnostics.jsonl); it lives as the UNCOMMITTED dirty managed blocks of
+  HANDOFF.md/PROGRESS.md at close HEAD `3a8a6284` — exactly the brief's starting
+  reference. NOT forgotten, NOT a git commit; NEVER hand-edit, NEVER manufacture a
+  replacement. This session 01a1c75f starts a NEW chain (0/12, previous chains
+  archived by the operator per policy).
+- BASELINE verified first-hand: HEAD `3a8a6284`; tree dirty ONLY the two managed
+  blocks + operator `handoff.config.json` (NEVER staged) + pre-existing ignored
+  scratch/untracked (S2..S5.PLi/logs, golden dir.txt rows, ocaml/_build-*, scratch-*)
+  — all NOT ours, leave untouched.
+- CURRENT mir_backend.ml (1153 L) READ FULLY first-hand. Multi-proc refusal is the
+  FIRST arm: `match prog.procs with [_] -> () | _ -> refuse e_mir_export "P1-m0
+  exports exactly one procedure..."`. Call_s refuses in lower_stmts; Call_e refuses
+  in `lower` (plus a blanket `ex_ef = Unknown_ef` refusal at lower's top — a
+  value-position Call_e ALWAYS carries Unknown_ef because hir_build `lower_call`
+  folds arg effects with ef_union, CONFIRMED at hir_build.ml:437-439: `let ef =
+  List.fold_left ... ef_union ... H.Pure hargs` — so §8's audit answer: EVERY
+  Call_e expr is Unknown_ef when any arg is; all-Pure-args Call_e is Pure!).
+  Wait — ef_union over hargs: a Call_e arg is Unknown via its OWN ac_ef (nested
+  call); pure A_value args keep Pure ⇒ a Call_e with all-Pure args is typed
+  `Pure` — the Unknown_ef gate does NOT fire on it. m3c must therefore JUDGE the
+  Call_e NODE class explicitly, never rely on the ef flag alone.
+  The whole compile is ONE closure over the single proc p: per-module state refs
+  `insns`, `tmp_n`, `cf_n`, `declared`, `string_items` + env threaded through
+  lower_stmts. Assembly order: `M0:\tmodule` + console_items (used-only protos →
+  ONE import line → s<k> items) + `entry_sym:\tfunc\ti64` + local line (v<sid>
+  ascending, st/a1, t<k>) + insns + optional UNINDENTED `Lfail:` tail + endfunc +
+  export + endmodule. Lfail/st/a1 names are MODULE-label scoped (st/a1 are regs —
+  per-func scope UNPROVEN, see probe list).
+- HIR facts first-hand (hir.ml/hir_build.ml/semantic_env.ml): `A_value of expr |
+  A_reference of designator` are distinct constructors; PM_immediate/PM_value_cell
+  → A_value, PM_own_cell → A_reference (D_var or D_elem); PM_copy_in/PM_unknown
+  refuse E16; type mismatch E17; arity checked HIR-side against bind sptr_count;
+  statement-call to a RETURNS function refuses HIR-side ("discards a value");
+  value-use of a no-RETURNS proc refuses HIR-side ("no bind RETURNS fact");
+  RECURSIVE/RECUR attribute refuses by name, but MUTUAL recursion is NOT detected
+  HIR-side — the BACKEND must reject cycles structurally (brief §4).
+  Declare nodes fire for EVERY dcl INCLUDING the formal dcl (Sdcl→Declare sid,
+  hir_build.ml:768); params = formal sids in declaration order; is_main = pid 0;
+  blocks pid-ascending pre-order. Formal syms: sstorage = Formal (backend `declare`
+  today refuses everything but Auto — m3 must route Formal-storage declares through
+  the params map). Backend `declare` scope guard (`s.scope <> p.scope` refuses) is
+  the EXISTING mechanism that names lexical-capture violations — reuse, never bypass.
+  Literal typing: lower_lit types EVERY integer literal Fixed_bin(profile default
+  = 15); assignment/RETURN to a narrower bin ALWAYS wraps Convert 15→p (CFN2/CFN6
+  law) — ALL m3 fixtures must use fixed bin(15) end-to-end so no Convert node is
+  produced (E19 would refuse first).
+- PINNED-MIR API FACTS READ FIRST-HAND from MIR.md (lab thirdparty/mir-madc-aot-lab
+  @ ccc92c5c, madc @ f541a7a5 — NEVER touch/advance): func title
+  `name: func {res,} arg-defs` e.g. `f: func i64, i64:x`; VOID func `main: func`
+  (no res) and proto `p: proto i64:c` (leading bare type = RESULT; `name:type` =
+  arg — cf. existing p_put `proto i64, i64:v` where st is the RESULT reg, proven by
+  §P1-m1). CALL: `call <proto>, <func-name>, <N result regs>, <args>` — result
+  operands exist exactly for proto result types (MIR.md:509-511). RET operands must
+  match func res types; void → bare `ret` (predicted; PROBE). Labels: SCOPE = WHOLE
+  MODULE (MIR.md:123) — Lfail MUST become module-unique per func in m3 (or be
+  hoisted); func/import/proto names unique module-wide. Registers: API is per-func
+  (`MIR_reg(name, func)`) — per-func TEXT scoping (t1 reuse in two funcs) UNPROVEN
+  against the pinned parser → PROBE before relying. ALLOCA: `alloca r, n` = DYNAMIC
+  stack reserve, address into r (MIR.md MIR_ALLOCA section; BSTART/BEND restore SP)
+  → alloca inside a LOOP/branch = stack growth per execution UNMEASURED → PROBE;
+  design intends function-entry hoisting of all reference-cell allocas.
+- PROPOSED native ABI (awaiting probes + PRE-REGISTRATION, engineering choice NOT a
+  DR claim): every proc → one `func`; entry keeps name `pli80_<folded>` and the ONLY
+  export; subsidiary native names deterministic from folded PL/I name + pid
+  collision-suffix; void procs = no-result func + bare `ret` (documented native void
+  convention); FIXED BIN(p,0) value args = i64 in func-arg registers named v<sid>;
+  reference args = caller passes the ADDRESS of the var's stack slot (alloca'd at
+  callee-visible stability: function-entry hoisting), callee receives it in a<sid>
+  and reads/writes via i64:(a<sid>); ONE proto per CALLEE pid `pc<pid>` (used-only,
+  pid-ascending); intervals: formal input domain = W(p) of the FORMAL's declared
+  type (never a call-site constant); after a Call_s/Call_e every by-ref-designated
+  caller sid WIDENED to W(declared) — and an UNINITIALIZED sid passed by reference
+  REFUSES (brief §7; no silent initialization); Call_e admitted ONLY as the whole
+  RHS of an Assign or the whole Return expr with all args pure A_value; result
+  interval = W(ret precision); env otherwise PRESERVED (no capture ⇒ no
+  blanket kill). Call-graph: DFS over Call_s/Call_e targets, cycle ⇒ refuse by
+  names. Entry keeps final-RETURN(expr) law; subsidiary fall-through/bare-RETURN
+  policy to be PREREGISTERED (proposed: subsidiary body may END with no Return ⇒
+  emit bare `ret` at end (void procs) — procedures have no result to leave
+  undefined; a Return SOME in a void proc and a fall-through in a value-returning
+  subsidiary REFUSE by name; early/nested RETURN stays refused via existing
+  no_return_in).
+- DEBUG SIDECAR: current p1md format is HARD single-func (`func 0 <entry>` + all
+  `insn <entry_sym> ...` rows; mir2o validates COUNT per func 0). Multi-func -g =
+  MAJOR format question → per brief §11: KEEP existing debug behavior, multi-func
+  DWARF recorded as FUTURE stage; the m3 runner must prove M05/CF debug pins UNMOVED
+  and decide the -g multi-proc policy EXPLICITLY (proposed: -g REFUSES multi-proc by
+  name in m3, pre-registered as a negative).
+- REMAINING before ANY code: (i) MIR SCRATCH PROBES (build/p1m3-scratch/, NEVER
+  committed): hand-written .mir exercising args/void/bare ret/call-to-defined-func
+  at object level (relocation + nm), per-func reg scoping, t1 reuse, alloca at
+  entry, alias end-to-end (same slot twice, callee p=7 → q reads 7 natively),
+  multi-func Lfail labels — run via build/p1m0-deps/mir2o + tools/mir_aot/cosmo_link.sh
+  TINY + chmod +x + fresh procs (console legs MUST link tools/mir_aot/pli_console.c;
+  non-console use native_check.c driver `extern long long ENTRY(void)`);
+  (ii) PREREGISTER §P1-m3 in spec/lab-evidence/e2e54/PLAN.md (m3a/m3b/m3c separate
+  milestones, fixtures with INDEPENDENT bytes — brief's own `show`/`alias`/`identity`
+  examples, expected stdout 5\n4\n ret 4; alias(x,x) ⇒ 7\n ret 7; differential
+  alias(x, x+0) ⇒ 2\n7\n ret 7 — ALL hand-verified independently; negatives +
+  controls C-M3a/b/c), COMMIT explicit path BEFORE any source byte (PROTOCOL #1);
+  (iii) implement m3a ONLY, gates: build → T1 `172595d5…` DIRECT → T2 → hir_test
+  220 ok/11 UNMOVED → cmp ALL existing mir pins (M01-M06, N*.mir, CF01-CF10 + CFN
+  .rc/.stderr) byte-UNMOVED → measured-first fixtures hir/mir-call-fixtures +
+  hir/mir-call-expected (ADDITIVE dirs, CRLF+^Z via build/p1m2-scratch/mkpli.py) →
+  native panel + controls → commit; m3b next (stack homes + aliasing + differential);
+  m3c last. NEW runner tools/mir_aot_call_test.py written BEFORE first run to the
+  PLAN; FULL FROZEN regression T1-T11 (gate 1328/1328-190/190-9/9-149 rows 0/0-
+  16/0/25/0-prose 5; mir_aot 32; cosmo 25; console 43; debug 23; CF 83) + fresh
+  _build-e54p1m3 hist 122 sha==kept; CLOSE RESULTS §P1-m3 + arch §7-10 + dashboard;
+  CFN6 window-guard COVERAGE GAP stays open (brief §7) — record, do not claim fixed.
+- STANDING (all hops): ZERO oracle; ledger 203/C380; config NEVER staged; no push;
+  explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN /
+  mir pins ADDITIVE-only; F8 law (no single uppercase letters, no size/offset/reloc/
+  pool words, no 0x in ocaml/hir/*.ml CODE strings); eval "$(opam env)"; rc DIRECT;
+  never batch build+tests; timeouts 60/120/900; cosmo chmod +x; printf %s\n for
+  negative stdin; byte-exact via Python subprocess; gdb -batch -nx debuginfod off
+  repo-root; runners FROM REPO ROOT.
