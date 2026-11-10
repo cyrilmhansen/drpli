@@ -2113,7 +2113,7 @@ checkpoint-generation: 749
 checkpoint-id: g749-ceda13de9cfe
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 4, remaining ~4313, session 01a1c78b-ae25-73cf-9d90-9b9b3c031ff7)
 checkpointed: 2026-11-10T22:36:18.121Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -2123,6 +2123,9 @@ source-learnings: 28bfe21fc4b2a4b6f8f2880c1fa8a1eeb2a888d490d0bc7bfcfafdbf70c543
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c78b-ae25-73cf-9d90-9b9b3c031ff7
+readiness-at: 2026-11-10T22:36:56.391Z
+readiness-checkpoint: g749-ceda13de9cfe
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
