@@ -1,0 +1,1 @@
+HIR-E18: line 7: MIR backend: a loop nested inside a DO WHILE body is outside the proven counted-loop subset (nested loops are not admitted; §P1-m2.3)

@@ -469,6 +469,87 @@ let compile ~(profile : Target.profile) ~(export : string)
           | _ -> ())
         arm
     in
+    (* ---- E2E-54/P1-m2 §P1-m2.3: the counted DO WHILE machinery -------------- *)
+    (* Every recognition step is a pure structural scan (NO emission) and runs
+       BEFORE any instruction is committed; a refused loop therefore emits
+       nothing at all. The exact exit value comes from the §P1-m2.3-5 formula
+       (exact integer arithmetic; the ceiling p <= 15 keeps every product
+       inside OCaml int). The guard is lowered INSIDE the header — never
+       peeled — so it re-evaluates EVERY iteration; the backedge jmp is
+       mandatory; header/post env carry the IV at its exact exit value and
+       DROP every other body-written symbol (drop-not-inherit, §P1-m2.2 law
+       reused). CFN6 ordering law (hop-3 PROPOSED, binding): the step Assign
+       window check inside the body lowering must be the FIRST refusal a
+       window-escaping loop hits, before the explicit orbit check and before
+       any guard check — the guard operand proofs are pre-computed in a
+       DISCARDED pass (no emission, temp counter rewound) so lowering the
+       guard in the header env can never refuse first. *)
+    let rec walk_expr (e : Hir.expr) (f : Hir.expr -> unit) : unit =
+      f e;
+      match e.Hir.ex with
+      | Hir.Bin { left; right; _ } ->
+          walk_expr left f;
+          walk_expr right f
+      | Hir.Neg { e = inner }
+      | Hir.Convert { e = inner; _ }
+      | Hir.Elem_read { subs = inner :: _; _ } ->
+          walk_expr inner f
+      | _ -> ()
+    in
+    let rec walk_stmts (ss : Hir.stmt list) (f : Hir.stmt -> unit) : unit =
+      List.iter
+        (fun (s : Hir.stmt) ->
+          f s;
+          match s.Hir.st with
+          | Hir.If { then_; else_; _ } ->
+              walk_stmts then_ f;
+              walk_stmts else_ f
+          | Hir.While { body; _ } -> walk_stmts body f
+          | _ -> ())
+        ss
+    in
+    (* statement-level WRITE of a scalar sid (assignment and GET target) *)
+    let stmt_write ?line (s : Hir.stmt) : int option =
+      let target =
+        match s.Hir.st with
+        | Hir.Assign { target; _ } -> Some target
+        | Hir.Get d -> Some d
+        | _ -> None
+      in
+      match target with
+      | Some (Hir.D_var { sid }) -> Some sid
+      | Some (Hir.D_elem { base = _; _ }) ->
+          refuse ?line Diagnostic.e_mir_node
+            "MIR backend: an array designation inside a loop body is outside the \
+               native subset (brief §3)"
+      | _ -> None
+    in
+    (* guard comparison mnemonic for the FOUR provable monotonic relations ONLY
+       (Eq/Ne cannot prove a monotonic exit, §P1-m2.3-1; inversion table §P1-m2.2) *)
+    let guard_cc (op : Hir.binop) : string option =
+      match op with
+      | Hir.Lt -> Some "lt"
+      | Hir.Le -> Some "le"
+      | Hir.Gt -> Some "gt"
+      | Hir.Ge -> Some "ge"
+      | _ -> None
+    in
+    (* §P1-m2.3-5 exact exit value; ZERO iterations iff iv0 already fails the guard *)
+    let zero_iterations (c : int) (t0 : int) (iv0 : int) : bool =
+      if c > 0 then iv0 >= t0 else iv0 <= t0
+    in
+    let exit_value (c : int) (t0 : int) (iv0 : int) : int =
+      if zero_iterations c t0 iv0 then iv0
+      else if c > 0 then
+        (* iv0 < t0: ceil((t0 - iv0) / c), exact on ints *)
+        let d = t0 - iv0 in
+        iv0 + (c * ((d + c - 1) / c))
+      else
+        (* c < 0, iv0 > t0: ceil((iv0 - t0) / -c), exact on ints *)
+        let d = iv0 - t0 in
+        let m = -c in
+        iv0 - (m * ((d + m - 1) / m))
+    in
     (* ---- statements (§P1-m0.2: declare / assign / exactly one final return) -- *)
     let body = p.Hir.body in
     if body = [] then
@@ -561,10 +642,283 @@ let compile ~(profile : Target.profile) ~(export : string)
                 emit ~line "%s:" ljoin;
                 lower_stmts (join_env env_t env_e) rest
               end
-          | Hir.While _ ->
-              refuse ~line Diagnostic.e_mir_node
-                "MIR backend: a while loop is outside the P1-m0 native subset (brief §3: \
-                   loops are explicitly excluded)"
+          | Hir.While { cond; body } ->
+              (* §P1-m2.3: the recognized counted loop; every refusal names itself
+                 BEFORE any instruction is committed. Label counter shared with m2a:
+                 loop k gets Lh<k>/Lx<k> (hop-1 fact 1.2: MIR label scope is the whole
+                 module, so names are collision-free by construction). *)
+              let line_guard = cond.Hir.ex_line in
+              let refuse_shape msg =
+                refuse ~line:line_guard Diagnostic.e_mir_node
+                  ("MIR backend: DO WHILE loop outside the proven counted-loop subset: "
+                  ^ msg ^ " (§P1-m2.3)")
+              in
+              let refuse_numeric msg =
+                refuse ~line:line_guard Diagnostic.e_mir_numeric
+                  ("MIR backend: DO WHILE loop refused: " ^ msg ^ " (§P1-m2.3)")
+              in
+              (match cond.Hir.ex with
+              | Hir.Bin { op; left; right; _ } when cond.Hir.ex_ty = Hir.Condty ->
+                  (* (1) guard shape: Var sid OP expr_B, OP in {Lt,Le,Gt,Ge}
+                     (Eq/Ne cannot prove a monotonic exit, §P1-m2.3-1) *)
+                  let iv =
+                    match left.Hir.ex with
+                    | Hir.Var { sid; addressable = _ } -> sid
+                    | _ ->
+                        refuse_shape
+                          "the left guard operand is not a simple variable read (the \
+                             induction variable must be a scalar symbol)"
+                  in
+                  let cc =
+                    match guard_cc op with
+                    | Some cc -> cc
+                    | None ->
+                        refuse_shape
+                          ("the guard comparison " ^ quote (Hir.pp_binop op)
+                          ^ " cannot prove a monotonic exit (only < <= > >= guards are \
+                             admitted)")
+                  in
+                  (* (2) IV definitely initialized to ONE proven constant before the
+                     loop (§P1-m2.3-2; the pre-loop env entry is the proof — the
+                     constant and Neg forms all arrive as point intervals) *)
+                  let iv0 =
+                    match Int_map.find_opt iv env with
+                    | None ->
+                        refuse_numeric
+                          ("the induction variable sym(" ^ string_of_int iv
+                          ^ ") is not definitely initialized on every reachable path \
+                             before the loop (uninitialized induction variable — the \
+                             counted-loop proof needs its exact start value)")
+                    | Some (lo0, hi0) when lo0 <> hi0 ->
+                        refuse_shape
+                          ("the induction variable sym(" ^ string_of_int iv
+                          ^ ") starts from the interval " ^ show_iv (lo0, hi0)
+                          ^ ", not a single proven constant")
+                    | Some (v0, _) -> v0
+                  in
+                  (* (3) body scans BEFORE any emission (§P1-m2.3-3): early/nested
+                     RETURN, nested loops, every bodyWriter, and the EXACTLY-ONE
+                     recognized monotonic step write *)
+                  no_return_in body;
+                  let nested = ref None in
+                  walk_stmts body (fun s ->
+                    match s.Hir.st with
+                    | Hir.While _ ->
+                        if !nested = None then nested := Some s.Hir.st_line
+                    | _ -> ());
+                  (match !nested with
+                   | None -> ()
+                   | Some nl ->
+                       refuse ~line:nl Diagnostic.e_mir_node
+                         "MIR backend: a loop nested inside a DO WHILE body is outside \
+                            the proven counted-loop subset (nested loops are not \
+                            admitted; §P1-m2.3)");
+                  let writers = ref [] in
+                  let add_writer sid =
+                    if sid <> iv && not (List.mem sid !writers) then
+                      writers := sid :: !writers
+                  in
+                  let bad_step = ref None in
+                  let step_c = ref None in
+                  let nsteps = ref 0 in
+                  walk_stmts body (fun s ->
+                    match stmt_write ~line:s.Hir.st_line s with
+                    | Some sid when sid = iv ->
+                        incr nsteps;
+                        let recognized =
+                          match s.Hir.st with
+                          | Hir.Assign { target = Hir.D_var _; value = ve } -> (
+                              match ve.Hir.ex with
+                              | Hir.Bin { op = bop; left = le; right = re; _ }
+                                when bop = Hir.Add || bop = Hir.Sub -> (
+                                  match (le.Hir.ex, re.Hir.ex) with
+                                  | (Hir.Var { sid = ls; _ }, Hir.Const { text }) -> (
+                                      match decimal_int text with
+                                      | Some cv when cv > 0 && ls = iv ->
+                                          Some (if bop = Hir.Add then cv else (0 - cv))
+                                      | _ -> None)
+                                  | _ -> None)
+                              | _ -> None)
+                          | _ -> None
+                        in
+                        (match recognized with
+                         | Some cv -> if !step_c = None then step_c := Some cv
+                         | None ->
+                             if !bad_step = None then bad_step := Some s.Hir.st_line)
+                    | Some sid -> add_writer sid
+                    | None -> ());
+                  if !nsteps <> 1 then
+                    refuse ~line Diagnostic.e_mir_node
+                      ("MIR backend: the loop body must write the induction variable \
+                         sym(" ^ string_of_int iv ^ ") EXACTLY ONCE in the recognized \
+                         step form; found " ^ string_of_int !nsteps
+                      ^ " write(s) (§P1-m2.3-3: the counted-loop proof refuses every \
+                         other body write to the induction variable by name)");
+                  (match !bad_step with
+                   | None -> ()
+                   | Some sl ->
+                       refuse ~line:sl Diagnostic.e_mir_node
+                         "MIR backend: the loop body writes the induction variable \
+                            outside the recognized monotonic step form (i = i + n or \
+                            i = i - n with a positive literal step n, §P1-m2.3-3)");
+                  let c =
+                    match !step_c with
+                    | Some cv -> cv
+                    | None -> assert false
+                    (* nsteps = 1 with no bad write: the recognized form was seen *)
+                  in
+                  (* (4) direction match (§P1-m2.3-4) *)
+                  let dir_ok =
+                    (c > 0 && (cc = "lt" || cc = "le"))
+                    || (c < 0 && (cc = "gt" || cc = "ge"))
+                  in
+                  if not dir_ok then
+                    refuse_shape
+                      ("the guard direction " ^ quote (Hir.pp_binop op)
+                      ^ " does not match the step sign (a non-terminating form the \
+                         proof cannot discharge)");
+                  (* (5) the bound reads NOTHING the body moves — every other
+                     bodyWriter AND the induction variable itself (a bound that
+                     reads the IV is not constant across iterations: the shape is
+                     refused, hop-3 PROPOSED point-bound restriction) — and lowers
+                     to a CONSTANT POINT interval in the pre-loop env. The guard
+                     operands' own window proofs are pre-computed in a DISCARDED
+                     pass (buffer and temp counter rewound; the identical pass runs
+                     again inside the header below) so the real guard lowering can
+                     never refuse BEFORE the body's step check — CFN6 ordering law
+                     (§P1-m2.3-6, hop-3 PROPOSED, binding). *)
+                  let bound_reads_moved = ref None in
+                  walk_expr right (fun en ->
+                    match en.Hir.ex with
+                    | Hir.Var { sid; _ } when sid = iv || List.mem sid !writers ->
+                        if !bound_reads_moved = None then
+                          bound_reads_moved := Some sid
+                    | _ -> ());
+                  (match !bound_reads_moved with
+                   | None -> ()
+                   | Some bs ->
+                       refuse_shape
+                         ("the guard bound reads sym(" ^ string_of_int bs
+                         ^ "), which the loop itself writes — the bound must be a \
+                            proven constant the body cannot move (§P1-m2.3-1)"));
+                  let insns_save = !insns in
+                  let tmp_save = !tmp_n in
+                  insns := [];
+                  let (_ : string * (int * int)) = lower env left in
+                  let (_, (blo, bhi)) = lower env right in
+                  insns := insns_save;
+                  tmp_n := tmp_save;
+                  if blo <> bhi then
+                    refuse_shape
+                      ("the guard bound is proved only within the interval "
+                      ^ show_iv (blo, bhi)
+                      ^ ", not a single proven constant (point-bound restriction, \
+                         hop-3 decision)");
+                  let b = blo in
+                  (* (6) first failing guard value T and the EXACT exit (§P1-m2.3-5,
+                     exact integer arithmetic; p <= 15 keeps every product in int) *)
+                  let t0 =
+                    if c > 0 then if cc = "lt" then b else b + 1
+                    else if cc = "gt" then b
+                    else b - 1
+                  in
+                  let exit_v = exit_value c t0 iv0 in
+                  (* loop-state discipline (§P1-m2.3): the header env carries the IV
+                     at its exact exit value and DROPS every other body-written sid
+                     (drop-not-inherit); inside the body the IV is refined to the
+                     guard-admitted interval — sound over-approximation by the
+                     monotonic direction (Lt [iv0,T-1], Le [iv0,T], Gt [T+1,iv0],
+                     Ge [T,iv0] as pre-registered); when that interval is EMPTY the
+                     loop takes ZERO iterations, the body is unreachable, and the
+                     body env carries the exit point instead — values are still
+                     checked (hop-3 PROPOSED) *)
+                  let raw_refine =
+                    match cc with
+                    | "lt" -> (iv0, t0 - 1)
+                    | "le" -> (iv0, t0)
+                    | "gt" -> (t0 + 1, iv0)
+                    | _ (* "ge" *) -> (t0, iv0)
+                  in
+                  let body_iv =
+                    if fst raw_refine > snd raw_refine then (exit_v, exit_v)
+                    else raw_refine
+                  in
+                  let header_env =
+                    List.fold_left
+                      (fun acc w -> Int_map.remove w acc)
+                      env !writers
+                  in
+                  let header_env = Int_map.add iv (exit_v, exit_v) header_env in
+                  let body_env = Int_map.add iv body_iv header_env in
+                  (* (7) VERIFICATION body pass (CFN6 ordering law): the step
+                     Assign's own window check is the FIRST refusal a window-escaping
+                     loop hits — before the orbit check and before any guard check.
+                     This pass is DISCARDED (buffer, temp counter AND label counter
+                     rewound — an If inside a verified body must not consume a cf_n
+                     number invisibly: §P1-m2.2 counts IF statements in source order
+                     densely); the emission below re-lowers the identical code so
+                     t<k stay in EVALUATION ORDER (guard before body, §P1-m0.4 law) *)
+                  incr cf_n;
+                  let sfx = string_of_int !cf_n in
+                  let outer = !insns in
+                  let tmp_base = !tmp_n in
+                  let cf_base = !cf_n in
+                  insns := [];
+                  let (_ : (int * int) Int_map.t) = lower_stmts body_env body in
+                  insns := outer;
+                  tmp_n := tmp_base;
+                  cf_n := cf_base;
+                  (* (8) explicit orbit check (belt-and-suspenders AFTER the body
+                     lowering, §P1-m2.3-6): every value the induction variable
+                     takes — start, every body value, every step result and the
+                     exact exit — lies inside W(p) of its declared precision *)
+                  let sp = Int_map.find iv !declared in
+                  let w_iv = window sp in
+                  let orbit =
+                    if exit_v = iv0 then (iv0, iv0)
+                    else if c > 0 then (iv0, max exit_v (snd body_iv + c))
+                    else (min exit_v (snd body_iv + c), iv0)
+                  in
+                  if not (in_window w_iv orbit) then
+                    refuse_numeric
+                      ("the induction variable sym(" ^ string_of_int iv
+                      ^ ") is proved to reach " ^ show_iv orbit
+                      ^ " across the loop orbit (start, body, step and exit values), \
+                         leaving the window " ^ show_iv w_iv
+                      ^ " of its declared type "
+                      ^ Hir.pp_ty (Hir.Fixed_bin (sp, 0)) ^ " (brief §4)");
+                  (* (9) EMISSION passes, in evaluation order: guard first in the
+                     header env (the IV read carries [exit,exit], ⊆ W by the orbit
+                     check, so this lowering CANNOT refuse — the discarded proofs
+                     above are the same computations), then the body *)
+                  insns := [];
+                  lower_cond ~inverted:true header_env cond ("Lx" ^ sfx);
+                  let guard_insns = !insns in
+                  insns := [];
+                  let (_ : (int * int) Int_map.t) = lower_stmts body_env body in
+                  let body_insns = !insns in
+                  (* (10) splice in the PROVEN emission order (hop-1 probe_loop.mir,
+                     executed value 3): Lh, guard (re-evaluated EVERY iteration),
+                     body, mandatory backedge jmp, Lx; every instruction rides the
+                     loop statement's source line (§P1-m2.9 sidecar law) *)
+                  insns := outer;
+                  emit ~line "Lh%s:" sfx;
+                  List.iter
+                    (fun (txt, l) -> emit ~line:l "%s" txt)
+                    (List.rev guard_insns);
+                  List.iter
+                    (fun (txt, l) -> emit ~line:l "%s" txt)
+                    (List.rev body_insns);
+                  emit ~line "jmp Lh%s" sfx;
+                  emit ~line "Lx%s:" sfx;
+                  (* the header env IS the post-loop env: IV = [exit,exit]; every
+                     other body-written sid stays DROPPED (zero-iteration path) *)
+                  lower_stmts header_env rest
+              | _ ->
+                  refuse ~line:line_guard Diagnostic.e_mir_node
+                    "MIR backend: a DO WHILE guard that is not a relational comparison \
+                       of proved integer operands is outside the counted-loop subset \
+                       (a condition literal is not admitted; §P1-m2.3)")
           | Hir.Call_s _ ->
               refuse ~line Diagnostic.e_mir_node
                 "MIR backend: a call statement is outside the native subset (brief §3)"

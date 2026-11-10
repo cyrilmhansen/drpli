@@ -1,0 +1,1 @@
+HIR-E19: line 3: MIR backend: conversion FIXED BINARY(15,0) -> FIXED BINARY(3,0) is outside the proven-safe domain (fixed-point conversion rounding and overflow are profile-UNKNOWN; §P1-m0.3 refuses, never guesses)

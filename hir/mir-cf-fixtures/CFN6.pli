@@ -1,0 +1,9 @@
+cfn6: procedure returns(fixed bin(3));
+   dcl i fixed bin(3);
+   i = 0;
+   do while (i < 4);
+      i = i + 1;
+   end;
+   return (i);
+end cfn6;
+

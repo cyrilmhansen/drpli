@@ -1,0 +1,1 @@
+HIR-E19: line 3: MIR backend: DO WHILE loop refused: the induction variable sym(0) is not definitely initialized on every reachable path before the loop (uninitialized induction variable — the counted-loop proof needs its exact start value) (§P1-m2.3)

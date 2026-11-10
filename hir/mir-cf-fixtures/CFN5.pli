@@ -1,0 +1,14 @@
+cfn5: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   dcl j fixed bin(15);
+   i = 0;
+   do while (i < 2);
+      j = 0;
+      do while (j < 2);
+         j = j + 1;
+      end;
+      i = i + 1;
+   end;
+   return (i);
+end cfn5;
+

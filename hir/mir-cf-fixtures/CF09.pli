@@ -1,0 +1,14 @@
+loopcond: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   dcl j fixed bin(15);
+   i = 0;
+   j = 9;
+   do while (i < 2);
+      if i = 0 then
+         put list(j);
+      i = i + 1;
+   end;
+   put list(i);
+   return (i);
+end loopcond;
+

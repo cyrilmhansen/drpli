@@ -1,0 +1,9 @@
+oneit: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   i = 2;
+   do while (i <= 2);
+      i = i + 1;
+   end;
+   return (i);
+end oneit;
+

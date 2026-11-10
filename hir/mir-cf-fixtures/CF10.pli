@@ -1,0 +1,10 @@
+stepdn: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   i = 6;
+   do while (i > 2);
+      put list(i);
+      i = i - 2;
+   end;
+   return (i);
+end stepdn;
+

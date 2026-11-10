@@ -1,0 +1,10 @@
+count: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   i = 0;
+   do while (i < 3);
+      put list(i);
+      i = i + 1;
+   end;
+   return (i);
+end count;
+

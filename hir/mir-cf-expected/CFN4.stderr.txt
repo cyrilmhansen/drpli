@@ -1,0 +1,1 @@
+HIR-E18: line 5: MIR backend: the loop body writes the induction variable outside the recognized monotonic step form (i = i + n or i = i - n with a positive literal step n, §P1-m2.3-3)
