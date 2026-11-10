@@ -470,3 +470,41 @@ production adoption are **PROPOSED ONLY** (each needs its own PROTOCOL #1
 pre-registration + operator authorization). Zero oracle: this is toolchain
 engineering evidence, never a DR claim — the ledger stays **C380**. Panel:
 RESULTS §P1-mD.
+
+## 7-9 E2E-54/P1-m2 — Native control flow in the MIR backend (CLOSED 2026-11-12)
+
+The native MIR path now lowers **PL/I `IF/ELSE` and bounded `DO WHILE`**. All
+of it lives in `ocaml/hir/mir_backend.ml` (the only compiler file touched in
+the whole slice): `Hir.If` emits the §P1-m2.2 shapes (both-arm `b<cc>/jmp` form
+and the no-ELSE inverted-guard form) with globally-unique dense labels from a
+dedicated `cf_n` counter; each arm lowers in a COPY of the value env and the
+`Ljoin` merge is **drop-not-inherit plus sound interval hull** — a variable
+assigned on only one path is `None` afterwards, so any later read refuses by
+name (CFN1); the window law is never bypassed inside arms. `Hir.While` emits the
+PROVEN header/backedge shape with the guard re-evaluated every iteration and the
+mandatory `jmp Lh<k>`, accepted ONLY through the exact-integer counted-loop
+proof (constant IV init, single monotonic literal step, guard-direction match,
+exact exit value `iv0 + c·ceil(...)` inside the declared window; zero-iteration
+path exact; every other body-written sid dropped at the header; nested loops
+and any other IV write refuse BY NAME). The scientific law of the slice:
+**an unprovable loop is never accepted to make a fixture pass** — the six
+negative fixtures each pin the named refusal. Non-vacuity is executed, not
+argued: flipping `blt`→`bge` or deleting the backedge in disposable MIR copies
+makes the NATIVE program execute the predicted wrong bytes (C-M2a prints `1\n`
+where `-1\n` is the hand-derived expectation; C-M2b runs exactly one iteration),
+observed failing loudly inside the committed runner `tools/mir_aot_cf_test.py`
+(83 measured checks; every §P1-m2.5 leg executed byte-exactly on cosmo tiny
+static links, plus glibc legs for the no-console fixtures). The §P1-mD sidecar
+contract needed no new record type — CF insns ride `st_line` and label rows
+record opcode `label` (a defect caught by `mir2o`'s own opcode validation);
+gdb breaks on the IF line read both arms' variables and a three-hit breakpoint
+on the loop body reads the induction variable 0, 1, 2 on the real machine. The
+brief's §2-vs-§9 contradiction was resolved IN ADVANCE in §P1-m2.8 (N1 wording
+truth, N2 straight into a positive with value 2, N7 re-pin, 27→32): those four
+are the ONLY pre-existing artifacts that moved; every other pin, the CT2
+objects, `hir_test` (220 ok, 11 numbers UNMOVED), the console (43) and debug
+(23) suites and the FULL gate (1328/1328 … prose 5) stayed FROZEN ALL HIT.
+Scope stops at one function, scalar autos, no early/nested RETURN, no
+parameters/aggregates/arrays/FILE streams/`ON` conditions, no general fixpoint;
+everything beyond is **PROPOSED ONLY**. Zero oracle throughout — ledger stays
+**C380**. Panel: RESULTS §P1-m2.

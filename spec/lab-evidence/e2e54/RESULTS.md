@@ -1316,3 +1316,181 @@ rc 0, 23 checks, controls failing loudly); step 5 CLOSE (this commit: RESULTS
 §P1-mD + arch §7-8 + dashboard CLOSED + LEARNINGS + durables). Interstitial
 durables: `8eee4bd3`, `ef1106be`, `907f58c3`-era hops' checkpoint commits,
 `5277ecfc`, `a0617b6e`, `610ecd5f`.
+
+## §P1-m2 — Native control flow: IF/ELSE and bounded DO WHILE — CLOSED 2026-11-12 (hops 1–7, sessions 01a1c673→01a1c708)
+
+Pre-registered as PLAN §P1-m2 (PROTOCOL #1 gate: committed `d6bb1274` **BEFORE
+any repository source byte**, after one recon hop); executed in work-order
+§P1-m2.13 steps 2–8. ZERO oracle throughout: backend engineering evidence,
+never a DR claim — the ledger stays **203 headers ending C380**.
+
+### P1-m2.1 Milestones delivered (SEPARATELY, per §P1-m2.0)
+
+**m2a — conditional branches and control-flow joins: PASS** (commit `ac56dd1d`).
+`Hir.If` (with and without ELSE, nested) lowers to the §P1-m2.2 shapes with the
+six relational operators; the join is **drop-not-inherit + sound interval hull**
+(`Some`+`Some` → hull, `Some`+`None` → `None` — an assignment executed on one
+path is never inherited); each arm lowers in a copy of the pre-IF env; the
+window law I1 applies inside arms unchanged; `Hir.Var` refusal reworded to the
+truthful "not definitely initialized on every reachable path" (§P1-m2.8 item 0).
+GREEN first-hand: CF01 `choose` EXECUTED both arms natively (stdin `-2` →
+`-1\n`, `0`/`7` → `1\n`, driver-return on stderr); all 15 §P1-m2.5 m2a stdin
+legs executed byte-exactly on cosmo **tiny** static links; the pinned parser
+(`mir2o`) accepted every emitted form (beq/bne/ble/bge measured-first per the
+inversion table, Lt→Ge/Ge→Lt already hop-1 proven); corruption control
+**C-M2a FAILED LOUDLY** (`blt`→`bge` flip EXECUTED the wrong arm, `1\n` where
+`-1\n` was the independent expectation); CFN1/CFN2 refuse rc 2 with pinned
+stderr, zero stdout, no artifact ×2; §P1-m2.8 amendments LANDED (N1 stderr
+re-pinned path-truth; N2 refusal pins DELETED, `N2.mir` additive measured-first
+pin, N2 became a POSITIVE with hand-derived value **2**; `mir_aot_test.py`
+27→**32** recorded deviation).
+
+**m2b — bounded `DO WHILE` + counted-loop proof: PASS** (commit `9672455b`).
+`Hir.While` lowers to the hop-1-PROVEN header/backedge shape (§P1-m2.3): guard
+reevaluated EVERY iteration (never peeled), inverted branch to `Lx<k>`,
+mandatory `jmp Lh<k>` backedge; counter `cf_n` shared with m2a and **rewound
+around the discarded verification pass** (deviation 4). The counted-loop proof
+accepts ONLY: guard `Var sid OP const-interval` (OP ∈ Lt/Le/Gt/Ge), IV
+definitely initialized to a constant, EXACTLY one body write = monotonic
+`sid = sid ± C` literal step, direction match, and the EXACT exit value
+`iv0 + c·ceil(...)` inside the declared window (zero-iteration path exact:
+`exit = iv0`); every body-written non-IV sid is DROPPED at the header; nested
+loops, IV writes outside the step, Eq/Ne guards and direction mismatches refuse
+BY NAME. GREEN first-hand: CF06 `count` (brief §6 verbatim) executed THREE
+genuine iterations (`0\n1\n2\n`, driver-return=3) and CF07 zero-iteration
+(ret 5), CF08 exactly-one (Le, exit 3), CF09 IF-inside-loop (`9\n2\n` ret 2),
+CF10 descending c=−2 (`6\n4\n` ret 2) all EXECUTED the INDEPENDENT §P1-m2.5
+bytes; glibc native_check legs CF07=5/CF08=3 ×2 fresh procs; CFN3..CFN6 refuse
+by name (rc 2, zero stdout, no `-o`, deterministic ×2); N7 re-pinned measured-first
+per §P1-m2.8 item 2 (stays rc 2, now the named uninitialized-IV E19);
+**C-M2b FAILED LOUDLY** (deleting `jmp Lh1` on a disposable copy EXECUTED
+exactly ONE iteration `0\n`, prediction of §P1-m2.7).
+
+**DWARF sidecar compatibility (§P1-m2.9): PASS.** No new sidecar record type was
+needed — labels ARE insns, and the label rows must record opcode `label`
+(defect caught first-hand at hop 5, fix committed `f7750038`; `.mir` bytes
+untouched by construction: the assembly drops the line). CF01 `-g`: 27-row
+sidecar reviewed row-by-row (24 body + the 3 line-0 fail-tail records; branch/
+`jmp`/`label` rows at the IF line 5), debug object 3616 B byte-identical ×2,
+named `.debug_frame` + `.rela.debug_frame`, NO `.eh_frame`; **gdb break
+CF01.pli:5 hit on BOTH arms** (stdin `-2` → x=-2, y=-1; stdin `7` → x=7, y=1 —
+next,next discipline, hop-5 stale-slot lesson). CF06 `-g`: 22-row sidecar;
+debug object 3264 B sha `499169b4…` **byte-identical across sessions**;
+decodedline rows 3@0xa0, 3@0xb2, **4@0xbc, 5@0xcf, 6@0xf9, 4@0x10a**, 8@0x113 —
+the loop line 4 appears TWICE (guard AND backedge) as required; optlinux debug
+link EXECUTES `0\n1\n2\n` driver-return=3 unchanged; **gdb break CF06.pli:5 hit
+THREE times with `print i` = $1=0/$2=1/$3=2** (the backedge on the real
+machine). W3 non-vacuity: the same break on the NO-debug link refuses
+(`No source file named CF06.pli`, gdb rc nonzero). Existing debug pins
+(M05.mir, M05.p1md, `.o` sha `cb263c2c…3984782`) UNMOVED (runner W4).
+
+### P1-m2.2 Falsifier panel (T1–T11) — every measured value (close-session runs, each its OWN command)
+
+- **T1 PASS** — kept exe `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` verified DIRECT this session (and again at the fresh build below).
+- **T2 PASS** — `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0 at close; every runner leg re-compares regenerated bytes against the committed pins.
+- **T3 PASS** — `tools/hir_test.py` rc 0 **220 ok**, 11 frozen semtest numbers UNMOVED (H01 4/3 H02 7/2 H03 7/4 H04 4/2 H05 1/1 H08 7/3 H09 3/2 H16 12/5 H17 12/5 H18 7/3 H21 5/2), F8 green → `build/e54p1m2-reg-hir.log`.
+- **T4 PASS** — FULL gate rc 0 **FROZEN ALL HIT**: byte panel **1328/1328**, negatives **190/190**, divergence **9/9**, coverage **149 rows 0/0**, census **16/0/25/0**, prose **5** → `build/e54p1m2-reg-gate.log`.
+- **T5 PASS** — `tools/mir_aot_test.py` rc 0 **32 checks** (the §P1-m2.8-3 amendment), positives 42/45/10/**2** EXECUTED, 6 negatives, C-a/C-b fail natively → `build/e54p1m2-reg-miraot.log`.
+- **T6 PASS** — `tools/mir_aot_cosmo_test.py` rc 0 **25 checks** → `build/e54p1m2-reg-cosmo.log`.
+- **T7 PASS** — `tools/mir_aot_console_test.py` rc 0 **43 checks** (CT2 no-IO objects byte-frozen under the recursive `cu_*` walk — §P1-m2.8 item 0 blast radius held); `tools/mir_aot_debug_test.py` rc 0 **23 checks** from the repo root → `build/e54p1m2-reg-{console,debug}.log`.
+- **T8 PASS** — fresh `dune build --build-dir _build-e54p1m2` rc 0, **ZERO `Error`**, warning history **122**, fresh exe sha == kept (computed separately).
+- **T9 PASS** — EVERY existing `hir/mir-expected/*.mir` byte-UNMOVED (I6 falsifier re-run hop 6: 12 positive pins stdout==file==pin ×2 fresh procs, every negative rc/stderr/zero-artifact UNMOVED; N7 moved ONLY as §P1-m2.8 item 2 authorizes); CT2 `.o` shas `78656e6c…/3822f777…/02c15b1b…` and the M05 debug `.o` sha held inside the re-run suites; CF01/CF06 `-g` `.mir` byte-equal to their non-debug pins.
+- **T10 PASS** — NEW `tools/mir_aot_cf_test.py` rc 0 **83 checks (MEASURED count, not a formula)**: V0 prerequisites + K0 toolchain identity; V1 CF01..CF10 pins ×2 fresh procs; V2 CFN1..CFN6 pinned rc/stderr/zero-stdout/NO artifact ×2; V3 pipeline proof (all ten positives also lower through `pli80hir` rc 0); V4 ten static tiny links (no PT_INTERP, no dynamic section, `nm T pli80_<n>`, no undefined console symbols) + EVERY §P1-m2.5 leg EXECUTED byte-exactly in fresh procs (20 stdin legs incl. the two BAD(2)-via-Lfail rc-2 arms) + glibc legs + determinism re-runs; V5 **C-M2a AND C-M2b OBSERVED FAILING LOUDLY INSIDE**; W1/W2 DWARF (row tables, byte-identical objects, section laws, decodedline, debug exec, gdb both IF arms + three-hit loop breakpoint); **W3 no-debug break OBSERVED refusing**; W4 existing debug pins UNMOVED (commit `2c08a90b`).
+- **T11 PASS** — ZERO oracle (no DR compiler/cpmsim/LINK-80/Rune CI); ledger **203/C380** verified at close HEAD; `handoff.config.json` NEVER staged; explicit-path commits only; scratch `build/p1m2-scratch/`, `build/mir-cf/`, `build/mir-*` NEVER committed; lab `ccc92c5c`/`f541a7a5` and `build/p1m*-deps`/`build/p1mc-deps` NEVER edited or advanced (mir2o rebuilt from the COMMITTED `tools/mir_aot/mir2o.c`, lab pins verified by `build_native.sh`); no push; timeouts 60/120/900.
+
+### P1-m2.3 Deviations and measured notes (recorded, NOT fitted)
+
+1. **§P1-m2.8 pre-registered amendments LANDED exactly as written** (they are
+   not post-hoc re-fits): N1 stderr re-pinned to the truthful uninitialized-path
+   wording; N2 converted to a POSITIVE (value **2**) with its stale refusal pins
+   deleted and an additive `N2.mir` pin; N7 re-pinned at m2b (stays rc 2);
+   `mir_aot_test.py` check count **27 → 32**.
+2. **CFN2 measures the CONVERSION refusal, not the planned Assign-window arm.**
+   The pre-registered prediction (Assign `[4,4]` leaving `[-3,3]`) cannot fire:
+   `hir_build` always wraps a literal into `fixed bin(3)` in `Convert 15→3`, and
+   the existing conversion law refuses FIRST at line 6 (E19, pinned measured-
+   first). Refusal law and negativity UNCHANGED; recorded, not re-plumbed.
+3. **CFN6 same family:** the pre-existing E19 Convert fires at line 3 (`i = 0;`
+   literal into `fixed bin(3)`) BEFORE any loop machinery — the §P1-m2.3 item 5
+   step-window check is **structurally UNEXERCISABLE** by any fixture in the
+   current subset (every small-precision IV must init from a literal; a
+   GET-initialized IV is a non-point interval, also refused). The check exists
+   in code and refuses by name; no fixture proves it — honest limitation.
+4. **`cf_n` rewind fix (hop 5, my catch):** the DISCARDED CFN6 verification
+   body pass consumed one `cf_n` per body-If, so CF09 emitted sparse
+   `Ljoin3` — violating §P1-m2.2 "labels in source order, dense". `cf_n` is now
+   saved/restored around the discarded pass (like `insns`/`tmp_n`); CF09
+   re-measured `Lh1/Lx1 + Ljoin2`; CF06/07/08 pins verified UNMOVED.
+5. **Sidecar label-opcode defect (hop 5, caught by `mir2o` rc 8, fix committed
+   `f7750038`):** a MIR label directive is an insn NAMED `label`; the sidecar
+   opcode map's first-token rule wrongly recorded label NAMES on CF paths. Rows
+   whose text ends `:` now record `label`. The hand-written `Lfail` tail always
+   did; the M05 pin never exercised a mid-body label at the head of the emitted
+   list. `.mir` bytes and every non-debug byte are untouched by construction.
+6. **CF runner first-ever-run defects (close hop, self-caught; NO expected byte,
+   NO pin, NO compiler file):** (a) the static-ELF law required capitalized
+   `"No dynamic section"` but readelf prints lowercase `There is no dynamic
+   section in this file.` — 10 links + 20 exec legs + 2 determinism legs failed
+   in cascade; fixed to the committed cosmo-runner idiom (fail iff `NEEDED`
+   present or the phrase absent), verified against the recorded `readelf_d`
+   evidence; (b) **C-M2b predicted wrong-behaviour rc 1**, conflating the PL/I
+   exit value with the driver process status — the recorded first-run
+   observation is `rc 0 stdout b'0\n' stderr b'driver-return=1\n'` (the §P1-m1
+   driver contract: rc is the I/O status OK0/EOF1/BAD2/RANGE3/IOERR4, the
+   returned value rides on stderr), exactly the hop-5 native measurement and the
+   §P1-m2.7 prediction of ONE iteration; fixed to `rc 0`; (c) sidecar `var`
+   rows were split on TAB although `mir_backend` writes `var v<sid> <sorig>`
+   with a SPACE — W1 found `[]` for both fixtures. Second run: rc 0, **83**
+   measured checks, controls failing loudly INSIDE.
+7. **Console cosmo links MUST include `tools/mir_aot/pli_console.c`** (hop 6: a
+   hand-invoked link without it died rc 1 `undefined reference to
+   pli_console_*`); the committed runners always passed it; recorded so the
+   recipe is never hand-copied wrong again.
+8. **Operational (host, not repository):** a `git add` died with SIGBUS leaving
+   a stale zero-byte `.git/index.lock`; recovered by proving NO git process was
+   alive, then removing that EXACT path (`00471053` re-committed cleanly). The
+   tree and history were untouched.
+
+### P1-m2.4 Accepted/unsupported matrix (the slice's honest boundary)
+
+| construct | status | evidence |
+|---|---|---|
+| `IF THEN ELSE` / `IF THEN` (no ELSE = identity arm), ALL six relational ops | **SUPPORTED, NATIVELY EXECUTED** | CF01 (Lt, both arms), CF02 (Gt skip/taken), CF03 (nested, Eq arm), CF04 (Ne + Ge, signed ±) |
+| join law: hull on `Some`+`Some`, **DROP** on `Some`+`None` | **SUPPORTED, PROVEN LOUDLY** | CF02 hull `[7,9]` executes 9/7; CFN1 refuses the one-path `y` read by name |
+| console PUT/GET inside branches (each call keeps its own `bne Lfail`) | **SUPPORTED, NATIVELY EXECUTED** | CF05 five legs incl. BAD(2) rc 2 via the shared `Lfail` tail |
+| `DO WHILE` with counted-loop proof (constant init, monotonic literal step, direction match, exact exit, window) | **SUPPORTED, NATIVELY EXECUTED** | CF06 3 iterations, CF07 zero, CF08 one (Le), CF10 descending −2; exit values 3/5/3/2 EXACT |
+| `IF` inside the loop body (IV untouched in arms) | **SUPPORTED, NATIVELY EXECUTED** | CF09 `9\n2\n` ret 2 (dense labels via the cf_n rewind) |
+| uninitialized IV / non-step IV write / nested loop / Eq-Ne guard / direction mismatch | **REFUSED BY NAME** (E18/E19), never silently | CFN3/CFN4/CFN5 rc 2, zero stdout, no artifact ×2 |
+| early/nested `RETURN`, branch-condition interval refinement, general fixpoint | OUT of subset (unchanged refusals; explicitly NOT required) | §P1-m2.2/.12 |
+| `-g` DWARF sidecar + gdb for control-flow programs (scalar auto, single home) | **SUPPORTED, GDB-VERIFIED** | CF01 both arms; CF06 three-hit backedge; W3 refuses without `-g` |
+| parameters, aggregates, arrays, FILE streams, `ON` conditions, `PUT EDIT`, multi-CU, APE, ARM64, production-backend adoption | **PROPOSED ONLY** | each needs its own PROTOCOL #1 pre-registration + operator authorization |
+
+### P1-m2.5 Reproduction
+
+```bash
+eval "$(opam env)"
+cd ocaml && dune build                              # rc 0; T1 exe 172595d5… DIRECT
+sh tools/mir_aot/build_native.sh                    # rc 0 (mir2o from committed C; lab pins verified)
+cd /home/john/projects/sushiworks/pli80             # REPO ROOT (cwd law)
+timeout 900 python3 tools/mir_aot_cf_test.py        # rc 0; 83 measured checks; C-M2a/C-M2b/W3 FAIL LOUDLY inside
+timeout 900 python3 tools/mir_aot_test.py           # rc 0; 32 checks
+timeout 900 python3 tools/mir_aot_cosmo_test.py     # rc 0; 25 checks
+timeout 900 python3 tools/mir_aot_console_test.py   # rc 0; 43 checks
+timeout 900 python3 tools/mir_aot_debug_test.py     # rc 0; 23 checks (repo root)
+timeout 900 python3 tools/hir_test.py               # rc 0; 220 ok; 11 numbers UNMOVED
+timeout 900 python3 tools/e2e_gate.py               # rc 0; FROZEN ALL HIT
+cd ocaml && timeout 900 dune build --build-dir _build-e54p1m2   # rc 0; ZERO Error; hist 122; sha==kept
+```
+
+### P1-m2.6 Commits (explicit paths, hop order)
+
+pre-registration `d6bb1274` (PLAN §P1-m2, PROTOCOL #1) BEFORE any source byte;
+hop-2 durables `81ec5498`/`5abe9c82`-era baseline; **m2a `ac56dd1d`**
+(`mir_backend.ml` §P1-m2.2 + §P1-m2.8 items 0/1 + `mir_aot_test.py` 32 + CF01..
+CF05/CFN1..CFN2 measured-first pins); hop-4 durables `71b7d56e`; **m2b
+`9672455b`** (§P1-m2.3 + cf_n rewind + CF06..CF10/CFN3..CFN6 + N7 re-pin);
+**sidecar label fix `f7750038`** (`mir_backend.ml`, gates re-green first-hand);
+hop-6 durables `ab66668a`, renewal boundary `00471053`, operational record
+`518a5827`; **CF runner `2c08a90b`** (`tools/mir_aot_cf_test.py`, first-ever run
+rc 0, 83 measured checks, three runner defects fixed honestly); CLOSE (this
+commit: RESULTS §P1-m2 + arch §7-9 + dashboard CLOSED + LEARNINGS + durables).

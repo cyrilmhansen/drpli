@@ -11464,3 +11464,78 @@ SUCCESSOR (VERBATIM order): (1) `cd /home/john/projects/sushiworks/pli80 && eval
 STANDING: HEAD `f7750038` + dirty durables/config; ZERO oracle; config NEVER staged; no push; explicit paths; scratch build/p1m2-scratch + build/mir-cf + build/mir-* NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/build/p1mc-deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only (§P1-m2.8 excepted); F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off FROM REPO ROOT; cosmo `chmod +x` + always link `pli_console.c` for console objects; printf `%s\n`; byte-exact via Python subprocess; wine `fixme:` filtered.
 - **Renewal boundary (this hop):** the CF runner's first run was NOT attempted in this session — remaining context made a 900 s suite plus the full T1–T11 regression and the close unsafe. `handoff_renew` authorized: checkpoint `g739-f401ba876dd9` refreshed + attested by session 01a1c6f1, cap 6/12. Durables committed at `ab66668a`; the runner file (855 lines, `tools/mir_aot_cf_test.py`) is UNTRACKED ON DISK and must survive into the successor's worktree — verify it exists (`wc -l`, `python3 -m py_compile`) BEFORE running it, and re-read its tables if it is missing (its full design contract is this § + PLAN §P1-m2.5/.9/.10). LESSON: a suite of this size needs a whole hop, not a leftover tail of one; checkpoint at the pre-run boundary instead.
 - **OPERATIONAL (accepted, observed):** a `git add` in this repository died with SIGBUS (`Erreur du bus (core dumped)`, rc 135) and left a stale zero-byte `.git/index.lock`, after which every git command failed with `Unable to create '.git/index.lock': Le fichier existe`. Recovery used, in order: `ps -eo pid,etime,cmd | grep [g]it` to prove NO git process was alive, `ls -la .git/index.lock` + `date` to confirm the lock was the crashed command's own (0 B, 75 s old), then `rm -f .git/index.lock` (that EXACT path only) and the same `git add`/`git commit` succeeded (`00471053`). The tree and history were untouched, and the shared `.git/worktrees` of the foreign `/tmp/wt_base` worktree were never inspected or modified. LESSON: a SIGBUS mid-git-operation is a host/tooling event, not a repository defect — attribute it, verify no live process, and remove only the specific proven-stale lock file rather than reaching for any cleanup command.
+
+## E2E-54/P1-m2 hop 7 / CLOSE (2026-11-12, session 01a1c708, renewal 6/12; ZERO oracle; ledger 203/C380) — CF runner FIRST RUN rc 0 **83 measured checks**; FULL FROZEN regression ALL HIT; **§P1-m2 CLOSED — STOP**
+
+ACCEPTED (first-hand this session, each own command, from the REPO ROOT):
+- Inherited state verified: HEAD `518a5827` (durables `ab66668a`, boundary
+  `00471053`, index.lock record `518a5827`); runner on disk 855 lines,
+  `py_compile` rc 0, NEVER executed; `dune build` rc 0; T1 kept exe
+  `172595d5…` DIRECT.
+- **CF runner first-ever run: rc 1, 35 FAILURES — three RUNNER defects, zero
+  compiler/pin/expected-byte defects.** (a) The static-ELF law (line ~392)
+  required capitalized `"No dynamic section"`; readelf prints
+  `There is no dynamic section in this file.` (lowercase) — 10 `[tiny]` legs +
+  all 20 exec legs + 2 determinism legs failed in CASCADE; fixed to the
+  committed cosmo-runner idiom (`fail iff "NEEDED" present or "dynamic section"
+  absent`), verified first against the runner's OWN recorded `readelf_d.txt`.
+  (b) **C-M2b predicted `rc 1`**: the predecessor note transcribed the loop's
+  PL/I exit value (stderr `driver-return=1`) as the driver PROCESS status; the
+  recorded first-run obs file is `rc 0 stdout b'0\n' stderr b'driver-return=1\n'`
+  — exactly the §P1-m1 driver contract (rc = OK0/EOF1/BAD2/RANGE3/IOERR4) and
+  the §P1-m2.7 one-iteration prediction; fixed to `wrong_rc 0`. The control DID
+  fail loudly the whole time — the runner's own prediction was wrong about
+  itself. (c) sidecar `var` rows were split on `"\t"` but `mir_backend` writes
+  `var v<sid> <sorig>` with a SPACE (both W1 legs saw `[]`); fixed to
+  `.split()`. LESSON (re-confirmed): a never-run runner's predictions are
+  UNVERIFIED code, including its control expectations; the loud-failure of a
+  control is judged against the MEASURED observation file, and every string
+  law (case! separator!) must be checked against the committed runner idiom or
+  the recorded evidence, never against prose.
+- **Second run rc 0, 83 checks (MEASURED counter, never a formula):** V1 ten
+  `.mir` pins stdout==file==pin ×2 fresh procs; V2 CFN1..CFN6 pinned rc 2 /
+  stderr bytes / ZERO stdout / NO artifact ×2 (CFN2/CFN6 show the recorded
+  Convert-15→3 deviations verbatim); V3 pipeline proof ×10; V4 mir2o rc 0 ×10,
+  ten tiny static links (no PT_INTERP, no dynamic section, `nm T pli80_<n>`,
+  no undefined console symbols), EVERY §P1-m2.5 leg EXECUTED byte-exactly
+  (CF01 `-1/1/1`, CF02 `9/7`, CF03 `-1/0/2`, CF04 `9/11/-9`, CF05 `7/-2/rc2/
+  rc2`, CF06 `0\n1\n2\n` dr 3, CF07 dr 5, CF08 dr 3, CF09 `9\n2\n` dr 2, CF10
+  `6\n4\n` dr 2), glibc legs CF07=5/CF08=3 ×2, determinism CF01/lt + CF06/run;
+  V5 **C-M2a FAILED LOUDLY INSIDE** (executed `1\n` rc 0, expectation `-1\n`
+  failed) and **C-M2b FAILED LOUDLY INSIDE** (`0\n` rc 0, dr 1, expectation
+  `0\n1\n2\n` failed); W1/W2 DWARF (CF01 27-row + CF06 22-row tables exact,
+  debug objects ×2 byte-identical 3616/3264 B, `.debug_frame` named /
+  `.rela.debug_frame` / NO `.eh_frame`, decodedline 3,3,4,5,6,4,8 with the
+  guard AND backedge at line 4, debug exec byte-exact, **gdb BOTH IF arms +
+  three-hit loop breakpoint `print i` = 0/1/2**); **W3 FAILED LOUDLY** (no-debug
+  break → `No source file named CF06.pli`); W4 existing debug pins UNMOVED
+  (M05.mir, M05.p1md, `.o` sha `cb263c2c…3984782`). Committed `2c08a90b`
+  (explicit path).
+- **FULL FROZEN regression T1–T11, ALL HIT** (each own command, logs under
+  ignored `build/e54p1m2-reg-*.log`): T4 gate rc 0 **1328/1328 — 190/190 —
+  9/9 — 149 rows 0/0 — census 16/0/25/0 — prose 5**; T3 hir rc 0 **220 ok**,
+  11 numbers UNMOVED, F8 green; T5 mir_aot **32**; T6 cosmo **25**; T7 console
+  **43**; T7 debug **23** (repo root); T8 fresh `--build-dir _build-e54p1m2`
+  rc 0, ZERO `Error`, warning hist **122**, sha == kept DIRECT; T1/T2 held;
+  ledger 203 headers ending **C380**; tree dirty ONLY managed blocks +
+  operator `handoff.config.json` (NEVER staged).
+- **CLOSE LANDED (this commit):** RESULTS **§P1-m2** (m2a/m2b SEPARATELY +
+  DWARF + T-panel WITH values + 8 deviations incl. the three runner first-run
+  defects + accepted/unsupported matrix + reproduction + commits
+  `d6bb1274`→`ac56dd1d`→`9672455b`→`f7750038`→`2c08a90b`→close); arch
+  **§7-9**; PLAN §P1-m2.14 dashboard **CLOSED**.
+SUCCESSOR: **NOTHING FURTHER IS AUTHORIZED — §P1-m2.13 step 8 STOP.** Report
+closure, await the OPERATOR. Every next slice (production-backend adoption,
+parameters/aggregates/arrays, FILE streams, `ON` conditions, `PUT EDIT`, APE,
+ARM64, broader MIR semantics) is **PROPOSED ONLY** — its own PROTOCOL #1
+pre-registration + explicit operator authorization BEFORE any code byte. If
+re-authorized: baseline FIRST-HAND at the close HEAD (build rc 0; T1
+`172595d5…` DIRECT; T2 clean; `hir_test` 220 ok/11 UNMOVED; ledger 203/C380),
+READ RESULTS §P1-m2 + LEARNINGS §§ hop 7/6/5 FIRST; CF runner and debug runner
+FROM THE REPO ROOT (cwd law); link console objects WITH `pli_console.c`.
+STANDING: ZERO oracle; config NEVER staged; no push; explicit paths; scratch
+`build/p1m2-scratch/` + `build/mir-cf/` + `build/mir-*` NEVER committed;
+lab/deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only (§P1-m2.8
+excepted); F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests;
+timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
+`chmod +x`; printf `%s\n`; byte-exact via Python subprocess.

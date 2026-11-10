@@ -4567,4 +4567,4 @@ measured blocker while m2a stands (brief §12).
 
 | slice | status | notes |
 |---|---|---|
-| P1-m2 | **PRE-REGISTERED (this commit); m2a IN FLIGHT** | native control flow: m2a IF/ELSE + joins (drop-not-inherit), m2b bounded DO WHILE + counted-loop proof; §P1-m2.8 pre-registers the ONLY pre-existing-artifact amendments the brief's §2/§9 contradiction forces |
+| P1-m2 | **CLOSED 2026-11-12** (hops 1–7; m2a `ac56dd1d`, m2b `9672455b`, sidecar fix `f7750038`, runner `2c08a90b` rc 0 **83 measured checks**) | native control flow GREEN end-to-end: IF/ELSE with drop-not-inherit joins and bounded DO WHILE with the exact counted-loop proof; every §P1-m2.5 leg EXECUTED byte-exactly natively; C-M2a/C-M2b/W3 observed failing loudly inside the runner; §P1-m2.8 amendments landed exactly as pre-registered (N2→positive 2, N7 re-pin, 27→32); FULL FROZEN regression ALL HIT; RESULTS §P1-m2 + arch §7-9; **STOP — no next phase authorized without the OPERATOR** |

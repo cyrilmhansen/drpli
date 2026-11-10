@@ -7,7 +7,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-2a-e54p1m2-6. **E2E-54/P1-m2 hop 6 — sidecar label fix COMMITTED `f7750038` (all gates re-green first-hand: build/T1/T2/hir 220-11/I6 ALL PINS UNMOVED); CF06-DWARF GREEN (decodedline 4/5/6 + line-4 twice, gdb three hits `print i`=0/1/2, debug .o byte-identical 3264 B sha 499169b4…); `tools/mir_aot_cf_test.py` WRITTEN TO §P1-m2.5/.9/.10, NEVER RUN; FULL FROZEN regression + CLOSE REMAIN 2026-11-12 (session 01a1c6f1, renewal 5/12; ZERO oracle; ledger 203/C380).** FIRST: read LEARNINGS § "E2E-54/P1-m2 hop 6" VERBATIM (the cosmo link MUST take `pli_console.c`; sidecar rows are SPACE-separated; the stale-N7-banner trap in i6_check.py; the runner design), then PLAN §P1-m2 (binding). NEXT (PROGRESS live heading VERBATIM): run the CF runner FROM THE REPO ROOT (fix RUNNER defects only; C-M2a/C-M2b/W3 must fail loudly inside) → commit explicit path → FULL FROZEN regression T1–T11 each own command (gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → build/e54p1m2-reg-gate.log; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23; T10 new CF runner; fresh _build-e54p1m2 hist 122 sha==kept) → CLOSE RESULTS §P1-m2 + arch §7-9 + dashboard CLOSED + durables → **STOP**. Standing: ZERO oracle; config NEVER staged; no push; scratch never committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only (§P1-m2.8 excepted); gdb repo-root.
+2a-e54p1m2-7. **E2E-54/P1-m2 CLOSED 2026-11-12 — CF runner first-ever run rc 0, 83 MEASURED checks (three RUNNER-level defects self-caught and fixed honestly — readelf lowercase `no dynamic section`, C-M2b control rc conflating `driver-return=1` with the process status, tab-split of the SPACE-separated `var` rows; ZERO pin/expected-byte/compiler changes; committed `2c08a90b`); FULL FROZEN regression ALL HIT (gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → build/e54p1m2-reg-gate.log; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23 repo-root; fresh _build-e54p1m2 rc 0 ZERO Error hist 122 sha==kept `172595d5…`; T1/T2 clean); controls C-M2a/C-M2b/W3 OBSERVED FAILING LOUDLY INSIDE the runner; CLOSE LANDED: RESULTS §P1-m2 (m2a/m2b SEPARATELY, T-panel WITH values, 8 deviations, matrix, reproduction, commits `d6bb1274`→`ac56dd1d`→`9672455b`→`f7750038`→`2c08a90b`→close) + arch §7-9 + PLAN §P1-m2.14 dashboard CLOSED + LEARNINGS § hop 7 CLOSE (session 01a1c708, renewal 6/12; ZERO oracle; ledger 203/C380). SUCCESSOR: NOTHING FURTHER IS AUTHORIZED — §P1-m2.13 step 8 STOP; report closure, await the OPERATOR. If re-authorized: baseline FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…` DIRECT; T2 clean; hir 220/11; ledger 203/C380), READ RESULTS §P1-m2 + LEARNINGS §§ hop 7 CLOSE/6/5 FIRST; CF/debug runners FROM THE REPO ROOT; console cosmo links MUST include `tools/mir_aot/pli_console.c`. Standing: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only (§P1-m2.8 excepted).**
+
+SUPERSEDED-BY-ABOVE: 2a-e54p1m2-6. **E2E-54/P1-m2 hop 6 — sidecar label fix COMMITTED `f7750038` (all gates re-green first-hand: build/T1/T2/hir 220-11/I6 ALL PINS UNMOVED); CF06-DWARF GREEN (decodedline 4/5/6 + line-4 twice, gdb three hits `print i`=0/1/2, debug .o byte-identical 3264 B sha 499169b4…); `tools/mir_aot_cf_test.py` WRITTEN TO §P1-m2.5/.9/.10, NEVER RUN; FULL FROZEN regression + CLOSE REMAIN 2026-11-12 (session 01a1c6f1, renewal 5/12; ZERO oracle; ledger 203/C380).** FIRST: read LEARNINGS § "E2E-54/P1-m2 hop 6" VERBATIM (the cosmo link MUST take `pli_console.c`; sidecar rows are SPACE-separated; the stale-N7-banner trap in i6_check.py; the runner design), then PLAN §P1-m2 (binding). NEXT (PROGRESS live heading VERBATIM): run the CF runner FROM THE REPO ROOT (fix RUNNER defects only; C-M2a/C-M2b/W3 must fail loudly inside) → commit explicit path → FULL FROZEN regression T1–T11 each own command (gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → build/e54p1m2-reg-gate.log; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23; T10 new CF runner; fresh _build-e54p1m2 hist 122 sha==kept) → CLOSE RESULTS §P1-m2 + arch §7-9 + dashboard CLOSED + durables → **STOP**. Standing: ZERO oracle; config NEVER staged; no push; scratch never committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only (§P1-m2.8 excepted); gdb repo-root.
 
 SUPERSEDED-BY-ABOVE: 2a-e54p1m2-5. **E2E-54/P1-m2 hop 5 — m2b MEASURED GREEN + COMMITTED `9672455b`; sidecar label-opcode FIX UNCOMMITTED (KEEP, never revert); CF06-DWARF + CF runner + FULL regression + CLOSE REMAIN 2026-11-12 (session 01a1c6dd, renewal 4/12; ZERO oracle; ledger 203/C380).** FIRST: read LEARNINGS § "E2E-54/P1-m2 hop 5" VERBATIM (CFN6 deviation, cf_n rewind, sidecar `label` opcode law, gdb next,next discipline), then PLAN §P1-m2 (binding). NEXT: gates → commit sidecar fix → CF06 decodedline + gdb backedge i=0/1/2 → runner written to §P1-m2.5 BEFORE first run (controls fail loudly inside) → FULL FROZEN regression T1–T11 (gate 1328/…-prose 5; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23; fresh _build-e54p1m2 hist 122 sha==kept) → CLOSE + STOP. Standing: ZERO oracle; config NEVER staged; no push; scratch never committed; lab/deps NEVER touched; pins law as in PROGRESS.
 
@@ -2103,22 +2105,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 741
-checkpoint-id: g741-4ffab61c4014
-checkpoint-kind: auto
+checkpoint-generation: 742
+checkpoint-id: g742-87f77736f51e
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4756, session 01a1c6f1-b9d8-7331-86b6-70dc4a88eae6)
-checkpointed: 2026-11-10T19:55:05.579Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1297, session 01a1c6f1-b9d8-7331-86b6-70dc4a88eae6)
+checkpointed: 2026-11-10T19:56:03.292Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 5e4c859940c5549a39176e31ca81c012e48775959d8aa5ab38c2e704dc563a00
 source-handoff: 3b0d0d38a73a63e1a7e0262b65b7ca6bb0891c4f09718b80e4775ec2af8b17e2
-source-learnings: 125c02d0f4775c52a212ee7185f88edf361d8bb9ef186f441f1f7249b987d5d8
+source-learnings: 24136ea15d5068b3e524392f47dc17a04d11119d0f8504c6bde434c941230268
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c6f1-b9d8-7331-86b6-70dc4a88eae6
+readiness-at: 2026-11-10T19:56:03.434Z
+readiness-checkpoint: g742-87f77736f51e
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
