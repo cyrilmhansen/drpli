@@ -2031,25 +2031,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 710
-checkpoint-id: g710-ac3a3019c92e
-checkpoint-kind: manual
+checkpoint-generation: 712
+checkpoint-id: g712-ac8752b9b95e
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~9913, session 01a1c52f-85d9-70db-a628-8ae77bce3bd5)
-checkpointed: 2026-11-10T11:36:48.858Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4896, session 01a1c52f-85d9-70db-a628-8ae77bce3bd5)
+checkpointed: 2026-11-10T11:37:56.545Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 914a2652dcd7068d5e8a0d7c1a106069490be660b63b57296c50f0041bea753a
+source-progress: f17924dd0661a9963f3b60ddf4ea3e78f1b585928a7b343e16d1be059c8f1081
 source-handoff: 1cea84b5476cc32b28e370872b619c7d81588b565505107e66b4a3a352296630
 source-learnings: a4257a757ef7a0a0115d6390ba59e1f87beb10ec1464f4bdd73d3c187d65b7ee
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c52f-85d9-70db-a628-8ae77bce3bd5
-readiness-at: 2026-11-10T11:36:48.904Z
-readiness-checkpoint: g710-ac3a3019c92e
 ### Last verified state
-guard level 2; checkpoint requested (finalize: E2E-54/P1-mD hop 1 checkpoint: g709 reconciled (guard generation finalized at 1e14ada6 == origin/main; NOT a missing push; blocks untouched). Baseline FIRST-HAND all green (build, T1 172595d5, hir 220, mir_aot 27, cosmo 25, gate FROZEN -> build/e54pmD-baseline-gate.log). Pinned-lab debug-interface audit complete in LEARNINGS P1-mD hop 1 (gen default level 2 -> debug path sets 0; non-debug calls NOTHING). ZERO repo source byte; ZERO oracle; ledger 203/C380; config never staged; no push. SUCCESSOR = PROGRESS live P1-mD hop-1 heading VERBATIM: (1) scratch probe build/p1mD-scratch/probe_mir2o_dbg.c proving the full AOT DWARF sequence on M05 + cosmo tiny link + gdb batch (break/step/bt/print); (2) WRITE+COMMIT PLAN.md section P1-mD (explicit path, PROTOCOL #1) BEFORE any repo source byte, D1/D2 SEPARATE, sidecar contract + loud validation, falsifiers, env, stop threshold; (3) work order mir_backend -> pli80mir -> mir2o -> pins -> runner + GDB evidence -> controls D-C1/D-C2/D-C3 -> FULL FROZEN regression -> CLOSE + STOP.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
