@@ -2077,25 +2077,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 726
-checkpoint-id: g726-40ca4fca29c3
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 727
+checkpoint-id: g727-c09aae39c7fd
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4913, session 01a1c5c2-34c4-70db-a628-8afe1beb8037)
-checkpointed: 2026-11-10T16:15:37.563Z
+status: checkpoint (guard level 0, remaining ~26659, session 01a1c63f-15b7-70db-a628-8b03d9e09d19)
+checkpointed: 2026-11-10T16:33:18.198Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f27fb69724eb622bc2a61d84b10e66c3bcc39c14c1703d3321ef336757112613
-source-handoff: 274b564ab4440c151ef7c031b75dd7de17e6f51947c33c85f0088cbaa4f4c7cf
-source-learnings: b42ce1e5cd572b2c8046de5a3985fe8c53e1a00883931dba291098acbeed6e63
+source-progress: d29a5609b10d7ac27a9072bf42027c1e8781a6cb2cc64f68168ee02917f5b82e
+source-handoff: e5702d97f6c9e207ff93623d00afb4f8144b42502cf014d751ed548cf6d50358
+source-learnings: d02aef467f0cf9d7ba6d29ad99bdb1c9670cf3f73fb3e9bb7bce026730105594
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c5c2-34c4-70db-a628-8afe1beb8037
-readiness-at: 2026-11-10T16:15:57.561Z
-readiness-checkpoint: g726-40ca4fca29c3
+readiness-by: session:01a1c63f-15b7-70db-a628-8b03d9e09d19
+readiness-at: 2026-11-10T16:33:18.315Z
+readiness-checkpoint: g727-c09aae39c7fd
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 0; checkpoint requested (finalize: E2E-54/P1-mD CLOSED at 64ba3617 (close docs 74d40fde, runner 2e8fdc9e). NOTHING further authorized — successor awaits the OPERATOR; see HANDOFF 1e-e54pmD-8.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2868,5 +2868,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-mD hop 5 IN FLIGHT. Committed `b400b3b9` (sha256.ml + mir_backend additive sidecar; .mir FROZEN on all pins M01..M06 byte-identical; hir_test 220 ok/11 UNMOVED/F8 green). Durables `5277ecfc`. REMAIN (PROGRESS live heading steps 3-6 VERBATIM): (3) pli80mir CLI -g/--debug-map + 4 rc-2 arms + default MAP OUT.mir^".p1md" + Unix.getcwd (unix dep in EXECUTABLE stanza only, library pli80_hir libraries UNMOVED), write MAP only after .mir on Ok path; (4) gates each own command: build->T1 172595d5 DIRECT->T2->cmp all mir-expected WITH and WITHOUT -g->hir_test 220/11->full gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose5 -> build/e54pmD-step1-gate.log; (5) MEASURED-FIRST pin hir/mir-debug-expected/M05.p1md (NEW ADDITIVE dir, from real CLI -g output, review every row vs P1-mD.3 + 14-row law 3,3,3,3,4,4,4,4,4,5,5,0,0,0 + var v0 n, determinism x2, NEVER hand-written); (6) commit explicit paths. Then hop 6+: P1-mD.10 step 3 (mir2o.c debug mode, rc 7/8/9/10 measured-first) -> step 4 runner+gdb+controls D-C1/C2/C3 failing LOUDLY first -> FULL FROZEN regression T1-T11 -> step 5 CLOSE + STOP. READ LEARNINGS hop 5 + hop 4 FIRST. Standing: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; scratch build/p1mD-scratch + build/mir-debug NEVER committed; lab ccc92c5c/f541a7a5 + deps NEVER edited; hir pins FROZEN/mir pins ADDITIVE-only; F8; eval opam env; rc DIRECT; never batch build with tests; timeouts 60/120/900; gdb -batch -nx debuginfod off; cosmo chmod +x.
+E2E-54/P1-mD CLOSED at 64ba3617 (close docs 74d40fde, runner 2e8fdc9e). NOTHING further authorized — successor awaits the OPERATOR; see HANDOFF 1e-e54pmD-8.
 <!-- guard:end checkpoint -->
