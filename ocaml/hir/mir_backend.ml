@@ -1100,7 +1100,19 @@ let compile ~(profile : Target.profile) ~(export : string)
       String.sub text 0 !stop
     in
     let opcodes =
-      List.map (fun (text, ln) -> (first_token text, ln)) (List.rev !insns)
+      List.map
+        (fun (text, ln) ->
+          (* A MIR label directive parses as an insn named "label" (mir2o
+             validates every row against MIR_insn_name).  The backend writes
+             labels as "NAME:" alone on the line — including the m2a/m2b
+             control-flow labels — so the sidecar opcode for such a row is
+             "label", never the label name (§P1-mD.3 opcode law). *)
+          let n = String.length text in
+          let op =
+            if n > 0 && text.[n - 1] = ':' then "label" else first_token text
+          in
+          (op, ln))
+        (List.rev !insns)
       @
       if cu_any then [ ("label", 0); ("call", 0); ("ret", 0) ] else []
     in
