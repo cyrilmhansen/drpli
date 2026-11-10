@@ -7,7 +7,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-1e-e54pmD-3. **E2E-54/P1-mD hop 3 CLOSED (session 01a1c559, renewal 2/12; ZERO oracle; ZERO repo
+1e-e54pmD-4. **E2E-54/P1-mD hop 4 IN FLIGHT — RECON COMPLETE, ZERO repo source byte (session 01a1c577, renewal 3/12; ZERO oracle; ledger 203/C380; committed `ef1106be`).** Baseline FIRST-HAND at `907f58c3`: build rc 0; exe `172595d5…` DIRECT; T2 clean; ledger 203/C380. All hop-4 anchors read first-hand and recorded in `LEARNINGS.md` § "E2E-54/P1-mD hop 4" — READ FIRST: the live M05 emit order + the assembly-emitted `Lfail:`/`call p_exit`/`ret st` tail reproduce the pre-registered **14 rows 3,3,3,3,4,4,4,4,4,5,5,0,0,0**; `var` rows = the existing `v_regs` filter (`scope = p.scope && sstorage = Auto`) naming `Hir.sym.sorig`; `artifact.debug_map` + an OPTIONAL `?debug_source` keep `Backend.BACKEND` satisfiable so the pli80mir witness stands; F8 (`tools/hir_test.py:284`) forbids `0x` AND the words size/offset/reloc/pool AND single uppercase letters in `ocaml/hir/*.ml` ⇒ SHA-256 K/H0 as decimal space-separated tables, `Printf "%02x"` safe; `unix` dependency ONLY in the `pli80mir` executable stanza (library `pli80_hir` libraries UNMOVED, `modules` gains `sha256`). **SUCCESSOR = PROGRESS live hop-4 heading steps (1)–(6) VERBATIM:** write `ocaml/hir/sha256.ml`; additive `mir_backend.ml` sidecar (emit carries the line, assembly drops it ⇒ `.mir` bytes FROZEN; sidecar ONLY on request); `pli80mir -g/--debug-map` CLI with the rc-2 usage arms and the absolute-path/`Unix.getcwd` law; gates each its OWN command (build → T1 → T2 → cmp ALL `hir/mir-expected/*.mir` with and without `-g` → `hir_test` 220 ok/11 UNMOVED → FULL gate FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → `build/e54pmD-step1-gate.log`); MEASURED-FIRST new ADDITIVE pin `hir/mir-debug-expected/M05.p1md` (never hand-written, determinism ×2); commit explicit paths. Then hop 5 = §P1-mD.10 step 3 (mir2o debug mode, rc 7/8/9/10 measured-first) → step 4 runner + gdb evidence + controls D-C1/D-C2/D-C3 failing LOUDLY first → FULL FROZEN regression → step 5 CLOSE + **STOP**. Standing: ZERO oracle; ledger 203/C380; `ocaml/lib`+`ocaml/bin` byte-clean; config NEVER staged; no push; explicit paths; scratch `build/p1mD-scratch/`+`build/mir-debug/` NEVER committed; lab `ccc92c5c`/`f541a7a5` + `build/p1m*-deps`/`build/p1mc-deps` NEVER edited/advanced; hir pins FROZEN / mir pins ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build with tests; timeouts 60/120/900; gdb `-batch -nx -ex "set debuginfod enabled off"`; cosmo artifacts `chmod +x`.
+
+SUPERSEDED-BY-ABOVE: 1e-e54pmD-3. **E2E-54/P1-mD hop 3 CLOSED (session 01a1c559, renewal 2/12; ZERO oracle; ZERO repo
 source byte; ledger 203/C380; evidence in ignored `build/p1mD-scratch/`).** D-a glibc link GREEN ⇒
 **MIR CFI VALID; cosmo `bt` blocker is PURELY ape.lds folding `.eh_frame` into `.data`**. D-b: no
 public eh_frame switch, but ape.lds of ALL modes keeps `.debug_frame` as its own named section and
@@ -2067,25 +2069,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 715
-checkpoint-id: g715-4aa33e4f0c45
-checkpoint-kind: manual
+checkpoint-generation: 718
+checkpoint-id: g718-88aee32eb9eb
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 1, remaining ~13088, session 01a1c559-6104-70db-a628-8aee8937bcde)
-checkpointed: 2026-11-10T12:37:04.730Z
+status: checkpoint (guard level 4, remaining ~3930, session 01a1c577-1b6b-70db-a628-8af28f711019)
+checkpointed: 2026-11-10T13:00:51.835Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0175086b1bb7b25e43b045a4d4991a491151e0011ab9761ee7b22c5e506ccce0
-source-handoff: 2b0bdb8b5520bd54fa9f6f858a12b37ab3de0ba19c96a0a38d1313e15e02a9a6
-source-learnings: 0f224fbd82ee0657aa8cff0b4c8d50e42b3da4904b9ae83c60606643c20141d2
+source-progress: e612895da39679044e23842f3bfa4f133c393a32d6b3e62bf31e479fbe457461
+source-handoff: 5d11994501ecfed19fa2e9746880e79e75f136731f6d729c189b13bbed9430c9
+source-learnings: 5796fe143f71d8857ec87b3ed22beaf2da154a08804f2f27563767b1f7d97764
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c559-6104-70db-a628-8aee8937bcde
-readiness-at: 2026-11-10T12:37:04.774Z
-readiness-checkpoint: g715-4aa33e4f0c45
+readiness-by: session:01a1c577-1b6b-70db-a628-8af28f711019
+readiness-at: 2026-11-10T13:01:25.428Z
+readiness-checkpoint: g718-88aee32eb9eb
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
