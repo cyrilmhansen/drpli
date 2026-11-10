@@ -4021,17 +4021,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 720
-checkpoint-id: g720-0c7adf6d350a
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 721
+checkpoint-id: g721-4e9d26a14bc3
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-10T13:28:56.083Z
+checkpointed: 2026-11-10T13:31:33.621Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e612895da39679044e23842f3bfa4f133c393a32d6b3e62bf31e479fbe457461
+source-progress: 612d24ab3c729888f12d057595091b85e60a557998996a6c0c37b29c49d82eb1
 source-handoff: 5d11994501ecfed19fa2e9746880e79e75f136731f6d729c189b13bbed9430c9
-source-learnings: 5796fe143f71d8857ec87b3ed22beaf2da154a08804f2f27563767b1f7d97764
+source-learnings: 6a75a42a0fece2fee9e1f686aace6a59c83c3451a3b5baadba2bdd12269d3128
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4798,6 +4798,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1c58d-3488-70db-a628-8af63ce5f921
+readiness-at: 2026-11-10T13:31:33.664Z
+readiness-checkpoint: g721-4e9d26a14bc3
 <!-- guard:end checkpoint -->
 
 ## Blockers
