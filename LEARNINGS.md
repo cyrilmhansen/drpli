@@ -10968,3 +10968,85 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   no-IO object hashes MUST NOT MOVE; F8 vocabulary law on every NEW ocaml/hir string; `eval "$(opam
   env)"` every shell; rc DIRECT; NEVER batch build with tests; timeout 60 per fixture / 900 per suite /
   120 per cosmo link.
+
+## E2E-54/P1-mD hop 2 (2026-11-10, session 01a1c540, renewal 1/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380; ZERO repo source byte — everything in ignored build/p1mD-scratch/) — SCRATCH DWARF PROBE: D1 GREEN except BACKTRACE; ROOT CAUSE LOCALIZED TO COSMO LINK LAYOUT (pending one discriminating test)
+
+- **accepted (baseline):** HEAD `2bff401f` (≥ 5c3ac327); `dune build` rc 0; ledger 203/C380; M05.mir
+  regenerated via `ocaml/_build/default/hir/pli80mir.exe --export iorw -o … hir/mir-fixtures/M05.pli`
+  BYTE-IDENTICAL to `hir/mir-expected/M05.mir` (582 B stdout too).
+- **accepted (probe exists and works):** `build/p1mD-scratch/probe_mir2o_dbg.c` compiles clean
+  `gcc -O2 -Wall -Wextra -Werror -I thirdparty/…/mir … build/p1m0-deps/mir-obj/libmir.a -ldl -lm`;
+  full AOT DWARF sequence executed on M05 rc 0 (3464-byte .o): stamp public insn fields → gen_init →
+  object_mode → level 0 + inline-perm 0 + spill_all + homes_only(func) + debug_home(reg 1 = v0,
+  vars-index+1 law held) → load_external imports → link + gen → `MIR_gen_get_object` (returns the
+  SAME capture `MIR_gen_object_emit` emits — mir-gen.c 11277-11291 measured) → `MIR_debug_init/
+  add_file`(abs path returns id 1)/`base_type("fixed bin(15)",SIGNED,8)`/`find_symbol`(.text off
+  **192** size 182)/`add_func`(line_map+cfi)/`reg_frame_offset`(**−8**)/`add_var(n,fbreg −8)` →
+  `MIR_object_set_debug` BEFORE emit. Probe usage: `IN.mir OUT.o SRC_PATH FUNC LINES HOME_VAR
+  VAR_NAME TYPE_NAME [--no-debug]`; rc 7/8/9/10 for func-not-found/count-mismatch/debug-builder/
+  home failures (loud validation law pre-figured).
+- **FALSIFIED (hop-1 proposal, measured):** "`labels are not insns`" — the loaded `func->insns` DLIST
+  INCLUDES `label` insns. M05 pli80_iorw = **14** insns: alloca,call,bne,mov (line 3) / mov,call,bne,
+  call,bne (4) / mov,ret (5) / **label**(11), call-exit, ret (0). The sidecar line list MUST cover
+  EVERY func->insns entry in order (labels included), value insns per statement, tail = 0.
+- **accepted (stamp law, source+probe):** `gen_record_line` (mir-gen.c:439) skips ONLY when
+  line==0 AND file_id==0 — a line-0 insn must get file_id=0 TOO (else phantom line-0 map entries);
+  coalescing measured: 14 stamped insns → line_map = **3 entries** `22→3, 97→4, 139→5` (machine_code
+  stays NULL in object mode but line_map/cfi/code_len filled — hop-1 law reconfirmed).
+- **accepted (.o readelf panel, LC_ALL=C):** `.eh_frame` 0x58 PRESENT → builder emitted NO
+  .debug_frame (contract honored); `.rela.debug_info` = 6× (`R_X86_64_64` .text+c0/.text+176 for
+  CU/subprogram low/high PC, R_X86_64_32 .debug_abbrev/.debug_line) and `.rela.debug_line` = 1×
+  `R_X86_64_64 .text+c0` — DWARF is externally-relocatable exactly as claimed; `--debug-dump=
+  decodedline`: CU = real `/home/john/…/M05.pli`, rows 3@0xc0,3@0xd6,4@0x121,5@0x14b,end 0x176;
+  `--debug-dump=info`: DW_TAG_compile_unit name=M05.pli producer=mir-debug, base_type
+  `fixed bin(15)` signed byte_size 8 (truthful carrier), subprogram pli80_iorw, variable `n`
+  DW_OP_fbreg −8, frame_base DW_OP_reg6 (rbp). NOTE: `readelf --debug-dump=frames` shows NOTHING for
+  the ET_REL (empty output) and also nothing post-cosmo-link — binutils can't name-decode it there.
+- **accepted (cosmo tiny EXEC leg):** `sh tools/mir_aot/cosmo_link.sh tiny` + pli_console.c +
+  console_check.c `-DENTRY=pli80_iorw` → rc 0 link (~wine fixme noise, known), artifact 0x7fELF
+  static EXEC NO PT_INTERP, chmod +x REQUIRED (link leaves rw-r--r--; P1-mC chmod law), stdin `77\n`
+  → stdout EXACTLY `77\n`, stderr `driver-return=77`, rc 0. **DEVIATION recorded:** brief's
+  `-DEXPECTED=77` is IGNORED by console_check (declares no EXPECTED by contract; harmless unused
+  macro) — runner judges stdout bytes, native_check is the -DEXPECTED driver.
+- **accepted (GDB D1 legs GREEN on the debugged tiny AND optlinux links):** gdb 18.1 batch,
+  `set debuginfod enabled off` (avoids prompt noise): `break M05.pli:4` RESOLVED to
+  `pli80_iorw+97` (linker relocated the DWARF), stop shows the REAL PL/I line `put list(n);`
+  (CRLF+^Z fixture!), `print n` → `$1 = 77`, `info source` → CU M05.pli producer mir-debug DWARF4,
+  `stepi` advances inside line 4 (+97→+100), `info line M05.pli:4` = +97..+139 EXACTLY the line_map
+  bounds, `continue` → `77`, driver-return=77, exited normally.
+- **BLOCKER (measured, partially classified): `backtrace` through pli80_iorw is GARBAGE on BOTH
+  cosmo tiny AND optlinux links** (frames #1.. = 0x4d/0x1 ?? — heuristic scan). Root facts measured:
+  (1) `ape.lds` (BOTH modes, tiny line 149 / optlinux 147) folds `KEEP(*(.eh_frame))` INSIDE the
+  `.data` OUTPUT SECTION → linked ELF has NO `.eh_frame` section and NO PT_GNU_EH_FRAME → gdb
+  cannot discover the MIR FDE → falls back to frame-scan, which fails on MIR's non-gcc prologue
+  (`mov %rbp,-0x8(%rsp); lea -0x8(%rsp),%rbp`) although the FRAME LAYOUT IS STANDARD: at break rbp
+  = entry−8, [rbp+8] = return address into main (measured 0x409d98), [rbp] = saved rbp, CFA-rbp+16;
+  gdb's `info frame` applied CIE initial rule CFA=rsp+8 → read [rsp]=0x1 garbage.
+  (2) CONTROL: plain C `-g` (ctlsimple.c recursion) linked SAME cosmo_link.sh optlinux backtraces
+  PERFECTLY (4 frames + args) without any .eh_frame section → gdb's heuristic fp-scan saves C but
+  not MIR. (3) tiny-mode C control additionally has NO symtab ("No symbol table is loaded") —
+  another reason runner gdb legs should prefer optlinux.
+- **proposed (UNVERIFIED — NEXT hop discriminators, in order):** (D-a) link `M05_dbg.o` +
+  tools/mir_aot/{pli_console,console_check}.c with the SYSTEM gcc (diagnostic-reference route of
+  mir_aot_test; glibc ld DOES keep a real .eh_frame section) → gdb bt: if GREEN, MIR's CFI is
+  VALID and the blocker is PURELY the pinned cosmo lds layout (huge classification win — pins the
+  fix to the link, not the object). (D-b) check `dbg` mode's ape.lds layout AND whether the capture
+  can be made to SKIP .eh_frame emission by any public switch (mir-gen.c:337/575 frame conditions;
+  then per contract MIR_debug_emit-side would write `.debug_frame` INSTEAD, and ape.lds line 202
+  KEEPS `.debug_frame` as its own non-alloc output section → gdb reads it by name — the clean
+  cosmo-compatible candidate). (D-c) if no public switch: STOP clause per brief — exact reproducer
+  = probe + link + gdb bt above + interface diagnosis; operator decides; D2 stays DEFERRED. NO new
+  DWARF generator, NO lab changes, NO lds hand-edit of the pinned toolchain (it lives in ignored
+  build/p1mc-deps/ — modifying it would falsify the archive-pin law; a repo-owned EXTRA lds would be
+  a NEW toolchain configuration needing PLAN pre-registration, not a silent fit).
+- **proposed (PLAN §P1-mD content deltas forced by measurements, to write AFTER D-a/D-b):** sidecar
+  line list covers ALL func->insns entries (labels included — the 14-entry law); line-0 stamping
+  zeroes file_id too; runner gdb legs on the LINK+MODE that D-a/D-b prove (likely optlinux + -g
+  absent); type label truth: DWARF name `fixed bin(15)` encoding signed byte_size 8 measured fine.
+- **standing:** ZERO oracle; ledger 203/C380; config NEVER staged; scratch build/p1mD-scratch NEVER
+  committed; lab ccc92c5c/f541a7a5 untouched+clean; no push; explicit paths; next: finish bt
+  discriminator → WRITE+COMMIT PLAN.md §P1-mD BEFORE ANY repo source byte → work order (mir_backend
+  sidecar → pli80mir -g → mir2o debug mode → fixtures/pins → runner tools/mir_aot_debug_test.py +
+  controls D-C1/D-C2/D-C3 → FULL FROZEN regression gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/
+  0-prose 5, hir 220 ok 11 UNMOVED, mir_aot 27, cosmo 25, fresh _build hist 122 sha==kept →
+  RESULTS+CLOSE+STOP). Timeouts: 60 fixture / 120 link / 900 suite; gdb batch legs ≤120.

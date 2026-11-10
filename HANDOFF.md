@@ -7,6 +7,23 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54pmD-2. **E2E-54/P1-mD hop 2 CHECKPOINTED (session 01a1c540, renewal 1/12; ZERO oracle; ZERO
+repo source byte; all evidence in ignored `build/p1mD-scratch/`).** The scratch DWARF probe LANDED:
+full pinned-MIR AOT DWARF sequence GREEN on M05 (14 insn entries — **labels ARE insns**, falsifying
+hop-1; line-0 stamps need file_id=0 too; coalesced line_map 22→3/97→4/139→5; .text off 192; v0
+fbreg −8; MIR_object_set_debug BEFORE MIR_gen_object_emit). cosmo tiny EXEC green (`77\n`,
+driver-return=77, rc 0, chmod +x law, `-DEXPECTED` IGNORED by console_check — deviation recorded).
+gdb batch: **break M05.pli:4 / print n=77 / stepi / info source / info line ALL GREEN**; **bt
+BROKEN on tiny AND optlinux** — ape.lds folds .eh_frame into .data (no section/PT_GNU_EH_FRAME; MIR
+frame layout itself standard, plain-C -g control bt perfect). NEXT VERBATIM in PROGRESS live hop-2
+heading: discriminator (D-a) glibc gcc link of M05_dbg.o + gdb bt; (D-b) public switch that makes
+the capture skip .eh_frame so mir-debug writes .debug_frame (dbg-mode lds keeps it); (D-c) else STOP
+clause with reproducer. THEN WRITE + COMMIT PLAN.md §P1-mD BEFORE ANY repo source byte; then work
+order to CLOSE + STOP. Full audit LEARNINGS § "E2E-54/P1-mD hop 2" — READ FIRST. Standing: ZERO
+oracle; ledger 203/C380; lib+bin byte-clean; config NEVER staged; no push; explicit paths; scratch
+NEVER committed; lab NEVER advanced; pins FROZEN/ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT;
+never batch build with tests; timeouts 60/900/120.
+
 1e-e54pmD-1. **E2E-54/P1-mD IN FLIGHT — NATIVE DWARF SOURCE DEBUGGING authorized by operator brief
 (session 01a1c52f, fresh chain; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380;
 ZERO repo source byte yet).** **g709 RECONCILED (brief §1): g709 is NOT a git commit and NOT a
@@ -2035,7 +2052,7 @@ checkpoint-generation: 712
 checkpoint-id: g712-ac8752b9b95e
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 4, remaining ~4896, session 01a1c52f-85d9-70db-a628-8ae77bce3bd5)
 checkpointed: 2026-11-10T11:37:56.545Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -2045,6 +2062,9 @@ source-learnings: a4257a757ef7a0a0115d6390ba59e1f87beb10ec1464f4bdd73d3c187d65b7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c52f-85d9-70db-a628-8ae77bce3bd5
+readiness-at: 2026-11-10T11:38:38.303Z
+readiness-checkpoint: g712-ac8752b9b95e
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
