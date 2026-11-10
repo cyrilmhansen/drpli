@@ -2111,22 +2111,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 752
-checkpoint-id: g752-c78f5fc55bbf
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4665, session 01a1c79b-ed40-73cf-9d90-9b9e034903d5)
-checkpointed: 2026-11-10T23:05:22.562Z
+checkpoint-generation: 753
+checkpoint-id: g753-c18c3a657efd
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 1, remaining ~11118, session 01a1c7b6-02aa-73cf-9d90-9ba36bf7afe9)
+checkpointed: 2026-11-10T23:27:48.635Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c76de3d63efadd10de69bc9cb0532252172338cf12bcb09684caac5f3fef6c5c
+source-progress: e714f79dd9152b86b0f1f7cdb7e8ea087f77aefd8ffb730aa1a34798d51cbb26
 source-handoff: 44f04d7101f4d329e06363036ac13aad484f4b2da20b7a388f89ae326ae3ab8d
-source-learnings: 33300d19fbcc19dc7133828b98758e5633bf16e06af50c3f43dda380c8fb8436
+source-learnings: e3a22af01a2fd344397816f5ec18d17e0b97f427641f2ff40cd9220875cc859a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c7b6-02aa-73cf-9d90-9ba36bf7afe9
+readiness-at: 2026-11-10T23:27:48.754Z
+readiness-checkpoint: g753-c18c3a657efd
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 1; checkpoint requested (finalize: E2E-54/P1-m3 hop 5 at 15508949: y1/y2 probes GREEN (void tail bare ret law; 232 and 5/4 dr4 executed); §P1-m3 pre-registration COMMITTED to PLAN.md (HOME-PASS ABI, CALL01-10/CALLN1-10 binding texts+bytes, amendments zero-blast, controls). SUCCESSOR: implement m3a in ocaml/hir/mir_backend.ml ONLY per PLAN §P1-m3.2/.3 -> gates own commands -> measured-first hir/mir-call-fixtures+mir-call-expected -> native panel -> C-M3a LOUD -> commit; m3a gate before m3b byte; m3b; gate; m3c; runner tools/mir_aot_call_test.py written-to-PLAN before first run repo-root; FULL FROZEN regression; CLOSE + STOP. Read PROGRESS live heading + LEARNINGS hop 5 VERBATIM first.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2899,5 +2902,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m3 hop 4 PARTIAL at ff3b8c4e: baseline verified first-hand at b335280a (build rc 0; T1 172595d5… DIRECT; T2 clean; hir 220 ok, ok-set cmp-identical to hop-3 log → build/e54p1m3-hop4-hirtest.log; ledger 203/C380; ZERO repo source byte, ZERO oracle). ACCEPTED this hop: passing-mode dispatch is per-SITE on the ACTUAL form (PM_immediate/PM_value_cell→A_value with ex_ty=formal_ty E17; PM_own_cell bare name→A_reference D_var; E15/E16 arms); FALSIFIED hop-3 clause — Call_s to a value-returning proc is refused HIR-side by BOTH arms (E07 "discards a value"), so the backend NEVER sees value-discarding Call_s; HIR E11 makes folded symbols unique ⇒ no _<pid> collision suffix (unreachable, record); unreached siblings are DROPPED; layer table E07/E11 HIR vs E18 node/E19 numeric/E20 export backend. PROPOSED (successor must confirm then PRE-REGISTER): HOME-PASS ABI — all callee formals accessed i64:(v<sid>); A_reference ⇒ caller entry-hoisted alloca h<sid>,8 home (uninit-by-ref refuses E19; post-call widen W(declared)); A_value ⇒ caller entry-hoisted per-slot value cell hv<k> (rewritten each call, never read back) — this solves mixed-mode-per-formal (e.g. clob(x,x) vs clob(x,40)); void callee title func i64:m with NO leading bare result type; protos pc<pid> used-only before the ONE import; callee-first DFS post-order, entry LAST/only export; Lfail_<pid> per-func when >1 func, single-func Lfail bytes FROZEN (I6); void-tail ret st vs bare ret UNPROVEN. SUCCESSOR TASKS (PROGRESS live heading VERBATIM): (1) RUN the NEVER-RUN scratch probes build/p1m3-scratch/y1_void_formal.mir (mir2o→gcc native_check -DENTRY=pli80_main -DEXPECTED=232) and y2_void_console.mir (mir2o→cosmo tiny link WITH tools/mir_aot/pli_console.c + console_check.c, chmod +x, exec predicts stdout 5\n4\n dr 4; tests ret st on a VOID failure tail — if refused use bare ret and record); mir2o = build/p1m0-deps/mir2o; FROM REPO ROOT; timeouts 60/120; record ACCEPTED/DEVIATION, NEVER re-fit. (2) WRITE + COMMIT §P1-m3 pre-registration in spec/lab-evidence/e2e54/PLAN.md BEFORE any source byte (template §P1-m2.0–.14; full fixture texts CRLF+^Z mkpli.py; independent bytes: CALL01 5\n4\n dr 4; CALL02 2\n dr 2; CALL03 dr 37; CALL04 91\n; CALL06A 7\n dr 7; CALL06B 2\n7\n dr 7; CALL10 7\n34\n dr 48; negatives with layer; amendments ONLY E20 arm + Lfail rename + transitional CALLN10 deletion; falsifiers ALL existing mir/CF/debug pins + .o shas frozen; T-panel gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5, hir 220/11, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, fresh _build-e54p1m3 hist 122 sha==kept). (3) m3a in ocaml/hir/mir_backend.ml ONLY → gates each OWN command → measured-first ADDITIVE hir/mir-call-fixtures/+hir/mir-call-expected/ → native panel → C-M3a LOUD → commit; m3a gate before m3b byte; m3b; gate; m3c. (4) runner tools/mir_aot_call_test.py written to PLAN before first run, repo-root. (5) FULL FROZEN regression → CLOSE RESULTS §P1-m3 + arch §7-10 + dashboard + durables → STOP. STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; explicit paths only; scratch build/p1m3-scratch NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/p1mc-deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch build+tests; timeouts 60/120/900; printf %s\n; byte-exact via Python subprocess; NEVER hand-edit managed checkpoint blocks.
+E2E-54/P1-m3 hop 5 at 15508949: y1/y2 probes GREEN (void tail bare ret law; 232 and 5/4 dr4 executed); §P1-m3 pre-registration COMMITTED to PLAN.md (HOME-PASS ABI, CALL01-10/CALLN1-10 binding texts+bytes, amendments zero-blast, controls). SUCCESSOR: implement m3a in ocaml/hir/mir_backend.ml ONLY per PLAN §P1-m3.2/.3 -> gates own commands -> measured-first hir/mir-call-fixtures+mir-call-expected -> native panel -> C-M3a LOUD -> commit; m3a gate before m3b byte; m3b; gate; m3c; runner tools/mir_aot_call_test.py written-to-PLAN before first run repo-root; FULL FROZEN regression; CLOSE + STOP. Read PROGRESS live heading + LEARNINGS hop 5 VERBATIM first.
 <!-- guard:end checkpoint -->
