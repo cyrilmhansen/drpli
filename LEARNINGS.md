@@ -11226,3 +11226,76 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   + `build/p1m*-deps`/`build/p1mc-deps` NEVER edited/advanced; hir pins FROZEN / mir pins
   ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build with tests; timeouts
   60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`.
+
+## E2E-54/P1-mD hop 6 (2026-11-11, session 01a1c5a9, renewal 5/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380) — hop-5 steps (3)-(6) LANDED + COMMITTED `b0966931`; the `mir2o` debug mode is DRAFTED, UNCOMMITTED and NEVER COMPILED
+
+- **accepted (hop-5 step 3, the CLI, first-hand):** `pli80mir.ml` gained `-g` (no value) and
+  `--debug-map MAP` (value) in the existing explicit `go profile export out debug map files` loop;
+  the parse-result type is a 6-tuple. ALL FOUR rc-2 usage arms MEASURED with their named reasons on
+  stderr and ZERO stdout / NO files: `--debug-map MAP is accepted only together with -g`;
+  `-g without -o requires an explicit --debug-map MAP (the default map path is OUT.mir ^ .p1md)`;
+  `-g given twice`; `--debug-map given twice`; the pre-existing `unknown option` arm still fires
+  (`--debugmap` → rc 2). The two post-loop arms are checked AFTER the loop, so flag order on the
+  command line does not matter — that is why they are validation arms, not parse arms.
+- **accepted (`unix` dependency law, first-hand):** `unix` is added to the `pli80mir` **EXECUTABLE**
+  stanza only (`(libraries pli80 pli80_hir unix)`); the `pli80_hir` library stanza keeps
+  `(libraries pli80)` and `modules` UNCHANGED, so `pli80hir.exe`/`semtest.exe` and the historical
+  `pli80c.exe` link nothing new — T1 held (`172595d5…` computed DIRECT) and T2 clean.
+- **accepted (absolute-source law + ORDER of writes):** `absolute_path` = `Filename.concat
+  (Unix.getcwd ()) src` unless the argument already starts with `/`. CONSEQUENCE MEASURED (my
+  first runs were from `ocaml/`): the recorded `file` row keeps the cwd prefix VERBATIM, including
+  a `..` component — `.../pli80/ocaml/../hir/mir-fixtures/M05.pli`. It is still an absolute path and
+  the pin is deterministic, but it is cwd-DEPENDENT. ⇒ the pin MUST be measured from the repository
+  root (`cd $PWD` then the relative fixture path), which is what the committed pin does:
+  `file /home/john/projects/sushiworks/pli80/hir/mir-fixtures/M05.pli`. Any runner leg that compares
+  the `file` row must therefore run from the repo root or the row will differ for a reason that is
+  not a defect.
+- **accepted (write ordering, §P1-mD.3 law):** the `.mir` file is written FIRST, then the map (named
+  MAP, else `OUT.mir ^ ".p1md"`), and only THEN stdout — so a map-write failure is rc 2 with
+  `pli80mir: cannot write <map>: <reason>`, and a backend refusal under `-g` leaves ZERO stdout, NO
+  `.mir` AND NO map (measured on `N8.pli`: rc 2, `HIR-E21`, both files absent).
+- **accepted (step 5 pin, MEASURED-FIRST — NEVER hand-written):** `hir/mir-debug-expected/M05.p1md`,
+  NEW ADDITIVE directory, `cp` of the real `pli80mir -g --export iorw -o <tmp>.mir
+  hir/mir-fixtures/M05.pli` output run TWICE in fresh processes from the repo root; the two maps are
+  `cmp`-byte-equal and the `.mir` under it is byte-equal to the FROZEN `M05.mir` pin. sha256 of the
+  pin = `8113b217807b1c6c1b7a7d6b3d4b702275beb463f410c9482ed8f10daffeda3c`. EVERY row reviewed vs
+  §P1-mD.3: magic `p1md 1`; `mir f41b358e…` = Python `hashlib.sha256` of the exact `M05.mir` bytes
+  (computed independently, matches); `file` absolute; `func 0 pli80_iorw`; **EXACTLY 14 `insn` rows
+  with lines 3,3,3,3,4,4,4,4,4,5,5,0,0,0** — the pre-registered law from §P1-mD.1 fact 1 CONFIRMED
+  against the live emitter, no fitting; opcodes `alloca call bne mov mov call bne call bne mov ret
+  label call ret`; the three line-0 tail rows are the directly-assembled `Lfail:`/`call p_exit`/
+  `ret st`; and ONE `var v0 n`. `cat -A` confirms pure `\n` (no CR) — the map is backend-generated
+  text, NOT the CRLF+^Z fixture convention.
+- **accepted (step 4 gates, each its OWN command, rc DIRECT):** build rc 0 → T1 `172595d5…` DIRECT →
+  T2 rc 0 → **`cmp` every `hir/mir-expected/M0{1..6}.mir` == plain-run == `-g`-run, all SIX
+  byte-identical** (the default-FROZEN falsifier) → `timeout 900 python3 tools/hir_test.py` rc 0,
+  **220 `^ok` lines**, all 11 frozen semtest numbers UNMOVED, F8 green →
+  `build/p1mD-hop6-hirtest.log`; `timeout 900 python3 tools/e2e_gate.py > build/e54pmD-step1-gate.log`
+  rc 0 with FROZEN ALL HIT: **1328/1328 byte-exact, negatives 190/190, divergence 9/9, coverage 149
+  rows 0 errors 0 warnings, census EXACT 16 / DIFFERS 0 / REFUSED 25 / UNEXPECTED 0, prose 5**.
+- **proposed / UNVERIFIED (the `tools/mir_aot/mir2o.c` debug mode — WRITTEN THIS SESSION, NEVER
+  COMPILED, NEVER RUN, NOT COMMITTED):** additive `--debug-map MAP` (argc 6); order = load `.mir` →
+  read map (rc 7) → parse → sha vs the `.mir` BYTES (rc 8) → find func (rc 8) → count + opcode + var
+  validation (rc 8) → stamp `insn->file_id/line` (line 0 ⇒ file_id 0) → debug codegen config ONLY
+  when a map is present (`MIR_gen_set_optimize_level 0`, `MIR_set_inline_permission 0`,
+  `MIR_set_spill_all 1`, `MIR_func_debug_homes_only`, one `MIR_set_reg_debug_home` per `var`) → link
+  / gen / `MIR_gen_object_emit` → in-C structural ELF drop of `.eh_frame` + `.rela.eh_frame` (rc 9)
+  → `MIR_object_create` + `MIR_object_read` (rc 10) → fresh debug builder (`add_file` MUST return 1;
+  `base_type "fixed bin(15)"` SIGNED 8; `find_symbol` MUST be `MIR_OBJ_SEC_TEXT`; `add_func` with
+  `f->line_map`/`f->cfi`; `MIR_reg_frame_offset` failure = LOUD refusal, never an un-homed var;
+  `add_var`) → `set_debug` BEFORE `MIR_object_emit` → write. The default path keeps the historical
+  statements verbatim and the new function is never entered. APIs used that were read FIRST-HAND in
+  the pinned headers: `MIR_insn_name(ctx, code)` takes the CODE (mir.h:770 — NOT the insn), `MIR_debug_add_var(d,name,is_param,type,fp_offset,deref_p,member_offset)`
+  (7 args), `MIR_object_find_symbol`, `MIR_object_read` returns 0/-1 with `err_msg`,
+  `MIR_object_set_debug` requires the builder to outlive the emit, `MIR_object_destroy` EXISTS (the
+  hop-3 scratch probe LEAKED both `o2` and `dbg` — corrected in the draft). The C sha256 uses the
+  same K table; note `K[56] = 0x0748f8ee` (the OCaml decimal `1955562222`) — `tools/` is NOT
+  F8-globbed so hex is allowed there.
+- **proposed (the ELF drop, UNVERIFIED):** the drop rewrites offsets, `e_shoff`/`e_shnum`/`e_shstrndx`,
+  every surviving `sh_link`/`sh_info`, the symtab entries (`st_shndx` remap, symbols defined in a
+  dropped section removed, local count recomputed for `sh_info`) and NOBITS sections get no file
+  bytes. It refuses LOUDLY unless each dropped name appears EXACTLY ONCE. **RISK, not yet measured:**
+  a stale string in `.shstrtab`/`.strtab` for the removed `.eh_frame`/`.rela.eh_frame` section symbols
+  is harmless to readers but the merged re-emit may keep it; and the pinned capture ALWAYS carries
+  `.rela.eh_frame` — if a future no-console function carried neither, the EXACTLY-ONE check would
+  refuse (measured-first before any relaxation).
