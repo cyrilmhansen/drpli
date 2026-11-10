@@ -11178,3 +11178,51 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
   batch build with tests; timeouts 60/120/900; gdb `-batch -nx` debuginfod off; cosmo chmod +x.
   NEXT = execute the PROGRESS live hop-4 heading steps (1)–(6) (sha256.ml → mir_backend →
   pli80mir CLI → gates → measured-first M05.p1md → commit), then hop 5 §P1-mD.10 step 3.
+
+## E2E-54/P1-mD hop 5 (2026-11-11, session 01a1c58d renewal 4/12 → this session; ZERO oracle; ledger 203/C380) — sha256.ml LANDED + CORRECT; mir_backend ADDITIVE sidecar LANDED; .mir bytes FROZEN; hir_test GREEN — committed `b400b3b9`
+
+- **accepted (new `ocaml/hir/sha256.ml`, first-hand):** pure-OCaml FIPS-180-4 SHA-256. Round/
+  init constants carried as SPACE-SEPARATED DECIMAL strings parsed at init (no hex literal,
+  F8-clean — verified by re-running the strip-grep). `hex_digest : string -> string` emits
+  lowercase hex via Printf field widths only. **FALSIFIED my first transcription:** `K[56]`
+  must be `0x748f8ee`=decimal **1955562222** (cube root of the 57th prime, 257); my table had
+  `...2229`. Caught because `sha256("")` gave `16abf7f9…` vs the known `e3b0c442…`. After the
+  fix, 6 vectors (empty, "abc", 56/64/100-byte, "hello world") all PASS byte-for-byte against
+  Python `hashlib` (multi-block + the 56/64 padding boundaries). This validates the whole
+  pipeline: decimal-table parse → pad → compress → little→big-endian render.
+- **accepted (`mir_backend.ml` ADDITIVE, §P1-mD.3):** `artifact` gains `debug_map : string
+  option`; `compile` gains `?debug_source:string option` (Optional arg keeps `Backend.BACKEND`
+  satisfiable — the `For`+`Driver` compile-time witnesses in pli80mir.ml still typecheck;
+  measured: `dune build` rc 0). `insns` ref is now `(string * int) list`; `emit ?(line=0)`
+  carries the line (statement arms pass `s.Hir.st_line`, lowered `mov`/`call` arms pass the
+  `ex_line`/`line` already in scope). **The assembly DROPS the line** (`fun (s,_ln)`), so the
+  `.mir` bytes are UNCHANGED. `v_regs` now keeps `(sid, sorig)` — the `v<sid>` local ORDER and
+  bytes are identical. The sidecar is built ONLY when `debug_source = Some abs_path`; on the
+  default path (`None`) the whole sidecar block is skipped — `debug_map = None`, no allocation.
+- **accepted (sidecar record shape, §P1-mD.3):** `p1md 1` / `mir <sha256 mir_text>` / `file
+  <abs pli>` / `func 0 <entry_sym>` / one `insn <entry_sym> <i> <opcode> <line>` per EMIT-ORDER
+  insn (opcode = first token up to space/comma; `i` counts ONLY insns) + the 3 tail records
+  `label`/`call`/`ret` at line 0 (the tail is written DIRECTLY in the assembly, NOT via `emit`,
+  so it is appended to the opcode list by hand when `cu_any`) / `var v<sid> <sorig>` from the
+  `v_regs` filter. **M05 MUST yield EXACTLY 14 rows 3,3,3,3,4,4,4,4,4,5,5,0,0,0** (§P1-mD.1
+  fact 1) — NOT yet observed against the real CLI (see NEXT).
+- **accepted (GATES, each own command):** `dune build` rc 0; kept exe `172595d5…` DIRECT;
+  `cmp` EVERY `hir/mir-expected/*.mir` (M01..M06) **BYTE-IDENTICAL** (default path FROZEN,
+  the critical falsifier); `timeout 900 python3 tools/hir_test.py` rc 0 = **220 ok**, all 11
+  frozen semtest numbers UNMOVED, F8 green → ignored `build/p1mD-hop5-hirtest.log`.
+- **proposed / UNVERIFIED (hop 5 continuation, NOT done this session):** the `pli80mir.ml` CLI
+  is NOT yet wired — `-g` and `--debug-map MAP` flags, the four rc-2 usage arms
+  (`--debug-map` without `-g`; `-g` without `-o` and without explicit MAP; either given twice;
+  unknown option), default MAP path `OUT.mir ^ ".p1md"`, absolute source path via
+  `Unix.getcwd` (**`unix` added to the `pli80mir` EXECUTABLE stanza libraries ONLY — library
+  `pli80_hir` `libraries` stays `(libraries pli80)`**), and writing MAP only AFTER the `.mir`
+  write, rc 2 with a named reason on failure. The measured-first pin `hir/mir-debug-expected/
+  M05.p1md` (NEW ADDITIVE dir, from REAL `pli80mir -g` output, reviewed row-by-row vs §P1-mD.3
+  + the 14-row law, determinism ×2 fresh processes, NEVER hand-written) is NOT yet produced.
+  **NEXT SESSION: read this hop-5 record + hop-4 record first, then execute the PROGRESS live
+  heading steps (3)–(6) VERBATIM.**
+- **standing:** ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths;
+  scratch `build/p1mD-scratch/`+`build/mir-debug/` NEVER committed; lab `ccc92c5c`/`f541a7a5`
+  + `build/p1m*-deps`/`build/p1mc-deps` NEVER edited/advanced; hir pins FROZEN / mir pins
+  ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build with tests; timeouts
+  60/120/900; gdb `-batch -nx` debuginfod off; cosmo `chmod +x`.
