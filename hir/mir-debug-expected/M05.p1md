@@ -1,0 +1,19 @@
+p1md 1
+mir f41b358e8c62528ffe14812ac502d791123c724574c7880c1276675ac705a49e
+file /home/john/projects/sushiworks/pli80/hir/mir-fixtures/M05.pli
+func 0 pli80_iorw
+insn pli80_iorw 0 alloca 3
+insn pli80_iorw 1 call 3
+insn pli80_iorw 2 bne 3
+insn pli80_iorw 3 mov 3
+insn pli80_iorw 4 mov 4
+insn pli80_iorw 5 call 4
+insn pli80_iorw 6 bne 4
+insn pli80_iorw 7 call 4
+insn pli80_iorw 8 bne 4
+insn pli80_iorw 9 mov 5
+insn pli80_iorw 10 ret 5
+insn pli80_iorw 11 label 0
+insn pli80_iorw 12 call 0
+insn pli80_iorw 13 ret 0
+var v0 n

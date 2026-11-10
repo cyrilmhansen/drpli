@@ -13,7 +13,7 @@
 (executable
  (name pli80mir)
  (modules pli80mir)
- (libraries pli80 pli80_hir)
+ (libraries pli80 pli80_hir unix)
  (flags (:standard -warn-error -a)))
 
 (executable
