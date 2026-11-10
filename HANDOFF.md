@@ -2048,25 +2048,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 712
-checkpoint-id: g712-ac8752b9b95e
+checkpoint-generation: 714
+checkpoint-id: g714-5423761b41ff
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4896, session 01a1c52f-85d9-70db-a628-8ae77bce3bd5)
-checkpointed: 2026-11-10T11:37:56.545Z
+status: checkpoint (guard level 3, remaining ~6717, session 01a1c540-c377-70db-a628-8aea21a7a058)
+checkpointed: 2026-11-10T12:05:31.449Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f17924dd0661a9963f3b60ddf4ea3e78f1b585928a7b343e16d1be059c8f1081
-source-handoff: 1cea84b5476cc32b28e370872b619c7d81588b565505107e66b4a3a352296630
-source-learnings: a4257a757ef7a0a0115d6390ba59e1f87beb10ec1464f4bdd73d3c187d65b7ee
+source-progress: 2f3bcd5590f49ba4bdf62d6c7c2f84080f4143d598c2b399aeee3f3164131ef3
+source-handoff: 2b0bdb8b5520bd54fa9f6f858a12b37ab3de0ba19c96a0a38d1313e15e02a9a6
+source-learnings: 02308616b340fc8ef83dba71bf06c99a4680b74877ae7c5e43a4497059ca2d69
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c52f-85d9-70db-a628-8ae77bce3bd5
-readiness-at: 2026-11-10T11:38:38.303Z
-readiness-checkpoint: g712-ac8752b9b95e
+readiness-by: session:01a1c540-c377-70db-a628-8aea21a7a058
+readiness-at: 2026-11-10T12:05:31.497Z
+readiness-checkpoint: g714-5423761b41ff
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -2839,5 +2839,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-mD hop 1 checkpoint: g709 reconciled (guard generation finalized at 1e14ada6 == origin/main; NOT a missing push; blocks untouched). Baseline FIRST-HAND all green (build, T1 172595d5, hir 220, mir_aot 27, cosmo 25, gate FROZEN -> build/e54pmD-baseline-gate.log). Pinned-lab debug-interface audit complete in LEARNINGS P1-mD hop 1 (gen default level 2 -> debug path sets 0; non-debug calls NOTHING). ZERO repo source byte; ZERO oracle; ledger 203/C380; config never staged; no push. SUCCESSOR = PROGRESS live P1-mD hop-1 heading VERBATIM: (1) scratch probe build/p1mD-scratch/probe_mir2o_dbg.c proving the full AOT DWARF sequence on M05 + cosmo tiny link + gdb batch (break/step/bt/print); (2) WRITE+COMMIT PLAN.md section P1-mD (explicit path, PROTOCOL #1) BEFORE any repo source byte, D1/D2 SEPARATE, sidecar contract + loud validation, falsifiers, env, stop threshold; (3) work order mir_backend -> pli80mir -> mir2o -> pins -> runner + GDB evidence -> controls D-C1/D-C2/D-C3 -> FULL FROZEN regression -> CLOSE + STOP.
+P1-mD hop 3: successor executes PROGRESS live P1-mD hop-2 heading VERBATIM. READ LEARNINGS.md § "E2E-54/P1-mD hop 2" FIRST (full probe audit). Next steps in order: (D-a) glibc gcc diagnostic link of build/p1mD-scratch/M05_dbg.o + tools/mir_aot/{pli_console,console_check}.c (-DENTRY=pli80_iorw), readelf -SW must show a real .eh_frame, then gdb batch break M05.pli:4 + bt — GREEN ⇒ MIR CFI valid, blocker is purely cosmo ape.lds layout; (D-b) hunt a PUBLIC mir-gen switch making the capture carry no .eh_frame so mir-debug.c emits .debug_frame instead (dbg-mode ape.lds keeps .debug_frame as its own section, line ~202; condition at mir-debug.c ~1547-1559; NEVER edit build/p1mc-deps or the lab); (D-c) else brief STOP clause with exact reproducer (break/step/print legs stand). THEN WRITE + COMMIT PLAN.md §P1-mD (explicit path spec/lab-evidence/e2e54/PLAN.md, PROTOCOL #1) BEFORE any repo source byte — sidecar line list MUST cover all 14 func->insns entries incl. labels, line-0 ⇒ file_id=0, non-debug default path calls NOTHING (gen default level 2 stays), runner gdb legs on the link/mode proven by D-a/D-b. Standing: ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths; scratch build/p1mD-scratch NEVER committed; lab pins never advanced; hir pins FROZEN, mir pins ADDITIVE-only; F8 law; eval "$(opam env)"; rc DIRECT; never batch build with tests; timeout 60 per fixture / 900 per suite / 120 per link / <=120 per gdb leg; gdb: set debuginfod enabled off; cosmo artifacts need chmod +x before running.
 <!-- guard:end checkpoint -->
