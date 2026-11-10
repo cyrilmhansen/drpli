@@ -2103,25 +2103,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 738
-checkpoint-id: g738-81f09d313173
-checkpoint-kind: manual
+checkpoint-generation: 741
+checkpoint-id: g741-4ffab61c4014
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~11410, session 01a1c6dd-0bc3-7331-86b6-70d988e4fd3d)
-checkpointed: 2026-11-10T19:30:56.637Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4756, session 01a1c6f1-b9d8-7331-86b6-70dc4a88eae6)
+checkpointed: 2026-11-10T19:55:05.579Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f3240acd09a234cd2d95f9c689a6ec3fb5ab7fba2921fe8b4704ce12b3274612
-source-handoff: 01a5f57bcd46542de19f6949e407efdcb9972162944922c111ddbed20abc243b
-source-learnings: 6719e3cd584f2e894c9e1f76fcee3a8bab479d0a2af10f324b1385498af2ab97
+source-progress: 5e4c859940c5549a39176e31ca81c012e48775959d8aa5ab38c2e704dc563a00
+source-handoff: 3b0d0d38a73a63e1a7e0262b65b7ca6bb0891c4f09718b80e4775ec2af8b17e2
+source-learnings: 125c02d0f4775c52a212ee7185f88edf361d8bb9ef186f441f1f7249b987d5d8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c6dd-0bc3-7331-86b6-70d988e4fd3d
-readiness-at: 2026-11-10T19:30:56.750Z
-readiness-checkpoint: g738-81f09d313173
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -2894,5 +2891,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m2 hop 5: m2b GREEN+COMMITTED 9672455b (native panel exact, C-M2b failed loudly, CFN6 deviation recorded, N7 re-pinned). UNCOMMITTED label-opcode FIX in ocaml/hir/mir_backend.ml (sidecar rows ending ':' must record opcode 'label'; verified CF01 gdb both arms y=-1/y=1, M05 pins+debug-.o sha UNMOVED) — KEEP, NEVER revert. NEXT: gates (build→T1→T2→hir 220/11→I6 i6_check.py) → commit fix explicit path → CF06 decodedline 4/5/6 + gdb break CF06.pli:5 three continues print i=0/1/2 (next,next before print; repo-root cwd) → tools/mir_aot_cf_test.py written to §P1-m2.5/.10 BEFORE first run (expected bytes COPIED from PLAN; C-M2a/C-M2b fail loudly inside) → FULL FROZEN regression T1–T11 (gate 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5 → build/e54p1m2-reg-gate.log; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23; fresh _build-e54p1m2 hist 122 sha==kept) → CLOSE RESULTS §P1-m2 + arch §7-9 + dashboard + durables → STOP. ZERO oracle; config NEVER staged; no push; scratch never committed; lab/deps NEVER touched.
+E2E-54/P1-m2 hop 6 → 7. HEAD ab66668a (durables committed; sidecar label fix f7750038 committed; tree clean except operator handoff.config.json — NEVER stage). NEXT ACTION VERBATIM in PROGRESS live hop-6 heading + HANDOFF 2a-e54p1m2-6: (1) cd /home/john/projects/sushiworks/pli80 && eval "$(opam env)" && timeout 900 python3 tools/mir_aot_cf_test.py; echo RC=$? — from the REPO ROOT; the runner is WRITTEN to PLAN §P1-m2.5/.9/.10 and has NEVER been run (only py_compile); fix RUNNER DEFECTS ONLY, never a pin/expected byte/compiler file; C-M2a (blt->bge, prediction stdout '1\n' rc 0) and C-M2b (delete 'jmp Lh1', prediction '0\n' rc 1) and W3 (no-debug break 'No source file named CF06.pli') MUST be observed failing loudly INSIDE; then commit tools/mir_aot_cf_test.py by explicit path. Known suspects: sidecar insn rows are SPACE-separated; the `mir` row is sidecar line index 1; every leg runs cwd=REPO. (2) FULL FROZEN regression T1–T11 each OWN command: gate -> build/e54p1m2-reg-gate.log FROZEN 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir 220/11; mir_aot 32; cosmo 25; console 43; debug 23 (repo root); T10 = new CF runner; fresh cd ocaml && timeout 900 dune build --build-dir _build-e54p1m2 rc 0 ZERO Error hist 122 sha==kept 172595d5…. (3) CLOSE RESULTS §P1-m2 + arch §7-9 + PLAN §P1-m2.14 dashboard CLOSED + durables -> STOP (nothing further authorized without the OPERATOR). READ LEARNINGS § 'E2E-54/P1-m2 hop 6' VERBATIM first (then hop 5), then PLAN §P1-m2. Standing: ZERO oracle; ledger 203/C380; no push; scratch build/p1m2-scratch + build/mir-* NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only (§P1-m2.8 excepted); cosmo links of console objects MUST include tools/mir_aot/pli_console.c + chmod +x; gdb -batch -nx debuginfod off from repo root; byte-exact via Python subprocess.
 <!-- guard:end checkpoint -->
