@@ -1,6 +1,6 @@
 (library
  (name pli80_hir)
- (modules diagnostic hir target semantic_env hir_build backend mir_backend)
+ (modules diagnostic hir target semantic_env hir_build backend mir_backend sha256)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
 

@@ -48,7 +48,14 @@
 
 module Int_map = Map.Make (struct type t = int let compare = compare end)
 
-type artifact = { entry_sym : string; mir_text : string }
+(* E2E-54/P1-mD §P1-mD.3: an OPT-IN sidecar debug map, built only when the CLI
+   passes ~debug_source:(Some abs_path). [None] on the default path — the .mir
+   bytes are then produced exactly as before (§P1-mD.2: default behaviour FROZEN). *)
+type artifact = {
+  entry_sym : string;
+  mir_text : string;
+  debug_map : string option;
+}
 
 exception Refusal of Diagnostic.t
 
@@ -110,7 +117,8 @@ let decimal_int (s : string) : int option =
   in
   if digits && canonical then Some (int_of_string s) else None
 
-let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
+let compile ~(profile : Target.profile) ~(export : string)
+    ?(debug_source : string option = None) (prog : Hir.program)
   : (artifact, Diagnostic.t list) result =
   try
     (* ---- export selection (§P1-m0.2): exactly one procedure ---------------- *)
@@ -180,8 +188,14 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
                FIXED BINARY value (brief §3)")
     in
     (* ---- emission state (a pure function of the program: deterministic) ---- *)
-    let insns : string list ref = ref [] in
-    let emit fmt = Printf.ksprintf (fun s -> insns := s :: !insns) fmt in
+    (* E2E-54/P1-mD: each emitted instruction carries the PL/I source line it
+       came from (already available as [st_line]/[ex_line] at every call site).
+       The .mir assembly DROPS the line, so the bytes are FROZEN (§P1-mD.2); the
+       line rides only into the sidecar. Default [line] is 0 (unlocated). *)
+    let insns : (string * int) list ref = ref [] in
+    let emit ?(line = 0) fmt =
+      Printf.ksprintf (fun s -> insns := (s, line) :: !insns) fmt
+    in
     let tmp_n = ref 0 in
     let fresh () =
       incr tmp_n;
@@ -288,7 +302,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
            | Some v ->
                let civ = prove w (v, v) ("the literal " ^ quote text) in
                let k = fresh () in
-               emit "mov %s, %d" k v;
+               emit ~line "mov %s, %d" k v;
                (k, civ)
            | None ->
                refuse ~line Diagnostic.e_mir_numeric
@@ -305,7 +319,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
            | Some civ ->
                let v = prove w civ ("the value of sym(" ^ string_of_int sid ^ ")") in
                let k = fresh () in
-               emit "mov %s, v%d" k sid;
+               emit ~line "mov %s, v%d" k sid;
                (k, v)
            | None ->
                refuse ~line Diagnostic.e_mir_numeric
@@ -352,7 +366,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
               ^ show_iv il ^ " and " ^ show_iv ir)
           in
           let k = fresh () in
-          emit "%s %s, %s, %s" nm k rl rr;
+          emit ~line "%s %s, %s, %s" nm k rl rr;
           (k, v)
       | Hir.Neg { e = inner } ->
           let w = win () in
@@ -360,7 +374,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
           let niv = (- (snd iiv), - (fst iiv)) in
           let v = prove w niv ("the negation of " ^ show_iv iiv) in
           let k = fresh () in
-          emit "neg %s, %s" k ri;
+          emit ~line "neg %s, %s" k ri;
           (k, v)
     in
     (* ---- statements (§P1-m0.2: declare / assign / exactly one final return) -- *)
@@ -406,7 +420,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
                        ^ ") can reach " ^ show_iv iv ^ ", leaving the window "
                        ^ show_iv (window sp) ^ " of its declared type "
                        ^ Hir.pp_ty (Hir.Fixed_bin (sp, 0)) ^ " (brief §4)");
-                   emit "mov v%d, %s" sid rv;
+                   emit ~line "mov v%d, %s" sid rv;
                    lower_stmts (Int_map.add sid iv env) rest)
           | Hir.Return (Some e) ->
               (* Reachable only as the FINAL statement (checked above), so [rest] is
@@ -419,7 +433,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
                   ^ ", leaving the window " ^ show_iv rw
                   ^ " of the declared result type " ^ Hir.pp_ty (Hir.Fixed_bin (ret_p, 0))
                   ^ " (§P1-m0.3-3, brief §4)");
-              emit "ret %s" rv;
+              emit ~line "ret %s" rv;
               lower_stmts env rest
           | Hir.Return None ->
               refuse ~line Diagnostic.e_mir_node
@@ -448,10 +462,10 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
               (match src with
                | Hir.P_value e ->
                    let rv, _iv = lower env e in
-                   emit "call p_put, pli_console_put_i64, st, %s" rv;
-                   emit "bne Lfail, st, 0";
-                   emit "call p_nl, pli_console_put_nl, st";
-                   emit "bne Lfail, st, 0";
+                   emit ~line "call p_put, pli_console_put_i64, st, %s" rv;
+                   emit ~line "bne Lfail, st, 0";
+                   emit ~line "call p_nl, pli_console_put_nl, st";
+                   emit ~line "bne Lfail, st, 0";
                    lower_stmts env rest
                | Hir.P_text { text } ->
                    (* §P1-m1.5 item 5 (m1b, PROVEN probe2 shape): the literal's
@@ -462,11 +476,11 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
                    let char_count = String.length text in
                    let len_reg = fresh () in
                    let s_lbl = string_label text in
-                   emit "mov %s, %d" len_reg char_count;
-                   emit "call p_text, pli_console_put_text, st, %s, %s" s_lbl len_reg;
-                   emit "bne Lfail, st, 0";
-                   emit "call p_nl, pli_console_put_nl, st";
-                   emit "bne Lfail, st, 0";
+                   emit ~line "mov %s, %d" len_reg char_count;
+                   emit ~line "call p_text, pli_console_put_text, st, %s, %s" s_lbl len_reg;
+                   emit ~line "bne Lfail, st, 0";
+                   emit ~line "call p_nl, pli_console_put_nl, st";
+                   emit ~line "bne Lfail, st, 0";
                    lower_stmts env rest)
           | Hir.Get d ->
               (* §P1-m1.5: the single get slot a1 is stack-allocated per GET
@@ -486,10 +500,10 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
                        ^ ") which was never declared in this body");
                    let sp = Int_map.find sid !declared in
                    let lo, hi = window sp in
-                   emit "alloca a1, 8";
-                   emit "call p_get, pli_console_get_i64, st, a1, %d, %d" lo hi;
-                   emit "bne Lfail, st, 0";
-                   emit "mov v%d, i64:(a1)" sid;
+                   emit ~line "alloca a1, 8";
+                   emit ~line "call p_get, pli_console_get_i64, st, a1, %d, %d" lo hi;
+                   emit ~line "bne Lfail, st, 0";
+                   emit ~line "mov v%d, i64:(a1)" sid;
                    (* WINDOW LAW (§P1-m1.1-8): the runtime proved the read value
                       inside [lo,hi] = W(p) of the target's declared precision; the
                       environment records EXACTLY that interval — never wider. *)
@@ -519,10 +533,15 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
     (* one i64 register per automatic symbol of the export procedure, ascending
        sid from the program's symbol table (§P1-m0.4); then one temp per fresh
        register, numbered in evaluation order by the counter above. *)
+    (* E2E-54/P1-mD §P1-mD.3: the automatic symbols of the entry, carrying the
+       SOURCE SPELLING (sorig) alongside sid so the sidecar can name the MIR local
+       v<sid> by its PL/I source name. The .mir local ORDER is unchanged (still
+       ascending sid); the byte output is FROZEN — only sorig is now also kept. *)
     let v_regs =
       List.filter_map
         (fun (s : Hir.sym) ->
-          if s.Hir.scope = p.Hir.scope && s.Hir.sstorage = Hir.Auto then Some s.Hir.sid
+          if s.Hir.scope = p.Hir.scope && s.Hir.sstorage = Hir.Auto
+          then Some (s.Hir.sid, s.Hir.sorig)
           else None)
         prog.Hir.syms
     in
@@ -534,7 +553,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
       (if cu_any then [ "st" ] else []) @ (if cu_get then [ "a1" ] else [])
     in
     let all_regs =
-      List.map (fun sid -> "v" ^ string_of_int sid) v_regs @ extra_regs @ t_regs
+      List.map (fun (sid, _) -> "v" ^ string_of_int sid) v_regs @ extra_regs @ t_regs
     in
     (* §P1-m1.5: protos (only the used ones, fixed relative order p_put, p_get,
        p_text, p_nl, p_exit) then EXACTLY ONE import line listing only the used
@@ -571,7 +590,7 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
     if all_regs <> [] then
       Printf.bprintf buf "\tlocal\t%s\n"
         (String.concat ", " (List.map (fun r -> "i64:" ^ r) all_regs));
-    List.iter (fun s -> Printf.bprintf buf "\t%s\n" s) (List.rev !insns);
+    List.iter (fun (s, _ln) -> Printf.bprintf buf "\t%s\n" s) (List.rev !insns);
     (* §P1-m1.5: the SHARED failure tail lives AFTER the body's final ret and
        before endfunc — Lfail is its own UNINDENTED line; every nonzero runtime
        status fail-fasts through exit(status), observable as the process code. *)
@@ -583,7 +602,48 @@ let compile ~(profile : Target.profile) ~(export : string) (prog : Hir.program)
     Buffer.add_string buf "\tendfunc\n";
     Printf.bprintf buf "\texport %s\n" entry_sym;
     Buffer.add_string buf "\tendmodule\n";
-    Ok { entry_sym; mir_text = Buffer.contents buf }
+    let mir_text = Buffer.contents buf in
+    (* ---- E2E-54/P1-mD sidecar debug map (§P1-mD.3) — ONLY when requested ---- *)
+    (* The default path (debug_source = None) builds NOTHING: the .mir bytes and
+       the whole artifact are exactly as before (§P1-mD.2, default FROZEN). When a
+       source path is supplied, the sidecar lists the instruction sequence the MIR
+       parser WILL see: the body insns in emit order (line from the HIR), then the
+       shared failure tail the assembly writes directly (label/call/ret, line 0),
+       with the MIR opcode = the first token of each instruction. *)
+    let first_token (text : string) : string =
+      let n = String.length text in
+      let stop = ref 0 in
+      while
+        !stop < n && text.[!stop] <> ' ' && text.[!stop] <> ','
+      do
+        incr stop
+      done;
+      String.sub text 0 !stop
+    in
+    let opcodes =
+      List.map (fun (text, ln) -> (first_token text, ln)) (List.rev !insns)
+      @
+      if cu_any then [ ("label", 0); ("call", 0); ("ret", 0) ] else []
+    in
+    let debug_map =
+      match debug_source with
+      | None -> None
+      | Some abs_path ->
+          let sb = Buffer.create 256 in
+          Buffer.add_string sb "p1md 1\n";
+          Buffer.add_string sb ("mir " ^ Sha256.hex_digest mir_text ^ "\n");
+          Buffer.add_string sb ("file " ^ abs_path ^ "\n");
+          Printf.bprintf sb "func 0 %s\n" entry_sym;
+          List.iteri
+            (fun i (op, ln) ->
+              Printf.bprintf sb "insn %s %d %s %d\n" entry_sym i op ln)
+            opcodes;
+          List.iter
+            (fun (sid, sorig) -> Printf.bprintf sb "var v%d %s\n" sid sorig)
+            v_regs;
+          Some (Buffer.contents sb)
+    in
+    Ok { entry_sym; mir_text; debug_map }
   with Refusal d -> Error [ d ]
 
 (* The [Backend.BACKEND] instance for a GIVEN export name (see the DEVIATION note
