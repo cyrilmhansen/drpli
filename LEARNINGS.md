@@ -10883,3 +10883,88 @@ ocaml/lib ocaml/bin ocaml/hir hir/` rc 0; kept exe `172595d5…` held DIRECT):**
 - **accepted (T-panel close values, first-hand this hop):** T1 kept exe `172595d52be44c9e…` sha DIRECT; T2 `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0; T11 ledger `grep -c '^## C' spec/CLAIMS.md` = 203 ending C380; tree dirty ONLY managed blocks + `handoff.config.json` (NEVER staged) + ignored debris.
 - **accepted (step 7 CLOSE):** RESULTS **§P1-m1** appended (milestones m1a/m1b SEPARATELY; T1–T11 WITH measured values; five deviations incl. the six pre-recorded pointers, the `cu_nl` law, N17 parse-PROVEN and the runner first-run defect; unsupported-semantics matrix; reproduction set; commit list). arch doc **§7-7**. PLAN §P1-m1.12 dashboard row **CLOSED 2026-11-10**.
 - **NEXT = NOTHING IS AUTHORIZED — STOP** (work order §P1-m1.11 step 7). §P1-m1 CLOSED; P1-mC and P1-m0 stay CLOSED and untouched. Roadmap items (char variables, ENDFILE/condition designators, PUT EDIT, file streams, trailing-ctl parser repair, production adoption, ARM64/APE) are **PROPOSED ONLY** — each needs its own PROTOCOL #1 pre-registration + explicit operator authorization. Successor (if the operator re-authorizes): re-verify the baseline trio first-hand at the close HEAD, read `LEARNINGS.md` §§ hop 2..**9** and RESULTS §P1-m1, await the operator's brief; NEVER self-authorize a new slice.
+
+## E2E-54/P1-mD hop 1 (2026-11-10, session 01a1c52f, fresh chain; ZERO oracle; ZERO repo source byte) — BRIEF RECEIVED; g709 RECONCILED; BASELINE GREEN; MIR DEBUG INTERFACES AUDITED FIRST-HAND (pre-probe)
+
+- **accepted (g709 reconciliation, brief §1):** g709 is NOT a git commit — it is the guard-managed
+  **checkpoint generation 709** (`checkpoint-id: g709-6a43a224f57f`, kind manual, readiness attested,
+  2026-11-09T23:51:31Z, session 01a1c2a9) whose "Last verified state" reads VERBATIM
+  `finalize: E2E-54/P1-m1 CLOSED at close commit 1e14ada6`. It lives in the UNCOMMITTED managed
+  blocks of HANDOFF.md/PROGRESS.md (HEAD's committed blocks still show g708) + the session snapshot
+  `.pi-guard/sessions/01a1c2a9-*.json`. `git rev-parse main origin/main` = **both**
+  `1e14ada6e34c244577a5c9b4ffe12db570b275b8`; `git rev-list --left-right --count main...origin/main`
+  = `0 0`. VERDICT: NOTHING was forgotten to push, NOTHING is missing; the operator's "g709" names
+  attestation metadata already FINALIZED on HEAD 1e14ada6. Do not invent or replay any checkpoint;
+  the g709 blocks are guard-owned and stay untouched.
+- **accepted (baseline FIRST-HAND at 1e14ada6, each its own command, rc DIRECT):** `dune build` rc 0;
+  T1 kept exe sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; ledger
+  203 headers ending C380; T2 diff rc 0; `hir_test.py` rc 0 **220 ok** (`build/e54pmD-baseline-hirtest.log`);
+  `mir_aot_test.py` rc 0 **27 checks**; `mir_aot_cosmo_test.py` rc 0 **25 checks**; `e2e_gate.py` rc 0
+  FROZEN ALL HIT → `build/e54pmD-baseline-gate.log`. Config dirty values read: cap 12, working window
+  145000 (operator edits NEVER staged; no renewal-state.json in `.pi-guard/` → fresh chain count).
+- **accepted (pinned lab header audit, all first-hand from lab ccc92c5c / madc f541a7a5,
+  `madc/third_party/mir/`):** (1) `mir-debug.h` AOT section VERBATIM: `MIR_object_set_debug(obj,d)`
+  makes `MIR_object_emit` generate `.debug_abbrev/.debug_info/.debug_line` (and `.debug_frame` ONLY
+  when the object has NO `.eh_frame`); builder function addresses MUST be **.text section offsets cast
+  to void*** ("offset 0 is valid"); the .o carries `R_X86_64_64` relocations against the **.text
+  section symbol** for every code address so an external linker (cosmo ld) relocates the DWARF.
+  (2) The builder must stay alive across emit and must NOT receive `MIR_debug_emit` afterwards (the
+  brief forbids the JIT workflow — VERIFIED in the header text itself). (3) `MIR_debug_add_var`
+  builds `DW_OP_fbreg(off) [+DW_OP_deref] [+DW_OP_plus_uconst(member)]`; `deref_p` for
+  address-holding (ALLOCA) slots, `member_offset` for block-indexed homes; vars attach to the
+  MOST-RECENTLY-ADDED function. (4) `MIR_reg_frame_offset(func,reg,&off)` returns 1 only if the reg
+  was STACK-HOMED, valid AFTER `MIR_gen`.
+- **accepted (generator law, `mir-gen.c`/`mir.c` first-hand):** `MIR_insn.file_id/line` are PUBLIC
+  struct fields (mir.h:308-310) — parsed-from-text insns CAN be annotated directly; `gen_record_line`
+  (mir-gen.c:437) skips ONLY when line==0 AND file_id==0, COALESCES consecutive equal locations, and
+  x86_64 calls it per insn (`mir-gen-x86_64.c:3873`); `func->line_map/code_len/reg_locs/cfi` are all
+  filled on the OBJECT-MODE path (machine_code stays NULL there — use `MIR_object_find_symbol` for the
+  .text offset, exactly as c2mir's `c2m_dbg_populate` does at c2mir.c:~18560; `cfi` encoded
+  unconditionally by `gen_cfi_encode`, FDE captured to `.eh_frame`). Reg numbering law VERIFIED:
+  reg = index in `func->vars` + 1 (c2mir comment cites `new_func_reg`); `func->vars` = named locals,
+  NOT unnamed temps. Homes-only law (mir-gen.c:8315): `MIR_set_spill_all(ctx,1)` GLOBAL switch +
+  per-func `MIR_func_debug_homes_only` + `MIR_set_reg_debug_home(reg,func)` homes ONLY the marked regs
+  — the brief's "stable named vars WITHOUT spilling every temp" is exactly this route.
+- **accepted (CRITICAL measured fact):** the gen **default optimize level is 2** (mir-gen.c:11438);
+  current mir2o NEVER sets it → the frozen P1-m0/m1 `.o` pins were built at level 2. The debug path
+  MUST explicitly set level 0 (brief §5) and the NON-debug path must keep calling NOTHING (bytes frozen).
+- **accepted (environment):** gdb **18.1** present; `/proc/sys/kernel/yama/ptrace_scope = 1` (a gdb
+  session debugging its OWN forked child is permitted — batch mode qualifies); readelf/objdump/nm/
+  sha256sum present; `libmir.a` at `build/p1m0-deps/mir-obj` ALREADY exports every needed symbol
+  (nm proof: MIR_debug_init/add_file/base_type/add_func/add_var, MIR_object_set_debug/find_symbol,
+  MIR_gen_get_object, MIR_set_spill_all/reg_debug_home/homes_only, MIR_reg_frame_offset,
+  MIR_insn_name, MIR_gen_set_optimize_level, MIR_set_inline_permission). `MIR_insn_name` is the
+  public opcode-name API (mir.h:770) for sidecar opcode validation.
+- **proposed (sidecar design, to be PROBED before pre-registration):** `pli80mir -g` emits MIR text
+  byte-identical + a `.map` sidecar: sha256 of the exact .mir bytes, PL/I source path, per func:
+  per-INSTRUCTION records (index in func-body insn order, `MIR_insn_name` opcode, PL/I line;
+  backend-fabricated tail = line 0 unlocated) and per-var records (`v<sid>` reg → HIR `sorig` name,
+  precision). mir2o `--debug-map`: sha check, func/insn-count match, opcode-name match per index,
+  duplicate/missing/invalid-file loud REFUSALS (never silent). Liveness law re-verified: the emitted
+  `emit`-list order == parsed func insn DLIST order (labels are not insns; the Lfail tail insns are
+  assembly-time, count as insn entries with line 0).
+- **proposed (type truth):** DWARF base type = MIR `i64` carrier described TRUTHFULLY as a SIGNED
+  8-BYTE type (brief §7 forbids claiming the historical 64-bit-width fiction; the DWARF type NAME and
+  any FIXED-BIN(p) window comment are still open — decide in PLAN after probe).
+- **NEXT ACTION (successor, VERBATIM):** (1) SCRATCH PROBE (ignored `build/p1mD-scratch/`, ZERO repo
+  source byte): regenerate M05 (and M04) `.mir` via `pli80mir.exe`, write `probe_mir2o_dbg.c`
+  (mir2o.c + annotation loop + level 0 + inline-perm 0 + spill_all + homes_only + debug_home on the
+  `v0` reg + `MIR_debug_*` populate + `MIR_object_set_debug` BEFORE `MIR_gen_object_emit`); stamp M05
+  insns lines 3,3,3,3 / 4×5 / 5,5 / tail 0,0 (13 insns total per the pin); link via
+  `sh tools/mir_aot/cosmo_link.sh tiny` with `tools/mir_aot/{pli_console.c,console_check.c}` and
+  `-DENTRY=pli80_iorw -DEXPECTED=77` (stdin `77\n`); verify `readelf -SW/--debug-dump=info/decodedline/-rW`
+  show the REAL .pli file + lines, gdb BATCH script: break M05.pli:4 / run / info source / step to 5 /
+  backtrace / print n; then the D-C1 wrong-line + D-C3 removal non-vacuity glimpses. (2) WRITE + COMMIT
+  PLAN.md §P1-mD PRE-REGISTRATION (explicit path `spec/lab-evidence/e2e54/PLAN.md`, PROTOCOL #1)
+  BEFORE ANY repo source byte: D1/D2 milestones SEPARATE, exact CLI syntax, sidecar format,
+  falsifiers, env requirements (gdb/yama, timeout 120s per link), complexity stop threshold. (3) Then
+  work order: mir_backend sidecar emission → mir2o debug mode → fixtures + runner
+  `tools/mir_aot_debug_test.py` → controls D-C1/D-C2/D-C3 → FULL FROZEN regression (gate 1328-190-9-149-
+  16/0/25/0-prose5, hir 220 ok 11 UNMOVED, mir_aot 27, cosmo 25, fresh build hist 122) → CLOSE.
+- **standing:** ZERO oracle; ledger stays 203/C380; `ocaml/lib`+`ocaml/bin` byte-clean;
+  `handoff.config.json` NEVER staged; no push; explicit paths only; scratch (`build/p1mD-scratch/`)
+  NEVER committed; lab `ccc92c5c`/`f541a7a5` NEVER advanced; `hir/expected`+`hir/fixtures`+
+  `hir/mir-*` pins FROZEN (ADDITIVE-only for new debug pins); default non-debug MIR bytes + original
+  no-IO object hashes MUST NOT MOVE; F8 vocabulary law on every NEW ocaml/hir string; `eval "$(opam
+  env)"` every shell; rc DIRECT; NEVER batch build with tests; timeout 60 per fixture / 900 per suite /
+  120 per cosmo link.

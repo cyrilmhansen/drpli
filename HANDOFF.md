@@ -7,6 +7,34 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+1e-e54pmD-1. **E2E-54/P1-mD IN FLIGHT — NATIVE DWARF SOURCE DEBUGGING authorized by operator brief
+(session 01a1c52f, fresh chain; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean; ledger 203/C380;
+ZERO repo source byte yet).** **g709 RECONCILED (brief §1): g709 is NOT a git commit and NOT a
+forgotten push — it is guard checkpoint GENERATION `g709-6a43a224f57f`, attested + FINALIZED at close
+commit `1e14ada6` (the exact public HEAD; `main` == `origin/main`, `0 0`); its managed blocks are the
+uncommitted dirty guard sections of HANDOFF.md/PROGRESS.md — respect them, NEVER hand-edit, NEVER
+replay/invent a checkpoint. Baseline verified FIRST-HAND at `1e14ada6`: build rc 0; T1 exe
+`172595d5…` DIRECT; hir_test rc 0 220 ok; mir_aot 27; cosmo 25; gate rc 0 FROZEN ALL HIT
+(`build/e54pmD-baseline-gate.log`). Full first-hand audit of the pinned MIR debug interfaces
+(mir-debug.h AOT contract, mir-gen line_map/reg_locs/cfi laws, c2mir reference consumer,
+gdb 18.1 + ptrace_scope 1, libmir.a symbol exports) is in `LEARNINGS.md` § "E2E-54/P1-mD hop 1" —
+READ IT FIRST. Critical measured fact: gen default optimize level is **2**; the debug path must
+explicitly set level 0; the non-debug path must change NOTHING. SUCCESSOR = PROGRESS.md live P1-mD
+hop-1 heading VERBATIM: (1) scratch probe `build/p1mD-scratch/probe_mir2o_dbg.c` proving the FULL AOT
+DWARF sequence (annotation of parsed insns via public `file_id/line` fields, level 0, inline-perm 0,
+spill-all + debug-homes-only + `MIR_set_reg_debug_home`, `MIR_object_find_symbol` .text offsets →
+`MIR_debug_add_func/add_var` → `MIR_object_set_debug` BEFORE `MIR_gen_object_emit`), readelf panels,
+cosmo tiny link, gdb batch breakpoint/step/backtrace/print on M05; (2) WRITE + COMMIT PLAN.md §P1-mD
+(explicit path, PROTOCOL #1) BEFORE any repo source byte — D1/D2 SEPARATE milestones, sidecar
+contract + loud validation law, falsifiers, env requirements, complexity stop threshold; (3) work
+order mir_backend → pli80mir → mir2o → pins → runner + GDB evidence → controls D-C1/D-C2/D-C3 → FULL
+FROZEN regression → CLOSE + STOP. If D1 hits a pinned-MIR limitation: STOP with exact reproducer
+(NO new DWARF generator); D2 may close DEFERRED with measured blocker while D1 stands. Standing: ZERO
+oracle; ledger stays 203/C380; config NEVER staged; no push; explicit paths; scratch NEVER committed;
+lab NEVER advanced; hir pins FROZEN, mir pins ADDITIVE-only; default non-debug MIR/object bytes
+byte-identical; F8 law; `eval "$(opam env)"`; rc DIRECT; NEVER batch build with tests; timeout 60 per
+fixture / 900 per suite / 120 per cosmo link.
+
 1e-e54p1m1-9. **E2E-54/P1-m1 hop 9 CLOSED THIS SESSION 2026-11-10 — §P1-m1.11 steps 5–7 LANDED;
 §P1-m1 CLOSED (session 01a1c2a9, renewal 8/12; ZERO oracle; `ocaml/lib`+`ocaml/bin` byte-clean;
 ledger 203/C380).** Step 5: the never-run console runner executed — ONE runner-level defect
@@ -2003,25 +2031,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 708
-checkpoint-id: g708-b5f6e9db1a76
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 710
+checkpoint-id: g710-ac3a3019c92e
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4478, session 01a1c295-7dcd-7001-8c8d-6b09828b4ac5)
-checkpointed: 2026-11-09T23:33:36.402Z
+status: checkpoint (guard level 2, remaining ~9913, session 01a1c52f-85d9-70db-a628-8ae77bce3bd5)
+checkpointed: 2026-11-10T11:36:48.858Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7814a531a798bbced3e9117190042f6a0af39dcc022226a37cd81d7044a3ef5b
-source-handoff: 7fcfc0e8e6c10e0fb922adae8f7f85c298184123fde0d4c0e613f36ed3a8efaf
-source-learnings: 6f7d372740fa6ffaa1539d684d662888f721cf850e853fca35ff9f5122a3712d
+source-progress: 914a2652dcd7068d5e8a0d7c1a106069490be660b63b57296c50f0041bea753a
+source-handoff: 1cea84b5476cc32b28e370872b619c7d81588b565505107e66b4a3a352296630
+source-learnings: a4257a757ef7a0a0115d6390ba59e1f87beb10ec1464f4bdd73d3c187d65b7ee
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c295-7dcd-7001-8c8d-6b09828b4ac5
-readiness-at: 2026-11-09T23:33:58.279Z
-readiness-checkpoint: g708-b5f6e9db1a76
+readiness-by: session:01a1c52f-85d9-70db-a628-8ae77bce3bd5
+readiness-at: 2026-11-10T11:36:48.904Z
+readiness-checkpoint: g710-ac3a3019c92e
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (finalize: E2E-54/P1-mD hop 1 checkpoint: g709 reconciled (guard generation finalized at 1e14ada6 == origin/main; NOT a missing push; blocks untouched). Baseline FIRST-HAND all green (build, T1 172595d5, hir 220, mir_aot 27, cosmo 25, gate FROZEN -> build/e54pmD-baseline-gate.log). Pinned-lab debug-interface audit complete in LEARNINGS P1-mD hop 1 (gen default level 2 -> debug path sets 0; non-debug calls NOTHING). ZERO repo source byte; ZERO oracle; ledger 203/C380; config never staged; no push. SUCCESSOR = PROGRESS live P1-mD hop-1 heading VERBATIM: (1) scratch probe build/p1mD-scratch/probe_mir2o_dbg.c proving the full AOT DWARF sequence on M05 + cosmo tiny link + gdb batch (break/step/bt/print); (2) WRITE+COMMIT PLAN.md section P1-mD (explicit path, PROTOCOL #1) BEFORE any repo source byte, D1/D2 SEPARATE, sidecar contract + loud validation, falsifiers, env, stop threshold; (3) work order mir_backend -> pli80mir -> mir2o -> pins -> runner + GDB evidence -> controls D-C1/D-C2/D-C3 -> FULL FROZEN regression -> CLOSE + STOP.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2794,5 +2822,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-Hop 8 landed step 4 (m1b) at commit 73b47176 (build rc 0; T1 172595d5 DIRECT; hir_test 220 ok, 11 numbers UNMOVED; T2 clean; ledger 203/C380; ZERO oracle). SUCCESSOR: tools/mir_aot_console_test.py is WRITTEN BUT NEVER RUN and is currently UNCOMMITTED in the working tree (do not lose it; do not commit until rc 0). Run: cd /home/john/projects/sushiworks/pli80 && eval "$(opam env)" && timeout 900 python3 tools/mir_aot_console_test.py; echo RC=$? — fix RUNNER defects only (never the §P1-m1.7 expected bytes, never hir/mir-expected pins); controls C-a/C-b/C-c MUST all FAIL loudly; then commit the runner by explicit path, then step 6 FULL FROZEN regression (gate -> build/gate-e54p1m1-reg.log; mir_aot_test 27; cosmo 25; fresh --build-dir _build-e54p1m1 hist 122 sha==kept, each its own command), then step 7 CLOSE + STOP. Full contract: PROGRESS.md LIVE hop-8 heading + LEARNINGS.md §§ hop 2..8.
+E2E-54/P1-mD hop 1 checkpoint: g709 reconciled (guard generation finalized at 1e14ada6 == origin/main; NOT a missing push; blocks untouched). Baseline FIRST-HAND all green (build, T1 172595d5, hir 220, mir_aot 27, cosmo 25, gate FROZEN -> build/e54pmD-baseline-gate.log). Pinned-lab debug-interface audit complete in LEARNINGS P1-mD hop 1 (gen default level 2 -> debug path sets 0; non-debug calls NOTHING). ZERO repo source byte; ZERO oracle; ledger 203/C380; config never staged; no push. SUCCESSOR = PROGRESS live P1-mD hop-1 heading VERBATIM: (1) scratch probe build/p1mD-scratch/probe_mir2o_dbg.c proving the full AOT DWARF sequence on M05 + cosmo tiny link + gdb batch (break/step/bt/print); (2) WRITE+COMMIT PLAN.md section P1-mD (explicit path, PROTOCOL #1) BEFORE any repo source byte, D1/D2 SEPARATE, sidecar contract + loud validation, falsifiers, env, stop threshold; (3) work order mir_backend -> pli80mir -> mir2o -> pins -> runner + GDB evidence -> controls D-C1/D-C2/D-C3 -> FULL FROZEN regression -> CLOSE + STOP.
 <!-- guard:end checkpoint -->
