@@ -1,0 +1,12 @@
+cfn2: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(3);
+   get list(x);
+   if x > 0 then
+      y = 3;
+   else
+      y = 4;
+   put list(y);
+   return (y);
+end cfn2;
+

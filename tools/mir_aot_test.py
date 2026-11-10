@@ -4,7 +4,11 @@
 Panels, per the pre-registration — every command a DIRECT rc, separate
 processes, nothing batched:
 
-  positives M01/M02/M03 (exports calc/m02/m03, expected 42/45/10):
+  positives M01/M02/M03 (exports calc/m02/m03, expected 42/45/10) and,
+  since E2E-54/P1-m2 §P1-m2.8 item 1, N2 (export n2, expected 2 — the
+  pre-registered if-without-else positive: x = 1; the guard x = 1 is TRUE;
+  the THEN arm assigns 2; no ELSE ⇒ the returned value is 2, hand-derived
+  in the PLAN before any run):
     P1  pli80mir twice in FRESH processes: rc 0, byte-equal deterministic
         stdout, stdout == the reviewed hir/mir-expected/M*.mir pin, and the
         -o file byte-equal stdout (success writes BOTH, §P1-m0.5).
@@ -19,7 +23,8 @@ processes, nothing batched:
     P5  pipeline proof: the SAME fixture through pli80hir.exe exits 0
         (the HIR path itself is green — brief §5, no bypass).
 
-  negatives N1..N7: pinned rc (hir/mir-expected/N*.rc), ZERO stdout,
+  negatives N1, N3..N7 (N2 became a positive at P1-m2; its stale refusal
+    pins were deleted per §P1-m2.8): pinned rc (hir/mir-expected/N*.rc), ZERO stdout,
     pinned stderr bytes (N*.stderr.txt), deterministic across two fresh
     processes, and NO -o file (refusal totality — no misleading artifact,
     brief §5).  The emitter is NEVER run for negatives.
@@ -59,13 +64,16 @@ OUTDIR = REPO / "build" / "mir-aot"
 
 # PLAN §P1-m0.6 — independent hand-computed expected results (fixture,
 # export/entry name, expected return value).  NEVER re-fit from output.
-POSITIVES = [("M01", "calc", 42), ("M02", "m02", 45), ("M03", "m03", 10)]
-# fixture -> proc name (--export); §P1-m0.2/§P1-m0.6 negative table.
-NEGATIVES = [("N1", "n1"), ("N2", "n2"), ("N3", "n3"), ("N4", "n4"),
+POSITIVES = [("M01", "calc", 42), ("M02", "m02", 45), ("M03", "m03", 10),
+             ("N2", "n2", 2)]  # N2: §P1-m2.8 item 1, independent value 2
+# fixture -> proc name (--export); §P1-m0.2/§P1-m0.6 negative table
+# (N2 moved to POSITIVES per §P1-m2.8 item 1).
+NEGATIVES = [("N1", "n1"), ("N3", "n3"), ("N4", "n4"),
              ("N5", "n5"), ("N6", "n6"), ("N7", "n7")]
 
 ENV = dict(os.environ, LC_ALL="C")  # stable toolchain messages for evidence
 FAILURES: list[str] = []
+OKS = 0  # §P1-m2.8 item 3: the check count is MEASURED, never a hardcoded formula
 
 
 def fail(msg: str) -> None:
@@ -74,6 +82,8 @@ def fail(msg: str) -> None:
 
 
 def ok(msg: str) -> None:
+    global OKS
+    OKS += 1
     print(f"ok    {msg}")
 
 
@@ -293,10 +303,14 @@ def main() -> int:
     if FAILURES:
         print(f"\nMIR AOT RUNNER: {len(FAILURES)} FAILURE(S)")
         return 1
-    n = 3 * 6 + len(NEGATIVES) + 2
-    print(f"\nMIR AOT RUNNER PASSED: {n} checks — positives 42/45/10 EXECUTED "
-          f"(independent §P1-m0.6), 7 negatives refuse with zero artifacts, "
-          f"both corruption controls fail natively")
+    if OKS != len(POSITIVES) * 6 + len(NEGATIVES) + 2:
+        fail(f"summary: {OKS} ok-lines != expected panel arithmetic "
+             f"({len(POSITIVES)}x6 + {len(NEGATIVES)} + 2)")
+        return 1
+    pos_vals = "/".join(str(e) for _, _, e in POSITIVES)
+    print(f"\nMIR AOT RUNNER PASSED: {OKS} checks — positives {pos_vals} EXECUTED "
+          f"(independent §P1-m0.6 + §P1-m2.8-1), {len(NEGATIVES)} negatives refuse "
+          f"with zero artifacts, both corruption controls fail natively")
     return 0
 
 

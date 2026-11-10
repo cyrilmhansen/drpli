@@ -201,6 +201,12 @@ let compile ~(profile : Target.profile) ~(export : string)
       incr tmp_n;
       "t" ^ string_of_int !tmp_n
     in
+    (* E2E-54/P1-m2 §P1-m2.2: control-flow label names Lthen<n>/Lelse<n>/Ljoin<n>/
+       Lh<n>/Lx<n> come from their OWN counter (statement order, from 1), NEVER
+       from the temp counter; MIR label scope is the whole module, so the names
+       are collision-free by construction. The shared console failure tail keeps
+       its single `Lfail`: control flow never emits, reuses or shadows it. *)
+    let cf_n = ref 0 in
     (* §P1-m1.5 item 3 (m1b): the module's string data items s<k>, numbered by FIRST
        USE of each DISTINCT literal text in BODY order — a pure function of the typed
        body, so the artifact is deterministic. Only '"' and backslash are escaped; that
@@ -322,10 +328,14 @@ let compile ~(profile : Target.profile) ~(export : string)
                emit ~line "mov %s, v%d" k sid;
                (k, v)
            | None ->
+               (* §P1-m2.8 item 0: the reason is PATH truth — with joins a symbol can
+                  lose its definite value even though the body is walked once; the
+                  message names the join law, never a straight-line fiction. *)
                refuse ~line Diagnostic.e_mir_numeric
                  ("MIR backend: uninitialized read of sym(" ^ string_of_int sid
-                 ^ ") on the only path of this straight-line body; reading an undefined \
-                    value is outside the proven-safe domain (brief §4)"))
+                 ^ "); the symbol is not definitely initialized on every reachable \
+                   path (straight-line law §P1-m0.2, join law §P1-m2.2); reading an \
+                   undefined value is outside the proven-safe domain (brief §4)"))
       | Hir.Bin { op; left; right; _ } ->
           let w = win () in
           let nm =
@@ -376,6 +386,88 @@ let compile ~(profile : Target.profile) ~(export : string)
           let k = fresh () in
           emit ~line "neg %s, %s" k ri;
           (k, v)
+    in
+    (* ---- E2E-54/P1-m2: conditions, joins, arms (§P1-m2.2) ------------------- *)
+    (* The join law (brief §3): a variable is definitely initialized only when
+       initialized on EVERY incoming path (Some + Some -> sound hull; any None
+       side DROPS the entry — assignments made only in one arm are never
+       inherited). Int_map is immutable, so passing [env] into an arm IS the
+       copy: the arms never share mutable state. *)
+    let join_env (a : (int * int) Int_map.t) (b : (int * int) Int_map.t) =
+      Int_map.merge
+        (fun _k x y ->
+          match (x, y) with
+          | Some (a1, a2), Some (b1, b2) -> Some (min a1 b1, max a2 b2)
+          | _ -> None)
+        a b
+    in
+    (* Branch mnemonics and the label-first operand order are the hop-1 PROVEN
+       pinned-parser forms (`blt L, x, y` / `bge L, x, y` executed; the table is
+       documented in MIR.md; the unproven rows are MEASURED-FIRST at fixtures).
+       The relational node comes from hir_build's condition lowering ONLY
+       (typing "language-rule:relational", ex_ty Condty); its Condty never
+       reaches bin_p — each operand keeps its OWN declared-window proof inside
+       the existing `lower`. *)
+    let relop_cc (op : Hir.binop) : string option =
+      match op with
+      | Hir.Eq -> Some "eq"
+      | Hir.Ne -> Some "ne"
+      | Hir.Lt -> Some "lt"
+      | Hir.Le -> Some "le"
+      | Hir.Gt -> Some "gt"
+      | Hir.Ge -> Some "ge"
+      | _ -> None
+    in
+    let invert_cc cc =
+      match cc with
+      | "lt" -> "ge"
+      | "le" -> "gt"
+      | "gt" -> "le"
+      | "ge" -> "lt"
+      | "eq" -> "ne"
+      | "ne" -> "eq"
+      | _ -> assert false
+    in
+    let lower_cond ?(inverted = false) env (e : Hir.expr) (target : string) : unit =
+      let line = e.Hir.ex_line in
+      match e.Hir.ex with
+      | Hir.Bin { op; left; right; _ } when e.Hir.ex_ty = Hir.Condty ->
+          (match relop_cc op with
+           | None ->
+               refuse ~line Diagnostic.e_mir_node
+                 ("MIR backend: a condition with operator " ^ quote (Hir.pp_binop op)
+                 ^ " is outside the P1-m2 subset (only the six relational comparisons, \
+                    brief §2)")
+           | Some cc ->
+               let cc = if inverted then invert_cc cc else cc in
+               (* evaluation order = HIR order: left before right (§P1-m0.4) *)
+               let rl, _il = lower env left in
+               let rr, _ir = lower env right in
+               emit ~line "b%s %s, %s, %s" cc target rl rr)
+      | _ ->
+          refuse ~line Diagnostic.e_mir_node
+            "MIR backend: a condition that is not a relational comparison of proved \
+               integer operands is outside the P1-m2 subset (a condition literal is \
+               NOT admitted in this slice; brief §2)"
+    in
+    (* Early/nested RETURN stays outside the subset (§P1-m2.2): the ONE final
+       top-level RETURN(expr) law is unchanged. A structural scan refuses it BY
+       NAME before any arm instruction is emitted. *)
+    let rec no_return_in (arm : Hir.stmt list) : unit =
+      List.iter
+        (fun (s : Hir.stmt) ->
+          match s.Hir.st with
+          | Hir.Return _ ->
+              refuse ~line:s.Hir.st_line Diagnostic.e_mir_node
+                "MIR backend: a RETURN nested inside a conditional or loop arm is \
+                   outside the P1-m2 subset (only the one final top-level RETURN(expr) \
+                   is admitted; brief §3)"
+          | Hir.If { cond = _; then_; else_ } ->
+              no_return_in then_;
+              no_return_in else_
+          | Hir.While { cond = _; body = b } -> no_return_in b
+          | _ -> ())
+        arm
     in
     (* ---- statements (§P1-m0.2: declare / assign / exactly one final return) -- *)
     let body = p.Hir.body in
@@ -438,11 +530,37 @@ let compile ~(profile : Target.profile) ~(export : string)
           | Hir.Return None ->
               refuse ~line Diagnostic.e_mir_node
                 "MIR backend: return with no value (see the final-statement check)"
-          | Hir.If _ ->
-              refuse ~line Diagnostic.e_mir_node
-                "MIR backend: if is outside the P1-m0 native subset (straight-line only; \
-                   brief §3 admits conditional control only for a LATER preregistered \
-                   milestone)"
+          | Hir.If { cond; then_; else_ } ->
+              (* §P1-m2.2: the PROVEN branch forms; both arms lower in independent
+                 copies of the pre-if env and the join drops everything the arms
+                 disagree about (drop-not-inherit). A missing ELSE is the identity
+                 path. Statement order is preserved; every emitted instruction —
+                 branches, jumps and labels included — carries the IF statement's
+                 source line (§P1-m2.9, sidecar law). *)
+              no_return_in then_;
+              no_return_in else_;
+              incr cf_n;
+              let sfx = string_of_int !cf_n in
+              if else_ = [] then begin
+                lower_cond ~inverted:true env cond ("Ljoin" ^ sfx);
+                let env_then = lower_stmts env then_ in
+                emit ~line "Ljoin%s:" sfx;
+                lower_stmts (join_env env_then env) rest
+              end
+              else begin
+                let lthen = "Lthen" ^ sfx in
+                let lelse = "Lelse" ^ sfx in
+                let ljoin = "Ljoin" ^ sfx in
+                lower_cond env cond lthen;
+                emit ~line "jmp %s" lelse;
+                emit ~line "%s:" lthen;
+                let env_t = lower_stmts env then_ in
+                emit ~line "jmp %s" ljoin;
+                emit ~line "%s:" lelse;
+                let env_e = lower_stmts env else_ in
+                emit ~line "%s:" ljoin;
+                lower_stmts (join_env env_t env_e) rest
+              end
           | Hir.While _ ->
               refuse ~line Diagnostic.e_mir_node
                 "MIR backend: a while loop is outside the P1-m0 native subset (brief §3: \
@@ -515,17 +633,24 @@ let compile ~(profile : Target.profile) ~(export : string)
        decides WHICH module items appear; the statement arms above emit the
        matching instructions, so the two can never disagree — and a refusal
        means no artifact at all. Every PUT (value or literal) closes with the
-       newline call, so p_nl / pli_console_put_nl key on put-of-either-kind. *)
+       newline call, so p_nl / pli_console_put_nl key on put-of-either-kind.
+       E2E-54/P1-m2 §P1-m2.1 fact 3: the fold is a RECURSIVE walk (a top-level
+       scan cannot see a PUT/GET inside an arm); for a straight-line body it
+       visits EXACTLY the same statements in EXACTLY the same order, so every
+       pre-P1-m2 artifact byte stays identical (I6). *)
+    let rec cu_scan (pu, ge, tx) (s : Hir.stmt) =
+      match s.Hir.st with
+      | Hir.Put (Hir.P_value _) -> (true, ge, tx)
+      | Hir.Put (Hir.P_text _) -> (pu, ge, true)
+      | Hir.Get _ -> (pu, true, tx)
+      | Hir.If { cond = _; then_; else_ } ->
+          let acc = List.fold_left cu_scan (pu, ge, tx) then_ in
+          List.fold_left cu_scan acc else_
+      | Hir.While { cond = _; body = b } -> List.fold_left cu_scan (pu, ge, tx) b
+      | _ -> (pu, ge, tx)
+    in
     let cu_put, cu_get, cu_text =
-      List.fold_left
-        (fun (pu, ge, tx) (s : Hir.stmt) ->
-          match s.Hir.st with
-          | Hir.Put (Hir.P_value _) -> (true, ge, tx)
-          | Hir.Put (Hir.P_text _) -> (pu, ge, true)
-          | Hir.Get _ -> (pu, true, tx)
-          | _ -> (pu, ge, tx))
-        (false, false, false)
-        body
+      List.fold_left cu_scan (false, false, false) body
     in
     let cu_any = cu_put || cu_get || cu_text in
     let cu_nl = cu_put || cu_text in

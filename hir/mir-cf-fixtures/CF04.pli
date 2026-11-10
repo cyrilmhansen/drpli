@@ -1,0 +1,16 @@
+eqne: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   get list(x);
+   if x ^= 3 then
+      y = 1;
+   else
+      y = -1;
+   if x >= 2 then
+      y = y + 10;
+   else
+      y = y - 10;
+   put list(y);
+   return (y);
+end eqne;
+

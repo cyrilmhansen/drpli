@@ -1,0 +1,11 @@
+nocls: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   y = 7;
+   get list(x);
+   if x > 5 then
+      y = 9;
+   put list(y);
+   return (y);
+end nocls;
+

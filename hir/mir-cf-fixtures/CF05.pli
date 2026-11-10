@@ -1,0 +1,12 @@
+iocond: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   get list(x);
+   if x <= 0 then
+      y = -2;
+   else
+      get list(y);
+   put list(y);
+   return (y);
+end iocond;
+

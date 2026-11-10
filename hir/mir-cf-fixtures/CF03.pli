@@ -1,0 +1,15 @@
+nest: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   get list(x);
+   if x < 0 then
+      y = -1;
+   else
+      if x = 0 then
+         y = 0;
+      else
+         y = 2;
+   put list(y);
+   return (y);
+end nest;
+
