@@ -11880,3 +11880,96 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   build+tests; timeouts 60/120/900; cosmo chmod +x; console links include tools/mir_aot/pli_console.c;
   runners/gdb from repo root; printf %s\n; byte-exact via Python subprocess; NEVER hand-edit managed
   checkpoint blocks.
+
+## E2E-54/P1-m3 hop 4 (2026-11-13, session 01a1c79b renewal 3/12; ZERO oracle; ledger 203/C380; ZERO repo source byte — baseline re-verify + hir_build/lower_actual first-hand reads + two new scratch probes designed) — ABI MIXED-MODE PROBLEM SOLVED; §P1-m3 WRITING REMAINS
+
+- Baseline FIRST-HAND at `b335280a` (hop-3 durables commit): `cd ocaml && eval "$(opam env)" && dune
+  build` rc 0; T1 `ocaml/_build/default/bin/pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+  DIRECT; T2 `git diff --exit-code -- ocaml/hir/expected ocaml/hir/fixtures ocaml/lib ocaml/bin` rc 0;
+  `timeout 900 python3 tools/hir_test.py` rc 0 **220 ok**, ok-set `cmp`-IDENTICAL to
+  build/e54p1m3-hop3-hirtest.log → ignored build/e54p1m3-hop4-hirtest.log; ledger 203/C380; tree dirty
+  ONLY operator handoff.config.json (NEVER staged) + pre-existing untracked scratch. ACCEPTED.
+- **FALSIFIED (by reading hir_build.ml first-hand):** hop-3's design line "Call_s to a value-returning
+  proc discards the result into a fresh temp" is MOOT — BOTH Call_s lowering arms (bare `call x;`
+  Eident path AND the `call x(args);` Esuffix path) raise **HIR-E07 "statement-level call to function
+  <key> discards a value; unlowered in P0"** whenever the callee has a bind RETURNS fact. So a
+  Call_s target is ALWAYS void in admissible HIR; the backend never sees value-discarding Call_s.
+  (CALLN2 stays a NEGATIVE at the HIR layer, unchanged.)
+- Passing-mode dispatch (accepted, read first-hand): `lower_actual` dispatches on bind's
+  per-call-site `SE.passing_mode` — PM_immediate (numeric literal) and PM_value_cell (expression)
+  both require `x.ex_ty = formal_ty` (E17) and yield **A_value**; PM_own_cell (bare name / array
+  element, per the P1-a2 classifier) yields **A_reference (D_var sid / D_elem)**; PM_copy_in refuses
+  E16; whole-array actual E15. formal_ty = the callee formal's own declared type (via its dcl row).
+  ⇒ mode is a property of the ACTUAL SYNTAX AT EACH SITE, not of the callee formal.
+- **KEY ABI RESOLUTION (proposed, drives §P1-m3):** one callee formal can receive A_value at one
+  site and A_reference at another (e.g. `call clob(x, x);` then `call clob(x, 40);` — formal b is
+  designated at site 1, value at site 2). Since the callee body is ONE code path, the backend cannot
+  pick per-formal register-vs-address representation from call sites. DECISION: **all callee formals
+  are HOME-passed (memory)** — callee accesses formal sid via `i64:(v<sid>)` (title carries
+  `i64:v<sid>`); every call site passes an ADDRESS: A_reference ⇒ the caller's variable home
+  `h<sid>` (entry-hoisted `alloca h<sid>, 8`, variable lives ONLY in its home while so designated,
+  all caller reads/writes `i64:(h<sid>)`); A_value ⇒ a caller ENTRY-HOISTED per-SLOT value cell
+  `hv<k>` (one per (call-site, argument-position), never inside the loop body ⇒ no stack growth per
+  iteration), body `mov i64:(hv<k>), <rv>` then pass `hv<k>`. Copy semantics preserved: the cell is
+  rewritten at every call, never read by the caller. probe_alias PROVED callee-deref + caller-home
+  EXECUTION; x8 PROVED value-write isolation; x7 PROVED caller-register liveness across calls (no
+  manual save/restore).
+- Backend refusal-layer table (pre-registered facts, codes from diagnostic.ml first-hand):
+  arity mismatch / value-discarding Call_s / Call_e on void / self-recursion = **HIR-E07 (HIR layer,
+  PRE-EXISTING, unchanged)**; folded-name collision = **HIR-E11 (HIR, CAND08 falsified the backend
+  collision-suffix fixture ⇒ symbol `pli80_<folded>` is UNIQUE by construction, NO `_<pid>` suffix —
+  hop-2 clause superseded, record code path unimplemented)**; A_reference actuals at m3a, nested
+  proc depth ≥ 2 (when REACHED), call cycle (DFS from entry names the cycle), Call_e outside
+  whole-RHS/whole-Return, Call_e with A_reference actual, value callee not ending RETURN(expr),
+  `-g` + multi-proc = **HIR-E18 backend by name**; uninitialized-by-ref and every window check =
+  **HIR-E19 backend numeric**. Unreached siblings are DROPPED from the artifact (documented law,
+  bind already validated them); direct self-recursion never reaches the backend (E07).
+- NEW scratch probes WRITTEN (ignored build/p1m3-scratch/, NEVER committed) — **NOT YET RUN** (the
+  only unproven syntax classes left: void callee WITH formals in proto+title; void callee with a
+  console failure tail):
+  `y1_void_args.mir` — `pv1: proto i64:m` + `pli80_deep: func i64:m` (NO leading bare type) +
+  3-func chain + homes passed twice (deep then mid) + result-reg call; glibc native_check
+  EXPECTED 232 hand-derived: a1=5→deep→6→+100→106→mid→116 (stored AND returned)→116+116=232.
+  `y2_brief_show.mir` — the brief's `show` bytes at MIR level: void callee `out(m)` PUTs the home
+  value; caller PUTs literal 4 and `ret t1` with t1=4 LIVE across the console calls; console protos
+  + ONE import + per-func `st` + `Lfail1`/`Lfail0` tails — a VOID callee's failure tail ends
+  `call p_exit, exit, st` + `ret st` (operand on ret in a NO-RESULT func — UNPROVEN; fallback if
+  mir2o refuses: bare `ret` on the void tail, the exit call never returns anyway); cosmo tiny link
+  with tools/mir_aot/pli_console.c + console_check.c; predicted stdout `5\n4\n`, driver-return=4.
+  If y1/y2 measurement disagrees with ANY prediction, record the deviation — NEVER re-fit a fixture
+  expectation that the brief or hop-2 already recorded.
+- Fixture designs settled this hop (full texts + independent derivations go in the PLAN): CALL02 =
+  CAND06 program verbatim (stdout `2\n` dr 2); CALL03 = `two` (x=30; call side(5); x=x+7; call
+  side(9); return (x)) → NO console, dr 37, glibc+cosmo legs; CALL04 chain `entry→mid→leaf`
+  by-value via `+ 0` expressions with the PUT inside the void leaf (`91\n`, dr = caller's unchanged
+  local proving write isolation); CALL05 = void callee ending with bare `RETURN;` (H.Return None as
+  final stmt of a VOID callee lowers to bare `ret`; value callee bare-return/fall-through refuses
+  E18); CALL01 = the brief `show` (m3b, `5\n4\n` dr 4); CALL06A `alias(x,x)` (`7\n` dr 7, callee
+  `b = 7; a = b;`) and CALL06B differential `alias(x, x + 0)` (`2\n7\n` dr 7, callee `a = 7;
+  put list(b); put list(a);` — b's value cell is the PRE-CALL copy 2); CALL09 = unreached-sibling
+  DROP positive; CALL10 = MIXED-MODE discriminator (`clob(x,x); clob(20,40)` with the CALL06A
+  callee ⇒ stdout `7\n34\n` dr 48 — proves per-site value cells under one callee); CALL07/08 m3c
+  whole-RHS/whole-Return. Negatives CALLN1..CALLN10 as in hop 3 with the layers above; CALLN10
+  (by-ref at m3a) is TRANSITIONAL — pre-register its deletion at m3b landing (§P1-m2.8-style).
+- NEXT (successor): (1) RUN the two y-probes FIRST-HAND (mir2o `build/p1m0-deps/mir2o -f X.mir
+  X.o`; glibc: gcc tools/mir_aot/native_check.c -DENTRY=pli80_main -DEXPECTED=232 X.o; cosmo tiny:
+  tools/mir_aot/cosmo_link.sh + chmod +x; console legs link pli_console.c; repo root; timeouts
+  60/120); record results ACCEPTED or DEVIATION; if `ret st` in the void tail is refused, switch to
+  bare `ret` and record the measured law. (2) WRITE + COMMIT §P1-m3 in spec/lab-evidence/e2e54/
+  PLAN.md (explicit path, BEFORE any source byte, PROTOCOL #1; §P1-m2.0–.14 template; everything
+  above + full program texts CRLF+^Z mkpli.py + T-panel gate 1328/1328-190/190-9/9-149 rows
+  0/0-16/0/25/0-prose 5, hir 220/11, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, fresh
+  --build-dir _build-e54p1m3 hist 122 sha==kept; falsifiers = EVERY hir/mir-expected/*,
+  hir/mir-cf-expected/*, M05/CF debug pins, .o shas 78656e6c/3822f777/02c15b1b, debug .o
+  cb263c2c…3984782 byte-frozen; amendments ONLY the E20 one-proc arm replacement + multi-func
+  Lfail_<pid> rename + transitional CALLN10). (3) m3a in ocaml/hir/mir_backend.ml ONLY → gates each
+  OWN command → measured-first ADDITIVE hir/mir-call-fixtures/ + hir/mir-call-expected/ → native
+  panel → C-M3a LOUD → commit; m3a gate before m3b byte; m3b; gate; m3c; (4) runner
+  tools/mir_aot_call_test.py written to PLAN before first run, repo root; (5) FULL FROZEN
+  regression T1–T11 → CLOSE RESULTS §P1-m3 + arch §7-10 + dashboard + durables → STOP.
+- STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; explicit paths
+  only; build/p1m3-scratch NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/p1mc-deps NEVER
+  touched; hir pins FROZEN / mir pins ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch
+  build+tests; timeouts 60/120/900; cosmo chmod +x; console links include tools/mir_aot/pli_console.c;
+  runners/gdb from repo root; printf %s\n; byte-exact via Python subprocess; NEVER hand-edit managed
+  checkpoint blocks.
