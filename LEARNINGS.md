@@ -11661,3 +11661,90 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   never batch build+tests; timeouts 60/120/900; cosmo chmod +x; printf %s\n for
   negative stdin; byte-exact via Python subprocess; gdb -batch -nx debuginfod off
   repo-root; runners FROM REPO ROOT.
+
+## E2E-54/P1-m3 hop 2 (2026-11-13, session 01a1c76e renewal 1/12; ZERO oracle; ledger 203/C380; ZERO repo source byte — SCRATCH PROBES ONLY, all in ignored build/p1m3-scratch/) — ALL mandated MIR probes MEASURED; HIR candidate probes GREEN; ABI decisions ready for PREREGISTRATION
+
+- Baseline FIRST-HAND at `a3b34f32`: `cd ocaml && eval "$(opam env)" && dune build` rc 0; T1 kept
+  exe `ocaml/_build/default/bin/pli80c.exe` sha `172595d52be44c9e…` (T1 = pli80c.exe, NOT
+  pli80mir.exe — memory trap); T2 clean; `hir_test` rc 0 **220 ok** → build/e54p1m3-baseline-hirtest.log;
+  ledger 203/C380; tree dirty ONLY managed blocks + operator config + pre-existing scratch.
+- MIR native probes (build/p1m0-deps/mir2o; glibc gcc `native_check` + cosmo TINY links; console
+  legs link `tools/mir_aot/pli_console.c`; chmod +x) — ALL ACCEPTED, executed values match the
+  INDEPENDENT hand-derivations:
+  1. **Multi-func module** `probe_byvalue.mir`: callee `h: func i64, i64:x` (FORMAL IN THE TITLE,
+     NOT re-declared in local) + `call pcal, h, r, t1` (proto `pcal: proto i64, i64:x`, result reg
+     r) → mir2o rc 0; nm: non-exported callee LOCAL `t`, entry `T`; call = `R_X86_64_PC32` into
+     .text; glibc EXEC 42, tiny EXEC 42. Per-func REG SCOPING PROVEN (t1 declared in BOTH funcs).
+  2. `probe_void.mir`: void callee `pli80_side: func` (no res) + bare `ret` + proto `pv: proto` +
+     `call pv, pli80_side` (NO result operand) — parses, EXECUTES (main returns 3) ACCEPTED.
+  3. `probe_alias.mir`: caller `alloca a1, 8` at entry, store `mov i64:(a1), t`, pass a1 as TWO
+     pointer args; callee stores via `mov i64:(x), t1`, reads `mov t2, i64:(y)`; caller observes the
+     callee's store through its OWN slot — glibc EXEC 10 (=5+5) ACCEPTED: **by-reference same-slot
+     aliasing works end-to-end natively**; multiple allocas per func fine (x8: a1+a2 independent homes).
+  4. `probe_console.mir`: TWO funcs each with its OWN `st` local + per-func UNIQUE labels `Lfail0`/
+     `Lfail1`; helper does p_put/p_nl; EXECUTED stdout EXACTLY `5\n4\n`, `driver-return=4`, rc 0 —
+     THE BRIEF's show bytes proven at MIR level. ACCEPTED.
+  5. **LABEL LAWS (all accepted, measured-first)**: duplicate label DEFINITIONS in a module → mir2o
+     REFUSES CLEANLY rc 1 `redefinition of label Lz in a module`; a branch target DEFINED ONCE but
+     referenced FROM ANOTHER FUNCTION (x1/x2 cross-jmp) → **mir2o SEGFAULTS rc 139, SILENT, NO
+     artifact**; branch to a COMPLETELY UNDEFINED label (x4) → **SEGFAULT rc 139**. ⇒ backend law:
+     EVERY branch target must be defined IN THE SAME func; labels module-unique (cf_n already
+     module-wide; Lfail MUST get per-func unique names). FALSIFIED early suspects: self-compare
+     `blt L, x, x`, label-adjacent branch, label in an arg-func, jmp in an arg-func ALL PASS fine.
+  6. **ORDER LAW**: callee defined AFTER caller → rc 1 `undeclared name h` (x5) ⇒ FUNC ITEMS MUST
+     BE EMITTED CALLEE-FIRST (topological; entry LAST). Cycle refusal stays backend-side DFS (HIR
+     never sees it, hop 1).
+  7. `probe_undefcall`: call to a name neither defined nor imported → clean rc 1 `undeclared name`.
+  8. x6 arity mismatch vs proto → clean rc 1 `number of call operands or results does not
+     correspond to prototype` (native safety net; HIR arity check runs first anyway).
+  9. **x7 LIVE-ACROSS-CALL**: caller virtual v1=100 live across a clobbering call, used after it →
+     glibc 111 + tiny driver-return=111 ACCEPTED ⇒ MIR's allocator spills our virtuals correctly;
+     NO manual save/restore in the ABI; caller env intervals need no blanket kill from that risk.
+  10. x8 shared diamond: same callee called from TWO callers, callee WRITES its formal x → caller's
+      actual UNCHANGED (glibc EXEC 38 = independent derivation) — **by-value write isolation** proven.
+- HIR candidate probes (pli80hir rc 0, CRLF+^Z): CAND01/05 `call show(x);` bare-name actual is a
+  DESIGNATOR (PM_own_cell → A_reference) — **m3a fixtures MUST use literal/expression actuals**;
+  CAND02 `call alias(x, x + 0);` → args = [A_reference var, binop A_value] (value cell via
+  PM_value_cell ⇒ A_value: register-pass is SEMANTICALLY SOUND — callee writes never reach the
+  caller's cell); CAND03 Call_e nested in a binop parses; CAND04 mutual recursion parses, HIR
+  blind to the cycle (hop 1 confirmed). Formal syms: storage=formal, scope=proc-scope, listed in
+  proc.params (declaration order); EVERY dcl incl. a formal's emits Declare sid.
+- UNRESOLVED (successor must resolve AT PRE-REGISTRATION): the p1m3 OPERATOR BRIEF WAS NEVER SAVED
+  to build/ (unlike p1m0/p1m2 `-brief-true.md`); only the hop-1 recorded expectations survive:
+  show→`5\n4\n` ret 4; alias(x,x)→`7\n` ret 7; alias(x,x+0)→`2\n7\n` ret 7; an `identity` example
+  is mentioned but NOT recorded. The fixture PROGRAM TEXTS are NOT recoverable from the repo — the
+  PLAN must present MY OWN complete fixture sources with hand-derived bytes (honor the recorded
+  values where an honest program yields them; record any deviation, NEVER fit).
+- PROPOSED m3 ABI refinement (ALL awaiting PRE-REGISTRATION): one func per proc, callee-first
+  topo order, entry last; subsidiary name = `pli80_<folded>` (+`_<pid>` ONLY on folded-name
+  collision); per-callee pid `pc<pid>` used-only protos BEFORE the existing single import line;
+  A_value actual → lower expr to temp, pass in the arg position; callee formal = arg register
+  v<sid>, rides the func title, EXCLUDED from the local line; A_reference (m3b) → caller
+  ENTRY-HOISTED `alloca h<sid>, 8` home for the referenced var (var MOVES from register to home for
+  the whole func — every read/write through `i64:(h<sid>)`), callee gets the address in a<sid>,
+  accesses via `i64:(v<sid>)`; after any Call_s/Call_e every by-ref-designated sid env-widened to
+  W(declared); uninitialized-by-ref REFUSES by name; Call_e (m3c) ONLY as whole Assign RHS / whole
+  Return expr, all actuals A_value+Pure, result interval W(ret-p) — a Call_e inside ANY other
+  expression REFUSES; recursion + mutual cycles REFUSE by DFS with a named cycle path; -g +
+  multi-proc REFUSES by name (sidecar format is hard single-func; mir2o validates func 0); per-func
+  `Lfail_<pid>` when >1 proc; entry keeps its `Lfail`-tail laws; callee with NO explicit RETURN
+  gets a bare final `ret` (void subroutine) — a value-returning subsidiary without trailing
+  RETURN(ref) REFUSES (proposed; decide + write down).
+- NEXT (successor, in order): (1) WRITE §P1-m3 PRE-REGISTRATION in spec/lab-evidence/e2e54/PLAN.md
+  (§P1-m2.0–.14 template; m3a/m3b/m3c SEPARATE milestones; fixture PL/I sources FULLY written out;
+  INDEPENDENT expected bytes; negatives with predicted refusal + WHICH LAYER refuses; controls
+  C-M3a/b/c on DISPOSABLE build/p1m3-scratch copies predicted to execute WRONG behavior; gates;
+  T1–T11 panel incl. expected suite counts mir_aot 32 / cosmo 25 / console 43 / debug 23 / CF 83;
+  fresh _build-e54p1m3 hist 122 sha==kept; dashboard row) → COMMIT explicit path BEFORE any source
+  byte (PROTOCOL #1). (2) m3a in ocaml/hir/mir_backend.ml ONLY → gates (build → T1 pli80c.exe
+  172595d5 DIRECT → T2 → hir_test 220/11 → cmp EVERY hir/mir-expected/*.mir + hir/mir-cf-expected/*
+  UNMOVED) → measured-first ADDITIVE hir/mir-call-fixtures + hir/mir-call-expected (CRLF+^Z via
+  build/p1m2-scratch/mkpli.py; review EVERY MIR line vs the plan; ×2 determinism; negatives rc 2
+  zero stdout no -o ×2) → native panel + C-M3a LOUD → commit; m3a gate before m3b byte; m3b gate
+  before m3c. (3) runner tools/mir_aot_call_test.py written to the PLAN before first run, repo-root.
+  (4) FULL FROZEN regression → CLOSE RESULTS §P1-m3 + arch §7-10 + dashboard + durables → STOP.
+- STANDING (unchanged): ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths;
+  scratch NEVER committed; lab ccc92c5c/f541a7a5 + build/p1m*-deps/p1mc-deps NEVER touched; hir
+  pins FROZEN / mir pins ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch build+tests;
+  timeouts 60/120/900; cosmo chmod +x; console cosmo links MUST include tools/mir_aot/pli_console.c;
+  runners/gdb FROM REPO ROOT; printf %s\n; byte-exact via Python subprocess.
