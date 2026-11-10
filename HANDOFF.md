@@ -2077,25 +2077,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 727
-checkpoint-id: g727-c09aae39c7fd
+checkpoint-generation: 729
+checkpoint-id: g729-07c44aa6763d
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~26659, session 01a1c63f-15b7-70db-a628-8b03d9e09d19)
-checkpointed: 2026-11-10T16:33:18.198Z
+status: checkpoint (guard level 4, remaining ~1826, session 01a1c673-bd04-7331-86b6-70c8e0bac886)
+checkpointed: 2026-11-10T17:45:45.351Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d29a5609b10d7ac27a9072bf42027c1e8781a6cb2cc64f68168ee02917f5b82e
+source-progress: 7da0974fb56e2feb91d1c020a89ac9ae70224c80796c7a3ea7a8183abfde7f54
 source-handoff: e5702d97f6c9e207ff93623d00afb4f8144b42502cf014d751ed548cf6d50358
-source-learnings: d02aef467f0cf9d7ba6d29ad99bdb1c9670cf3f73fb3e9bb7bce026730105594
+source-learnings: 12949c9e7c58506e1de585eb61f521298023bba50d22eca76620fadf029dcf91
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c63f-15b7-70db-a628-8b03d9e09d19
-readiness-at: 2026-11-10T16:33:18.315Z
-readiness-checkpoint: g727-c09aae39c7fd
+readiness-by: session:01a1c673-bd04-7331-86b6-70c8e0bac886
+readiness-at: 2026-11-10T17:45:45.501Z
+readiness-checkpoint: g729-07c44aa6763d
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-54/P1-mD CLOSED at 64ba3617 (close docs 74d40fde, runner 2e8fdc9e). NOTHING further authorized — successor awaits the OPERATOR; see HANDOFF 1e-e54pmD-8.)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2868,5 +2868,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-mD CLOSED at 64ba3617 (close docs 74d40fde, runner 2e8fdc9e). NOTHING further authorized — successor awaits the OPERATOR; see HANDOFF 1e-e54pmD-8.
+E2E-54/P1-m2 hop 1 CHECKPOINTED at 5abe9c82 (baseline green at 2609d0ea; brief at build/p1m2-brief-true.md; design in LEARNINGS § P1-m2 hop 1; NEXT = PLAN §P1-m2 preregistration commit BEFORE any source byte, then m2a per PROGRESS live heading VERBATIM).
 <!-- guard:end checkpoint -->
