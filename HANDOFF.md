@@ -7,7 +7,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-1e-e54pmD-2. **E2E-54/P1-mD hop 2 CHECKPOINTED (session 01a1c540, renewal 1/12; ZERO oracle; ZERO
+1e-e54pmD-3. **E2E-54/P1-mD hop 3 CLOSED (session 01a1c559, renewal 2/12; ZERO oracle; ZERO repo
+source byte; ledger 203/C380; evidence in ignored `build/p1mD-scratch/`).** D-a glibc link GREEN ⇒
+**MIR CFI VALID; cosmo `bt` blocker is PURELY ape.lds folding `.eh_frame` into `.data`**. D-b: no
+public eh_frame switch, but ape.lds of ALL modes keeps `.debug_frame` as its own named section and
+mir-debug.c:1561 writes it from the add_func cfi when the object's `.eh_frame` is empty ⇒ **PUBLIC
+READ-BACK ROUTE PROVEN** (probe_mir2o_dbg2.c: plain `MIR_gen_object_emit` → structural `.eh_frame`/
+`.rela.eh_frame` drop → `MIR_object_create`+`MIR_object_read` → fresh debug builder →
+`MIR_object_set_debug`+`MIR_object_emit`): lossless `.o` (named `.debug_frame`+`.rela.debug_frame`,
+NO `.eh_frame`, code/nm identical to direct route), **cosmo tiny AND optlinux links: gdb bt GREEN —
+D1 fully green, NO STOP clause**. **GATE PASSED: PLAN.md §P1-mD pre-registration COMMITTED BEFORE
+any repo source byte** (`a22dc0a5` with the LEARNINGS hop-3 record; boundary `d48564b6`; PROGRESS
+live hop-4 heading `db40282e`). SUCCESSOR = PROGRESS live hop-4 heading VERBATIM (PLAN §P1-mD.10
+steps 1+2: sha256.ml decimal-table module — F8 forbids `0x` in ocaml/hir/*; mir_backend additive
+debug_map sidecar, .mir bytes FROZEN; pli80mir `-g`/`--debug-map` CLI, unix dep ONLY in executable
+stanza; measured-first `hir/mir-debug-expected/M05.p1md`; T-panel + hir_test 220 + FULL FROZEN gate
++ byte-identity of all existing pins). Standing: ZERO oracle; ledger 203/C380; config NEVER staged;
+scratch NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only; F8;
+`eval "$(opam env)"`; rc DIRECT; never batch build with tests; timeouts 60/900; no push.
+
+SUPERSEDED-BY-ABOVE: 1e-e54pmD-2. **E2E-54/P1-mD hop 2 CHECKPOINTED (session 01a1c540, renewal 1/12; ZERO oracle; ZERO
 repo source byte; all evidence in ignored `build/p1mD-scratch/`).** The scratch DWARF probe LANDED:
 full pinned-MIR AOT DWARF sequence GREEN on M05 (14 insn entries — **labels ARE insns**, falsifying
 hop-1; line-0 stamps need file_id=0 too; coalesced line_map 22→3/97→4/139→5; .text off 192; v0
@@ -2048,25 +2067,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 714
-checkpoint-id: g714-5423761b41ff
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 715
+checkpoint-id: g715-4aa33e4f0c45
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 3, remaining ~6717, session 01a1c540-c377-70db-a628-8aea21a7a058)
-checkpointed: 2026-11-10T12:05:31.449Z
+status: checkpoint (guard level 1, remaining ~13088, session 01a1c559-6104-70db-a628-8aee8937bcde)
+checkpointed: 2026-11-10T12:37:04.730Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2f3bcd5590f49ba4bdf62d6c7c2f84080f4143d598c2b399aeee3f3164131ef3
+source-progress: 0175086b1bb7b25e43b045a4d4991a491151e0011ab9761ee7b22c5e506ccce0
 source-handoff: 2b0bdb8b5520bd54fa9f6f858a12b37ab3de0ba19c96a0a38d1313e15e02a9a6
-source-learnings: 02308616b340fc8ef83dba71bf06c99a4680b74877ae7c5e43a4497059ca2d69
+source-learnings: 0f224fbd82ee0657aa8cff0b4c8d50e42b3da4904b9ae83c60606643c20141d2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1c540-c377-70db-a628-8aea21a7a058
-readiness-at: 2026-11-10T12:05:31.497Z
-readiness-checkpoint: g714-5423761b41ff
+readiness-by: session:01a1c559-6104-70db-a628-8aee8937bcde
+readiness-at: 2026-11-10T12:37:04.774Z
+readiness-checkpoint: g715-4aa33e4f0c45
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2839,5 +2858,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P1-mD hop 3: successor executes PROGRESS live P1-mD hop-2 heading VERBATIM. READ LEARNINGS.md § "E2E-54/P1-mD hop 2" FIRST (full probe audit). Next steps in order: (D-a) glibc gcc diagnostic link of build/p1mD-scratch/M05_dbg.o + tools/mir_aot/{pli_console,console_check}.c (-DENTRY=pli80_iorw), readelf -SW must show a real .eh_frame, then gdb batch break M05.pli:4 + bt — GREEN ⇒ MIR CFI valid, blocker is purely cosmo ape.lds layout; (D-b) hunt a PUBLIC mir-gen switch making the capture carry no .eh_frame so mir-debug.c emits .debug_frame instead (dbg-mode ape.lds keeps .debug_frame as its own section, line ~202; condition at mir-debug.c ~1547-1559; NEVER edit build/p1mc-deps or the lab); (D-c) else brief STOP clause with exact reproducer (break/step/print legs stand). THEN WRITE + COMMIT PLAN.md §P1-mD (explicit path spec/lab-evidence/e2e54/PLAN.md, PROTOCOL #1) BEFORE any repo source byte — sidecar line list MUST cover all 14 func->insns entries incl. labels, line-0 ⇒ file_id=0, non-debug default path calls NOTHING (gen default level 2 stays), runner gdb legs on the link/mode proven by D-a/D-b. Standing: ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths; scratch build/p1mD-scratch NEVER committed; lab pins never advanced; hir pins FROZEN, mir pins ADDITIVE-only; F8 law; eval "$(opam env)"; rc DIRECT; never batch build with tests; timeout 60 per fixture / 900 per suite / 120 per link / <=120 per gdb leg; gdb: set debuginfod enabled off; cosmo artifacts need chmod +x before running.
+P1-mD hop 3 CLOSED at db40282e; hop-2 gate PASSED (PLAN.md §P1-mD committed at a22dc0a5 BEFORE any repo source byte; D-a/D-b resolved: MIR CFI valid, cosmo bt GREEN via public read-back .debug_frame route — full audit in LEARNINGS § "E2E-54/P1-mD hop 3"). Successor executes PROGRESS live hop-4 heading VERBATIM: PLAN §P1-mD.10 work-order STEPS 1+2 — sha256.ml (DECIMAL string tables, F8: zero 0x in ocaml/hir), mir_backend debug_map emission (insns as (string*int), ex_line/st_line arms, tail label/call/ret line-0 records; default bytes FROZEN, sidecar only on request), pli80mir -g/--debug-map CLI (unix dep ONLY in executable stanza), T-panel + full gate + hir_test F8 green, measured-first hir/mir-debug-expected/M05.p1md pin, commit explicit paths. Standing: ZERO oracle; ledger 203/C380; config NEVER staged; scratch never committed; lab/deps never touched; hir pins FROZEN / mir pins ADDITIVE; F8; eval opam env; rc DIRECT; never batch build with tests; timeouts 60/900; no push.
 <!-- guard:end checkpoint -->
