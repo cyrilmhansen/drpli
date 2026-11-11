@@ -48,7 +48,42 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P1-m3c hop 16 IN FLIGHT — **PROTOCOL #1 AMENDMENT COMMIT LANDED `d3925d1c`; m3c ADMISSION APPLIED (UNCOMMITTED — KEEP, NEVER revert); BASELINE + POST-EDIT GATES GREEN FIRST-HAND; FIXTURES/PINS/NATIVE/C-M3c/COMMIT REMAIN**; session 01a1cc93 (renewal 1/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3c hop 17 IN FLIGHT — **VALIDATION PANEL COMPLETE (re-green 65 / fixtures 3 / pins 4 / native 30 / C-M3c LOUD); RETIREMENT + FROZEN REGRESSIONS + IMPLEMENTATION COMMIT REMAIN**; session 01a1cca7 (renewal 2/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
+
+STATE: start HEAD `1c1fd664`; dirty = `ocaml/hir/mir_backend.ml` (the validated §3 admission —
+UNCOMMITTED, **KEEP, NEVER revert**, untouched this hop) + operator config (NEVER staged) + untracked
+scratch. DONE FIRST-HAND this hop (full record LEARNINGS § "E2E-54/P1-m3c hop 17" — READ VERBATIM
+FIRST, then §§ hop 16/15, then PLAN §P1-m3 (.2 law, .5 scope, .6 fixtures/entries, .7 legs, .12 gate,
+.15/.16 precedent, **.17/.18 BINDING**); all scratch in ignored `build/p1m3-scratch/g17/`):
+build rc 0; **(1)** m3a/m3b RE-GREEN rc 0 **65 checks** — ten pins byte-UNMOVED (×2 fresh, stdout==`-o`==
+pin, zero stderr), seven negatives rc 2/pin-equal/ZERO stdout/no artifact (×2), CALLN1 `pval` compiles;
+harness falsification recorded (HIR-layer negatives N2/N3/N5 refuse in `pli80hir` — rc 2 + pinned stderr
+IS the layer proof). **(2)** CALL07 393 B / CALL08 282 B / CALLN9 352 B generated MECHANICALLY from the
+committed blocks + INDEPENDENT round-trip verify; CALLN1.pli survival sha `33d248d0…376a` UNMOVED.
+**(3)** measured-first pins ×2 reviewed line-by-line vs §P1-m3.2/.5/.17 BEFORE the cp and re-verified
+AFTER it: `CALL07.mir` `CALL08.mir` `CALLN1.mir` + `CALLN9.rc`/`.stderr.txt` (E18 line 3 BY NAME, no
+artifact); the three MIRs are `diff`-IDENTICAL to the preserved hop-14 prototype measurements.
+**(4)** §P1-m3.7 native panel rc 0 **30 checks** — mir2o 3416/1416/1408 B 2 funcs; glibc EXPECTED
+3/41/1 EXEC rc 0 ×2 (`1\n2\n3\n3\n`, `41\n`, `1\n`); cosmo TINY (pli_console.c + console_check.c,
+chmod +x) ×2 byte-exact `1\n2\n3\n`dr3 / EMPTY dr41 / EMPTY dr1; static laws; nm `T`/`t`.
+**(5)** C-M3c **LOUD**: one inserted `add t9, t9, 1` before pick3's `ret t9` on a DISPOSABLE copy →
+mir2o rc 0 (VALID), glibc UNCHANGED `-DEXPECTED=3` EXEC rc **1** with `1\n2\n4\n4\n`, cosmo executes
+`1\n2\n4\n` dr 4.
+NEXT VERBATIM = LEARNINGS § hop 17 PENDING **(6)–(8)**: (6) `git rm
+hir/mir-call-expected/CALLN1.rc hir/mir-call-expected/CALLN1.stderr.txt`; (7) FROZEN regressions each
+OWN rc (gate → `build/e54p1m3c-reg-gate.log` 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir
+220 cmp==`build/e54p1m3b-hirtest-reg.log`; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; DWARF M05
+pins; fresh `_build-e54p1m3c` hist 122 sha==kept `172595d5…aca281`; ledger 203/C380); (8) explicit-path
+implementation+fixtures+pins commit (named amendment-D provenance `2be30a9c`), durables, finalize/renew,
+**STOP**.
+FORBIDDEN: aggregate runner `tools/mir_aot_call_test.py`; overall §P1-m3 CLOSE/RESULTS/arch/dashboard;
+interprocedural narrowing; oracle; any special case to keep CALLN1 negative; reverting the splice.
+STANDING: ZERO oracle; config NEVER staged; no push; no `git add -A`/clean/reset; explicit paths;
+scratch NEVER committed; pins ADDITIVE-only except amendment D; hir pins FROZEN; F8;
+`eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo chmod +x; console
+links include pli_console.c; LC_ALL=C; byte-exact via Python subprocess; NEVER hand-edit managed blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3c hop 16 IN FLIGHT — **PROTOCOL #1 AMENDMENT COMMIT LANDED `d3925d1c`; m3c ADMISSION APPLIED (UNCOMMITTED — KEEP, NEVER revert); BASELINE + POST-EDIT GATES GREEN FIRST-HAND; FIXTURES/PINS/NATIVE/C-M3c/COMMIT REMAIN**; session 01a1cc93 (renewal 1/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
 
 STATE: start HEAD `25d4c963`; dirty = `ocaml/hir/mir_backend.ml` (the validated §3 admission, applied
 VERBATIM from `build/p1m3-scratch/g14/ocaml-proto` + ONE comment reword) + operator config (NEVER
@@ -4474,7 +4509,7 @@ checkpoint-generation: 775
 checkpoint-id: g775-71df8d62c838
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-11T22:07:06.111Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -5247,6 +5282,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1cc93-dd45-70c9-8cd7-85fcf3276d3c
+readiness-at: 2026-11-11T22:07:41.570Z
+readiness-checkpoint: g775-71df8d62c838
 <!-- guard:end checkpoint -->
 
 ## Blockers
