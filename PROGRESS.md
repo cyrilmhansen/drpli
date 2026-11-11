@@ -48,7 +48,43 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P1-m3c hop 17 IN FLIGHT — **VALIDATION PANEL COMPLETE (re-green 65 / fixtures 3 / pins 4 / native 30 / C-M3c LOUD); RETIREMENT + FROZEN REGRESSIONS + IMPLEMENTATION COMMIT REMAIN**; session 01a1cca7 (renewal 2/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3c hop 18 — **m3c GATE CLOSED at `5d8d2a4a`; SESSION COMPLETE — STOP; NOTHING FURTHER AUTHORIZED**; session 01a1ccba (renewal 3/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
+
+DONE FIRST-HAND this hop (full record LEARNINGS § "E2E-54/P1-m3c hop 18" — READ VERBATIM FIRST,
+then §§ hop 17/16/15, then PLAN §P1-m3 (.2 law, .5 scope, .6 fixtures/entries, .7 legs, .12 gate,
+.15/.16/.17/.18 BINDING); scratch ignored `build/p1m3-scratch/g17/`): build rc 0 at recovery;
+**(6)** `git rm hir/mir-call-expected/CALLN1.rc hir/mir-call-expected/CALLN1.stderr.txt` (amendment-D
+named retirement, provenance `2be30a9c` + §P1-m3.15 A3; git RENDERS the change as a rename to the
+byte-identical CALLN9 pair — retirement VERIFIED REAL via `git ls-tree`; fixture CALLN1.pli survives
+as POSITIVE with the new `CALLN1.mir` pin). **(7)** FULL FROZEN PANEL HIT, each OWN command with its
+OWN direct rc: gate rc 0 → `build/e54p1m3c-reg-gate.log` **1328/1328 — 190/190 — 9/9 — 149 rows
+0/0 — census 16/0/25/0 — prose 5**; hir_test rc 0 **220 ok** full-log `cmp`-IDENTICAL to
+`build/e54p1m3b-hirtest-reg.log`; `mir_aot_test.py` rc 0 **32**; `mir_aot_cosmo_test.py` rc 0 **25**;
+`mir_aot_console_test.py` rc 0 **43**; `mir_aot_debug_test.py` rc 0 **23** (D-C1/C2/C3 LOUD); the CF
+runner rc 0 **83**; DWARF standalone `pli80mir -g` re-measurement — `M05.mir` AND `M05.p1md` pins
+byte-UNMOVED; fresh `dune build --build-dir _build-e54p1m3c` rc 0 ZERO Error hist **122** with
+`pli80c.exe` sha == kept `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; ledger
+`grep -cE '^## C' spec/CLAIMS.md` == **203** ending **C380**. **(8)** explicit-path GATE COMMIT
+`5d8d2a4a`: `ocaml/hir/mir_backend.ml` (the Call_e admission — NOW COMMITTED) +
+`hir/mir-call-fixtures/CALL07.pli CALL08.pli CALLN9.pli` + `hir/mir-call-expected/CALL07.mir
+CALL08.mir CALLN1.mir CALLN9.rc CALLN9.stderr.txt` + the two `git rm`'d CALLN1 negative pins; message
+names the amendment-D provenance (`2be30a9c`, §P1-m3.15 A3, §P1-m3.18) and the rename-rendering
+disclosure. Pre-commit hygiene: T2 exit-clean; F8 greps EMPTY on the new pins; fixture/pin sha
+prefixes == the hop-17 measurements; `git diff --cached --stat` verified immediately before commit.
+**STOP — NOTHING FURTHER IS AUTHORIZED.** The aggregate runner `tools/mir_aot_call_test.py`, the
+overall §P1-m3 CLOSE (RESULTS §P1-m3, arch §7-10, PLAN dashboard CLOSED row), interprocedural
+narrowing, and any oracle work require a NEW operator brief. On re-authorization: baseline
+FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…aca281` DIRECT; T2; EVERY
+`hir/mir-call-expected/*` pin UNMOVED including `CALLN1.mir`; ledger 203/C380), then read LEARNINGS
+§§ hop 18/17/16/15 VERBATIM and PLAN §P1-m3 + .15–.18 (BINDING).
+STANDING: ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset;
+explicit paths; scratch `build/p1m3-scratch/` and `ocaml/_build-e54p1m3c/` NEVER committed; pins
+ADDITIVE-only except the documented amendment-D retirement (now ACCOUNTED in `5d8d2a4a`); hir pins
+FROZEN; F8; `eval "$(opam env)"`; rc DIRECT; never batch build with tests; timeouts 60/120/900;
+cosmo `chmod +x`; console links include `tools/mir_aot/pli_console.c`; `LC_ALL=C`; byte-exact via
+Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3c hop 17 IN FLIGHT — **VALIDATION PANEL COMPLETE (re-green 65 / fixtures 3 / pins 4 / native 30 / C-M3c LOUD); RETIREMENT + FROZEN REGRESSIONS + IMPLEMENTATION COMMIT REMAIN**; session 01a1cca7 (renewal 2/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
 
 STATE: start HEAD `1c1fd664`; dirty = `ocaml/hir/mir_backend.ml` (the validated §3 admission —
 UNCOMMITTED, **KEEP, NEVER revert**, untouched this hop) + operator config (NEVER staged) + untracked
@@ -4509,7 +4545,7 @@ checkpoint-generation: 778
 checkpoint-id: g778-6ea351393b63
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-11T22:28:26.532Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -5282,6 +5318,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1cca7-0a51-70c9-8cd7-860045e23050
+readiness-at: 2026-11-11T22:29:00.466Z
+readiness-checkpoint: g778-6ea351393b63
 <!-- guard:end checkpoint -->
 
 ## Blockers

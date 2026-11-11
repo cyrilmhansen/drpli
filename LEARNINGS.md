@@ -5,6 +5,67 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P1-m3c hop 18 (git/system clock 2026-11-11; session 01a1ccba = RENEWAL 3/12 successor of chain 01a1cc7d; ZERO oracle; ledger 203/C380) — **m3c GATE CLOSED at `5d8d2a4a`: CALLN1 NEGATIVE PAIR RETIRED (amendment D), FULL FROZEN PANEL HIT FIRST-HAND, IMPLEMENTATION+FIXTURES+PINS COMMITTED; SESSION COMPLETE — STOP**
+
+- ACCEPTED (recovery): start HEAD `8016877f`; tree dirty ONLY `ocaml/hir/mir_backend.ml` (the validated
+  §3 admission — KEPT untouched all hop; `git diff --stat` +111/−2, the hop-16 implementation shape),
+  the guard-written g778 managed blocks (attested by the parent), the operator `handoff.config.json`
+  (NEVER staged) and pre-existing untracked scratch. Build verified FIRST per the session procedure:
+  `cd ocaml && eval "$(opam env)" && dune build` rc 0 DIRECT, own command, before any other action.
+- ACCEPTED (step 6, retirement): `git rm hir/mir-call-expected/CALLN1.rc hir/mir-call-expected/CALLN1.stderr.txt`
+  rc 0 — the §P1-m3.18 AMENDMENT-D named retirement (provenance measured-first `2be30a9c` + §P1-m3.15
+  A3). NOTE (rendering, disclosed exactly as at m3b/CALLN10): the retired pair is BYTE-IDENTICAL to
+  the new CALLN9 pair (both `.rc` are `2\n`; both stderr pins are the same E18 line-3 value-position
+  message — CALLN1 `y = pv(1);` and CALLN9 `z = thrice3(1,2,3) + 5;` refuse on their line 3 with the
+  same text), so git displays the change as a RENAME. The retirement is REAL: `git ls-tree HEAD
+  hir/mir-call-expected/` after the commit shows NO `CALLN1.rc`/`CALLN1.stderr.txt` (only
+  `CALLN1.mir` and `CALLN10.mir` match the name). Fixture `CALLN1.pli` SURVIVES untouched (213 B sha
+  `33d248d0…376a`).
+- ACCEPTED (step 7, FROZEN regressions, each OWN command + DIRECT rc, `LC_ALL=C`, from the repo root
+  unless stated): `timeout 900 python3 tools/e2e_gate.py` rc **0** → `build/e54p1m3c-reg-gate.log`
+  reading **1328/1328** byte-exact, negative **190/190**, divergence **9/9**, coverage **149 rows 0
+  errors 0 warnings**, census **EXACT 16 / DIFFERS 0 / REFUSED 25 / UNEXPECTED 0**, prose **5 active
+  files clean** — every number VERBATIM per §P1-m3.12/the m3b close. `timeout 900 python3
+  tools/hir_test.py` rc **0**, **220 ok**, full log `build/e54p1m3c-hirtest-reg.log` `cmp`-IDENTICAL
+  to the m3b close log `build/e54p1m3b-hirtest-reg.log`. Runners confirmed present in `tools/`
+  BEFORE first use: `mir_aot_test.py` rc **0 32 checks**; `mir_aot_cosmo_test.py` rc **0 25 checks**;
+  `mir_aot_console_test.py` rc **0 43 checks**; `mir_aot_debug_test.py` rc **0 23 checks** (its own
+  W1 legs re-verify the sidecar and MIR pins; D-C1/D-C2/D-C3 failed LOUDLY inside the runner); the CF
+  runner `mir_aot_cf_test.py` rc **0 83 checks** (C-M2a/C-M2b/W3 LOUD). DWARF STANDALONE
+  re-measurement (hop-11/13 method): `ocaml/_build/default/hir/pli80mir.exe -g --export iorw -o
+  build/p1m3-scratch/g17/M05.g.mir hir/mir-fixtures/M05.pli` rc 0 → `M05.g.mir` `cmp` ==
+  `hir/mir-expected/M05.mir` AND the default-path map `M05.g.mir.p1md` `cmp` ==
+  `hir/mir-debug-expected/M05.p1md` — BOTH UNMOVED. Fresh container: `dune build --build-dir
+  _build-e54p1m3c` rc **0**, ZERO `Error` lines, hist **122** `File "` headers
+  (`build/e54p1m3c-freshbuild.log`), and `sha256sum ocaml/_build-e54p1m3c/default/bin/pli80c.exe` ==
+  kept `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` — the historical compiler
+  bit-UNCHANGED by the hir-only edit (the sha is verified by hashing the built exe; dune NEVER
+  prints it, per the recorded tooling law). Ledger: `grep -cE '^## C' spec/CLAIMS.md` == **203** with
+  the last header **C380** — UNMOVED.
+- ACCEPTED (pre-commit hygiene, LAW re-honored): T2 `git diff --exit-code -- ocaml/lib ocaml/bin
+  hir/expected hir/fixtures` rc **0**; F8 over the three new `.mir` pins — word-anchored
+  `size|offset|reloc|pool` grep EMPTY (rc 1) and ZERO `0x`; all fixture/pin sha256 prefixes match the
+  hop-17 measurements EXACTLY (`0b2d3bdc`/`c41f2797`/`636762e0`; `4c1bcec0`/`0a288a9b`/`acaa1551`;
+  `CALLN9.rc` 2 B, `CALLN9.stderr.txt` 93 B). `git diff --cached --stat` IMMEDIATELY before the
+  commit showed EXACTLY the authorized eleven entries (new implementation file + 3 fixtures + 5 pins
+  + 2 retirements) and NOTHING else; `handoff.config.json` never staged.
+- ACCEPTED (step 8, GATE COMMIT): `5d8d2a4a` by EXPLICIT PATHS ONLY — `ocaml/hir/mir_backend.ml`,
+  `hir/mir-call-fixtures/{CALL07,CALL08,CALLN9}.pli`,
+  `hir/mir-call-expected/{CALL07.mir,CALL08.mir,CALLN1.mir,CALLN9.rc,CALLN9.stderr.txt}` plus the two
+  `git rm`'d CALLN1 negative pins; the message names the amendment-D provenance (`2be30a9c`,
+  §P1-m3.15 A3, §P1-m3.18) and the rename-rendering disclosure exactly as the CALLN10 retirement was
+  accounted at m3b. PROTOCOL #1 order was already honored upstream (§P1-m3.17/.18 at `d3925d1c`
+  BEFORE any source byte). `ocaml/hir/mir_backend.ml` is now COMMITTED — the hop-16/17 "UNCOMMITTED,
+  KEEP, NEVER revert" obligation is DISCHARGED, not deleted: the admission stands in git history and
+  in the working tree byte-for-byte.
+- SESSION COMPLETE — **STOP**. The aggregate runner `tools/mir_aot_call_test.py` and the overall
+  §P1-m3 CLOSE (RESULTS §P1-m3, `docs/architecture/backend-boundary.md` §7-10, PLAN dashboard CLOSED
+  row) remain UNAUTHORIZED and were NOT touched; ZERO oracle; no new claim (ledger stays 203/C380).
+  Any next §P1-m3 step REQUIRES a NEW operator brief. On re-authorization, baseline FIRST-HAND at the
+  close HEAD (build rc 0; T1 `172595d5…aca281` DIRECT; T2; EVERY `hir/mir-call-expected/*` pin
+  UNMOVED incl. the new `CALLN1.mir`; ledger 203/C380) and read LEARNINGS § hop 18 VERBATIM FIRST,
+  then §§ hop 17/16/15, then PLAN §P1-m3 + .15/.16/.17/.18 (BINDING).
+
 ## E2E-54/P1-m3c hop 17 (git/system clock 2026-11-11; session 01a1cca7 = RENEWAL 2/12 successor of chain 01a1cc7d; ZERO oracle; ledger 203/C380) — **VALIDATION PANEL GREEN: m3a/m3b RE-GREENED, m3c FIXTURES+PINS MEASURED-FIRST, NATIVE PANEL 30/30, C-M3c LOUD; RETIREMENT + FROZEN REGRESSIONS + COMMIT REMAIN**
 
 - ACCEPTED (recovery): start HEAD `1c1fd664`; tree dirty ONLY `ocaml/hir/mir_backend.ml` (the validated
