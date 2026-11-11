@@ -2130,25 +2130,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 772
-checkpoint-id: g772-acbb876de501
-checkpoint-kind: manual
+checkpoint-generation: 773
+checkpoint-id: g773-611de9f57716
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~85, session 01a1cc2c-ddf8-771d-89c6-863b2d03a7e6)
-checkpointed: 2026-11-11T20:39:33.570Z
+status: checkpoint (guard level 4, remaining ~-971, session 01a1cc7d-dfc4-70c9-8cd7-85f96db6f9e8)
+checkpointed: 2026-11-11T21:45:37.140Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 99e475e84930a9854e2a26147169ac30843543b1a31fe42bd0c061c86b1b7ed3
-source-handoff: dbd7de7949919e4d1d4905e26bc854f0c0052a144907b7f20e38056871dff604
-source-learnings: 528aac8a437adedc315072ee76a9f666cdd54b7c2cc39d9d2ccb715281206294
+source-progress: f69b0225f850015c0ccbd870d4a0afacbe23583df5de1a447509c016e472883d
+source-handoff: bce29fbb6996d76cd5d35dd3700cd337b260fdc9b18375274d9f2338f114e666
+source-learnings: acaf44b558ff2e9279b95617ccd7c0bd5d4b56fc7856338d7f6c15bdf4856340
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1cc2c-ddf8-771d-89c6-863b2d03a7e6
-readiness-at: 2026-11-11T20:39:33.685Z
-readiness-checkpoint: g772-acbb876de501
+readiness-by: session:01a1cc7d-dfc4-70c9-8cd7-85f96db6f9e8
+readiness-at: 2026-11-11T21:46:10.476Z
+readiness-checkpoint: g773-611de9f57716
 ### Last verified state
-guard level 4; checkpoint requested (finalize: hop 14 STOP-AND-ATTRIBUTE: m3c blocked on operator ruling re CALLN1 (brief §3 admission provably retires the m3a negative pin; amendment D proposed). Durables committed bb812d1f + 6e3ee632; zero repo source/fixture/pin bytes; amendment C NOT committed.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
