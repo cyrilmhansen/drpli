@@ -1,0 +1,9 @@
+vusage: procedure returns(fixed bin(15));
+   dcl z fixed bin(15);
+   z = side2(5);
+   return (z);
+   side2: procedure(m);
+      dcl m fixed bin(15);
+   end side2;
+end vusage;
+

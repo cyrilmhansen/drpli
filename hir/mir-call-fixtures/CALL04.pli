@@ -1,0 +1,18 @@
+chain: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 51;
+   call mid(x + 0);
+   x = x + 40;
+   return (x);
+   mid: procedure(m);
+      dcl m fixed bin(15);
+      dcl t fixed bin(15);
+      t = m + 40;
+      call leaf(t + 0);
+   end mid;
+   leaf: procedure(d);
+      dcl d fixed bin(15);
+      put list(d);
+   end leaf;
+end chain;
+

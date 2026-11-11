@@ -1,0 +1,11 @@
+nar: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 1;
+   call side(x + 0);
+   return (x);
+   side: procedure(a, b);
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+   end side;
+end nar;
+

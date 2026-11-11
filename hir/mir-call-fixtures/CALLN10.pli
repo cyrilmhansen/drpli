@@ -1,0 +1,12 @@
+refm3a: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 2;
+   call clob2(x, x);
+   return (x);
+   clob2: procedure(a, b);
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      a = 7;
+   end clob2;
+end refm3a;
+

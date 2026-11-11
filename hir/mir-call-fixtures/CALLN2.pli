@@ -1,0 +1,13 @@
+disc: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 1;
+   call addone(x + 0);
+   return (x);
+   addone: procedure(n) returns(fixed bin(15));
+      dcl n fixed bin(15);
+      dcl t fixed bin(15);
+      t = n + 1;
+      return (t);
+   end addone;
+end disc;
+

@@ -1,0 +1,15 @@
+cyc: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 1;
+   call p1(x + 0);
+   return (x);
+   p1: procedure(n);
+      dcl n fixed bin(15);
+      call p2(n + 0);
+   end p1;
+   p2: procedure(n);
+      dcl n fixed bin(15);
+      call p1(n + 0);
+   end p2;
+end cyc;
+

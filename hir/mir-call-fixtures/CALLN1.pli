@@ -1,0 +1,10 @@
+pval: procedure returns(fixed bin(15));
+   dcl y fixed bin(15);
+   y = pv(1);
+   return (y);
+   pv: procedure(n) returns(fixed bin(15));
+      dcl n fixed bin(15);
+      return (n);
+   end pv;
+end pval;
+

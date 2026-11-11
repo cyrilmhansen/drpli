@@ -1,0 +1,13 @@
+call02: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 2;
+   call side(4 + x);
+   put list(x);
+   return (x);
+   side: procedure(n);
+      dcl n fixed bin(15);
+      dcl t fixed bin(15);
+      t = n + 1;
+   end side;
+end call02;
+

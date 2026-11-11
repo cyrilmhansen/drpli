@@ -1,0 +1,11 @@
+retvoid: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 9;
+   call nope(1);
+   return (x);
+   nope: procedure(a);
+      dcl a fixed bin(15);
+      RETURN;
+   end nope;
+end retvoid;
+

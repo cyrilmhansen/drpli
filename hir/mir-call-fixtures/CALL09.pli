@@ -1,0 +1,13 @@
+uncalled: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 3;
+   call dsub(x + 0);
+   return (x);
+   dsub: procedure(q);
+      dcl q fixed bin(15);
+   end dsub;
+   dead: procedure(r);
+      dcl r fixed bin(15);
+   end dead;
+end uncalled;
+

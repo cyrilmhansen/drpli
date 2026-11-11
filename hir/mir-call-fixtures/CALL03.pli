@@ -1,0 +1,12 @@
+two: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 30;
+   call side(5);
+   x = x + 7;
+   call side(9);
+   return (x);
+   side: procedure(m);
+      dcl m fixed bin(15);
+   end side;
+end two;
+
