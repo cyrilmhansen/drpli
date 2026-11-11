@@ -2121,25 +2121,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 763
-checkpoint-id: g763-0b1e8f96021a
+checkpoint-generation: 764
+checkpoint-id: g764-6405eb4797bd
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 1, remaining ~13993, session 01a1caf9-0492-72a8-8805-e791da87ec78)
-checkpointed: 2026-11-11T14:49:21.630Z
+status: checkpoint (guard level 0, remaining ~31937, session 01a1cb2b-5f6a-712f-bc5f-26c815967ba9)
+checkpointed: 2026-11-11T17:38:26.744Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 32c4481672f9bf9a2b9a100e05cd03ca8c66a9ce7534cca07d34d3d46b0e3d1b
-source-handoff: f80d99b24bb3cb14f8f6261ff15e155f14f3d08779dd58d7249339e45c92ca5b
-source-learnings: 661056b60c5cf0bb35441e12ae7b02cb95716036bf9babc1ea529f28b9b6e2ae
+source-progress: 5c04875b797215cc34992c33629ae87bde5dff82635384af0d7a3ae1d60020c0
+source-handoff: 7abffd700e0b743042f686726d790673d63a388b01c653d44925e5e4a551687f
+source-learnings: 05c815369ddecfa5b1d04cd8d93b5235b5f03219f621acd3e996b91a026b6429
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1caf9-0492-72a8-8805-e791da87ec78
-readiness-at: 2026-11-11T14:49:21.756Z
-readiness-checkpoint: g763-0b1e8f96021a
+readiness-by: session:01a1cb2b-5f6a-712f-bc5f-26c815967ba9
+readiness-at: 2026-11-11T17:38:26.876Z
+readiness-checkpoint: g764-6405eb4797bd
 ### Last verified state
-guard level 1; checkpoint requested (finalize: E2E-54/P1-m3 hop 10 close: gates GREEN pre/post the order fix; 3/5 m3a positives fully green natively; ALL negatives measured (N2/N3/N5 HIR-E07, N4/N6/N10 backend E18, N1 pre-existing backend E18 = recorded PLAN-prediction deviation); C-M3a rc 1 LOUD; DWARF pins identical; m3a gate NOT closed — pre-registered positives CALL02/CALL04 refuse E19 (line-10 binop on W(15)-seeded formal violates frozen window law I1; §P1-m3.14 forbids the only fixes; reproducers in build/p1m3-scratch/g9/) — STOP-AND-ATTRIBUTE, operator (a)/(b) adjudication required before the PLAN amendment commit; ocaml/hir/mir_backend.ml stays DIRTY (splice + collect-append fix — KEEP, NEVER revert, NEVER commit until gate closes); hir/mir-call-expected/ NOT created; ZERO oracle; ledger 203/C380; config NEVER staged; m3b/m3c FORBIDDEN. Full record: LEARNINGS § hop 10; successor contract: PROGRESS live hop-10 heading.)
+guard level 0; checkpoint requested (finalize: m3a gate CLOSED (fca7c3af amendment + 2be30a9c gate + e16b0753 durables). Session complete; STOP — m3b/m3c and all §P1-m3.13 steps ≥3 await a NEW operator authorization. Baseline successor entry: HEAD e16b0753, read HANDOFF 4-e54p1m3-7 / LEARNINGS § hop 11 / PLAN §P1-m3 + §P1-m3.15.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2912,5 +2912,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m3 hop 10 close: gates GREEN pre/post the order fix; 3/5 m3a positives fully green natively; ALL negatives measured (N2/N3/N5 HIR-E07, N4/N6/N10 backend E18, N1 pre-existing backend E18 = recorded PLAN-prediction deviation); C-M3a rc 1 LOUD; DWARF pins identical; m3a gate NOT closed — pre-registered positives CALL02/CALL04 refuse E19 (line-10 binop on W(15)-seeded formal violates frozen window law I1; §P1-m3.14 forbids the only fixes; reproducers in build/p1m3-scratch/g9/) — STOP-AND-ATTRIBUTE, operator (a)/(b) adjudication required before the PLAN amendment commit; ocaml/hir/mir_backend.ml stays DIRTY (splice + collect-append fix — KEEP, NEVER revert, NEVER commit until gate closes); hir/mir-call-expected/ NOT created; ZERO oracle; ledger 203/C380; config NEVER staged; m3b/m3c FORBIDDEN. Full record: LEARNINGS § hop 10; successor contract: PROGRESS live hop-10 heading.
+m3a gate CLOSED (fca7c3af amendment + 2be30a9c gate + e16b0753 durables). Session complete; STOP — m3b/m3c and all §P1-m3.13 steps ≥3 await a NEW operator authorization. Baseline successor entry: HEAD e16b0753, read HANDOFF 4-e54p1m3-7 / LEARNINGS § hop 11 / PLAN §P1-m3 + §P1-m3.15.
 <!-- guard:end checkpoint -->
