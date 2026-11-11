@@ -12626,3 +12626,77 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   sequence (m3c, runner `tools/mir_aot_call_test.py`, FULL CLOSE) requires a NEW operator
   authorization. Zero oracle; ledger 203/C380; config NEVER staged; no push; scratch NEVER
   committed; pins ADDITIVE-only except the B3 retirement (accounted); all standing rules unchanged.
+
+## E2E-54/P1-m3c hop 14 (2026-11-21, session 01a1cc2c fresh startup, chain 1/12; ZERO oracle; ledger 203/C380; ZERO repo byte) — **STOP-AND-ATTRIBUTE: brief §3 and brief §6/§1/§7 are MUTUALLY UNSATISFIABLE at CALLN1; m3c otherwise PROVEN FEASIBLE in scratch prototype**
+
+- RECOVERY: start HEAD `a963870d` == brief (m3b close `1394f074` + durables `5bfff8b7` + managed
+  `a963870d`); tree dirty ONLY operator config (NEVER staged) + pre-existing untracked scratch.
+  Read AGENTS/PROTOCOL/GOAL/HANDOFF/PROGRESS + PLAN §P1-m3 in full incl. §.15/.16.
+- THE CONTRADICTION (measured first-hand, never fitted): brief §3 (APPROVED) admits `Call_e`
+  in EXACTLY the two §P1-m3.5 shapes — `Assign(D_var sid, whole Call_e)`, all actuals `A_value`,
+  declared integer result — and §6 mandates "ALL m3a positive/negative tests still valid".
+  CALLN1.pli's entry body IS that shape verbatim (HIR dump: `assign` → `var sym(0)` +
+  `call proc(1) [pure]`, `arg 0 const 1 : FIXED BINARY(15,0)` (A_value); callee `pv`
+  `returns(fixed bin(15))` ends `return value var sym(1)`). The brief's OWN accepted fixture
+  CALL07 `z = pick3(1,2,3);` differs from CALLN1 `y = pv(1);` ONLY in arity, callee console
+  statements and callee body — every listed admission criterion holds identically for BOTH.
+  NO principled discriminator exists (arity/console restrictions would be arbitrary invention;
+  falsified by inspection). Therefore implementing §3 RETIRES the m3a negative pins
+  `hir/mir-call-expected/CALLN1.rc`+`.stderr.txt` (measured-first at close `2be30a9c`,
+  prediction corrected to BACKEND E18 by amendment §P1-m3.15 A3) — which §1 ("Do not
+  reconstruct or replace previously validated m3a/m3b work") and §7 ("Preserve ... previous
+  fixtures and frozen pins") FORBID without operator authorization. §P1-m3.12's m3c gate
+  ("all prior re-green") is likewise unsatisfiable.
+- REPRODUCER (ignored `build/p1m3-scratch/g14/`, ZERO repo byte): (1) committed backend
+  RE-MEASURED: CALLN1 rc 2, stderr byte-equal the pin (`HIR-E18: line 3: MIR backend: a
+  value-position call is outside the native subset (brief §3)`), NO artifact — the CURRENT pin
+  is TRUE pre-m3c. (2) `ocaml-proto/` = rsync copy of ocaml/ (excl _build/scratch/logs) patched
+  with the §3 admission VERBATIM: `fd_res` field; module-wide `r_n`; per-proc `res_regs` reset
+  + verification-pass REWIND (symmetric with the hop-12 hv rewind); `lower_call_e` helper
+  (reached/value-ret `bin_p`/arity/all-`A_value` checks 0-based E18 by name; HOME-PASS value
+  cells REUSED unchanged — type-equality re-proof, `hv<k>` fresh module-wide cell, `mov i64:(hv<k>), rv`
+  before the row; `call pc<pid>, pli80_<ck>, r<k>[, args]`; result interval `window cq` =
+  W(ret-p), NO narrowing; env UNTOUCHED — I3); Assign whole-RHS and final-Return arm routing
+  (`match value.Hir.ex with Call_e -> lower_call_e | _ -> lower`); locals class order
+  `... homes, hv, res, tmps` (§P1-m3.2-4/7; NO alloca for r<k> — it is a REGISTER, hop-3
+  "caller-local result reg"). ONE prototype-only compile defect SELF-CAUGHT (adjacent-string
+  concatenation missing backslash continuation at the A_reference message; fixed in the COPY).
+  `dune build hir/pli80mir.exe hir/pli80hir.exe` rc 0. (3) MEASURED UNDER THE PROTOTYPE:
+  **CALLN1.pli COMPILES rc 0** — 323 B MIR, mir2o rc 0 → 1408 B object ⇒ the negative pin is
+  PROVABLY DEAD under §3 (the contradiction is REAL, not hypothetical). CALL07C.pli (operator
+  amendment C1 text, 393 B CRLF+^Z via mkpli.py) rc 0: `pc1: proto i64, i64:v1,v2,v3` (leading
+  bare result); entry hoists `alloca hv1..hv3, 8`; `mov t1,1/2/3; mov i64:(hv<k>), t<k>;`
+  `call pc1, pli80_pick3, r1, hv1, hv2, hv3; mov v0, r1`; callee PUTs a then b via `i64:(v1)`/
+  `i64:(v2)`, `t = c` via `mov v4, t8`, `ret t9`; per-func `Lfail_1`/`Lfail_0`, ONE export —
+  EVERY line matches §P1-m3.2 (mir2o rc 0, 3416 B). CALL08C.pli (C2 text, 282 B) rc 0:
+  `return (identity(x + 0))` → `call pc1, pli80_identity, r1, hv1` + `ret r1` (mir2o rc 0, 1416 B).
+  CALLN9G.pli (PLAN §P1-m3.6 text verbatim, 350 B) STILL REFUSES rc 2 E18 line 3 BY NAME via the
+  pre-existing `lower` Call_e arm — the mandatory negative SURVIVES; its callee `a+b+c` never
+  lowers (entry refuses first), so no E19 confounder (brief §5 concern resolved BY MEASUREMENT).
+- ACCEPTED (design verdict, pre-implementation, PROPOSED for the gate): the §3 subset as written
+  is FULLY ACHIEVABLE on the committed m3b backend with a SMALL additive patch (the prototype);
+  amendment C1/C2 expectations (`1\n2\n3\n` dr 3; EMPTY dr 41) are satisfied by construction;
+  C-M3c per C3 (`add <rt>, <rt>, 1` before the callee final `ret` — rt=3 ⇒ 4 vs EXPECTED=3)
+  is directly implementable on the measured CALL07C pin once fixtures are authorized.
+  NATIVE EXEC LEGS NOT RUN (compile + mir2o object acceptance suffice to attribute).
+- DECISION: brief §8 STOP-AND-ATTRIBUTE. NOT done deliberately: Amendment C NOT committed to
+  PLAN.md (§2 sequences it BEFORE implementation; committing it while the milestone is blocked
+  would strand a half-amended contract — hop-10 precedent landed NOTHING at a contradiction);
+  no backend/fixture/pin byte; no regression panel (unneeded: ZERO repo change; baseline is the
+  m3b close as attested `1394f074`).
+- PROPOSED RESOLUTION (operator adjudication REQUIRED; never self-adopted) — amendment D in the
+  B3/CALLN10 idiom: `git rm hir/mir-call-expected/CALLN1.rc CALLN1.stderr.txt` with provenance
+  (measured-first `2be30a9c`; prediction history §P1-m3.6 E07-HIR → §P1-m3.15 A3 BACKEND E18;
+  retirement named in the amendment); fixture CALLN1.pli SURVIVES unchanged as POSITIVE
+  (independent derivation: y = pv(1) = 1; EMPTY stdout, `driver-return=1`, native_check
+  EXPECTED=1 — legs unmeasured); NEW positive pin CALLN1.mir measured-first + full §P1-m3.7 legs;
+  §P1-m3.12 m3c gate re-read accordingly. The brief's §6 sentence "All m3a positive/negative
+  tests still valid" then needs its ONE documented exception (CALLN1's NEGATIVE retirement,
+  history preserved in git, exactly as B3 did for CALLN10).
+- STANDING: unchanged (ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER
+  committed; hir pins FROZEN / mir pins ADDITIVE-only; rc DIRECT; never batch build+tests;
+  timeouts; cosmo chmod +x; console links include pli_console.c; LC_ALL=C; byte-exact via Python;
+  NEVER hand-edit managed blocks). SUCCESSOR: do NOT implement m3c until the operator rules on
+  CALLN1; the validated prototype patch survives at build/p1m3-scratch/g14/ocaml-proto (diff vs
+  ocaml/hir/mir_backend.ml = the admission; rebuild + rerun the four measurements after ANY
+  amendment).

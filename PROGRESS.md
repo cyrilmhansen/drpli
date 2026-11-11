@@ -50,7 +50,43 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-54/P1-m3b hop 13 — **m3b GATE CLOSED at `1394f074` (native panel 40/40, C-M3b LOUD, m3a re-green, FROZEN panel ALL HIT); durables landing; session STOP — m3c NOT authorized**; session 01a1cc13 renewal 1/12; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3c hop 14 — **STOP-AND-ATTRIBUTE IN FLIGHT: material contradiction between brief §3 (admit whole-RHS `Assign(D_var, Call_e)` all-A_value) and brief §6/§1/§7 + §P1-m3.12 ("all m3a positive/negative tests still valid" — CALLN1 pins THAT EXACT shape refusing backend E18); ZERO repo byte; session 01a1cc2c fresh startup; ZERO oracle; ledger 203/C380)
+
+STATE: start HEAD `a963870d` VERIFIED (brief match); tree dirty ONLY operator config (NEVER
+staged) + pre-existing untracked scratch. Baseline FIRST-HAND: CALLN1 negative RE-MEASURED at the
+committed backend (rc 2, pinned E18 text byte-equal, NO artifact). HIR dump of CALLN1.pli
+MEASURED: entry body is EXACTLY `assign` -> `var sym(0)` + `call proc(1)` with `arg 0 const 1`
+(A_value), callee `pv` ends `return value var sym(1)` — i.e. brief §3 admitted SHAPE 1 verbatim;
+amendment-C CALL07 `z = pick3(1,2,3)` differs only in arity/console. The two brief clauses are
+therefore MUTUALLY UNSATISFIABLE: implementing §3 necessarily RETIRES the CALLN1 negative pins
+(the B3/CALLN10 idiom) — which §1/§6/§7 forbid WITHOUT operator authorization. PROTOCOL:
+brief §8 STOP-and-attribute; do NOT silently modify expectations, do NOT self-authorize a
+CALLN1 migration.
+REPRODUCER (scratch ONLY, build/p1m3-scratch/g14/): ocaml-proto/ = rsync copy of ocaml/
+(excl _build/scratch/logs) patched with the EXACT §3 admission (fd_res, r_n module-wide,
+res_regs per-proc + verification-pass rewind, lower_call_e helper: reached+value-ret+arity+
+all-A_value checks, HOME-PASS hv cells reused, `call pc<pid>, pli80_<ck>, r<k>, <args>`,
+result interval W(q); Assign/Return arms route whole-Call_e through it; locals class order
+homes, hv, res, tmps). dune build hir/{pli80mir,pli80hir}.exe rc 1 so far — warnings
+truncated the real error; rerun capturing FULL log (likely MY patch syntax; fix PROTOTYPE
+only, NEVER the repo file). Then: prototype must (1) COMPILE CALLN1.pli rc 0 (contradiction
+MEASURED, artifact + native exec), (2) compile C1/C2 fixtures, (3) CALLN9 still E18.
+NEXT VERBATIM: (a) finish prototype build + three measurements; (b) write LEARNINGS §
+"E2E-54/P1-m3c hop 14" (STOP-and-attribute, full record: contradiction, reproducer paths,
+PREFERRED resolution = B3-style CALLN1 transition under a NARROW operator amendment D: git rm
+CALLN1.rc/CALLN1.stderr.txt (provenance 2be30a9c, prediction history §P1-m3.6 + A3), fixture
+SURVIVES as POSITIVE (EMPTY stdout? NO — y=pv(1); return(y) => native EXPECTED=1, console
+EMPTY dr 1) + new positive pin CALLN1.mir measured-first; alternative (b) = restrict §3
+admission, but NO principled discriminator exists (arity/console are arbitrary) — recorded);
+(c) amend NOTHING in PLAN.md myself (amendment C NOT committed — milestone blocked BEFORE
+it; commit of C without the CALLN1 ruling would strand the contract); (d) PROGRESS live
+heading + HANDOFF next-action + guard finalize; STOP for operator adjudication.
+STANDING: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER
+committed; pins ADDITIVE-only; hir pins FROZEN; rc DIRECT; never batch build+tests;
+timeouts 60/120/900; cosmo chmod +x; console links include pli_console.c; LC_ALL=C;
+byte-exact via Python subprocess; NEVER hand-edit managed blocks; repo ocaml/ byte-CLEAN.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3b hop 13 — **m3b GATE CLOSED at `1394f074` (native panel 40/40, C-M3b LOUD, m3a re-green, FROZEN panel ALL HIT); durables landing; session STOP — m3c NOT authorized**; session 01a1cc13 renewal 1/12; ZERO oracle; ledger 203/C380)
 
 COMPLETE first-hand this hop (full record LEARNINGS § "E2E-54/P1-m3b hop 13" — READ VERBATIM
 FIRST, then §§ hop 12/11, then PLAN §P1-m3 + .15 + .16 BINDING): baseline build rc 0, T1
@@ -4353,17 +4389,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 769
-checkpoint-id: g769-c85c2f67074d
+checkpoint-generation: 770
+checkpoint-id: g770-7feb8b5c0aaa
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-11T19:50:00.597Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-11T20:37:17.899Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4850053566fc975245706ad6ef0ba8f4bcd9fda1fa1cf198414415abebbf10ca
+source-progress: a5044d4857f0a8d8da59bde010f0e875a1e0bba57440edf5857a351981d5331f
 source-handoff: ef6b4ec4973545e5e061abf239e1e6571e721fa56046e5a951935cbe2cf9a3d1
-source-learnings: d5b7ec177dc98162ba2cef442c6282556907981992110435f2e39f6458047da7
+source-learnings: 528aac8a437adedc315072ee76a9f666cdd54b7c2cc39d9d2ccb715281206294
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -5130,9 +5166,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1cc13-1856-704c-af34-166f1dfc6d9a
-readiness-at: 2026-11-11T19:50:41.023Z
-readiness-checkpoint: g769-c85c2f67074d
 <!-- guard:end checkpoint -->
 
 ## Blockers
