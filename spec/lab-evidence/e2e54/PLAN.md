@@ -5222,6 +5222,11 @@ file, ×2. Timeouts 60 per leg.
    BEFORE any run (this pre-registration OVERRIDES the hop-4 sketch; the hop-4 panel was explicitly
    "full texts + independent derivations GO IN THE PLAN").
 6. The CALL panel check count is MEASURED (no formula), like the CF 27→32 precedent.
+7. FALSIFICATION PRESERVED (hop 10, measured, never fitted): against the ORIGINAL §P1-m3.6 texts,
+   the pre-registered POSITIVES CALL02/CALL04 refused `HIR-E19 … binop '+' … leaving the
+   declared-precision window [-16383,16383] of FIXED BINARY(15,0)` at line 10, and the CALLN1
+   negative measured BACKEND E18, not the predicted HIR E07. Recorded and adjudicated by the
+   OPERATOR in §P1-m3.15 (option (a)); the original §P1-m3.6 blocks stand above as history.
 
 ### P1-m3.11 Numeric-safety invariants (NEVER weakened; falsifiers if violated)
 
@@ -5280,3 +5285,102 @@ leg needs a toolchain change. FORBIDDEN ever: weakening I1–I5; interprocedural
 early/nested `RETURN` in subsidiaries; arrays/`D_elem`; FILE streams; `PUT EDIT`; changing
 `pli_console.c`/`console_check.c`/`mir2o.c`/`cosmo_link.sh`; touching lab/deps; re-pinning a
 failing native test to its output; oracle runs. Later milestone bytes BEFORE its gate: FORBIDDEN.
+
+### P1-m3.15 OPERATOR AMENDMENT (dated 2026-11-13; operator ruling on the hop-10 STOP-and-attribution: option (a) APPROVED; applied in session 01a1cb2b at HEAD `de41ac39`)
+
+**Authority and limits.** The operator adjudicated the hop-10 contradiction (C1 CALL02/CALL04
+E19 refusals; C2 CALLN1 layer) in favor of **option (a)**: THIS section amends the §P1-m3.6
+fixture texts for CALL02 and CALL04 and the §P1-m3.6 negative-table CALLN1 prediction row. This
+is an explicit authorization to amend the existing preregistration — it is **NOT** authorization
+to weaken the numeric-safety laws I1–I5 (§P1-m3.11), to add interprocedural value analysis, or to
+otherwise alter any binding law (§P1-m3.14 stays in force verbatim). P1-m3a remains OPEN until
+every §P1-m3.12 gate passes under the amended contract. The original §P1-m3.6 texts and
+determinations STAND IN THIS FILE AS HISTORY (retained above, not deleted); where they conflict
+with this section, THIS section OVERRIDES them; nothing else in §P1-m3.0–.14 changes.
+
+**Preserved evidence (hop 10 first-hand).** With the original texts, CALL02 and CALL04 refused
+E19 at line 10 (reproducers kept in ignored `build/p1m3-scratch/g9/CALL02.stderr`,
+`CALL04.stderr`); pre-existence of the refusing law was PROVEN by the entry-only scratch
+`W100.pli` refusing the identical message class on the committed tree. **These E19 refusals are
+recorded as VALID EVIDENCE of the conservative declared-window analysis (I1) behaving exactly as
+designed — NOT compiler defects.** The §P1-m3.6 POSITIVE expectations for those two fixtures were
+a pre-registration DESIGN ERROR: §P1-m3.2-6 seeds every callee formal at the FULL declared window
+W(p) (no call-site knowledge crosses the procedure boundary), so `n + 1`/`m + 40` on a formal of
+`FIXED BINARY(15,0)` is unprovable by construction, and §P1-m3.14 forbids the only alternatives.
+CALLN1: the original row predicted HIR E07; measured is the PRE-EXISTING BACKEND E18 value-position
+arm (committed `mir_backend.ml:297`; `pli80hir` admits the fixture rc 0). No compiler change is
+authorized to force the original HIR-side diagnostic; the PREDICTION is what is corrected.
+
+**Technical acceptance law (preserved; both facts distinct).** (1) A caller that knows its own
+exact local value (`x = 51` in entry scope) can safely evaluate `x + 40` — proven at the caller's
+own window facts; the amended CALL04 keeps this leg UNCHANGED. (2) A separately compiled callee
+may NOT assume its formal `m` equals 51 (or any call-site value) — its environment seeds the
+formal at FULL W(p) only. Neither fact may be silently collapsed into the other; the amendment
+exercises (2) with window-provable `+ 0` arithmetic on the formal while keeping the ABI law
+load-bearing.
+
+**Amendment A1 — CALL02.pli (entry `call02`):** line 10 `t = n + 1;` is REPLACED by `t = n + 0;`.
+This test **no longer claims nonzero arithmetic on the callee formal**; it still lowers a VOID
+callee with a LOCAL reading a by-value formal. Binding amended text (CRLF+`^Z` via
+`build/p1m2-scratch/mkpli.py`):
+
+    call02: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 2;
+       call side(4 + x);
+       put list(x);
+       return (x);
+       side: procedure(n);
+          dcl n fixed bin(15);
+          dcl t fixed bin(15);
+          t = n + 0;
+       end side;
+    end call02;
+
+INDEPENDENT expected results (hand-derived here, unchanged by the amendment): x = 2; the actual
+4 + 2 = 6 is passed BY VALUE; `side` computes t = 6 + 0 = 6 into its OWN LOCAL — x is UNTOUCHED;
+`put list(x)` prints 2. Expected **stdout `2\n`, `driver-return=2`, native_check EXPECTED=2**,
+rc 0.
+
+**Amendment A2 — CALL04.pli (entry `chain`):** line 10 `t = m + 40;` is REPLACED by `t = m + 0;`.
+The CALLER's own `x = x + 40` (line 5, entry scope, window-proven by law fact (1)) is UNCHANGED,
+and the THREE-PROCEDURE chain entry→mid→leaf with the DEEPEST-CALLEE console `put list(d)` remains
+MANDATORY coverage. Binding amended text:
+
+    chain: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 51;
+       call mid(x + 0);
+       x = x + 40;
+       return (x);
+       mid: procedure(m);
+          dcl m fixed bin(15);
+          dcl t fixed bin(15);
+          t = m + 0;
+          call leaf(t + 0);
+       end mid;
+       leaf: procedure(d);
+          dcl d fixed bin(15);
+          put list(d);
+       end leaf;
+    end chain;
+
+INDEPENDENT expected results (hand-derived here): x = 51; the actual 51 + 0 = 51 is passed by
+value to `mid`; `mid` computes t = 51 + 0 = 51; the by-value copy 51 goes to `leaf`, which PUTs it
+(**stdout `51\n`** — CHANGED from the original `91\n`); `leaf` cannot write d's actual; the caller
+computes x = 51 + 40 = 91 and returns it — **PL/I return remains 91** (`driver-return=91`,
+native_check EXPECTED=91), rc 0. The original `91\n` expectation and its "91 coincidence" note are
+SUPERSEDED by this paragraph and kept only as §P1-m3.6 history.
+
+**Amendment A3 — CALLN1 row (PROGRAM TEXT UNCHANGED):** the §P1-m3.6 negative-table prediction
+becomes **E18, layer BACKEND**, measured VERBATIM `HIR-E18: line 3: MIR backend: a value-position
+call is outside the native subset (brief §3)`; the refusal-totality laws (rc 2, ZERO stdout, no
+`-o` artifact, ×2 fresh processes) are unchanged. The original prediction and its falsification
+are preserved above, in §P1-m3.10 item 7 and in LEARNINGS § hop 10.
+
+**Gate reading.** §P1-m3.12's `CALL02–CALL05 + CALL09` clause is evaluated against THE AMENDED
+TEXTS (A1/A2) and the amended CALLN1 row (A3). Pins for the two amended fixtures are
+MEASURED-FIRST from the amended fixtures, reviewed line-by-line against §P1-m3.2 BEFORE any `cp`,
+and each pin's MEANING is reviewed against this amended independent contract — a pin is never
+accepted merely because it matches observed output. No DR oracle is involved anywhere in this
+amendment (backend engineering only; ledger stays 203 headers / C380).
