@@ -12152,3 +12152,82 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   eval "$(opam env)"; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo chmod +x;
   console links include tools/mir_aot/pli_console.c; runners/gdb repo-root; printf %s\n; byte-exact
   via Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
+## E2E-54/P1-m3 hop 7 (2026-11-13, session 01a1c96f fresh startup; ZERO oracle; ledger 203/C380; ZERO repo source byte so far — BASELINE RE-VERIFY + ALL m3a SPLICE ANCHORS READ FIRST-HAND) — m3a SPLICE IS NEXT
+
+- Baseline verified FIRST-HAND at `31aac139`, each OWN command: `cd ocaml && eval "$(opam env)" &&
+  dune build` rc 0; T1 `ocaml/_build/default/bin/pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+  DIRECT; T2 `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0; `timeout 900
+  python3 tools/hir_test.py` rc 0 **220 ok** with the ok-set `cmp`-IDENTICAL to
+  `build/e54p1m3-hop4-hirtest.log` → ignored `build/e54p1m3-hop7-hirtest.log`; `python3
+  build/p1m2-scratch/i6_check.py` rc 0 **ALL PINS UNMOVED** (N7 line is the authorized m2b re-pin).
+  ACCEPTED.
+- **FIXTURE-SCOPE RESOLUTION (recorded, PLAN wins over the hop-6 prose):** PROGRESS hop-6 wrote
+  "CALL01–CALL05"; PLAN §P1-m3.13 item 2 (the BINDING work order) lists the m3a fixtures as
+  `CALL02–CALL05, CALL09, CALLN1–CALLN6, CALLN10.pli`, and §P1-m3.0/.4 put CALL01/06A/06B/10 +
+  CALLN7/CALLN8 in **m3b**. FOLLOW THE PLAN: m3a writes exactly those 12 files. CALL01/CALLN7 land
+  with m3b. ACCEPTED (binding reading).
+- The additive dirs `hir/mir-call-fixtures/` and `hir/mir-call-expected/` **DO NOT EXIST YET** — the
+  splice session creates them (mkdir + mkpli). ACCEPTED (measured `ls`).
+- Fixture generator law verified: `python3 build/p1m2-scratch/mkpli.py <out> "<text>"` writes
+  LF→CRLF + trailing `^Z` (3 lines, verified verbatim). Existing CF pins show the same shape
+  (`cat -A CF06.pli`). ACCEPTED.
+- **mir_backend.ml anchors READ VERBATIM (line numbers at `31aac139`, 1152 lines):**
+  `let compile` :186; multi-proc arm to replace :127-133 — keep the `[]` no-procedure message
+  VERBATIM, delete ONLY the `| _ -> refuse e_mir_export "…P1-m0 exports exactly one procedure…"`
+  arm and the `| [ _ ] -> ()` shortcut (replace the whole match with the §P1-m3.2-1/2 selection +
+  validation); entry pre-checks :134-189 (proc_name/portable/export-match/entry-`params=[]`/maxp/
+  `bin_p`/entry `ret_p`) — KEEP UNTOUCHED; `(* ---- emission state ---- *)` region STARTS :190
+  (`let insns : (string*int) list ref = ref []`), `emit ?(line=0)` :192, `tmp_n`/`fresh ()` :195-198,
+  `cf_n` :204, `string_items`/`string_label` :211-218, `escape_text` :219-228, `declared` :230,
+  `find_sym` :231-237, `declare` :238-260 (currently refuses ALL non-`Auto` storage and any
+  `s.Hir.scope <> p.Hir.scope` — must route `Formal`), `lower` :266-... , `Call_e` refusal in `lower`
+  ~:296 ("a value-position call is outside the native subset") STAYS (m3c), `join_env`, `relop_cc`,
+  `invert_cc`, `lower_cond`, `no_return_in`, `walk_expr`/`walk_stmts`, `stmt_write`, `guard_cc`,
+  `zero_iterations`, `exit_value`; body-shape pre-check (`body = []` / final `Return (Some _)`) then
+  `let rec lower_stmts env = function ...`; the `Hir.Call_s` refusal arm :922-924 ("a call statement
+  is outside the native subset (brief §3)") is what §P1-m3.3 REPLACES; then `Hir.Stop`, `Hir.Put`
+  (`bne Lfail, st, 0` shapes), `Hir.Get`; the `cu_scan` fold; assembly `let buf = Buffer.create 1024`
+  :1065 … `let mir_text = Buffer.contents buf in` :1084 = the END of the splice region; the POSTLUDE
+  (`first_token`, `opcodes`, `debug_map`, `Ok`, `with Refusal`, `module type EXPORT`, `For`) :1085+
+  STAYS UNTOUCHED — it references `!insns`, `cu_any`, `v_regs`, `entry_sym` (so the entry's lowered
+  insn list MUST still be reachable as `!insns`/`cu_any`/`v_regs` after the generalized engine runs,
+  for the SINGLE-func sidecar bytes to stay frozen). IMPORTANT: the postlude is inside the same
+  `try`, so the generalized engine must leave those four names bound.
+- Existing single-func pin shapes read verbatim (`CF06.mir`, `M04.mir`): protos → `\timport\t…` →
+  `s<k>` items → `<sym>:\tfunc\ti64` → `\tlocal\t…` → indented `\t<insn>` → UNINDENTED `Lfail:` →
+  `\tcall p_exit, exit, st` → `\tret st` → `\tendfunc` → `\texport pli80_<sym>` (ONE SPACE after
+  `export` — the existing `Printf.bprintf "\texport %s\n"`, NOT a tab) → `\tendmodule`. ACCEPTED.
+- Multi-func proven skeletons read VERBATIM: `build/p1m3-scratch/probe_void.mir` (EMPTY proto
+  `pv:\tproto`; void no-formal title `pli80_side:\tfunc`; `call pv, pli80_side` NO result operand) and
+  `y1_void_formal.mir` (void-with-formals title `pli80_deep:\tfunc\ti64:m`; value-with-formals
+  `pli80_mid:\tfunc\ti64, i64:m`; protos `pv1:\tproto\ti64:m`, `pc2:\tproto\ti64, i64:m`; caller result
+  reg `r` lives in the CALLER locals; `call pc2, pli80_mid, r, a1`) and `y2_void_console.mir`
+  (console protos + `pcv` proto BEFORE the ONE import; callee-first func items; per-func
+  UNINDENTED `Lfail0:`/`Lfail0` labels; void tail `call p_exit, exit, st` then BARE `ret`; entry tail
+  `ret st`). NOTE y2 wrote `\texport\tpli80_main` (tab) — the BACKEND line is the existing
+  `\texport <sym>` (space); keep the existing line. ACCEPTED.
+- HIR shapes verified first-hand in `ocaml/hir/hir.ml`: `Call_s of {pid : int; args : actual list}`;
+  `actual = {af; ac_ty; ac_ef; ac_line}` with `af = A_value of expr | A_reference of designator`;
+  `proc = {pid; name; is_main; scope; params; ret; body}`; `program.procs` ascending pid, pid 0 =
+  entry/main; `scope = {scope_id; parent : int option; skind}`; nesting law = a non-entry proc whose
+  scope HAS a CHILD scope (CAND09: deep SCOPE 2 parent 1). Formal syms carry `sstorage = Formal` and
+  every `dcl` (formal included) lowers `Declare sid` (CAND06 dump re-read verbatim: `SYM 1 n
+  storage=formal scope=1`, callee body `declare sym(1); declare sym(2)`).
+- **OPEN PRE-SPLICE CHECK (do FIRST, cheap):** hir_build numbers arguments in its own messages with
+  `pos` — READ the call site in `ocaml/hir/hir_build.ml` (`lower_actual` / the `argument <pos> of call
+  to <key>` messages, ~:498-:664) to see whether `pos` is 0-based, so the CALLN10 message
+  ("by-reference actual argument N of call to <key> is admitted at milestone P1-m3b") uses the SAME
+  base as HIR. PROPOSED until read.
+- Implementation route (LOCKED, unchanged from hop 6): a Python line-splice of `ocaml/hir/mir_backend.ml`
+  replacing :127-133 (multi-proc arm) and the :190…:1084 region with the generalized per-proc engine;
+  then gates each OWN command (build → T1 → T2 → hir 220/11 cmp → i6 ALL PINS UNMOVED) → measured-first
+  pins → §P1-m3.7 native legs → C-M3a LOUD → commit explicit paths = **m3a gate**. m3b/m3c bytes
+  FORBIDDEN. F8 law re-verified first-hand (tools/hir_test.py:284 patterns): forbidden words
+  `size|offset|reloc|pool` ANYWHERE incl. strings, `0x` hex, `op_` idents, uppercase mnemonics/letters
+  (`CALL|JMP|MOV|STA|LDA|HLT|C|M|P|…`) in code; labels `Lfail_0`/`pc1`/`hv1` are single tokens — SAFE.
+- STANDING: ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths; scratch
+  `build/p1m3-scratch/` NEVER committed; lab/deps NEVER touched; hir pins FROZEN / mir ADDITIVE-only;
+  F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo chmod +x;
+  console links include `tools/mir_aot/pli_console.c`; runners repo-root; printf `%s\n`; byte-exact via
+  Python subprocess; NEVER hand-edit managed checkpoint blocks.
