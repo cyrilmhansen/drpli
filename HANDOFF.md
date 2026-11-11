@@ -2127,22 +2127,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 771
-checkpoint-id: g771-b5eb720fd52a
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3123, session 01a1cc2c-ddf8-771d-89c6-863b2d03a7e6)
-checkpointed: 2026-11-11T20:38:22.945Z
+checkpoint-generation: 772
+checkpoint-id: g772-acbb876de501
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~85, session 01a1cc2c-ddf8-771d-89c6-863b2d03a7e6)
+checkpointed: 2026-11-11T20:39:33.570Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a5044d4857f0a8d8da59bde010f0e875a1e0bba57440edf5857a351981d5331f
-source-handoff: ef6b4ec4973545e5e061abf239e1e6571e721fa56046e5a951935cbe2cf9a3d1
+source-progress: 99e475e84930a9854e2a26147169ac30843543b1a31fe42bd0c061c86b1b7ed3
+source-handoff: dbd7de7949919e4d1d4905e26bc854f0c0052a144907b7f20e38056871dff604
 source-learnings: 528aac8a437adedc315072ee76a9f666cdd54b7c2cc39d9d2ccb715281206294
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1cc2c-ddf8-771d-89c6-863b2d03a7e6
+readiness-at: 2026-11-11T20:39:33.685Z
+readiness-checkpoint: g772-acbb876de501
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: hop 14 STOP-AND-ATTRIBUTE: m3c blocked on operator ruling re CALLN1 (brief §3 admission provably retires the m3a negative pin; amendment D proposed). Durables committed bb812d1f + 6e3ee632; zero repo source/fixture/pin bytes; amendment C NOT committed.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2915,5 +2918,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m3b hop 12 mid-milestone: amendment B committed fc152391; HOME splice in ocaml/hir/mir_backend.ml UNCOMMITTED (KEEP, NEVER revert — gates green after it); 5 m3b fixtures generated+verified UNTRACKED. NEXT VERBATIM in PROGRESS live hop-12 heading: measured-first pins (paths ocaml/_build/default/hir/pli80hir.exe / pli80mir.exe; entries main3/aliasin/diffal/mixmod/refm3a; ×2 determinism; CALLN8 E19 + CALLN7 -g E18 negatives; git rm CALLN10.rc/.stderr.txt per B3) → native panel §P1-m3.7 (mir2o; glibc EXPECTED 4/7/7/7/7; cosmo tiny 5\n4\n / 7\n / 2\n7\n / 7\n7\n / EMPTY dr 4/7/7/7/7) → C-M3b LOUD (h0,hv→h0,h0 ⇒ 7\n7\n fails vs 2\n7\n) → frozen re-green → explicit-path commit = m3b gate → durables + STOP. ZERO oracle; config NEVER staged; m3c FORBIDDEN.
+hop 14 STOP-AND-ATTRIBUTE: m3c blocked on operator ruling re CALLN1 (brief §3 admission provably retires the m3a negative pin; amendment D proposed). Durables committed bb812d1f + 6e3ee632; zero repo source/fixture/pin bytes; amendment C NOT committed.
 <!-- guard:end checkpoint -->
