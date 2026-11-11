@@ -1,0 +1,18 @@
+mixmod: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   dcl y fixed bin(15);
+   x = 2;
+   y = 2;
+   call clob(x, x);
+   put list(x);
+   call clob(20, 40);
+   put list(x);
+   return (x);
+   clob: procedure(a, b);
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      b = 3;
+      a = 7;
+   end clob;
+end mixmod;
+

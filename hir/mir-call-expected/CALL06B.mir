@@ -1,0 +1,44 @@
+M0:	module
+pc1:	proto	i64:v1, i64:v2
+p_put:	proto	i64, i64:v
+p_nl:	proto	i64
+p_exit:	proto	i64:c
+	import	pli_console_put_i64, pli_console_put_nl, exit
+pli80_alias:	func	i64:v1, i64:v2
+	local	i64:st, i64:t7, i64:t8
+	mov t7, 7
+	mov i64:(v1), t7
+	mov t8, i64:(v2)
+	call p_put, pli_console_put_i64, st, t8
+	bne Lfail_1, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_1, st, 0
+	ret
+Lfail_1:
+	call p_exit, exit, st
+	ret
+	endfunc
+pli80_diffal:	func	i64
+	local	i64:st, i64:h0, i64:hv1, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6
+	alloca h0, 8
+	alloca hv1, 8
+	mov t1, 2
+	mov i64:(h0), t1
+	mov t2, i64:(h0)
+	mov t3, 0
+	add t4, t2, t3
+	mov i64:(hv1), t4
+	call pc1, pli80_alias, h0, hv1
+	mov t5, i64:(h0)
+	call p_put, pli_console_put_i64, st, t5
+	bne Lfail_0, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_0, st, 0
+	mov t6, i64:(h0)
+	ret t6
+Lfail_0:
+	call p_exit, exit, st
+	ret st
+	endfunc
+	export pli80_diffal
+	endmodule

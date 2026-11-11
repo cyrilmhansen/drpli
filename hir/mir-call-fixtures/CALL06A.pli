@@ -1,0 +1,14 @@
+aliasin: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 2;
+   call alias(x, x);
+   put list(x);
+   return (x);
+   alias: procedure(a, b);
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      b = 7;
+      a = b;
+   end alias;
+end aliasin;
+

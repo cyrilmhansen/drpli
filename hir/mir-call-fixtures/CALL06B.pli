@@ -1,0 +1,14 @@
+diffal: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 2;
+   call alias(x, x + 0);
+   put list(x);
+   return (x);
+   alias: procedure(a, b);
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      a = 7;
+      put list(b);
+   end alias;
+end diffal;
+

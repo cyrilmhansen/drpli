@@ -1,0 +1,12 @@
+uninit: procedure returns(fixed bin(15));
+   dcl y fixed bin(15);
+   call al(y, y);
+   y = 1;
+   return (y);
+   al: procedure(a, b);
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      a = 1;
+   end al;
+end uninit;
+

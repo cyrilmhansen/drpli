@@ -62,6 +62,7 @@ type func_data = {
   fd_v : (int * string) list;
   fd_cu : bool * bool * bool;
   fd_hv : string list;
+  fd_homes : string list;
   fd_tmps : string list;
   fd_pc : int list;
   fd_fail : string;
@@ -398,8 +399,8 @@ let compile ~(profile : Target.profile) ~(export : string)
        PROCEDURE (discovery order). Module-wide (NEVER reset): [fresh] temp
        numbering, [cf_n] labels, [string_items], [hv_n] value cells. Per-proc
        (reset at the top of each pass): the [insns] buffer, [declared], the
-       failure-tail label, the [hv] cell list, the callee-proto list and the
-       control-flow state. ---- *)
+       failure-tail label, the [hv] cell list, the HOME set (§P1-m3b), the
+       callee-proto list and the control-flow state. ---- *)
     let insns : (string * int) list ref = ref [] in
     let emit ?(line = 0) fmt =
       Printf.ksprintf (fun s -> insns := (s, line) :: !insns) fmt
@@ -456,6 +457,13 @@ let compile ~(profile : Target.profile) ~(export : string)
     (* the value cells this procedure hoists at entry, and the callee pids whose
        pc protos the module needs (deduplicated at assembly). *)
     let hv_cells : string list ref = ref [] in
+    (* E2E-54/P1-m3b §P1-m3.2-6 + §P1-m3.16 R3: the by-reference homes of the
+       CURRENT procedure — every caller sid designated by ANY by-reference
+       actual in the body (at ANY statement depth), discovered by the pre-body
+       scan and sorted ascending. A designated sid has NO register: every read
+       and write rides its entry-hoisted home cell i64:(h<sid>) (§P1-m3.2-6),
+       the locals line omits v<sid>, and ONE alloca covers the whole func. *)
+    let home_sids : int list ref = ref [] in
     let pc_uses : int list ref = ref [] in
     (* the lowered image of each procedure, drained after its pass. *)
     let func_datas : func_data list ref = ref [] in
@@ -477,6 +485,17 @@ let compile ~(profile : Target.profile) ~(export : string)
       emit ~line "mov %s, i64:(v%d)" k sid
     and formal_write ?(line = 0) sid rv =
       emit ~line "mov i64:(v%d), %s" sid rv
+    in
+    (* HOME-PASS access forms of a DESIGNATED caller variable (§P1-m3.2-6, the
+       m3b half): READ [mov k, i64:(h<sid>)], WRITE [mov i64:(h<sid>), rv]. The
+       home register h<sid> holds the ADDRESS of the variable's own stack cell;
+       passing the variable twice passes the SAME home, so the callee sees ONE
+       shared mutable location (§P1-m3.16 B1 derivation). *)
+    let is_homed sid = List.mem sid !home_sids in
+    let home_read ?(line = 0) k sid =
+      emit ~line "mov %s, i64:(h%d)" k sid
+    and home_write ?(line = 0) sid rv =
+      emit ~line "mov i64:(h%d), %s" sid rv
     in
     let declare ?(line = 0) sid =
       if Int_map.mem sid !declared then
@@ -575,6 +594,12 @@ let compile ~(profile : Target.profile) ~(export : string)
                let k = fresh () in
                if is_formal sid then begin
                  formal_read ~line k sid;
+                 (k, v)
+               end
+               else if is_homed sid then begin
+                 (* §P1-m3.2-6: a designated variable has NO register — the
+                    read rides its home cell (no stale register can exist). *)
+                 home_read ~line k sid;
                  (k, v)
                end
                else begin
@@ -828,6 +853,25 @@ let compile ~(profile : Target.profile) ~(export : string)
         cur_pp := pp;
         declared := Int_map.empty;
         hv_cells := [];
+        (* §P1-m3.16 R3: the HOME set is discovered BEFORE lowering touches the
+           body, so the first emitted instruction can already ride the home and
+           v<sid> can be excluded from the locals line deterministically. The
+           scan is pure structural (refuses nothing; admission is per-site at
+           the call, where the env and symbol facts are known). *)
+        home_sids := [];
+        walk_stmts pp.Hir.body (fun s ->
+          match s.Hir.st with
+          | Hir.Call_s { args; _ } ->
+              List.iter
+                (fun (a : Hir.actual) ->
+                  match a.Hir.af with
+                  | Hir.A_reference (Hir.D_var { sid }) ->
+                      if not (List.mem sid !home_sids) then
+                        home_sids := sid :: !home_sids
+                  | _ -> ())
+                args
+          | _ -> ());
+        home_sids := List.sort Int.compare !home_sids;
         pc_uses := [];
         insns := [];
         (* §P1-m3.2-5 tail law: the single-function module keeps the shared
@@ -919,6 +963,7 @@ let compile ~(profile : Target.profile) ~(export : string)
                            ^ show_iv (window sp) ^ " of its declared type "
                            ^ Hir.pp_ty (Hir.Fixed_bin (sp, 0)) ^ " (brief §4)");
                        if is_formal sid then formal_write ~line sid rv
+                       else if is_homed sid then home_write ~line sid rv
                        else emit ~line "mov v%d, %s" sid rv;
                        lower_stmts (Int_map.add sid iv env) rest)
               | Hir.Return (Some e) ->
@@ -1082,6 +1127,32 @@ let compile ~(profile : Target.profile) ~(export : string)
                                  if !bad_step = None then bad_step := Some s.Hir.st_line)
                         | Some sid -> add_writer sid
                         | None -> ());
+                      (* §P1-m3.16 R1/R2: a body call that passes a variable by
+                         reference lets the CALLEE write it — the counted-loop env
+                         must treat that sid as a body writer (R1: drop-not-inherit
+                         at the loop exit; the callee's value is never assumed).
+                         A by-ref designation of the INDUCTION VARIABLE itself
+                         invalidates the step proof outright (R2: refuse the
+                         shape BY NAME, never emit unsound code). *)
+                      walk_stmts body (fun s ->
+                        match s.Hir.st with
+                        | Hir.Call_s { args; _ } ->
+                            List.iter
+                              (fun (a : Hir.actual) ->
+                                match a.Hir.af with
+                                | Hir.A_reference (Hir.D_var { sid }) ->
+                                    if sid = iv then
+                                      refuse ~line:s.Hir.st_line
+                                        Diagnostic.e_mir_node
+                                        ("MIR backend: DO WHILE loop outside the proven \
+                                           counted-loop subset: the loop body passes the \
+                                           induction variable sym(" ^ string_of_int iv
+                                        ^ ") by reference — the step proof cannot hold \
+                                           against a callee write (§P1-m3.16 R2)")
+                                    else add_writer sid
+                                | _ -> ())
+                              args
+                        | _ -> ());
                       if !nsteps <> 1 then
                         refuse ~line Diagnostic.e_mir_node
                           ("MIR backend: the loop body must write the induction variable \
@@ -1198,11 +1269,22 @@ let compile ~(profile : Target.profile) ~(export : string)
                       let outer = !insns in
                       let tmp_base_w = !tmp_n in
                       let cf_base = !cf_n in
+                      (* §P1-m3.16 addendum (loop hoists): the DISCARDED
+                         verification pass must also rewind the value-cell
+                         allocator and the cell list, or a Call_s inside a
+                         verified body would DOUBLE-ALLOCATE dead cells — a
+                         per-iteration stack growth §P1-m3.2-4/§P1-m3.14 forbid
+                         (latent m3a defect, no m3a fixture reached it; fixed
+                         here and recorded, never fitted). *)
+                      let hv_n_w = !hv_n in
+                      let hv_cells_w = !hv_cells in
                       insns := [];
                       let (_ : (int * int) Int_map.t) = lower_stmts body_env body in
                       insns := outer;
                       tmp_n := tmp_base_w;
                       cf_n := cf_base;
+                      hv_n := hv_n_w;
+                      hv_cells := hv_cells_w;
                       (* (8) explicit orbit check (belt-and-suspenders AFTER the body
                          lowering, §P1-m2.3-6): every value the induction variable
                          takes — start, every body value, every step result and the
@@ -1255,16 +1337,22 @@ let compile ~(profile : Target.profile) ~(export : string)
                            comparison of proved integer operands is outside the counted-loop \
                            subset (a condition literal is not admitted; §P1-m2.3)")
               | Hir.Call_s { pid = cpid; args } ->
-                  (* E2E-54/P1-m3 m3a (§P1-m3.2-6 A_value + §P1-m3.3): the HOME-PASS
-                     call. Every actual lowers LEFT-TO-RIGHT in the CALLER env through
-                     the existing window proofs; each result is written into its OWN
-                     value cell hv<k> (entry-hoisted alloca, §P1-m3.2-4) right before
-                     the call row, and the cell ADDRESS is passed. The callee writes
-                     ONLY the cell, so by-value isolation is structural (x8 PROVEN);
-                     the caller env is UNCHANGED afterwards (§P1-m3.2-8 by-value half)
-                     and every caller vreg lives across the call untouched (x7 PROVEN).
-                     A VOID callee takes NO result operand (probe_void/y2 EXECUTED);
-                     result regs (m3c) come later. *)
+                  (* E2E-54/P1-m3 (§P1-m3.2-6) + m3b (the A_reference half): the
+                     HOME-PASS call. Every actual lowers LEFT-TO-RIGHT in the
+                     CALLER env through the existing window proofs; a BY-VALUE
+                     result is written into its OWN value cell hv<k> (entry-hoisted
+                     alloca, §P1-m3.2-4) right before the call row, and the cell
+                     ADDRESS is passed; a BY-REFERENCE actual passes the variable's
+                     entry-hoisted HOME h<sid> — no copy, no second representation
+                     (§P1-m3.16 R3). The callee writes ONLY the cells it is given,
+                     so by-value isolation is structural (x8 PROVEN) while a shared
+                     home gives genuine shared storage (two actuals, ONE cell).
+                     After the call (§P1-m3.2-8): every by-ref-designated caller
+                     sid WIDENS to its full declared window W(p) — the caller never
+                     assumes what the callee wrote (I2/I4) — while by-value actuals
+                     change NOTHING and every caller vreg lives across the call
+                     untouched (x7 PROVEN). A VOID callee takes NO result operand
+                     (probe_void/y2 EXECUTED); result regs (m3c) come later. *)
                   let callee =
                     match Int_map.find_opt cpid !reached with
                     | Some cp -> cp
@@ -1288,20 +1376,67 @@ let compile ~(profile : Target.profile) ~(export : string)
                          ("MIR backend: statement-level call to function " ^ quote ckey
                          ^ " discards a value; unlowered (HIR-E07 admits no \
                             statement-call to a value procedure)"));
-                  (* m3a admits A_value actuals ONLY; a by-reference actual is the
-                     m3b milestone (CALLN10, §P1-m3.3). The argument position rides
-                     the SAME 0-based index hir_build uses for its own argument
-                     messages (hop-8 STEP-0, measured first-hand). Checked BEFORE
-                     any lowering, so a refusal emits nothing. *)
+                  (* §P1-m3.2-6 (m3b admission, replacing the m3a transitional
+                     refusal — the arm §P1-m3.9-2/§P1-m3.16 B3 retire): a
+                     by-reference actual must designate an AUTO SCALAR OF THIS
+                     CALLER procedure (else E18 BY NAME); an array-element
+                     designation refuses E18 (arrays are outside the subset);
+                     and the caller env must prove the variable DEFINITELY
+                     INITIALIZED at this site (else E19 — the callee could read
+                     garbage, §P1-m3.11 I2). The argument position rides the
+                     SAME 0-based index hir_build uses for its own argument
+                     messages (hop-8 STEP-0, measured first-hand). EVERY check
+                     runs BEFORE any lowering, so a refusal emits nothing. *)
                   List.iteri
                     (fun pos (a : Hir.actual) ->
                       match a.Hir.af with
-                      | Hir.A_reference _ ->
-                          refuse ~line:a.Hir.ac_line Diagnostic.e_mir_node
-                            ("MIR backend: by-reference actual argument "
-                            ^ string_of_int pos ^ " of call to " ^ quote ckey
-                            ^ " is admitted at milestone P1-m3b")
-                      | Hir.A_value _ -> ())
+                      | Hir.A_value _ -> ()
+                      | Hir.A_reference d ->
+                          (match d with
+                           | Hir.D_elem _ ->
+                               refuse ~line:a.Hir.ac_line Diagnostic.e_mir_node
+                                 ("MIR backend: by-reference actual argument "
+                                 ^ string_of_int pos ^ " of call to " ^ quote ckey
+                                 ^ " designates an array element; arrays are outside \
+                                    the native subset (§P1-m3.2-6)")
+                           | Hir.D_var { sid } ->
+                               let s = find_sym sid in
+                               if
+                                 s.Hir.sstorage <> Hir.Auto
+                                 || s.Hir.scope <> (!cur_pp).Hir.scope
+                               then
+                                 refuse ~line:a.Hir.ac_line Diagnostic.e_mir_node
+                                   ("MIR backend: by-reference actual argument "
+                                   ^ string_of_int pos ^ " of call to " ^ quote ckey
+                                   ^ " does not designate an automatic scalar of the \
+                                      calling procedure (storage "
+                                   ^ Hir.pp_storage s.Hir.sstorage ^ "; §P1-m3.2-6)")
+                               else if List.mem sid !home_sids then begin
+                                 (* the pre-scan admitted the designation; the
+                                    declaration law still has to hold *)
+                                 if not (Int_map.mem sid !declared) then
+                                   refuse ~line:a.Hir.ac_line Diagnostic.e_mir_node
+                                     ("MIR backend: by-reference actual argument "
+                                     ^ string_of_int pos ^ " of call to " ^ quote ckey
+                                     ^ " designates sym(" ^ string_of_int sid
+                                     ^ ") which was never declared in this body")
+                                 else if Int_map.find_opt sid env = None then
+                                   refuse ~line:a.Hir.ac_line
+                                     Diagnostic.e_mir_numeric
+                                     ("MIR backend: by-reference actual argument "
+                                     ^ string_of_int pos ^ " of call to " ^ quote ckey
+                                     ^ " designates sym(" ^ string_of_int sid
+                                     ^ ") which is not definitely initialized on every \
+                                        reachable path; the callee could read garbage \
+                                        (uninitialized by-reference actual, §P1-m3.2-6)")
+                               end
+                               else
+                                 refuse ~line:a.Hir.ac_line Diagnostic.e_mir_node
+                                   ("MIR backend: by-reference actual argument "
+                                   ^ string_of_int pos ^ " of call to " ^ quote ckey
+                                   ^ " designates sym(" ^ string_of_int sid
+                                   ^ ") which the home pre-scan did not admit \
+                                      (defensive)")))
                     args;
                   (* §P1-m3.2-2d: bind has already matched each actual to its formal
                      row (E17); the backend RE-PROVES the declared types match before
@@ -1313,7 +1448,12 @@ let compile ~(profile : Target.profile) ~(export : string)
                       ^ string_of_int nargs ^ " actuals to a procedure with "
                       ^ string_of_int (List.length callee.Hir.params)
                       ^ " formals (defensive: bind admits the call arity first)");
-                  let rvs =
+                  (* HOME-PASS operands (§P1-m3.2-6): every actual contributes an
+                     ADDRESS register to the call row — a fresh value cell hv<k>
+                     rewritten at THIS site for A_value, or the variable's single
+                     home h<sid> for A_reference. The declared-type equality law
+                     runs for BOTH kinds before any lowering. *)
+                  let operand_regs =
                     List.map2
                       (fun (a : Hir.actual) (psid : int) ->
                         let ap = bin_p ~line:a.Hir.ac_line a.Hir.ac_ty in
@@ -1326,27 +1466,42 @@ let compile ~(profile : Target.profile) ~(export : string)
                             ^ ") — the window law cannot be trusted here")
                         else
                           match a.Hir.af with
-                          | Hir.A_value x -> lower env x
-                          | Hir.A_reference _ -> assert false)
+                          | Hir.A_value x ->
+                              let rv, _iv = lower env x in
+                              incr hv_n;
+                              let cell = "hv" ^ string_of_int !hv_n in
+                              hv_cells := cell :: !hv_cells;
+                              emit ~line "mov i64:(%s), %s" cell rv;
+                              cell
+                          | Hir.A_reference (Hir.D_var { sid }) ->
+                              "h" ^ string_of_int sid
+                          | Hir.A_reference (Hir.D_elem _) ->
+                              (* admitted only by the sweep above, which refuses
+                                 every element designation first (defensive) *)
+                              assert false)
                       args callee.Hir.params
                   in
-                  let cells =
-                    List.map
-                      (fun (rv, _iv) ->
-                        incr hv_n;
-                        let cell = "hv" ^ string_of_int !hv_n in
-                        hv_cells := cell :: !hv_cells;
-                        emit ~line "mov i64:(%s), %s" cell rv;
-                        cell)
-                      rvs
-                  in
                   if not (List.mem cpid !pc_uses) then pc_uses := cpid :: !pc_uses;
-                  if cells = [] then
+                  if operand_regs = [] then
                     emit ~line "call pc%d, pli80_%s" cpid ckey
                   else
                     emit ~line "call pc%d, pli80_%s, %s" cpid ckey
-                      (String.concat ", " cells);
-                  lower_stmts env rest
+                      (String.concat ", " operand_regs);
+                  (* §P1-m3.2-8 (m3b half, brief §4): the caller knows NOTHING the
+                     callee may have written — every by-ref-designated sid widens
+                     to the FULL declared window W(p) (I2/I4: monotone widening,
+                     never a call-site constant); by-value actuals and unpassed
+                     locals keep their env exactly (I3). *)
+                  let env_after =
+                    List.fold_left
+                      (fun acc (a : Hir.actual) ->
+                        match a.Hir.af with
+                        | Hir.A_reference (Hir.D_var { sid }) ->
+                            Int_map.add sid (window (Int_map.find sid !declared)) acc
+                        | _ -> acc)
+                      env args
+                  in
+                  lower_stmts env_after rest
               | Hir.Stop ->
                   refuse ~line Diagnostic.e_mir_node
                     "MIR backend: stop is outside the native subset (startup and end \
@@ -1403,6 +1558,7 @@ let compile ~(profile : Target.profile) ~(export : string)
                        emit ~line "call p_get, pli_console_get_i64, st, a1, %d, %d" lo hi;
                        emit ~line "bne %s, st, 0" !cur_fail;
                        if is_formal sid then formal_write ~line sid "i64:(a1)"
+                       else if is_homed sid then home_write ~line sid "i64:(a1)"
                        else emit ~line "mov v%d, i64:(a1)" sid;
                        (* WINDOW LAW (§P1-m1.1-8): the runtime proved the read value
                           inside [lo,hi] = W(p) of the target's declared precision; the
@@ -1425,7 +1581,12 @@ let compile ~(profile : Target.profile) ~(export : string)
         let f_v_regs =
           List.filter_map
             (fun (s : Hir.sym) ->
-              if s.Hir.scope = pp.Hir.scope && s.Hir.sstorage = Hir.Auto
+              (* §P1-m3.2-6/§P1-m3.16 R3: a DESIGNATED variable has NO register —
+                 its storage is the home cell alone, so v<sid> is excluded from
+                 the locals line and can never be a stale authority. *)
+              if
+                s.Hir.scope = pp.Hir.scope && s.Hir.sstorage = Hir.Auto
+                && not (List.mem s.Hir.sid !home_sids)
               then Some (s.Hir.sid, s.Hir.sorig)
               else None)
             prog.Hir.syms
@@ -1443,6 +1604,7 @@ let compile ~(profile : Target.profile) ~(export : string)
             fd_v = f_v_regs;
             fd_cu = f_cu;
             fd_hv = List.rev !hv_cells;
+            fd_homes = List.map (fun sid -> "h" ^ string_of_int sid) !home_sids;
             fd_tmps = f_t_regs;
             fd_pc = !pc_uses;
             fd_fail = !cur_fail;
@@ -1513,12 +1675,18 @@ let compile ~(profile : Target.profile) ~(export : string)
       let f_any, f_get, _ = fd.fd_cu in
       (if f_any then [ "st" ] else [])
       @ (if f_get then [ "a1" ] else [])
+      @ fd.fd_homes
       @ fd.fd_hv
       @ fd.fd_tmps
     in
     let hoists_of fd =
       let _, f_get, _ = fd.fd_cu in
-      (if multi && f_get then [ "a1" ] else []) @ (if multi then fd.fd_hv else [])
+      (* §P1-m3.2-4 entry-hoist order: a1 (existing GET law), then EACH home
+         h<sid> (ascending sid), then each value cell hv<k> — ALL hoisted at
+         ENTRY, never at the call site (no per-iteration stack growth). *)
+      (if multi && f_get then [ "a1" ] else [])
+      @ (if multi then fd.fd_homes else [])
+      @ (if multi then fd.fd_hv else [])
     in
     let add_func_item buf fd =
       let parts =

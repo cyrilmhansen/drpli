@@ -1,0 +1,1 @@
+HIR-E19: line 3: MIR backend: by-reference actual argument 0 of call to 'al' designates sym(0) which is not definitely initialized on every reachable path; the callee could read garbage (uninitialized by-reference actual, §P1-m3.2-6)

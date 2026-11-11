@@ -1,0 +1,19 @@
+M0:	module
+pc1:	proto	i64:v1, i64:v2
+pli80_clob2:	func	i64:v1, i64:v2
+	local	i64:t3
+	mov t3, 7
+	mov i64:(v1), t3
+	ret
+	endfunc
+pli80_refm3a:	func	i64
+	local	i64:h0, i64:t1, i64:t2
+	alloca h0, 8
+	mov t1, 2
+	mov i64:(h0), t1
+	call pc1, pli80_clob2, h0, h0
+	mov t2, i64:(h0)
+	ret t2
+	endfunc
+	export pli80_refm3a
+	endmodule

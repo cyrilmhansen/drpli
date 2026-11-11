@@ -1,0 +1,37 @@
+M0:	module
+pc1:	proto	i64:v1
+p_put:	proto	i64, i64:v
+p_nl:	proto	i64
+p_exit:	proto	i64:c
+	import	pli_console_put_i64, pli_console_put_nl, exit
+pli80_show:	func	i64:v1
+	local	i64:st, i64:t4
+	mov t4, i64:(v1)
+	call p_put, pli_console_put_i64, st, t4
+	bne Lfail_1, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_1, st, 0
+	ret
+Lfail_1:
+	call p_exit, exit, st
+	ret
+	endfunc
+pli80_main3:	func	i64
+	local	i64:st, i64:h0, i64:t1, i64:t2, i64:t3
+	alloca h0, 8
+	mov t1, 5
+	mov i64:(h0), t1
+	call pc1, pli80_show, h0
+	mov t2, 4
+	call p_put, pli_console_put_i64, st, t2
+	bne Lfail_0, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_0, st, 0
+	mov t3, 4
+	ret t3
+Lfail_0:
+	call p_exit, exit, st
+	ret st
+	endfunc
+	export pli80_main3
+	endmodule

@@ -1,0 +1,12 @@
+main3: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 5;
+   call show(x);
+   put list(4);
+   return (4);
+   show: procedure(b);
+      dcl b fixed bin(15);
+      put list(b);
+   end show;
+end main3;
+
