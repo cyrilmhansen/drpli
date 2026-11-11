@@ -50,7 +50,92 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-54/P1-m3 hop 11 — **OPERATOR AMENDMENT (a) COMMITTED `fca7c3af` → m3a GATE CLOSED `2be30a9c` — ALL GATES GREEN FIRST-HAND; STOP: NO FURTHER PHASE AUTHORIZED THIS CHAIN**; session 01a1cb2b fresh startup; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3b hop 13 — **m3b GATE CLOSED at `1394f074` (native panel 40/40, C-M3b LOUD, m3a re-green, FROZEN panel ALL HIT); durables landing; session STOP — m3c NOT authorized**; session 01a1cc13 renewal 1/12; ZERO oracle; ledger 203/C380)
+
+COMPLETE first-hand this hop (full record LEARNINGS § "E2E-54/P1-m3b hop 13" — READ VERBATIM
+FIRST, then §§ hop 12/11, then PLAN §P1-m3 + .15 + .16 BINDING): baseline build rc 0, T1
+`172595d5…aca281` DIRECT, T2 clean, fixtures round-trip 5/5; measured-first pins — FIVE positives
+`.mir` (every line reviewed vs §P1-m3.2 + B1/B3 BEFORE cp; ×2 fresh, `-o`==stdout) +
+CALLN7/CALLN8 negative `.rc`+`.stderr.txt` (×2, rc 2, ZERO stdout, no artifact, no map);
+CALLN10 negative pins `git rm`'d per B3 (provenance `2be30a9c`; git renders the 2-byte `.rc` as a
+rename to CALLN7.rc — retirement REAL and accounted in the commit message); fixture CALLN10.pli
+SURVIVES as POSITIVE. Native §P1-m3.7 ALL FIVE GREEN (g12/panel_m3b.py rc 0, 40 checks): mir2o
+pins ×5 (2 funcs each); glibc EXPECTED 4/7/7/7/7 ×2 rc 0; cosmo TINY (WITH pli_console.c +
+console_check.c, chmod +x) ×2 BYTE-EXACT `5\n4\n`dr4 / `7\n`dr7 / `2\n7\n`dr7 / `7\n7\n`dr7
+(B1 HIT) / EMPTY dr7 (B3 HIT); no PT_INTERP/no dynamic; nm `T`/`t`. C-M3b (B2) FAILED LOUDLY:
+h0,hv1→h0,h0 copy mirrors/links/EXECUTES rc 0 dr 7 with `7\n7\n` ≠ pinned `2\n7\n`. m3a RE-GREEN:
+CALL02/03/04/05/09 pins ×2 UNMOVED; CALLN1–N6 negatives UNMOVED (backend legs need the TRUE
+`--export` entry names pval/two/chain/retvoid/uncalled/nest2 — a `--export x` probe hit E20 first,
+self-caught). FROZEN PANEL ALL HIT each OWN command: gate rc 0 1328/1328-190/190-9/9-149 rows
+0/0-census 16/0/25/0-prose 5 → build/e54p1m3b-reg-gate.log; hir 220 ok-set identical; i6 56 ALL
+PINS UNMOVED; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; DWARF M05.mir+.p1md UNMOVED.
+Falsified/recorded (harness only, ZERO repo byte): readelf `-d` prints `no dynamic section` on
+STDOUT; D_elem probe `dcl arr fixed bin(15) (10);` dies at the PARSER (rc 2 `expected statement`)
+— EARLIER than hop-12's E18 declaration-law text; both layers PROVE end-to-end unreachability; NO
+fixture invented (§P1-m3.10-3/4 class).
+
+SUCCESSOR: **NOTHING IS AUTHORIZED — m3c (§P1-m3.5: CALL07/08, CALLN9, C-M3c), the runner
+`tools/mir_aot_call_test.py` and the §P1-m3 CLOSE require a NEW operator brief.** If granted:
+baseline FIRST-HAND at the close HEAD (build; T1 `172595d5…aca281` DIRECT; T2; hir 220; i6 56;
+EVERY hir/mir-call-expected pin UNMOVED), read §P1-m3.5 + LEARNINGS §§ hop 13/12/11, then m3c
+measured-first (Call_e ONLY whole-RHS Assign / whole-Return, all-A_value, result W(ret-p); CALL07
+`6\n` dr 6; CALL08 dr 42; CALLN9 E18 by name; C-M3c: `add <rt>, <rt>, 1` before the callee's
+final `ret <rt>` → glibc native_check EXPECTED=6 MUST execute 7 and fail rc 1 LOUDLY).
+STANDING: m3c bytes FORBIDDEN until then; ZERO oracle; ledger 203/C380; `handoff.config.json`
+NEVER staged; no push; explicit paths; scratch build/p1m3-scratch/ NEVER committed; hir pins
+FROZEN / mir pins ADDITIVE-only; F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests;
+timeouts 60/120/900; cosmo `chmod +x`; console links include `tools/mir_aot/pli_console.c`;
+`LC_ALL=C`; runners FROM REPO ROOT; byte-exact via Python subprocess; NEVER hand-edit managed
+checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3b hop 12 — **AMENDMENT B COMMITTED `fc152391` + HOME SPLICE APPLIED, ALL GATES GREEN; FIXTURES/PINS/NATIVE REMAIN; m3c FORBIDDEN**; session 01a1cbf9 fresh startup, chain 0/12; ZERO oracle; ledger 203/C380)
+
+STATE: HEAD started `021a496c` (g764 current); §P1-m3.16 OPERATOR AMENDMENT B committed FIRST
+(explicit path PLAN.md, PROTOCOL #1) at `fc152391`; `ocaml/hir/mir_backend.ml` carries the m3b
+HOME splice UNCOMMITTED (KEEP, NEVER revert until the gate closes): pre-body HOME-set scan
+(§R3, homes sorted ascending sid, `v<sid>` EXCLUDED from locals), `home_read/home_write`
+(`i64:(h<sid>)`) routed through Var-read/Assign/GET, Call_s admission sweep replaces the m3a
+transitional refusal (Auto-of-caller E18 / `D_elem` E18 / env-None E19 "not definitely
+initialized"; 0-based pos), operand_regs (hv cells REWRITTEN per site | home regs), post-call
+WIDEN to full `window sp` (I2/I4), R1 by-ref body-writers drop at loop exit, R2 by-ref IV
+refuses the shape, verification-pass REWINDS `hv_n`+`hv_cells` (latent m3a double-alloc defect
+recorded). ONE compile defect self-caught (Int_map.mem on an int list at :1414 → List.mem).
+GATES POST-SPLICE ALL GREEN FIRST-HAND, EACH OWN COMMAND: build rc 0; T1 `172595d5…aca281`
+DIRECT; T2 rc 0; hir_test rc 0 220 ok ok-set cmp-IDENTICAL (build/e54p1m3b-hirtest-postsplice.log);
+i6 rc 0 56 checks ALL PINS UNMOVED (build/e54p1m3b-i6-postsplice.log).
+
+DONE SINCE LAST CHECKPOINT (hop 12, measured): FIVE m3b fixtures GENERATED + round-trip
+byte-verified vs the committed PLAN texts via build/p1m3-scratch/g12/extract_m3b_fixtures.py
+(CALL01 228 B / CALL06A 277 B / CALL06B 285 B / CALL10 348 B AMENDED B1 / CALLN8 235 B; untracked,
+NOT yet committed; CALLN10.pli unchanged on disk). SCRIPT DEFECT SELF-CAUGHT: first round-trip
+normalization added a spurious trailing newline (assertion failure on all five; extraction itself
+was correct — falsified 'fixture defect', fixed, rerun rc 0). ACCEPTED: the CLI binaries live at
+ocaml/_build/default/hir/pli80hir.exe and ocaml/_build/default/hir/pli80mir.exe (NOT bin/ — the
+first panel attempt died rc 127 on the wrong path; no repo change).
+
+NEXT VERBATIM (work order §8): (5) generate fixtures MECHANICALLY from the COMMITTED PLAN texts
+(§P1-m3.6 + §P1-m3.15 + §P1-m3.16 B1/B3) via build/p1m2-scratch/mkpli.py into
+hir/mir-call-fixtures/: CALL01.pli, CALL06A.pli, CALL06B.pli, CALL10.pli (AMENDED B1 text),
+CALLN8.pli; byte-verify vs PLAN; CALLN10.pli SURVIVES unchanged. (paths ABOVE: hir=ocaml/_build/default/hir/pli80hir.exe mir=ocaml/_build/default/hir/pli80mir.exe;
+entries main3/aliasin/diffal/mixmod/refm3a; scratch g12/; LC_ALL=C) — (6) measured-first pins into
+hir/mir-call-expected/ (CALL01/06A/06B/10/CALLN10 .mir ×2 fresh determinism, EVERY line reviewed
+vs §P1-m3.2 + B1/B3 before cp; CALLN8 .rc+.stderr.txt rc2/zero-stdout/no-artifact ×2; CALLN7 =
+CALL01 with -g --debug-map, E18 multi-proc refusal, NO .mir NO map, ×2); RETIRE
+CALLN10.rc/CALLN10.stderr.txt via git rm (B3 provenance). (7) native legs §P1-m3.7 FROM REPO
+ROOT: mir2o rc0 ×5; glibc native_check EXPECTED 4/7/7/7/7 ×2; cosmo TINY console (WITH
+pli_console.c, chmod +x) ×2 fresh BYTE-EXACT: CALL01 `5\n4\n` dr4 / CALL06A `7\n` dr7 /
+CALL06B `2\n7\n` dr7 / CALL10 `7\n7\n` dr7 / CALLN10 EMPTY dr7; static laws no PT_INTERP no
+dynamic; nm entry T + subsidiaries t. (8) C-M3b per B2 on DISPOSABLE CALL06B pin copy: call row
+`…, h<x>, hv<k>` → `…, h<x>, h<x>`; mir2o rc0, link, EXEC — corrupted stdout `7\n7\n` MUST fail
+LOUD vs `2\n7\n`, rc 0, driver-return=7. (9) re-run m3a suite + frozen panel (gate 1328/…-prose 5
+→ build/e54p1m3b-reg-gate.log; hir 220; i6 56; mir_aot 32; cosmo 25; console 43; debug 23; DWARF
+pins; T1/T2) each OWN command. (10) explicit-path commit (mir_backend.ml + fixtures + pins + PLAN
+already in) = m3b gate; CALLN10 negative-pin retirement ACCOUNTED in the message. (11) durables
+(LEARNINGS § hop 12, PROGRESS, HANDOFF) + /handoff finalize → (12) STOP. m3c bytes FORBIDDEN.
+D_elem reachability probe: array dcl refuses EARLIER (bin_p/E18 declaration law) — record the
+measured text, no fixture. Scratch ONLY in ignored build/p1m3-scratch/g12/.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3 hop 11 — **OPERATOR AMENDMENT (a) COMMITTED `fca7c3af` → m3a GATE CLOSED `2be30a9c` — ALL GATES GREEN FIRST-HAND; STOP: NO FURTHER PHASE AUTHORIZED THIS CHAIN**; session 01a1cb2b fresh startup; ZERO oracle; ledger 203/C380)
 
 COMPLETE — nothing remains for this bounded session. Order honored (PROTOCOL #1): §P1-m3.15
 operator amendment committed to `spec/lab-evidence/e2e54/PLAN.md` FIRST (`fca7c3af`, explicit path,
@@ -4268,17 +4353,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 764
-checkpoint-id: g764-6405eb4797bd
-checkpoint-kind: manual
+checkpoint-generation: 769
+checkpoint-id: g769-c85c2f67074d
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-11T17:38:26.744Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-11T19:50:00.597Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5c04875b797215cc34992c33629ae87bde5dff82635384af0d7a3ae1d60020c0
-source-handoff: 7abffd700e0b743042f686726d790673d63a388b01c653d44925e5e4a551687f
-source-learnings: 05c815369ddecfa5b1d04cd8d93b5235b5f03219f621acd3e996b91a026b6429
+source-progress: 4850053566fc975245706ad6ef0ba8f4bcd9fda1fa1cf198414415abebbf10ca
+source-handoff: ef6b4ec4973545e5e061abf239e1e6571e721fa56046e5a951935cbe2cf9a3d1
+source-learnings: d5b7ec177dc98162ba2cef442c6282556907981992110435f2e39f6458047da7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -5045,9 +5130,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1cb2b-5f6a-712f-bc5f-26c815967ba9
-readiness-at: 2026-11-11T17:38:26.876Z
-readiness-checkpoint: g764-6405eb4797bd
 <!-- guard:end checkpoint -->
 
 ## Blockers

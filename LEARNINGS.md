@@ -12499,3 +12499,130 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   T1 `172595d5…` DIRECT; T2; hir 220; i6 ALL PINS UNMOVED), read §P1-m3.4 + §P1-m3.15 + LEARNINGS
   §§ hop 11/10/9, then homes/by-ref ABI, CALLN10 deletion per §P1-m3.9-2, CALL01/06A/06B/10
   measured-first, C-M3b LOUD.
+
+## E2E-54/P1-m3b hop 12 (2026-11-11, session 01a1cbf9 fresh startup, chain 0/12; ZERO oracle; ledger 203/C380) — OPERATOR AMENDMENT B COMMITTED `fc152391`; HOME SPLICE APPLIED (UNCOMMITTED — KEEP, NEVER revert until the gate closes); ALL BASELINE + POST-SPLICE GATES GREEN FIRST-HAND; FIXTURES/PINS/NATIVE REMAIN
+
+- RECOVERY: start HEAD `021a496c` == brief; g764 checkpoint classified `current` at session start
+  (diagnostics.jsonl session_start row); tree dirty ONLY operator config (NEVER staged) +
+  pre-existing untracked scratch. Baseline gates each OWN command: build rc 0; T1
+  `172595d5…aca281` DIRECT; T2 clean; hir_test rc 0 220 ok (build/e54p1m3b-hirtest.log); i6 rc 0
+  56 checks ALL PINS UNMOVED. CALLN10.pli SOURCE VERIFIED byte-for-byte vs §P1-m3.6 (B3-3).
+- ACCEPTED (amendment, committed BEFORE any source byte, PROTOCOL #1): §P1-m3.16 records (B1) the
+  original CALL10 positive `7\n9\n` was UNSATISFIABLE — by §P1-m3.2-8/I2 `clob(x, x)` widens x to
+  W(15), so `x + y` reaches 16385 > 16383 and I1 refuses E19; amended line 9 `put list(x);`,
+  expectation `7\n7\n` dr 7, the concrete 7 NEVER enters the env; `y` STAYS (initialized, unread
+  after amendment — no refusal law covers unused locals). (B2) the original C-M3b (first actual →
+  value cell) was VACUOUS: BOTH formals on hv2 give `a=7→cell; put b=7; caller x untouched→2` =
+  `2\n7\n` — IDENTICAL to correct; registered INVERSE: second argument (hv cell) → the FIRST's
+  home h(x), corrupted `call pc1, pli80_alias, h0, h0` ⇒ corrupted stdout `7\n7\n` fails LOUD;
+  corrupted program must genuinely compile/link/execute rc 0. (B3) CALLN10 migration: git rm the
+  two negative pins (provenance `2be30a9c`), fixture SURVIVES unchanged as the auditable mapping,
+  new positive pin CALLN10.mir + native legs; positive expectation EMPTY stdout dr 7 (hand-derived
+  from the verified source).
+- ACCEPTED (design law, from first-hand reads): the env (Int_map sid→interval) is THE
+  initialization/window authority; `declared` carries precisions; a designated variable has NO
+  register (§P1-m3.2-6 verbatim) so f_v_regs EXCLUDES home sids and reads/writes/GET ride
+  `i64:(h<sid>)`; the HOME set is a per-proc PRE-BODY SCAN (sorted ascending sid) so the entry
+  hoists/locals are fixed BEFORE lowering; widening = `Int_map.add sid (window sp)` after the call
+  row; by-value changes NOTHING (I3); loop R1 (by-ref body designation drops the sid at loop exit,
+  drop-not-inherit) + R2 (by-ref IV refuses the counted-loop shape BY NAME) pre-registered in the
+  amendment — silent unsound emission FORBIDDEN.
+- FALSIFIED-BY-MEASUREMENT (recorded, fixed): (1) my splice wrote `Int_map.mem sid !home_sids` on
+  an int LIST (compile error at :1414; fix `List.mem`). (2) the §P1-m2.3 VERIFICATION pass rewound
+  insns/tmp_n/cf_n but NOT the hv allocator — a Call_s inside a verified loop body DOUBLE-ALLOCATED
+  dead value cells (latent m3a defect NO m3a fixture reaches; the panel has no loop-body call);
+  fixed by rewinding `hv_n` + `hv_cells` in the discard (rewind-on-discard idiom). (3) D_elem
+  by-ref is UNREACHABLE end-to-end: the frozen declaration law (bin_p) refuses
+  `dcl arr fixed bin(15) (10);` with E18 BEFORE any call; guard arm implemented + static grep;
+  recorded like §P1-m3.10 items 3/4, NO invented fixture. (4) harness trap: `dune build | tail;
+  echo rc=$?` reports TAIL's rc — always take rc DIRECT (standing law re-confirmed).
+- PENDING (exact verbatim order in the PROGRESS live hop-12 heading): 5 fixtures mechanically
+  generated + byte-verified → measured-first pins (5 positives ×2 determinism, reviewed line-by-
+  line vs §P1-m3.2/.16 BEFORE cp; CALLN8 E19 + CALLN7 -g E18 negatives ×2; git rm the CALLN10
+  negative pins) → native panel (mir2o; glibc EXPECTED 4/7/7/7/7; cosmo tiny console `5\n4\n`/
+  `7\n`/`2\n7\n`/`7\n7\n`/EMPTY dr 4/7/7/7/7; static laws; nm) → C-M3b LOUD (`7\n7\n` vs `2\n7\n`)
+  → m3a re-green + FROZEN panel (gate → build/e54p1m3b-reg-gate.log; mir_aot 32; cosmo 25; console
+  43; debug 23; CF 83; DWARF pins) → explicit-path commit = m3b gate → durables + finalize → STOP.
+- STANDING (unchanged): ZERO oracle; ledger 203/C380; config NEVER staged; no push; explicit paths
+  only; scratch build/p1m3-scratch/ NEVER committed; hir pins FROZEN / mir pins ADDITIVE-only; F8;
+  `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo `chmod +x`;
+  console links include `tools/mir_aot/pli_console.c`; `LC_ALL=C`; runners FROM REPO ROOT; byte-
+  exact via Python subprocess; NEVER hand-edit managed checkpoint blocks; m3c bytes FORBIDDEN.
+- ACCEPTED (hop 12 addendum, measured): m3b fixtures GENERATED + byte-verified (CALL01 228 B,
+  CALL06A 277 B, CALL06B 285 B, CALL10 348 B amended-B1, CALLN8 235 B) via
+  build/p1m3-scratch/g12/extract_m3b_fixtures.py + mkpli.py; uncommitted. FALSIFIED (script,
+  self-caught, never a fixture defect): my round-trip normalizer appended a spurious "\n" —
+  assertion failure on all five, extraction was CORRECT; fix + rerun rc 0. ACCEPTED: the HIR/MIR
+  CLIs are ocaml/_build/default/hir/pli80hir.exe + pli80mir.exe (NOT bin/; first attempt rc 127
+  was MY path error). NEXT (exact): measured-first .mir pins ×2 for the five positives reviewed
+  line-by-line vs §P1-m3.2/.16; CALLN8 E19 + CALLN7 (-g on CALL01) E18 negative pins ×2; git rm
+  the two CALLN10 negative pins; native panel (mir2o build/p1m0-deps/mir2o -f; glibc native_check
+  EXPECTED 4/7/7/7/7; cosmo tiny console 5\n4\n / 7\n / 2\n7\n / 7\n7\n / EMPTY, dr 4/7/7/7/7,
+  static laws, nm); C-M3b LOUD (corrupted CALL06B copy call row h0,hv→h0,h0 ⇒ stdout 7\n7\n MUST
+  fail vs 2\n7\n, rc 0); frozen re-green; explicit-path commit = m3b gate; durables; STOP.
+
+## E2E-54/P1-m3b hop 13 (2026-11-11, session 01a1cc13 renewal 1/12; ZERO oracle; ledger 203/C380) — m3b GATE CLOSED at `1394f074` (native panel 40/40, C-M3b LOUD, m3a re-green, FROZEN panel ALL HIT)
+
+- RECOVERY: fresh-context successor of chain 01a1cbf9 (g767 attested, classified current at
+  session_start). Baseline FIRST-HAND each OWN command: build rc 0; T1
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; T2 clean; the FIVE
+  untracked m3b fixtures INDEPENDENTLY round-trip re-verified byte-for-byte vs the committed PLAN
+  texts via build/p1m3-scratch/g12/verify_fixtures.py (CALL01 228 B / CALL06A 277 / CALL06B 285 /
+  CALLN8 235 / CALL10 348 B1-amended) — MATCH 5/5, rc 0.
+- ACCEPTED (measured-first pins; every line reviewed vs §P1-m3.2 + §P1-m3.16 B1/B3 BEFORE cp; ×2
+  fresh processes, `-o` file == stdout; F8 grep EMPTY on all five): CALL01.mir 737 B — entry
+  `main3`: x rides `i64:(h0)` (NO v0 register), `alloca h0, 8` hoisted at entry as the FIRST
+  insn, `call pc1, pli80_show, h0` passes the HOME, void callee bare `ret`, `Lfail_1`/`Lfail_0`
+  per-func tails, entry tail `ret st`; CALL06A.mir 671 B — `call pc1, pli80_alias, h0, h0` (ONE
+  home designated TWICE — the alias law physically present in the bytes); CALL06B.mir 925 B —
+  `call pc1, pli80_alias, h0, hv1` (home + value cell; the `x + 0` copy lowered in CALLER env into
+  t4 then `mov i64:(hv1), t4` immediately before the call); CALL10.mir 999 B — B1 shape: site 1
+  `h0, h0`, site 2 `hv1, hv2`, y keeps its OWN register v1 (not designated), class order
+  `v1, st, h0, hv1, hv2, t1..t7` exactly §P1-m3.2-4; CALLN10.mir 321 B — B3 positive: no-console,
+  NO import/protos/tails (used-only law), `call pc1, pli80_clob2, h0, h0`.
+- ACCEPTED (negative pins ×2, rc 2, ZERO stdout, NO `-o` artifact): CALLN8.stderr.txt =
+  `HIR-E19: line 3: MIR backend: by-reference actual argument 0 of call to 'al' designates
+  sym(0) which is not definitely initialized on every reachable path; the callee could read
+  garbage (uninitialized by-reference actual, §P1-m3.2-6)`; CALLN7.stderr.txt = E18 multi-proc `-g`
+  refusal BY NAME with NO `.mir` and NO map written (layer: pli80hir rc 0 ⇒ BACKEND; the six
+  §P1-m3.6 negative-table entry names are the required `--export` values).
+- ACCEPTED (B3 retirement): `git rm hir/mir-call-expected/CALLN10.rc CALLN10.stderr.txt` (2-byte
+  `.rc` content-identical to the new CALLN7.rc ⇒ git renders a rename; the retirement is REAL and
+  accounted in the gate commit message; provenance `2be30a9c`, pre-registered §P1-m3.9-2). Fixture
+  CALLN10.pli SURVIVES; its positive legs EXECUTED (EMPTY stdout, driver-return=7).
+- ACCEPTED (native §P1-m3.7, g12/panel_m3b.py rc 0, 40 checks): mir2o accepts all five PINS
+  (2 funcs each; CALL01 2888 B / 06A 2232 / 06B 2936 / 10 2392 / N10 1416); glibc native_check
+  EXPECTED 4/7/7/7/7 ×2 fresh rc 0 with stdout program-then-driver (`5\n4\n4\n`, `7\n7\n`,
+  `2\n7\n7\n`, `7\n7\n7\n`, `7\n`); cosmo TINY (pli_console.c + console_check.c, chmod +x) ×2 fresh
+  BYTE-EXACT: CALL01 `5\n4\n` dr 4 (BRIEF BYTES VERBATIM), CALL06A `7\n` dr 7, CALL06B `2\n7\n`
+  dr 7 (DISCRIMINATOR HIT), CALL10 `7\n7\n` dr 7 (B1 AMENDED BYTES HIT), CALLN10 EMPTY dr 7 (B3
+  HIT); no PT_INTERP, no dynamic section; nm entry `T` + subsidiary `t` (show/alias/alias/clob/
+  clob2).
+- ACCEPTED (C-M3b B2 INVERSE, LOUD): disposable CALL06B pin copy (scratch ONLY), call row
+  `\tcall pc1, pli80_alias, h0, hv1` → `h0, h0` (anchor asserted EXACTLY once): mir2o rc 0 (2936 B,
+  2 funcs), link rc 0, EXEC rc 0 `driver-return=7\n` with corrupted stdout `7\n7\n` ≠ pinned
+  `2\n7\n` — the control is NON-VACUOUS exactly as the amendment argued.
+- ACCEPTED (m3a re-green under the m3b backend): CALL02/03/04/05/09 pins ×2 fresh BYTE-UNMOVED;
+  CALLN1–N6 rc 2 / stderr == pins ×2 / no artifact (N2/N3/N5 export-independent; N1/N4/N6 re-run
+  with TRUE entry names `pval`/`cyc`/`nest2`).
+- ACCEPTED (FROZEN panel, each OWN command): gate rc 0 `build/e54p1m3b-reg-gate.log`
+  1328/1328-190/190-9/9-149 rows 0/0-census EXACT 16/DIFFERS 0/REFUSED 25/UNEXPECTED 0-prose 5;
+  hir_test rc 0 220 ok, ok-set diff-IDENTICAL to hop-12 baseline log; i6 rc 0 56 checks ALL PINS
+  UNMOVED; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; DWARF M05.g.mir == frozen M05.mir
+  AND .p1md == M05.p1md standalone.
+- FALSIFIED (harness probes, self-caught, ZERO repo byte): (1) panel check read `readelf -d`
+  stderr — the `no dynamic section` message is on STDOUT (rc 0, empty stderr); (2) my first
+  negative re-run used `--export x` for the BACKEND-layer negatives ⇒ E20 export-mismatch fired
+  BEFORE the arm under test (three false FAILs; pins UNMOVED, re-measurement with the real entry
+  names passed); (3) D_elem witness nuance: my scratch probes (g12/delem_probe.pli,
+  delem_probe2.pli) die EARLIER than hop-12's recorded E18 declaration-law text —
+  `Pli80.Parser.Parse_error(_, "expected statement")` at the PARSER (rc 2) for
+  `dcl arr fixed bin(15) (10);` via the pli80hir CLI. Both measurements agree the D_elem by-ref
+  actual is UNREACHABLE end-to-end; my probe adds that the array-dcl path is refused at the parser
+  layer in THIS pipeline. Recorded honestly; NO fixture invented (§P1-m3.10-3/4 deviation class);
+  the guard arms exist statically (mir_backend.ml:1478 A_reference D_elem among others).
+- STANDING (successor): m3b gate CLOSED at `1394f074` (amendment fc152391 → gate; PROTOCOL #1
+  order honored). **m3c bytes FORBIDDEN — NOT authorized by the m3b brief.** The remaining §P1-m3
+  sequence (m3c, runner `tools/mir_aot_call_test.py`, FULL CLOSE) requires a NEW operator
+  authorization. Zero oracle; ledger 203/C380; config NEVER staged; no push; scratch NEVER
+  committed; pins ADDITIVE-only except the B3 retirement (accounted); all standing rules unchanged.
