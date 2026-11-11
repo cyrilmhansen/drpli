@@ -63,6 +63,7 @@ type func_data = {
   fd_cu : bool * bool * bool;
   fd_hv : string list;
   fd_homes : string list;
+  fd_res : string list;
   fd_tmps : string list;
   fd_pc : int list;
   fd_fail : string;
@@ -421,6 +422,8 @@ let compile ~(profile : Target.profile) ~(export : string)
        ENTRY hoists (§P1-m3.2-4), the mov into the cell rides right before the
        call row. *)
     let hv_n = ref 0 in
+    (* §P1-m3.2-7 (m3c): caller result registers r<k>, fresh and module-wide. *)
+    let r_n = ref 0 in
     (* §P1-m1.5 item 3 (m1b): the module's string data items s<k>, numbered by FIRST
        USE of each DISTINCT literal text in BODY order — a pure function of the typed
        body, so the artifact is deterministic. Only '"' and backslash are escaped; that
@@ -457,6 +460,8 @@ let compile ~(profile : Target.profile) ~(export : string)
     (* the value cells this procedure hoists at entry, and the callee pids whose
        pc protos the module needs (deduplicated at assembly). *)
     let hv_cells : string list ref = ref [] in
+    (* the result registers hoisted into the CURRENT procedure's locals (§P1-m3.2-7) *)
+    let res_regs : string list ref = ref [] in
     (* E2E-54/P1-m3b §P1-m3.2-6 + §P1-m3.16 R3: the by-reference homes of the
        CURRENT procedure — every caller sid designated by ANY by-reference
        actual in the body (at ANY statement depth), discovered by the pre-body
@@ -729,6 +734,93 @@ let compile ~(profile : Target.profile) ~(export : string)
                integer operands is outside the P1-m2 subset (a condition literal is \
                NOT admitted in this slice; brief §2)"
     in
+    (* ---- E2E-54/P1-m3c (§P1-m3.5 + §P1-m3.17/.18 amendments C+D) ------------- *)
+    (* An admitted Call_e: whole RHS of an Assign to a D_var, or the whole
+       expression of the final Return. EVERY actual must be A_value — the
+       HOME-PASS value cells give the callee independent copies, so the caller
+       env is never invalidated (I3); callee console effects stay observable
+       in execution order. The result rides a fresh module-wide caller-local
+       register r<k> (§P1-m3.2-7) and carries the callee's FULL declared
+       result window W(q) — no call-site narrowing. A Call_e in ANY other
+       position keeps the pre-existing E18 refusal inside [lower] (CALLN9). *)
+    let lower_call_e ~line env (cpid : int) (args : Hir.actual list)
+      : string * (int * int) =
+      let callee =
+        match Int_map.find_opt cpid !reached with
+        | Some cp -> cp
+        | None ->
+            refuse ~line Diagnostic.e_mir_node
+              ("MIR backend: a value call designates procedure id "
+              ^ string_of_int cpid
+              ^ " which is not a reached procedure (defensive)")
+      in
+      let ckey =
+        match Int_map.find_opt cpid folded_of with
+        | Some ck -> ck
+        | None -> assert false
+      in
+      let cq =
+        match callee.Hir.ret with
+        | Some t -> bin_p ~line t
+        | None ->
+            refuse ~line Diagnostic.e_mir_node
+              ("MIR backend: value use of procedure " ^ quote ckey
+              ^ " declares no result type (defensive: HIR-E07 refuses it first)")
+      in
+      let nargs = List.length args in
+      if nargs <> List.length callee.Hir.params then
+        refuse ~line Diagnostic.e_mir_node
+          ("MIR backend: the value call to " ^ quote ckey ^ " passes "
+          ^ string_of_int nargs ^ " actuals to a procedure with "
+          ^ string_of_int (List.length callee.Hir.params)
+          ^ " formals (defensive: bind admits the call arity first)")
+      else ();
+      List.iteri
+        (fun pos (a : Hir.actual) ->
+          match a.Hir.af with
+          | Hir.A_value _ -> ()
+          | Hir.A_reference _ ->
+              refuse ~line:a.Hir.ac_line Diagnostic.e_mir_node
+                ("MIR backend: by-reference actual argument "
+                ^ string_of_int pos ^ " of value call to " ^ quote ckey
+                ^ " is outside the P1-m3c subset (value calls admit by-value \
+                   actuals only)")
+          )
+        args;
+      let operand_regs =
+        List.map2
+          (fun (a : Hir.actual) (psid : int) ->
+            let ap = bin_p ~line:a.Hir.ac_line a.Hir.ac_ty in
+            let fp = bin_p ~line:a.Hir.ac_line (find_sym psid).Hir.sty in
+            if ap <> fp then
+              refuse ~line:a.Hir.ac_line Diagnostic.e_mir_numeric
+                ("MIR backend: the actual's declared type "
+                ^ Hir.pp_ty a.Hir.ac_ty ^ " does not equal the formal's declared \
+                   type of sym(" ^ string_of_int psid
+                ^ ") — the window law cannot be trusted here")
+            else
+              match a.Hir.af with
+              | Hir.A_value x ->
+                  let rv, _iv = lower env x in
+                  incr hv_n;
+                  let cell = "hv" ^ string_of_int !hv_n in
+                  hv_cells := cell :: !hv_cells;
+                  emit ~line "mov i64:(%s), %s" cell rv;
+                  cell
+              | Hir.A_reference _ -> assert false)
+          args callee.Hir.params
+      in
+      if not (List.mem cpid !pc_uses) then pc_uses := cpid :: !pc_uses;
+      incr r_n;
+      let rr = "r" ^ string_of_int !r_n in
+      res_regs := rr :: !res_regs;
+      if operand_regs = [] then
+        emit ~line "call pc%d, pli80_%s, %s" cpid ckey rr
+      else
+        emit ~line "call pc%d, pli80_%s, %s, %s" cpid ckey rr
+          (String.concat ", " operand_regs);
+      (rr, window cq)
+    in
     (* Early/nested RETURN stays outside the subset (§P1-m2.2): the ONE final
        top-level RETURN(expr) law is unchanged. A structural scan refuses it BY
        NAME before any arm instruction is emitted. *)
@@ -853,6 +945,7 @@ let compile ~(profile : Target.profile) ~(export : string)
         cur_pp := pp;
         declared := Int_map.empty;
         hv_cells := [];
+        res_regs := [];
         (* §P1-m3.16 R3: the HOME set is discovered BEFORE lowering touches the
            body, so the first emitted instruction can already ride the home and
            v<sid> can be excluded from the locals line deterministically. The
@@ -954,7 +1047,12 @@ let compile ~(profile : Target.profile) ~(export : string)
                          refuse ~line Diagnostic.e_mir_node
                            ("MIR backend: assignment to sym(" ^ string_of_int sid
                            ^ ") which was never declared in this body");
-                       let rv, iv = lower env value in
+                       let rv, iv =
+                         match value.Hir.ex with
+                         | Hir.Call_e { pid = cpid; args } ->
+                             lower_call_e ~line env cpid args
+                         | _ -> lower env value
+                       in
                        let sp = Int_map.find sid !declared in
                        if not (in_window (window sp) iv) then
                          refuse ~line Diagnostic.e_mir_numeric
@@ -969,7 +1067,12 @@ let compile ~(profile : Target.profile) ~(export : string)
               | Hir.Return (Some e) ->
                   (* Reachable only as the FINAL statement (checked above), so [rest] is
                      empty and the recursion below simply returns the environment. *)
-                  let rv, ev = lower env e in
+                  let rv, ev =
+                    match e.Hir.ex with
+                    | Hir.Call_e { pid = cpid; args } ->
+                        lower_call_e ~line env cpid args
+                    | _ -> lower env e
+                  in
                   let rw = window pp_ret_p in
                   if not (in_window rw ev) then
                     refuse ~line Diagnostic.e_mir_numeric
@@ -1278,6 +1381,8 @@ let compile ~(profile : Target.profile) ~(export : string)
                          here and recorded, never fitted). *)
                       let hv_n_w = !hv_n in
                       let hv_cells_w = !hv_cells in
+                      let r_n_w = !r_n in
+                      let res_regs_w = !res_regs in
                       insns := [];
                       let (_ : (int * int) Int_map.t) = lower_stmts body_env body in
                       insns := outer;
@@ -1285,6 +1390,8 @@ let compile ~(profile : Target.profile) ~(export : string)
                       cf_n := cf_base;
                       hv_n := hv_n_w;
                       hv_cells := hv_cells_w;
+                      r_n := r_n_w;
+                      res_regs := res_regs_w;
                       (* (8) explicit orbit check (belt-and-suspenders AFTER the body
                          lowering, §P1-m2.3-6): every value the induction variable
                          takes — start, every body value, every step result and the
@@ -1605,6 +1712,7 @@ let compile ~(profile : Target.profile) ~(export : string)
             fd_cu = f_cu;
             fd_hv = List.rev !hv_cells;
             fd_homes = List.map (fun sid -> "h" ^ string_of_int sid) !home_sids;
+            fd_res = List.rev !res_regs;
             fd_tmps = f_t_regs;
             fd_pc = !pc_uses;
             fd_fail = !cur_fail;
@@ -1677,6 +1785,7 @@ let compile ~(profile : Target.profile) ~(export : string)
       @ (if f_get then [ "a1" ] else [])
       @ fd.fd_homes
       @ fd.fd_hv
+      @ fd.fd_res
       @ fd.fd_tmps
     in
     let hoists_of fd =

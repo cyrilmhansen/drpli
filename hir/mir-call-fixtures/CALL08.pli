@@ -1,0 +1,12 @@
+wret: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   x = 41;
+   return (identity(x + 0));
+   identity: procedure(n) returns(fixed bin(15));
+      dcl n fixed bin(15);
+      dcl t fixed bin(15);
+      t = n + 0;
+      return (t);
+   end identity;
+end wret;
+

@@ -1,0 +1,17 @@
+thrice: procedure returns(fixed bin(15));
+   dcl z fixed bin(15);
+   z = pick3(1, 2, 3);
+   put list(z);
+   return (z);
+   pick3: procedure(a, b, c) returns(fixed bin(15));
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      dcl c fixed bin(15);
+      dcl t fixed bin(15);
+      put list(a);
+      put list(b);
+      t = c;
+      return (t);
+   end pick3;
+end thrice;
+

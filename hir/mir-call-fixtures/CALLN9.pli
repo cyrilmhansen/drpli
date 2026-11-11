@@ -1,0 +1,14 @@
+deep9: procedure returns(fixed bin(15));
+   dcl z fixed bin(15);
+   z = thrice3(1, 2, 3) + 5;
+   return (z);
+   thrice3: procedure(a, b, c) returns(fixed bin(15));
+      dcl a fixed bin(15);
+      dcl b fixed bin(15);
+      dcl c fixed bin(15);
+      dcl t fixed bin(15);
+      t = a + b + c;
+      return (t);
+   end thrice3;
+end deep9;
+
