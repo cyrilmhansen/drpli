@@ -48,7 +48,39 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-m3c hop 15 IN FLIGHT — **OPERATOR AMENDMENTS C + D APPROVED; baseline GREEN first-hand; PROTOCOL #1 AMENDMENT COMMIT OWED FIRST**; session 01a1cc7d, chain 0/12 AVAILABLE; ZERO oracle; ledger 203/C380; ZERO repo byte yet)
+## Next action (E2E-54/P1-m3c hop 16 IN FLIGHT — **PROTOCOL #1 AMENDMENT COMMIT LANDED `d3925d1c`; m3c ADMISSION APPLIED (UNCOMMITTED — KEEP, NEVER revert); BASELINE + POST-EDIT GATES GREEN FIRST-HAND; FIXTURES/PINS/NATIVE/C-M3c/COMMIT REMAIN**; session 01a1cc93 (renewal 1/12 of chain 01a1cc7d), ZERO oracle; ledger 203/C380)
+
+STATE: start HEAD `25d4c963`; dirty = `ocaml/hir/mir_backend.ml` (the validated §3 admission, applied
+VERBATIM from `build/p1m3-scratch/g14/ocaml-proto` + ONE comment reword) + operator config (NEVER
+staged) + untracked scratch. **COMMITTED:** `d3925d1c` = PLAN §P1-m3.17 (amendment C: CALL07
+`thrice`/`pick3` stdout `1\n2\n3\n` dr 3 / CALL08 `wret`/`identity` EMPTY dr 41 / C-M3c redefined —
+`add <rt>,<rt>,1` before the callee `ret <rt>` must mir2o + link + EXECUTE and fail the UNCHANGED
+`-DEXPECTED=3` rc 1) + §P1-m3.18 (amendment D: CALLN1 retirement, provenance `2be30a9c` + §P1-m3.15
+A3, fixture byte-identical 213 B sha `33d248d0…`, NEW measured-first `CALLN1.mir`, EMPTY stdout / dr 1
+/ `-DEXPECTED=1`) — PLAN.md block quotes PROVEN byte-identical to the operator brief's fenced texts.
+Gates GREEN first-hand: build rc 0; T1 `172595d5…aca281` DIRECT; T2 rc 0; CALLN1 negative rc 2/pin
+byte-equal/no artifact; g15 reproducers byte-verified vs §P1-m3.6 and re-measured (E19 line 11 / line 8
+under §3, E18 line 3/4 committed); hir_test rc 0 **220 ok** ok-set `cmp`== m3b close log; `i6_check.py`
+rc 0 **56 ok** ALL PINS UNMOVED. FULL record LEARNINGS § "E2E-54/P1-m3c hop 16" — READ VERBATIM FIRST,
+then §§ hop 15/14, then PLAN §P1-m3 (.2 law, .5 scope, .6 fixtures/entries, .7 legs, .12 gate, .15/.16
+precedent, **.17/.18 BINDING**).
+NEXT VERBATIM = the PENDING (1)–(8) list in that LEARNINGS section, in order: re-green m3a/m3b call
+pins + negatives (entries listed there); generate CALL07/CALL08 (§P1-m3.17) + CALLN9 (§P1-m3.6)
+fixtures mechanically + round-trip verify; measured-first pins ×2 (`CALL07.mir`, `CALL08.mir`,
+`CALLN1.mir`, `CALLN9.rc`/`.stderr.txt`) reviewed line-by-line BEFORE every `cp`; §P1-m3.7 native legs
+×2 (mir2o; glibc EXPECTED 3/41/1; cosmo TINY with `pli_console.c`+`console_check.c` chmod +x byte-exact;
+static laws; nm); C-M3c LOUD; `git rm hir/mir-call-expected/CALLN1.rc hir/mir-call-expected/CALLN1.stderr.txt`;
+FROZEN regressions each OWN rc (gate → `build/e54p1m3c-reg-gate.log`; hir 220; mir_aot 32; cosmo 25;
+console 43; debug 23; CF 83; DWARF M05; fresh `_build-e54p1m3c` hist 122 sha==kept); explicit-path
+implementation+fixtures+pins commit; durables; STOP.
+FORBIDDEN: aggregate runner `tools/mir_aot_call_test.py`; overall §P1-m3 CLOSE/RESULTS/arch/dashboard;
+interprocedural narrowing; oracle; any special case to keep CALLN1 negative; reverting the splice.
+STANDING: ZERO oracle; config NEVER staged; no push; no `git add -A`/clean/reset; explicit paths;
+scratch NEVER committed; pins ADDITIVE-only except amendment D; hir pins FROZEN; F8;
+`eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo chmod +x; console
+links include pli_console.c; LC_ALL=C; byte-exact via Python subprocess; NEVER hand-edit managed blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3c hop 15 IN FLIGHT — **OPERATOR AMENDMENTS C + D APPROVED; baseline GREEN first-hand; PROTOCOL #1 AMENDMENT COMMIT OWED FIRST**; session 01a1cc7d, chain 0/12 AVAILABLE; ZERO oracle; ledger 203/C380; ZERO repo byte yet)
 
 STATE: start HEAD `5a6da81e` VERIFIED == brief; dirty ONLY operator config (NEVER staged) + untracked
 scratch. Baseline OWN-command GREEN: build rc 0; T1 `172595d5…aca281` DIRECT; T2 rc 0; CALLN1 negative

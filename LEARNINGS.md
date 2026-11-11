@@ -5,6 +5,100 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P1-m3c hop 16 (git/system clock 2026-11-11; session 01a1cc93 = RENEWAL 1/12 successor of chain 01a1cc7d; ZERO oracle; ledger 203/C380) — **PROTOCOL #1 AMENDMENT COMMIT LANDED `d3925d1c`; the m3c ADMISSION IS APPLIED (UNCOMMITTED — KEEP, NEVER revert); BASELINE + POST-EDIT GATES GREEN FIRST-HAND; FIXTURES/PINS/NATIVE/C-M3c/COMMIT REMAIN**
+
+- ACCEPTED (recovery): start HEAD `25d4c963` (hop-15 managed refresh), tree dirty ONLY the operator
+  `handoff.config.json` (NEVER staged) + pre-existing untracked scratch; guard checkpoint
+  `g773-611de9f57716` attested, renewal 1/12. The OPERATOR BRIEF is the parent-session record
+  **"DRPLi — E2E-54/P1-m3c: Operator Amendment D and Gate Completion"** (§2 amendments C+D FIRST,
+  §3 ABI scope, §4 validation panel, §5 frozen regressions, §6 close+STOP). I re-extracted its two
+  fenced `pli` blocks and PROVED the §P1-m3.17 block quotes BYTE-IDENTICAL to them mechanically
+  (CALL07 376 LF-bytes, CALL08 270) — the plan text is the operator's, not my transcription.
+  Baseline re-measured FIRST-HAND: build rc 0; T1 `172595d5…aca281` DIRECT; T2 rc 0; CALLN1 negative
+  rc 2 / stderr byte-equal pin / ZERO stdout / NO artifact; ledger 203 headers ending C380;
+  `hir/mir-call-fixtures/CALLN1.pli` 213 B sha `33d248d0…376a` (the amendment-D survival law).
+- ACCEPTED (hop-15 claims VERIFIED, not trusted): `build/p1m3-scratch/g15/{ORIG07,ORIG08,ORIGN9}.pli`
+  are byte-equal to the §P1-m3.6 binding blocks (independent mechanical extract + compare). Re-run
+  this hop (`build/p1m3-scratch/g16/`): the COMMITTED pre-m3c backend refuses ORIG07/ORIG08 at
+  backend E18 line 3 / line 4 (rc 2, no artifact); the g14 prototype (§3 admission) refuses ORIG07
+  `HIR-E19: line 11: … [-16383,16383] and [-16383,16383] can reach [-32766,32766] …` and ORIG08
+  `HIR-E19: line 8: … and [1,1] can reach [-16382,16384] …`, and keeps ORIGN9 at `HIR-E18 … (brief §3)`
+  line 3 ⇒ the ORIGINAL §P1-m3.6 positives are NUMERICALLY UNPROVABLE under I1 and amendment C was
+  REQUIRED (same class as §P1-m3.15 A1/A2, §P1-m3.16 B1). `diff -rq` PROVED the prototype tree differs
+  from `ocaml/` in `hir/mir_backend.ml` ONLY (192-line diff).
+- ACCEPTED (PROTOCOL #1 gate): `d3925d1c` touches ONLY `spec/lab-evidence/e2e54/PLAN.md` (+195):
+  **§P1-m3.17 AMENDMENT C** — binding CALL07 (`thrice`/callee `pick3`; whole-RHS `Call_e`, 3 by-value
+  actuals, CALLEE console ⇒ stdout `1\n2\n3\n`, dr `3\n`, rc 0, `-DEXPECTED=3`) and CALL08
+  (`wret`/`identity`; whole-`Return Call_e`, actual is the expression `x + 0`, EMPTY stdout, dr `41\n`,
+  `-DEXPECTED=41`), each with an INDEPENDENT hand derivation and the I1 unprovability of the originals
+  quoted VERBATIM; **C-M3c REDEFINED**: insert `add <rt>, <rt>, 1` immediately before `pick3`'s final
+  `ret <rt>` on a DISPOSABLE CALL07 pin copy — the mutant MUST `mir2o` rc 0, genuinely link + EXECUTE
+  (console `1\n2\n4\n`, dr 4) and fail the UNCHANGED `-DEXPECTED=3` with rc 1; a syntactically
+  invalid control does NOT count; executing 3 is VACUOUS. **§P1-m3.18 AMENDMENT D** — CALLN1
+  negative→positive: named authorized exception to the frozen m3a/m3b negative pins; `git rm
+  hir/mir-call-expected/CALLN1.rc CALLN1.stderr.txt` in the IMPLEMENTATION commit; provenance m3a gate
+  `2be30a9c` + §P1-m3.15 A3 (E07-HIR → BACKEND E18); fixture byte-identical; NEW measured-first
+  `CALLN1.mir`; EMPTY stdout / dr `1\n` / rc 0 / `-DEXPECTED=1`; NO artificial special case; the full
+  amended m3c gate reading. Originals stand as history (PROTOCOL #2). Heading rendering checked
+  (single-line H3) before the commit.
+- ACCEPTED (implementation, UNCOMMITTED): the prototype admission applied VERBATIM to
+  `ocaml/hir/mir_backend.ml` (copy of the validated file) + ONE comment-only reword
+  (`PROTOTYPE for the g14 reproducer` → `§P1-m3.17/.18 amendments C+D`). Shape: `fd_res` in the func
+  descriptor; module-wide `r_n`; per-proc `res_regs` REWOUND in the §P1-m2.3 verification pass
+  (`r_n_w`/`res_regs_w`); `lower_call_e` = defensive reached-pid/ret-type/arity checks, by-reference
+  actual ⇒ E18 BY NAME (0-based `argument <pos>`), actual-vs-formal declared-type re-proof ⇒ E19,
+  actuals lowered LEFT-TO-RIGHT through the existing `lower` into HOME-PASS `hv<k>` cells, `pc_uses`
+  registration, `call pc<pid>, pli80_<ck>, r<k>[, <args>]`, result interval `window cq` = the callee's
+  FULL declared W(p) (NO narrowing); the `Assign` whole-RHS and `Return (Some …)` whole-expression arms
+  route `Call_e` to it and EVERY other position keeps the frozen `lower` E18 arm; locals class order
+  homes, hv, res, tmps (§P1-m3.2-4/.7). NO other file touched.
+- ACCEPTED (law re-read first-hand; NO extra edit needed): the m3a DFS `expr_call_pids`
+  (`mir_backend.ml:250`) ALREADY walks `Call_e` + its `A_value` actuals (§P1-m3.2-2b) and the frozen
+  `Hir.Call_e` E18 arm (":562", the message CALLN9 pins) is UNTOUCHED. NOTE (brief §3 purity law): the
+  pre-existing `ex_ef = Unknown_ef` guard (":550") lives inside `lower` and is BYPASSED for the two
+  admitted arms — correct by design: hir_build types a `Call_e` with pure actuals `Pure` (hop-1 §8
+  audit), the admission judges the NODE class and ALWAYS emits the call, so purity is never used as an
+  interprocedural guarantee.
+- ACCEPTED (post-edit gates, each OWN command): `dune build` rc 0 (log `build/p1m3-scratch/g16/build-m3c.log`);
+  T1 sha `172595d5…` DIRECT (historical compiler bit-UNCHANGED by a hir-only edit); T2 rc 0;
+  `tools/hir_test.py` rc 0 **220 ok** with the ok-set `cmp`-IDENTICAL to the m3b close log
+  `build/e54p1m3b-hirtest-reg.log`; `build/p1m2-scratch/i6_check.py` rc 0 **56 ok** `ALL PINS UNMOVED`
+  (ignore its stale N7 banner).
+- PENDING (successor contract — VERBATIM ORDER; the tree is mid-flight, NEVER revert the splice):
+  (1) re-green the m3a/m3b CALL pins FIRST-HAND (CLIs `ocaml/_build/default/hir/pli80mir.exe` — NOT
+  `bin/`): every `hir/mir-call-fixtures/*.pli` regenerated and `cmp`-equal to its pin — entries CALL01
+  `main3`, CALL02 `call02`, CALL03 `two`, CALL04 `chain`, CALL05 `retvoid`, CALL06A `aliasin`, CALL06B
+  `diffal`, CALL09 `uncalled`, CALL10 `mixmod`, CALLN10 `refm3a`, CALLN1 `pval` (NOW POSITIVE);
+  negatives CALLN2 `disc`/N3 `nar`/N4 `cyc`/N5 `vusage`/N6 `nest2`/N7 (`CALL01` text with `-g`)
+  `main3`/N8 `uninit` still rc 2 + stderr pins byte-equal + ZERO stdout + NO artifact; CALLN1's two
+  retired pins are EXPECTED to be gone after step (6).
+  (2) Generate `hir/mir-call-fixtures/CALL07.pli` + `CALL08.pli` MECHANICALLY from the §P1-m3.17 block
+  quotes and `CALLN9.pli` from §P1-m3.6 (extractor idiom `build/p1m3-scratch/g12/extract_m3b_fixtures.py`
+  / `extract_m3a_amend.py` through `build/p1m2-scratch/mkpli.py`, CRLF+`^Z`, round-trip byte-verify).
+  (3) MEASURED-FIRST pins ×2 fresh processes — `CALL07.mir`, `CALL08.mir`, `CALLN1.mir`,
+  `CALLN9.rc`+`CALLN9.stderr.txt` — EVERY MIR line reviewed vs §P1-m3.2/.5/.17 BEFORE the `cp`; CALLN9
+  must be E18 `line 3` BY NAME, rc 2, no artifact, ×2.
+  (4) §P1-m3.7 native legs ×2 each for CALL07 (EXPECTED=3) / CALL08 (41) / CALLN1 (1): `mir2o -f`;
+  glibc `gcc -O0 -DENTRY=pli80_<e> -DEXPECTED=<v> tools/mir_aot/native_check.c X.o`; cosmo TINY console
+  WITH `tools/mir_aot/pli_console.c` + `console_check.c` (`chmod +x`), byte-exact stdout +
+  `driver-return=` + rc; static laws (no `PT_INTERP`, no dynamic section — that readelf message is on
+  STDOUT); `nm T pli80_<entry>` + subsidiaries `t`; FROM REPO ROOT; timeouts 60/120.
+  (5) C-M3c (per §P1-m3.17 C3) OBSERVED LOUD on a DISPOSABLE copy. (6) `git rm` the two CALLN1 pins.
+  (7) FROZEN regressions each OWN rc: gate → `build/e54p1m3c-reg-gate.log` (1328/1328-190/190-9/9-149
+  rows 0/0-16/0/25/0-prose 5); hir 220; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; DWARF M05
+  pins; fresh `dune build --build-dir _build-e54p1m3c` hist 122 sha==kept; ledger 203/C380.
+  (8) Commit implementation + fixtures + pins by EXPLICIT PATHS, durables, finalize/renew, **STOP** —
+  the aggregate runner `tools/mir_aot_call_test.py` and the overall §P1-m3 CLOSE remain UNAUTHORIZED.
+- PROPOSED (unverified; record, never fit): the immediate form `add <rt>, <rt>, 1` for C-M3c is
+  EXPECTED to parse (m2/mir2o probes used immediate arithmetic operands); if the pinned parser refuses
+  it, use `mov t<k>, 1` + `add <rt>, <rt>, t<k>` and record the deviation in §P1-m3.17 style prose.
+- STANDING: ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset;
+  explicit paths only; scratch `build/p1m3-scratch/` NEVER committed; `hir/expected`+`hir/fixtures`+
+  `ocaml/lib`+`ocaml/bin` FROZEN; mir pins ADDITIVE-only EXCEPT the amendment-D CALLN1 retirement;
+  F8; `eval "$(opam env)"`; rc DIRECT; never batch build with tests; timeouts 60/120/900; cosmo
+  `chmod +x`; console links include `tools/mir_aot/pli_console.c`; `LC_ALL=C`; byte-exact via Python
+  subprocess; NEVER hand-edit managed checkpoint blocks.
+
 ## E2E-54/P1-m3c hop 15 (2026-11-21, session 01a1cc7d fresh startup, renewal chain 0/12 AVAILABLE; ZERO oracle; ledger 203/C380; ZERO repo byte so far) — OPERATOR AMENDMENTS C + D **APPROVED**; m3c implementation+validation AUTHORIZED (aggregate runner + overall P1-m3 CLOSE NOT); BASELINE GREEN; hop-14 prototype REPRODUCED; §P1-m3.17/.18 AMENDMENT COMMIT STILL OWED (PROTOCOL #1)
 
 - RECOVERY: start HEAD `5a6da81e` == brief (hop-14 managed refresh). Tree dirty ONLY the operator
