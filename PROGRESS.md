@@ -71,16 +71,30 @@ homes, hv, res, tmps). dune build hir/{pli80mir,pli80hir}.exe rc 1 so far — wa
 truncated the real error; rerun capturing FULL log (likely MY patch syntax; fix PROTOTYPE
 only, NEVER the repo file). Then: prototype must (1) COMPILE CALLN1.pli rc 0 (contradiction
 MEASURED, artifact + native exec), (2) compile C1/C2 fixtures, (3) CALLN9 still E18.
-NEXT VERBATIM: (a) finish prototype build + three measurements; (b) write LEARNINGS §
-"E2E-54/P1-m3c hop 14" (STOP-and-attribute, full record: contradiction, reproducer paths,
-PREFERRED resolution = B3-style CALLN1 transition under a NARROW operator amendment D: git rm
-CALLN1.rc/CALLN1.stderr.txt (provenance 2be30a9c, prediction history §P1-m3.6 + A3), fixture
-SURVIVES as POSITIVE (EMPTY stdout? NO — y=pv(1); return(y) => native EXPECTED=1, console
-EMPTY dr 1) + new positive pin CALLN1.mir measured-first; alternative (b) = restrict §3
-admission, but NO principled discriminator exists (arity/console are arbitrary) — recorded);
-(c) amend NOTHING in PLAN.md myself (amendment C NOT committed — milestone blocked BEFORE
-it; commit of C without the CALLN1 ruling would strand the contract); (d) PROGRESS live
-heading + HANDOFF next-action + guard finalize; STOP for operator adjudication.
+MEASURED REPRODUCER COMPLETE (full record LEARNINGS § "E2E-54/P1-m3c hop 14" — READ
+VERBATIM; committed with this heading): committed backend STILL refuses CALLN1 (rc 2,
+stderr==pin, no artifact — pin TRUE pre-m3c). Scratch prototype build/p1m3-scratch/g14/
+ocaml-proto (rsync copy + §3 admission VERBATIM: fd_res, module-wide r_n, per-proc res_regs
++ verification-pass rewind, lower_call_e reusing HOME-PASS hv cells, `call pc<pid>, pli80_<ck>,
+r<k>, <args>`, result W(q), whole-RHS/whole-Return routing, locals order homes,hv,res,tmps;
+build rc 0 after ONE copy-only continuation fix; repo ocaml/ byte-CLEAN) —
+CALLN1.pli COMPILES rc 0 + mir2o rc 0 (1408 B object) ⇒ PIN PROVABLY DEAD under §3.
+CALL07C (C1, 393 B) + CALL08C (C2, 282 B) rc 0, MIR line-by-line == §P1-m3.2, mir2o rc 0
+(3416/1416 B). CALLN9G rc 2 E18 line 3 BY NAME (frozen lower arm; entry refuses before any
+callee lowering — NO E19 confounder). DECISION: brief §8 STOP-AND-ATTRIBUTE; amendment C NOT
+committed (hop-10 precedent); ZERO repo source/fixture/pin bytes; regressions unnecessary
+(zero repo change; baseline = m3b close 1394f074).
+NEXT VERBATIM = OPERATOR ADJUDICATION REQUIRED; successor must NOT implement m3c until
+granted. PROPOSED amendment D (never self-adopted), B3/CALLN10 idiom: git rm
+hir/mir-call-expected/CALLN1.rc + .stderr.txt (provenance measured-first 2be30a9c; prediction
+history §P1-m3.6 E07-HIR -> §P1-m3.15 A3 BACKEND E18; retirement NAMED); CALLN1.pli SURVIVES
+as POSITIVE (hand-derived EMPTY stdout, driver-return=1, native_check EXPECTED=1; legs
+unmeasured); new measured-first CALLN1.mir pin + §P1-m3.7 legs; §P1-m3.12 read with this ONE
+documented exception. If granted: commit amendments C+D to PLAN FIRST (PROTOCOL #1), re-apply
+the validated prototype diff to ocaml/hir/mir_backend.ml, regenerate fixtures mechanically,
+measured-first pins, native panel, C-M3c (`add <rt>, <rt>, 1` before callee final `ret <rt>`
+=> executes 4 vs pinned 3, native_check rc 1 LOUD), full regressions, explicit-path gate
+commit, durables, STOP.
 STANDING: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER
 committed; pins ADDITIVE-only; hir pins FROZEN; rc DIRECT; never batch build+tests;
 timeouts 60/120/900; cosmo chmod +x; console links include pli_console.c; LC_ALL=C;
@@ -4389,13 +4403,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 770
-checkpoint-id: g770-7feb8b5c0aaa
+checkpoint-generation: 771
+checkpoint-id: g771-b5eb720fd52a
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-11T20:37:17.899Z
+guard-level: 4
+checkpointed: 2026-11-11T20:38:22.945Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a5044d4857f0a8d8da59bde010f0e875a1e0bba57440edf5857a351981d5331f
 source-handoff: ef6b4ec4973545e5e061abf239e1e6571e721fa56046e5a951935cbe2cf9a3d1
