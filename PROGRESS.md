@@ -50,7 +50,81 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-54/P1-m3 hop 9 — **m3a SPLICE APPLIED + COMPILES CLEAN (UNCOMMITTED — KEEP, NEVER revert); GATES + PINS + NATIVE + C-M3a + COMMIT OWED**; session 01a1c99d renewal 3/12; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3 hop 11 — **OPERATOR AMENDMENT (a) COMMITTED `fca7c3af` → m3a GATE CLOSED `2be30a9c` — ALL GATES GREEN FIRST-HAND; STOP: NO FURTHER PHASE AUTHORIZED THIS CHAIN**; session 01a1cb2b fresh startup; ZERO oracle; ledger 203/C380)
+
+COMPLETE — nothing remains for this bounded session. Order honored (PROTOCOL #1): §P1-m3.15
+operator amendment committed to `spec/lab-evidence/e2e54/PLAN.md` FIRST (`fca7c3af`, explicit path,
+before ANY other byte); then ONLY the two authorized fixtures regenerated mechanically via
+`build/p1m3-scratch/extract_m3a_amend.py` + `mkpli.py` (CRLF+`^Z`, byte-verified vs the amended
+PLAN texts; only `t = n + 0;` / `t = m + 0;` moved); then every baseline gate own-command GREEN
+(build rc 0; T1 `172595d5…aca281` DIRECT; T2 clean; hir_test rc 0 220 ok-set `cmp`-IDENTICAL to
+hop-4 → `build/e54p1m3-hop11-hirtest.log`; i6 rc 0 56 checks ALL PINS UNMOVED →
+`build/e54p1m3-hop11-i6.log`; DWARF `M05.p1md` + `-g` `.mir` byte-identical to the frozen pins);
+then all FIVE m3a positives measured-first — reviewed `.mir` pins, ×2 fresh-process determinism,
+`mir2o` rc 0, glibc `native_check` EXEC rc 0 ×2 (EXPECTED 2/37/91/9/3), cosmo TINY console legs
+×2 fresh BYTE-EXACT (CALL02 `2\n` dr 2; CALL04 **`51\n` dr 91 — amended bytes HIT**; CALL03/05/09
+EMPTY dr 37/9/3), static laws + nm (`T` entry, subsidiaries `t`); then all SEVEN negatives rc 2 /
+ZERO stdout / NO `-o` / stderr ×2 byte-equal with layers attributed via `pli80hir` (N2/N3/N5
+HIR-E07; N1/N4/N6/N10 BACKEND-E18, N1 exactly the amended A3 row); then **C-M3a LOUD** on a fresh
+swapped copy (`mir2o` rc 1 `undeclared name pli80_side`, no object). Gate commit `2be30a9c`
+(explicit paths: `ocaml/hir/mir_backend.ml` + 2 fixtures + 19 additive `hir/mir-call-expected/*`
+pins). Full record: LEARNINGS § "E2E-54/P1-m3 hop 11" — READ VERBATIM FIRST, then §§ hop 10/9,
+then PLAN §P1-m3 + §P1-m3.15 (BINDING).
+
+STOP — **m3b/m3c bytes FORBIDDEN and UNAUTHORIZED**; §P1-m3 steps 3–7 (m3b, m3c, runner
+`tools/mir_aot_call_test.py`, FULL FROZEN regression, CLOSE) await a NEW operator authorization.
+On re-authorization: baseline FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…` DIRECT;
+T2; hir 220/11; i6 ALL PINS UNMOVED), read §P1-m3.4 + §P1-m3.15 + LEARNINGS §§ hop 11/10/9;
+homes/by-ref ABI, CALLN10 deletion per §P1-m3.9-2, CALL01/06A/06B/10 measured-first, C-M3b LOUD.
+STANDING: ZERO oracle; ledger 203/C380; `handoff.config.json` NEVER staged; no push; explicit
+paths only; scratch (`build/p1m3-scratch/`) NEVER committed; lab `ccc92c5c`/`f541a7a5` +
+`build/p1m*-deps`/`p1mc-deps` NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only; F8;
+`eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo `chmod +x`;
+console links include `tools/mir_aot/pli_console.c`; `LC_ALL=C` for toolchain messages; runners
+FROM REPO ROOT; printf `%s\n`; byte-exact via Python subprocess; NEVER hand-edit managed
+checkpoint blocks.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-m3 hop 10 — **GATES GREEN + ORDER DEFECT FIXED + 3/5 POSITIVES FULLY GREEN NATIVELY; PRE-REGISTRATION CONTRADICTION (CALL02/CALL04) STOP-AND-ATTRIBUTED — m3a GATE OPEN, NOTHING COMMITTED; OPERATOR ADJUDICATION REQUIRED**; session 01a1caf9 fresh startup; ZERO oracle; ledger 203/C380)
+
+DONE FIRST-HAND THIS HOP (full record: LEARNINGS § "E2E-54/P1-m3 hop 10" — READ VERBATIM FIRST,
+then § hop 9, then PLAN §P1-m3): every gate run on the hop-9 splice, ONE measured splice defect
+FIXED (post-order collect PREPENDED ⇒ caller-first emission ⇒ mir2o rc 1; fix = APPEND after
+callees; the ONLY repo edit, UNCOMMITTED — KEEP, NEVER revert); gates re-run GREEN post-fix
+(build rc 0; T1 `172595d5…` DIRECT; T2 clean; hir 220 ok-set cmp; i6 ALL PINS UNMOVED; DWARF pin
+byte-identical). CALL03/CALL05/CALL09 ALL GREEN end-to-end (pins reviewed vs §P1-m3.2, ×2, mir2o
+rc 0, glibc EXEC 37/9/3, cosmo tiny EMPTY+dr37/9/3, nm/static laws; scratch copies in ignored
+build/p1m3-scratch/g9/). All 7 negatives rc2/zero-stdout/no-file/stderr-×2-equal; N1/N4/N6/N10
+backend arms verified, N10 names `argument 0`. CONTRADICTIONS (reproducers kept, NEVER fitted):
+(C1) CALL02 + CALL04 — pre-registered POSITIVES — refuse E19 at line 10: a `+ literal` on a
+formal seeded at FULL W(15) (§P1-m3.2-6) violates the frozen window law (I1) whose pre-existence
+is PROVEN (entry-only scratch W100 refuses identically on the committed law); §P1-m3.14 FORBIDS
+the only other routes (interprocedural analysis; weakening I1). (C2) CALLN1 predicted HIR-E07 but
+measured the PRE-EXISTING backend E18 value-position arm (HEAD `mir_backend.ml:297` verbatim) — a
+PLAN prediction error, recorded.
+
+NEXT (successor): **(0) AWAIT/obtain the OPERATOR adjudication** on amending §P1-m3.6 — option
+(a) PREFERRED (recorded in LEARNINGS § hop 10): window-provable texts `t = n + 0;` / `t = m + 0;`
+(the + 0 idiom already used by these very fixtures; CALL02 bytes UNCHANGED; CALL04 becomes stdout
+`51\n` dr 91 and KEEPS the console-in-subsidiary leg) + the CALLN1 layer correction, in ONE
+explicit-path commit to `spec/lab-evidence/e2e54/PLAN.md` BEFORE any other byte (PROTOCOL #1),
+then regenerate the TWO fixtures via `build/p1m2-scratch/mkpli.py` (byte-verify vs the amended
+PLAN texts; NEVER hand-edit; the other 10 fixtures untouched); option (b) re-scope CALL02/CALL04
+as E19 negatives + amend the gate — loses coverage, needs its own adjudication. THEN (1) re-run
+ALL gates each OWN command; (2) measured-first pins `hir/mir-call-expected/` for the FIVE
+positives (EVERY line reviewed vs §P1-m3.2 BEFORE cp; ×2 determinism, stdout==file) and rc/stderr
+pins for the SEVEN negatives (×2, rc2/zero-stdout/no `-o`); (3) §P1-m3.7 native legs for ALL FIVE
+positives FROM REPO ROOT (mir2o `build/p1m0-deps/mir2o -f`; glibc `native_check -O0
+-DENTRY=pli80_<e> -DEXPECTED=…`; cosmo tiny WITH `tools/mir_aot/pli_console.c`, chmod +x); (4)
+**C-M3a** fresh swapped copy → mir2o rc 1 `undeclared name` LOUD; (5) explicit-path commit
+`ocaml/hir/mir_backend.ml` + `hir/mir-call-expected/*` = **m3a gate CLOSED**; (6) durables +
+**STOP** (m3b NOT authorized to start; any NEW contradiction: reproducer + STOP-and-attribute,
+never fit). STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push;
+explicit paths; scratch (build/p1m3-scratch/) never committed; lab/deps NEVER touched; hir pins
+FROZEN / mir ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch build+tests; timeouts
+60/120/900; cosmo chmod +x; console links include pli_console.c; runners repo-root; printf
+`%s\n`; byte-exact via Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-m3 hop 9 — **m3a SPLICE APPLIED + COMPILES CLEAN (UNCOMMITTED — KEEP, NEVER revert); GATES + PINS + NATIVE + C-M3a + COMMIT OWED**; session 01a1c99d renewal 3/12; ZERO oracle; ledger 203/C380)
 
 Baseline verified FIRST-HAND at `67caeaab` (build rc 0; T1 `172595d5…` DIRECT; T2 clean;
 mir_backend.ml byte-clean). THE SPLICE LANDED by whole-region regeneration (scratch
@@ -4194,17 +4268,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 762
-checkpoint-id: g762-7834bbb90265
+checkpoint-generation: 763
+checkpoint-id: g763-0b1e8f96021a
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-11T08:26:54.341Z
+guard-level: 1
+checkpointed: 2026-11-11T14:49:21.630Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 61550ae4244bd9461e5fe81522efc033c0d1955ebb9d16f793866f8271472b59
-source-handoff: fdea05c1e41c11d5c4a6d147c851b12ad9fec9289f930c187cd6f970d1b83c0e
-source-learnings: 4f67797414322d8a66c10ddf2d553c5d19ddcf1fa564f32a88c1b37941897688
+source-progress: 32c4481672f9bf9a2b9a100e05cd03ca8c66a9ce7534cca07d34d3d46b0e3d1b
+source-handoff: f80d99b24bb3cb14f8f6261ff15e155f14f3d08779dd58d7249339e45c92ca5b
+source-learnings: 661056b60c5cf0bb35441e12ae7b02cb95716036bf9babc1ea529f28b9b6e2ae
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4971,9 +5045,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1c99d-bd45-72be-9a2a-e2cd39b44afb
-readiness-at: 2026-11-11T08:26:54.497Z
-readiness-checkpoint: g762-7834bbb90265
+readiness-by: session:01a1caf9-0492-72a8-8805-e791da87ec78
+readiness-at: 2026-11-11T14:49:21.756Z
+readiness-checkpoint: g763-0b1e8f96021a
 <!-- guard:end checkpoint -->
 
 ## Blockers

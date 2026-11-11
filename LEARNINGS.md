@@ -12335,3 +12335,167 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   scratch callee-after-caller → mir2o rc 1 `undeclared name` LOUD; commit explicit paths
   (ocaml/hir/mir_backend.ml + hir/mir-call-expected/*) = m3a gate; durables; STOP (no m3b).
   STANDING unchanged: ZERO oracle; config NEVER staged; scratch never committed; hir pins FROZEN.
+
+## E2E-54/P1-m3 hop 10 (2026-11-13, session 01a1caf9 fresh startup; ZERO oracle; ledger 203/C380) — m3a GATES RUN + ONE MEASURED SPLICE DEFECT FIXED; 3/5 POSITIVES FULL-GREEN NATIVELY; **PRE-REGISTRATION CONTRADICTION STOP-AND-ATTRIBUTED — m3a GATE NOT CLOSED, NOTHING COMMITTED**
+
+- Starting state VERIFIED: HEAD `de41ac39` (g762 attested+FINALIZED); the hop-9 UNCOMMITTED
+  splice present in `ocaml/hir/mir_backend.ml` (+1008/−504); the 12 fixtures committed at
+  `af6d255b`; `handoff.config.json` dirty (operator, NEVER staged); nothing lost.
+- Gates FIRST-HAND (each OWN command), PRE-fix: build rc 0; T1 `pli80c.exe`
+  sha `172595d5…` DIRECT (full `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`); T2 clean;
+  `hir_test` rc 0 **220 ok**, ok-set `cmp`-IDENTICAL to the hop-4 log →
+  `build/e54p1m3-hop9r-hirtest.log`; i6 **ALL PINS UNMOVED**; DWARF pin `M05.p1md` regenerated
+  byte-IDENTICAL and `-g` `.mir` == plain `M05.mir` pin.
+- FIRST fixture measurement exposed **MEASURED DEFECT 1 (fixed this hop, UNCOMMITTED — KEEP,
+  NEVER revert)**: the emission ORDER was caller-FIRST (mir2o rc 1 `undeclared name` — the
+  §P1-m3.1-2 law violated). Root cause: `collect` in the post-order scan PREPENDED
+  (`post_order := pid :: !post_order`), reversing the intended order. FIX: APPEND after the
+  callees complete (`post_order := !post_order @ [pid]`), one edit in `ocaml/hir/mir_backend.ml`
+  only. ALL gates re-run POST-fix: build rc 0; T1 DIRECT; T2 clean; hir 220 ok-set cmp-identical
+  (→ `build/e54p1m3-hop10r-hirtest.log`); i6 **ALL PINS UNMOVED** (56 checks,
+  `build/e54p1m3-hop10r-i6.log`); DWARF pin + `-g` `.mir` byte-identical.
+- POSITIVES re-measured post-fix: CALL03/CALL05/CALL09 emit callee-first, entry-LAST, ONE
+  `export` (ONE space); `pc1:` void-proto no leading bare result; callee title `func i64:v1` +
+  BARE `ret`; entry locals class order `v0, hv…, t…`; entry-hoisted `alloca hv<k>, 8`; per-site
+  cells hv1/hv2; CALL09 pin EXACTLY 2 funcs, NO `pli80_dead`; no Lfail/import (console-free —
+  M01 precedent law). Determinism ×2 fresh procs + stdout==file for all three. mir2o rc 0 ×3;
+  glibc `native_check` `-O0` EXEC **37/9/3** rc 0; cosmo **tiny** console legs EXEC stdout EMPTY,
+  stderr `driver-return=37/9/3`, rc 0; no PT_INTERP, no dynamic section; nm entry `T`,
+  subsidiaries LOCAL `t`. **ALL §P1-m3.6 EXPECTED BYTES HIT — 3/5 m3a positives FULLY GREEN.**
+- NEGATIVES ×2 fresh procs: ALL SEVEN rc 2, ZERO stdout, NO `-o` file, stderr byte-equal run-a vs
+  run-b. LAYERS: CALLN2/N3/N5 HIR-E07 VERBATIM as predicted; CALLN4 backend E18 NAMING THE PATH
+  (`cyc -> p1 -> p2 -> p1`); CALLN6 backend E18 nesting (§P1-m3.2-2a text); CALLN10 backend E18
+  `by-reference actual argument 0 of call to 'clob2' is admitted at milestone P1-m3b` (0-based
+  CONFIRMED). **DEVIATION (recorded, NEVER fitted): CALLN1** — predicted HIR-E07
+  `procedure pv used as a value: P0 admits calls only`; MEASURED **backend E18** `MIR backend: a
+  value-position call is outside the native subset (brief §3)` (pli80hir CALLN1 rc 0). Attribution
+  FIRST-HAND: that E07 arm fires only for a BARE-IDENTIFIER procedure use (hir_build :230-260);
+  `pv(1)` is a Call_e with a RETURNS fact, which HIR admits and the PRE-EXISTING backend arm
+  refuses — the message is VERBATIM at committed HEAD `mir_backend.ml:297`, so this is a PLAN
+  prediction error (wrong layer cited), NOT a splice regression.
+- **CONTRADICTION — STOP-AND-ATTRIBUTE (§P1-m3.14 + brief §4): CALL02 and CALL04, the two
+  pre-registered m3a POSITIVES, REFUSE `HIR-E19 … binop '+' … leaving the declared-precision
+  window [-16383,16383] of FIXED BINARY(15,0)` at line 10 (`t = n + 1;` / `t = m + 40;`).**
+  Reproducers kept: `build/p1m3-scratch/g9/CALL02.stderr`, `CALL04.stderr`, fixture bytes
+  unchanged. Attribution, ALL FIRST-HAND: (i) the refusal comes from the PRE-EXISTING frozen
+  window law (`prove`/E19, unchanged by the splice) — proven by scratch `W100.pli` (entry-only,
+  GET-seeded `t = n + 1;`) refusing the IDENTICAL message class on the committed tree's law;
+  (ii) pli80hir admits both fixtures (rc 0) — the death is BACKEND-side; (iii) the plan BINDS the
+  callee env to seed formals at FULL W(p) (§P1-m3.2-6) and FORBIDS interprocedural value analysis
+  and weakening I1–I5 (§P1-m3.14, I3), so `n + 1` at a formal is UNPROVABLE by construction;
+  (iv) therefore §P1-m3.6's hand-derived POSITIVE expectations for CALL02/CALL04 CONTRADICT the
+  plan's OWN binding ABI law — the m3a gate §P1-m3.12 (`CALL02–CALL05 + CALL09 … native legs
+  green`) is UNSATISFIABLE without a pre-registration amendment. No in-scope fix exists: any
+  remedy edits the committed §P1-m3 contract and needs an OPERATOR decision.
+- REMEDIATION OPTIONS (recorded, NOT executed — no PLAN/fixture byte touched): **(a) preferred —
+  amend §P1-m3.6 texts IN ADVANCE of re-run**: `t = n + 1;` → `t = n + 0;`, `t = m + 40;` →
+  `t = m + 0;` (the `+0` copy pattern is ALREADY window-proven at full W(15) and already the
+  by-value-actual idiom in these same fixtures; CALL02 expected bytes UNCHANGED stdout `2\n` dr 2;
+  CALL04 BECOMES stdout `51\n` dr 91 — the deepest-callee console leg SURVIVES); regenerate the
+  two fixtures via mkpli.py (NEVER hand-edit), re-derive by PL/I semantics, amend the CALLN1 row
+  (layer BACKEND, measured text) in the SAME PLAN commit, then steps (4)–(8) of the hop-9 heading
+  unchanged. **(b) re-scope CALL02/CALL04 as backend-E19 negatives** — honest but LOSES the
+  only console-inside-subsidiary coverage of m3a; requires gate §P1-m3.12 text amendment too.
+- **NOTHING COMMITTED this session**: `hir/mir-call-expected/` NOT created (pins exist only as
+  ignored scratch `build/p1m3-scratch/g9/*.mir`); the m3a gate is NOT closed; `ocaml/hir/mir_backend.ml`
+  stays DIRTY (hop-9 splice + this hop's order fix — KEEP, NEVER revert, NEVER commit until the
+  gate closes); config NEVER staged; no push; ZERO oracle; m3b/m3c bytes remain FORBIDDEN.
+- **C-M3a OBSERVED LOUD**: callee-after-caller scratch copy `build/p1m3-scratch/g9/C-M3a.swap.mir`
+  → `mir2o` **rc 1**, VERBATIM `ln 11: undeclared name pli80_side` + `ln 18: …`, NO object
+  emitted — exactly as §P1-m3.8 pre-registered (the pre-fix backend failure was the SAME control
+  shape failing on the REAL pins, doubling as defect-1's falsifier).
+- NEXT (successor, AWAIT OPERATOR): (1) obtain the (a)/(b) adjudication on the CALL02/CALLN1
+  pre-registration contradiction; (2) if (a): ONE explicit-path commit amending
+  `spec/lab-evidence/e2e54/PLAN.md` §P1-m3.6 (+.10 deviation note incl. the measured CALLN1
+  correction) BEFORE any other byte, regenerate the two fixtures by explicit paths (mkpli.py,
+  byte-verify vs the amended PLAN texts); (3) re-run ALL gates each OWN command (the backend bytes
+  unchanged ⇒ expect GREEN immediately); (4) measured-first pins `hir/mir-call-expected/` for the
+  FIVE positives + stderr/rc pins for the SEVEN negatives (review EVERY line vs §P1-m3.2 BEFORE
+  cp; ×2 determinism; negatives rc2/zero-stdout/no-o ×2); (5) native legs for the re-measured
+  CALL02/CALL04 (others already green — RE-RUN after any backend change anyway); (6) C-M3a again
+  LOUD on a fresh copy; (7) explicit-path commit `ocaml/hir/mir_backend.ml` +
+  `hir/mir-call-expected/*` = **m3a gate CLOSED**; (8) durables + STOP. If ANY further
+  contradiction: same discipline — reproducer kept, STOP-and-attribute, never fit.
+
+## E2E-54/P1-m3 hop 11 (2026-11-13, session 01a1cb2b fresh startup; ZERO oracle; ledger 203/C380) — OPERATOR AMENDMENT (a) LANDED; **m3a GATE CLOSED** at `2be30a9c`
+
+- RECOVERY: HEAD `de41ac39` == `origin/main` (both verified DIRECT; `git ls-remote` identical);
+  hop-9 splice + hop-10 callee-first fix PRESENT dirty in `ocaml/hir/mir_backend.ml` (grep
+  `post_order := !post_order @ [pid]` at :387); 12 fixtures at `af6d255b`; NOTHING lost.
+  **g763 RECONCILED:** `g763-0b1e8f96021a` is the guard checkpoint GENERATION attested + FINALIZED
+  at hop-10 session close (`.pi-guard/diagnostics.jsonl` finalize record; this session started with
+  classification `current`); it lives as the uncommitted dirty managed blocks of HANDOFF.md /
+  PROGRESS.md — it is NOT a forgotten commit and was NEVER hand-edited or replayed.
+- STEP 1 (PROTOCOL #1 — amendment BEFORE any other byte): §P1-m3.15 OPERATOR AMENDMENT appended
+  to `spec/lab-evidence/e2e54/PLAN.md` (dated, option-(a) ruling recorded verbatim in scope:
+  CALL02 `t = n + 0;` expected bytes UNCHANGED `2\n` dr 2 and NO LONGER claims nonzero arithmetic
+  on the callee formal; CALL04 `t = m + 0;` stdout `91\n` -> `51\n`, PL/I return REMAINS 91 via
+  the UNCHANGED caller-side `x = x + 40`; 3-proc chain + deepest-callee console kept MANDATORY;
+  CALLN1 row corrected to BACKEND E18 measured text, program UNCHANGED, no compiler change
+  authorized; I1-I5 and §P1-m3.14 UNWEAKENED; technical acceptance law restated — caller knowing
+  `x = 51` and callee NOT assuming `m = 51` are DISTINCT facts, neither collapses into the
+  other). §P1-m3.10 gained item 7 PRESERVING the hop-10 falsifications; the original §P1-m3.6
+  blocks STAND AS HISTORY. Committed `fca7c3af` (explicit path, ONLY that file). The original
+  CALL02/CALL04 E19 refusals are recorded as VALID evidence of conservative window analysis
+  (I1 as designed), NOT defects.
+- STEP 2 FIXTURES: regenerated ONLY `CALL02.pli`/`CALL04.pli` MECHANICALLY —
+  `build/p1m3-scratch/extract_m3a_amend.py` extracts the two §P1-m3.15 block quotes, asserts
+  `+ 0` present / `+ 1`//`+ 40` gone / caller legs survive, writes via `build/p1m2-scratch/mkpli.py`
+  (CRLF+`^Z`) and round-trip-verifies PLAN-text == file bytes (260 B / 366 B). `git diff` shows
+  EXACTLY the two authorized lines moved. TWO SCRIPT DEFECTS SELF-CAUGHT FIRST-RUN (never
+  compiler failures): a walrus-in-`assert` syntax error and a missing `re.M` flag; fixed, rerun
+  rc 0. The other 10 fixtures and every historical expected file UNTOUCHED.
+- BASELINE GATES FIRST-HAND, EACH OWN COMMAND (amended backend was ALREADY the tested bytes —
+  fix-only law held; zero further source edits this hop): `dune build` rc 0; T1
+  `pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT;
+  T2 (`git diff --exit-code -- hir/expected ocaml/lib ocaml/bin`) rc 0; `timeout 900
+  python3 tools/hir_test.py` rc 0 **220 ok**, ok-set `cmp`-IDENTICAL to the hop-4 log (220/220)
+  -> `build/e54p1m3-hop11-hirtest.log`; `build/p1m2-scratch/i6_check.py` rc 0 **56 checks ALL
+  PINS UNMOVED** -> `build/e54p1m3-hop11-i6.log` (stale N7 banner is the KNOWN i6_check quirk,
+  re-pin already landed at §P1-m2.8); DWARF: `pli80mir -g` from repo root -> `M05.g.mir`
+  byte-IDENTICAL to frozen `hir/mir-expected/M05.mir` AND `.p1md` byte-IDENTICAL to
+  `hir/mir-debug-expected/M05.p1md`.
+- POSITIVES (FIVE, §P1-m3.7; scratch `build/p1m3-scratch/g11/`): pipeline proof `pli80hir` rc 0
+  x5; `pli80mir --export <e> -o` TWICE FRESH per fixture — rc 0, a/b byte-equal (determinism),
+  `-o` file == stdout. Pins `hir/mir-call-expected/<id>.mir` created MEASURED-FIRST, EVERY line
+  reviewed vs §P1-m3.2 + the amended contract BEFORE each `cp` (meaning reviewed, not output
+  matched): callee-first emission, entry LAST + ONE `export` (ONE space); void callee proto
+  `pc<n>: proto i64:v<k>` NO leading result, title-carried formal, formal reads `mov t, i64:(v<k>)`;
+  CALL02 `side` computes t = 6 + 0 into its OWN local — `x` UNTOUCHED, prints `2`; CALL04 chain
+  entry->mid->leaf: `t = m + 0` = 51 by-value copy reaches `leaf` which PUTs `51\n`; caller
+  `add t7, t5, 40` proves 51 + 40 = 91 IN ENTRY SCOPE (acceptance-law fact 1) — the two amended
+  `+ 0` lowers are window-provable at FULL W(15) WITHOUT any call-site knowledge (fact 2 intact);
+  CALL09 pin EXACTLY 2 funcs, `pli80_dead` ABSENT; no Lfail/import on console-free funcs.
+  CALL03/05/09 outputs `cmp`-IDENTICAL to the hop-10 GREEN measurements (backend unchanged since).
+  NATIVE LEGS ALL GREEN: `mir2o -f` rc 0 x5 (pinned-parser acceptance); glibc `gcc -O0
+  -DENTRY -DEXPECTED native_check.c` link rc 0 + EXEC x2 fresh procs rc 0 (EXPECTED 2/37/91/9/3) —
+  NOTE (recorded, semantics-derived BEFORE running, never fitted): on the CONSOLE fixtures the
+  glibc native_check stdout is program-bytes THEN driver-bytes (`2\n2\n`, `51\n91\n`) because
+  `native_check` prints the RETURN while `pli_console.c` writes the PUTs; the §P1-m3.6/§P1-m3.7
+  stdout authority for console fixtures is the console-driver leg below; cosmo **tiny** static
+  links rc 0 (`cosmo_link.sh tiny` WITH `tools/mir_aot/pli_console.c`, `chmod +x`) + EXEC x2 FRESH
+  procs BYTE-EXACT via Python subprocess: CALL02 stdout `2\n` dr `2`; CALL03 EMPTY dr `37`;
+  **CALL04 stdout `51\n` dr `91` (THE AMENDED BYTES HIT)**; CALL05 EMPTY dr `9`; CALL09 EMPTY dr
+  `3`; ALL rc 0; static laws every exe: 0 PT_INTERP, "no dynamic section", `nm` entry `T
+  pli80_<e>` + subsidiaries LOCAL `t` (CALL04 shows leaf+mid `t`). Locale trap re-confirmed:
+  readelf WITHOUT `LC_ALL=C` prints French — the runner ENV law matters.
+- NEGATIVES (SEVEN, x2 fresh procs): ALL rc 2, ZERO stdout, NO `-o` artifact, stderr byte-equal
+  run-a/run-b AND byte-IDENTICAL to the hop-10 measurements (fixtures + backend unchanged);
+  pins `<id>.rc` (`2\n`) + `<id>.stderr.txt` measured-first. LAYERS (pli80hir rc attribution):
+  CALLN2/N3/N5 refuse HIR-side (pli80hir rc 2, E07 texts as predicted); CALLN1/N4/N6/N10 admit
+  at HIR (rc 0) and refuse BACKEND E18 — CALLN1 EXACTLY the amended A3 row (`line 3: MIR backend:
+  a value-position call is outside the native subset (brief §3)`), N4 names the path
+  `cyc -> p1 -> p2 -> p1`, N6 the §P1-m3.2-2a nesting text, N10 `by-reference actual argument 0`
+  (0-based CONFIRMED).
+- C-M3a RE-RUN LOUD ON A FRESH COPY: swapped CALL02 pin copy (caller first) -> `mir2o` rc 1
+  `ln 16: undeclared name pli80_side`, NO object emitted — §P1-m3.8 non-vacuity satisfied.
+- **m3a GATE CLOSED** at `2be30a9c` (explicit paths: `ocaml/hir/mir_backend.ml` incl. hop-9
+  splice + callee-first fix, the TWO amended fixtures, the 19 additive pins). Amendment `fca7c3af`
+  precedes it — order PROTOCOL #1 honored. ZERO oracle (no compiler/oracle/gate-panel E2E run
+  beyond the authorized m3a panel — ledger untouched 203/C380); config NEVER staged; no push;
+  scratch NEVER committed; hir/mir pins ADDITIVE-ONLY (existing pins verified UNMOVED after
+  every step). m3b/m3c bytes REMAIN FORBIDDEN — unauthorized.
+- SUCCESSOR (if the operator authorizes m3b): baseline FIRST-HAND at the close HEAD (build rc 0;
+  T1 `172595d5…` DIRECT; T2; hir 220; i6 ALL PINS UNMOVED), read §P1-m3.4 + §P1-m3.15 + LEARNINGS
+  §§ hop 11/10/9, then homes/by-ref ABI, CALLN10 deletion per §P1-m3.9-2, CALL01/06A/06B/10
+  measured-first, C-M3b LOUD.
