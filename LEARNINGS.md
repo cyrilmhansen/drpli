@@ -5,6 +5,77 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P1-m3c hop 15 (2026-11-21, session 01a1cc7d fresh startup, renewal chain 0/12 AVAILABLE; ZERO oracle; ledger 203/C380; ZERO repo byte so far) — OPERATOR AMENDMENTS C + D **APPROVED**; m3c implementation+validation AUTHORIZED (aggregate runner + overall P1-m3 CLOSE NOT); BASELINE GREEN; hop-14 prototype REPRODUCED; §P1-m3.17/.18 AMENDMENT COMMIT STILL OWED (PROTOCOL #1)
+
+- RECOVERY: start HEAD `5a6da81e` == brief (hop-14 managed refresh). Tree dirty ONLY the operator
+  config (`maxRenewals` 8→12, `workingContextWindow` 95000→145000; NEVER stage) + pre-existing
+  untracked scratch. Checkpoint g772-acbb876de501 attested+FINALIZED (hop 14). THIS session's
+  `.pi-guard` state: checkpointFreshness `current`, handoffReady `none`, level 0 at start; no live
+  `renewal-state.json` (only `archives/renewal-state-fc01-20261111T195412Z.json`,
+  `chain:01a1cbf9… done=1`) ⇒ fresh chain, renewals AVAILABLE.
+- ACCEPTED (baseline gates, each OWN command): `dune build` rc 0; T1
+  `ocaml/_build/default/bin/pli80c.exe` sha
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; T2
+  (`git diff --exit-code -- hir/expected ocaml/lib ocaml/bin hir/mir-expected hir/mir-cf-expected
+  hir/mir-debug-expected hir/mir-call-fixtures hir/mir-call-expected`) rc 0; CALLN1 negative
+  RE-MEASURED at the committed backend rc 2, stderr BYTE-EQUAL the pin
+  (`HIR-E18: line 3: MIR backend: a value-position call is outside the native subset (brief §3)`),
+  ZERO stdout, NO artifact; ledger 203 headers ending C380; `.pli` fixture authority:
+  CALLN1.pli 213 B sha256 `33d248d05428397735caeb8de6834b7a04dc764e38225204439796c5be6f376a`
+  (must stay byte-IDENTICAL through amendment D).
+- ACCEPTED (hop-14 preserved work REPRODUCED first-hand): `build/p1m3-scratch/g14/ocaml-proto`
+  rebuild rc 0; the prototype compiles `hir/mir-call-fixtures/CALLN1.pli` rc 0 → 25-line MIR
+  (`pc1: proto i64, i64:v1`; entry locals `v0, hv1, r1, t1, t2`; `call pc1, pli80_pv, r1, hv1`;
+  `mov v0, r1`) → mir2o rc 0, 1408 B / 2 funcs. Amendment D is MEASURED-feasible; the CALLN1
+  negative is provably DEAD under §3. Prototype diff vs `ocaml/hir/mir_backend.ml` = 192 lines,
+  ONLY that file: `fd_res`; module-wide `r_n`; per-proc `res_regs` + verification-pass REWIND
+  (`r_n_w`/`res_regs_w`); `lower_call_e` (reached-proc + value-ret + arity + all-`A_value` checks,
+  E18 BY NAME, 0-based arg pos; declared-type re-proof; HOME-PASS `hv<k>` cells REUSED;
+  `call pc<pid>, pli80_<ck>, r<k>[, args]`; result interval `window cq` = W(ret-p), NO narrowing);
+  whole-RHS `Assign` + whole-`Return` routing (`match value.Hir.ex with Call_e -> lower_call_e | _ -> lower`);
+  locals class order `… homes, hv, res, tmps`.
+- ACCEPTED (NEW measurement: WHY amendment C was REQUIRED — reproducers generated mechanically from
+  the §P1-m3.6 blocks into `build/p1m3-scratch/g15/ORIG07.pli` 367 B / `ORIG08.pli` 276 B /
+  `ORIGN9.pli` 352 B, CRLF+^Z): under the §3 admission the ORIGINAL CALL07 refuses
+  `HIR-E19: line 11: binop '+' on operands proved within [-16383,16383] and [-16383,16383] can reach
+  [-32766,32766], leaving the declared-precision window [-16383,16383] of FIXED BINARY(15,0)` and the
+  ORIGINAL CALL08 refuses `HIR-E19: line 8: … and [1,1] can reach [-16382,16384], leaving …`; on the
+  COMMITTED pre-m3c backend both refuse EARLIER at backend E18 (line 3 / line 4, rc 2, no artifact).
+  Same falsification class as §P1-m3.15 (A1/A2) and §P1-m3.16 (B1): full-window formals make nonzero
+  callee arithmetic unprovable under I1; the amendment's `t = c` / `t = n + 0` shapes are the
+  window-provable fix; interprocedural narrowing stays FORBIDDEN (§P1-m3.14).
+- PENDING (successor contract, VERBATIM ORDER; NOTHING committed yet this hop):
+  (1) **PROTOCOL #1**: append §P1-m3.17 OPERATOR AMENDMENT C — the two binding replacement texts
+  VERBATIM from the brief (CALL07 entry `thrice`/callee `pick3`: stdout `1\n2\n3\n`, `driver-return=3\n`,
+  rc 0; CALL08 entry `wret`/callee `identity`: EMPTY stdout, `driver-return=41\n`, rc 0) + C-M3c
+  REDEFINED (perturb the callee's returned value 3→4 on a DISPOSABLE CALL07 pin copy; the mutated MIR
+  must still `mir2o` rc 0 and genuinely link/EXECUTE, so the failure is the UNCHANGED glibc
+  `-DEXPECTED=3` returning rc 1 — a syntactically-invalid control does NOT count); original §P1-m3.6
+  blocks STAND AS HISTORY (PROTOCOL #2) — and §P1-m3.18 OPERATOR AMENDMENT D (CALLN1 negative→positive:
+  `git rm hir/mir-call-expected/CALLN1.rc CALLN1.stderr.txt` in the implementation commit AFTER the
+  amendment commit; provenance m3a gate `2be30a9c` including §P1-m3.15 A3's prediction correction
+  (E07-HIR → BACKEND E18); fixture byte-identical; NEW measured-first `CALLN1.mir`; legs EMPTY stdout,
+  `driver-return=1\n`, rc 0, glibc `-DEXPECTED=1`; NAMED exception to the frozen m3a/m3b negative pins —
+  all other frozen pins protected). Commit ONLY `spec/lab-evidence/e2e54/PLAN.md` by explicit path.
+  (2) Apply the validated prototype admission to `ocaml/hir/mir_backend.ml`; gates each OWN command:
+  build → T1 → T2 → hir_test 220/11 → `build/p1m2-scratch/i6_check.py` 56 checks → m3a/m3b pins UNMOVED.
+  (3) Generate CALL07.pli/CALL08.pli (amendment-C texts) + CALLN9.pli mechanically (extract script +
+  `build/p1m2-scratch/mkpli.py`, round-trip verify); measured-first pins ×2 fresh, EVERY line reviewed
+  vs §P1-m3.2 BEFORE cp; CALLN9 negative pin ×2 (E18 line 3 by name, no artifact); §P1-m3.7 native legs
+  ×2 each (mir2o; glibc EXPECTED 3/41/1; cosmo TINY with `pli_console.c`+`console_check.c` chmod +x,
+  byte-exact stdout/stderr/rc; no PT_INTERP, no dynamic section (message on STDOUT); nm entry `T` +
+  subsidiaries `t`). (4) C-M3c LOUD. (5) Frozen regressions T1–T11 each OWN rc (gate →
+  `build/e54p1m3c-reg-gate.log` 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir 220/11;
+  mir_aot 32; cosmo 25; console 43; debug 23; CF 83; DWARF M05 pins; fresh `_build-e54p1m3c` hist 122
+  sha==kept; ledger 203/C380). (6) Commit implementation+fixtures+pins by explicit paths; durables;
+  finalize; **STOP** — runner + CLOSE remain UNAUTHORIZED.
+- STANDING: ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset;
+  explicit paths only; scratch `build/p1m3-scratch/` NEVER committed; `hir/expected`+`hir/fixtures`+
+  `ocaml/lib`+`ocaml/bin` FROZEN; mir pins ADDITIVE-only EXCEPT the amendment-D CALLN1 retirement;
+  F8; `eval "$(opam env)"`; rc DIRECT (never `| tail; echo rc=$?`); never batch build with tests;
+  timeouts 60/120/900; cosmo `chmod +x`; console links include `tools/mir_aot/pli_console.c`;
+  `LC_ALL=C`; byte-exact via Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
 ## E2E-54/P0 hop 4 CLOSED — §P0 COMPLETE (2026-11-08, session 01a1bc21 renewal 3/12; ZERO oracle; ZERO historical ocaml/lib+bin byte)
 - **accepted:** arg-indent adjudication LANDED (nested `indent+2` under `arg N`, both `Call_e`/`Call_s`, `hir.ml` header documents the rule); expected dumps regenerated + reviewed line-by-line vs §P0.3 and committed with fixtures (`2504633a`); F1 re-verified GREEN after hir.ml edit AND after `backend.ml` (`172595d5…`).
 - **accepted (tooling LAW):** F8 grep patterns MUST be word-anchored — unanchored `op_` false-positives on `relop_name`/`top_authority`; concrete pattern set proven on measured text, and the nested-comment stripper verified NON-VACUOUS (code+strings kept, line numbers preserved; planted-violation control caught all 5 patterns). `address` is a documented NON-token (dump string “target address then value” = evaluation-order phrase; F4 audits dumps for hex-shaped tokens — zero hits, empty allowlist).

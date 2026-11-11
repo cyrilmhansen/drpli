@@ -48,7 +48,42 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-m3c hop 15 IN FLIGHT — **OPERATOR AMENDMENTS C + D APPROVED; baseline GREEN first-hand; PROTOCOL #1 AMENDMENT COMMIT OWED FIRST**; session 01a1cc7d, chain 0/12 AVAILABLE; ZERO oracle; ledger 203/C380; ZERO repo byte yet)
+
+STATE: start HEAD `5a6da81e` VERIFIED == brief; dirty ONLY operator config (NEVER staged) + untracked
+scratch. Baseline OWN-command GREEN: build rc 0; T1 `172595d5…aca281` DIRECT; T2 rc 0; CALLN1 negative
+re-measured rc 2/stderr==pin/no artifact. Hop-14 prototype REPRODUCES (CALLN1 rc 0 + mir2o 1408 B).
+NEW I1 measurement proves the original §P1-m3.6 CALL07/CALL08 are numerically UNPROVABLE (E19 line 11 /
+line 8 under the §3 admission) — full record LEARNINGS § "E2E-54/P1-m3c hop 15" (READ VERBATIM FIRST),
+then §§ hop 14/13, then PLAN §P1-m3 (.2 law, .5 m3c scope, .6 fixtures, .7 legs, .8 controls, .12 gate,
+.15/.16 amendment precedent).
+NEXT VERBATIM: (1) append §P1-m3.17 AMENDMENT C (CALL07 = entry `thrice`/callee `pick3` text VERBATIM
+from the operator brief, expect stdout `1\n2\n3\n` dr `3\n` rc 0; CALL08 = entry `wret`/callee
+`identity`, expect EMPTY stdout dr `41\n` rc 0; C-M3c = perturb the callee's returned 3→4 on a
+DISPOSABLE CALL07 pin copy, mutated MIR must mir2o rc 0 + link + EXECUTE, failing the UNCHANGED
+`-DEXPECTED=3` natively with rc 1 — a syntactically invalid control does NOT count; originals kept as
+history) + §P1-m3.18 AMENDMENT D (CALLN1 negative→positive; `git rm hir/mir-call-expected/CALLN1.rc
+CALLN1.stderr.txt` in the implementation commit AFTER the amendment commit; provenance `2be30a9c` +
+§P1-m3.15 A3 prediction correction; fixture byte-identical 213 B sha `33d248d0…`; NEW measured-first
+`CALLN1.mir`; legs EMPTY stdout/dr `1`/rc 0/glibc `-DEXPECTED=1`; named exception to the frozen m3a/m3b
+negative pins) to spec/lab-evidence/e2e54/PLAN.md and **COMMIT THAT ONE PATH BEFORE ANY SOURCE/FIXTURE
+BYTE**. (2) Apply the prototype admission (192-line diff, `ocaml/hir/mir_backend.ml` ONLY) → gates each
+OWN rc: build → T1 → T2 → hir_test 220/11 → i6 56 checks → all m3a/m3b pins UNMOVED. (3) CALL07/CALL08/
+CALLN9 fixtures mechanically (+ round-trip verify), measured-first reviewed pins ×2, CALLN9 E18 negative
+×2, §P1-m3.7 native legs ×2 each (mir2o; glibc EXPECTED 3/41/1; cosmo tiny byte-exact; static laws; nm).
+(4) C-M3c LOUD. (5) FROZEN regressions each OWN rc (gate → build/e54p1m3c-reg-gate.log; hir 220; mir_aot
+32; cosmo 25; console 43; debug 23; CF 83; DWARF M05; fresh _build-e54p1m3c hist 122 sha==kept; ledger
+203/C380). (6) Commit implementation+fixtures+pins explicit paths, durables, `/handoff finalize`, STOP.
+FORBIDDEN: aggregate runner `tools/mir_aot_call_test.py`, overall §P1-m3 CLOSE/RESULTS/arch/dashboard,
+interprocedural narrowing, oracle, self-authored special cases to keep CALLN1 negative.
+STANDING: ZERO oracle; config NEVER staged; no push; explicit paths; scratch NEVER committed; pins
+ADDITIVE-only except amendment D; hir pins FROZEN; F8; `eval "$(opam env)"`; rc DIRECT; never batch
+build+tests; timeouts 60/120/900; cosmo chmod +x; console links include pli_console.c; LC_ALL=C;
+byte-exact via Python subprocess; NEVER hand-edit managed blocks.
+
+SUPERSEDED-BY-ABOVE: 
+
+## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
 ## Next action (E2E-54/P1-m3c hop 14 — **STOP-AND-ATTRIBUTE IN FLIGHT: material contradiction between brief §3 (admit whole-RHS `Assign(D_var, Call_e)` all-A_value) and brief §6/§1/§7 + §P1-m3.12 ("all m3a positive/negative tests still valid" — CALLN1 pins THAT EXACT shape refusing backend E18); ZERO repo byte; session 01a1cc2c fresh startup; ZERO oracle; ledger 203/C380)
 
