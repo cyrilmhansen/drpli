@@ -7,7 +7,7 @@ chain: procedure returns(fixed bin(15));
    mid: procedure(m);
       dcl m fixed bin(15);
       dcl t fixed bin(15);
-      t = m + 40;
+      t = m + 0;
       call leaf(t + 0);
    end mid;
    leaf: procedure(d);

@@ -7,7 +7,7 @@ call02: procedure returns(fixed bin(15));
    side: procedure(n);
       dcl n fixed bin(15);
       dcl t fixed bin(15);
-      t = n + 1;
+      t = n + 0;
    end side;
 end call02;
 

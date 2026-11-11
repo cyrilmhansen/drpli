@@ -1,0 +1,26 @@
+M0:	module
+pc1:	proto	i64:v1
+pli80_side:	func	i64:v1
+	ret
+	endfunc
+pli80_two:	func	i64
+	local	i64:v0, i64:hv1, i64:hv2, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6, i64:t7
+	alloca hv1, 8
+	alloca hv2, 8
+	mov t1, 30
+	mov v0, t1
+	mov t2, 5
+	mov i64:(hv1), t2
+	call pc1, pli80_side, hv1
+	mov t3, v0
+	mov t4, 7
+	add t5, t3, t4
+	mov v0, t5
+	mov t6, 9
+	mov i64:(hv2), t6
+	call pc1, pli80_side, hv2
+	mov t7, v0
+	ret t7
+	endfunc
+	export pli80_two
+	endmodule

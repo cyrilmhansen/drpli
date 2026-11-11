@@ -1,0 +1,1 @@
+HIR-E07: line 4: statement-level call to function addone discards a value; unlowered in P0

@@ -1,0 +1,1 @@
+HIR-E18: line 4: MIR backend: by-reference actual argument 0 of call to 'clob2' is admitted at milestone P1-m3b

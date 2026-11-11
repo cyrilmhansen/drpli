@@ -1,0 +1,1 @@
+HIR-E18: MIR backend: procedure 'mid' contains a nested procedure; a nested procedure inside a subsidiary procedure is outside the native subset (§P1-m3.2-2a)

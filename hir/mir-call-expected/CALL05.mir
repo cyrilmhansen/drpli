@@ -1,0 +1,18 @@
+M0:	module
+pc1:	proto	i64:v1
+pli80_nope:	func	i64:v1
+	ret
+	endfunc
+pli80_retvoid:	func	i64
+	local	i64:v0, i64:hv1, i64:t1, i64:t2, i64:t3
+	alloca hv1, 8
+	mov t1, 9
+	mov v0, t1
+	mov t2, 1
+	mov i64:(hv1), t2
+	call pc1, pli80_nope, hv1
+	mov t3, v0
+	ret t3
+	endfunc
+	export pli80_retvoid
+	endmodule

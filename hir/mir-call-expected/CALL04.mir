@@ -1,0 +1,52 @@
+M0:	module
+pc1:	proto	i64:v1
+pc2:	proto	i64:v3
+p_put:	proto	i64, i64:v
+p_nl:	proto	i64
+p_exit:	proto	i64:c
+	import	pli_console_put_i64, pli_console_put_nl, exit
+pli80_leaf:	func	i64:v3
+	local	i64:st, i64:t15
+	mov t15, i64:(v3)
+	call p_put, pli_console_put_i64, st, t15
+	bne Lfail_2, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_2, st, 0
+	ret
+Lfail_2:
+	call p_exit, exit, st
+	ret
+	endfunc
+pli80_mid:	func	i64:v1
+	local	i64:v2, i64:hv2, i64:t9, i64:t10, i64:t11, i64:t12, i64:t13, i64:t14
+	alloca hv2, 8
+	mov t9, i64:(v1)
+	mov t10, 0
+	add t11, t9, t10
+	mov v2, t11
+	mov t12, v2
+	mov t13, 0
+	add t14, t12, t13
+	mov i64:(hv2), t14
+	call pc2, pli80_leaf, hv2
+	ret
+	endfunc
+pli80_chain:	func	i64
+	local	i64:v0, i64:hv1, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6, i64:t7, i64:t8
+	alloca hv1, 8
+	mov t1, 51
+	mov v0, t1
+	mov t2, v0
+	mov t3, 0
+	add t4, t2, t3
+	mov i64:(hv1), t4
+	call pc1, pli80_mid, hv1
+	mov t5, v0
+	mov t6, 40
+	add t7, t5, t6
+	mov v0, t7
+	mov t8, v0
+	ret t8
+	endfunc
+	export pli80_chain
+	endmodule

@@ -1,0 +1,1 @@
+HIR-E07: line 3: procedure side2 has no bind RETURNS fact: value use unlowered
