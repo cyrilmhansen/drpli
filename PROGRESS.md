@@ -50,7 +50,38 @@ C359 derived ONLY from the existing measured evidence.
 
 SUPERSEDED-BY-BELOW: ## Next action (E2E-52/P3-18 CLOSED — hop 6; P3-19 pool decode opened)
 
-## Next action (E2E-54/P1-m3 hop 8 — **BASELINE GREEN + STEP-0 RESOLVED (0-BASED) + ALL 12 m3a FIXTURES COMMITTED `af6d255b`; THE mir_backend.ml SPLICE OWED (steps 2–8)**; session 01a1c987 renewal 2/12; ZERO oracle; ledger 203/C380; ZERO repo source byte)
+## Next action (E2E-54/P1-m3 hop 9 — **m3a SPLICE APPLIED + COMPILES CLEAN (UNCOMMITTED — KEEP, NEVER revert); GATES + PINS + NATIVE + C-M3a + COMMIT OWED**; session 01a1c99d renewal 3/12; ZERO oracle; ledger 203/C380)
+
+Baseline verified FIRST-HAND at `67caeaab` (build rc 0; T1 `172595d5…` DIRECT; T2 clean;
+mir_backend.ml byte-clean). THE SPLICE LANDED by whole-region regeneration (scratch
+`build/p1m3-scratch/new_region.ml` + Python splice keeping lines 1..123/1085.. verbatim) exactly
+per LEARNINGS § "E2E-54/P1-m3 hop 9" (READ VERBATIM FIRST — full engine layout, the 5 measured
+compile fixes, the falsified local-`type`-in-expression finding) and hop 6 §(1)-(6) + §P1-m3
+(BINDING): selection (only `[]` message kept), scans (a) nesting (b) DFS cycle (c) drop (d) folded
+names/value-final-Return, multi+`-g` E18, per-proc engine in DISCOVERY order (module-wide fresh/
+cf_n/string_items/hv_n; per-proc declared/insns/cur_fail Lfail|Lfail_0|Lfail_<pid>), HOME-PASS
+Call_s with **0-based** by-ref E18 "...admitted at milestone P1-m3b", formal indirection
+`i64:(v<sid>)`, env0 formal seeds, void bare-`ret` laws, post-order assembly + ONE export, per-func
+locals/hoists/tails, postlude sees `!insns`/`cu_any`/`v_regs`/`entry_sym`. `dune build` rc 0 ZERO
+warnings FIRST-HAND; NOTHING ELSE RUN YET. NEXT VERBATIM (hop-7 heading steps (3)-(8), m3a ONLY):
+(3) gates each OWN command: T1 `172595d5…` sha DIRECT (rebuild first) → T2 → `timeout 900 python3
+tools/hir_test.py` 220 ok-set `cmp` hop-4 log → `python3 build/p1m2-scratch/i6_check.py` ALL PINS
+UNMOVED (COMPILE is green but NO pin has been touched — a moved pin is a STOP-and-attribute
+falsifier, revert NOTHING silently); (4) measured-first pins `hir/mir-call-expected/` for CALL02-05
++CALL09 (every line vs §P1-m3.2 BEFORE cp; ×2; negatives CALLN1-6+N10 rc2/stderr/zero-stdout/no-o
+×2; layers N1/N2/N3/N5 HIR-E07, N4/N6/N10 backend E18 — N10 names "argument 0" 'clob2'); (5)
+§P1-m3.7 native legs FROM REPO ROOT (mir2o build/p1m0-deps/mir2o -f; glibc native_check
+-DENTRY=pli80_<e> -DEXPECTED=2|37|91|9|3; cosmo tiny WITH tools/mir_aot/pli_console.c, chmod +x;
+bytes CALL02 `2\n` dr2 / CALL03 EMPTY dr37 / CALL04 `91\n` dr91 / CALL05 EMPTY dr9 / CALL09 EMPTY
+dr3 + pin EXACTLY 2 funcs, no pli80_dead); (6) C-M3a scratch callee-AFTER-caller → mir2o rc 1
+`undeclared name` LOUD; (7) explicit-path commit `ocaml/hir/mir_backend.ml` +
+`hir/mir-call-expected/*` = **m3a gate CLOSED**; (8) durables + STOP — NO m3b byte. Deviations
+RECORDED never fitted. STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged;
+no push; explicit paths; scratch never committed; lab/deps NEVER touched; hir pins FROZEN / mir
+ADDITIVE-only; F8; eval "$(opam env)"; rc DIRECT; never batch build+tests; timeouts 60/120/900;
+printf `%s\n`; byte-exact via Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-BELOW: ## Next action (E2E-54/P1-m3 hop 8 — **BASELINE GREEN + STEP-0 RESOLVED (0-BASED) + ALL 12 m3a FIXTURES COMMITTED `af6d255b`; THE mir_backend.ml SPLICE OWED (steps 2–8)**; session 01a1c987 renewal 2/12; ZERO oracle; ledger 203/C380; ZERO repo source byte)
 
 DONE FIRST-HAND THIS HOP (full record: LEARNINGS § "E2E-54/P1-m3 hop 8" — READ VERBATIM FIRST, then
 § hop 7 (anchors, line numbers, verbatim MIR skeletons), § hop 6 (LOCKED engine design), then PLAN
@@ -4163,17 +4194,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 759
-checkpoint-id: g759-78496f925b0e
-checkpoint-kind: auto
+checkpoint-generation: 762
+checkpoint-id: g762-7834bbb90265
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-11T07:58:02.955Z
+checkpointed: 2026-11-11T08:26:54.341Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 8ae21ac8a3af4182068bf4d01f75a3e500ee0ef2a1c8d2c4f342608a96397dbe
+source-progress: 61550ae4244bd9461e5fe81522efc033c0d1955ebb9d16f793866f8271472b59
 source-handoff: fdea05c1e41c11d5c4a6d147c851b12ad9fec9289f930c187cd6f970d1b83c0e
-source-learnings: 94df122ab7ad9a7b988fc1855e29838e1de22a0a5fde6929b3ecbdbad1b0daca
+source-learnings: 4f67797414322d8a66c10ddf2d553c5d19ddcf1fa564f32a88c1b37941897688
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -4940,6 +4971,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1c99d-bd45-72be-9a2a-e2cd39b44afb
+readiness-at: 2026-11-11T08:26:54.497Z
+readiness-checkpoint: g762-7834bbb90265
 <!-- guard:end checkpoint -->
 
 ## Blockers

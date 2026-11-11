@@ -12287,3 +12287,51 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo `chmod +x`;
   console links include `tools/mir_aot/pli_console.c`; runners repo-root; printf `%s\n`; byte-exact
   via Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
+## E2E-54/P1-m3 hop 9 (2026-11-13, session 01a1c99d renewal 3/12; ZERO oracle; ledger 203/C380) — m3a SPLICE APPLIED, COMPILES; GATES/PINS/NATIVE OWED
+
+- Baseline FIRST-HAND at 67caeaab: build rc 0; T1 `172595d5…` DIRECT; T2 clean; mir_backend.ml
+  byte-clean before the splice. ACCEPTED.
+- **SPLICE LANDED (UNCOMMITTED — KEEP, NEVER revert):** whole-region regeneration (NOT line edits):
+  ignored `build/p1m3-scratch/new_region.ml` (fresh text) + Python line-splice keeping file lines
+  1..123 and 1085.. VERBATIM. Selection: only the `[]` no-proc E20 message kept (the
+  `[ _ ] -> ()` shortcut AND the multi-proc refusal were REPLACED, §P1-m3.9-1); entry pre-checks
+  :134-189 copied verbatim INSIDE the region (re-indented) then the §P1-m3.2-2 scans in order
+  (a) nesting via prog.scopes parent; (b) DFS `dfs (pid::path) c` over Call_s/Call_e + actual
+  exprs (expr_call_pids/designator_call_pids/stmt_call_pids; cycle refuse NAMES the path via
+  `String.concat " -> " (List.rev_map pid_key (pid::path))`); reached map; (d) per-reached folded
+  portable names (folded_of) + non-entry VALUE proc must end Return(Some) (entry keeps its two
+  VERBATIM messages via `if pid = 0` in-loop pre-check); multi+debug_source E18 refuse BEFORE
+  lowering; `post_order` collected (sub pids via stmt_call_pids, entry last), `multi =
+  cardinal reached > 1`. Engine runs ONE closure pass per reached proc in **DISCOVERY order**
+  (entry first; hop-6 LOCKED; module-wide: insns ref, tmp_n/fresh, cf_n, string_items, hv_n;
+  per-proc reset: declared, hv_cells, pc_uses, insns, cur_pp ref, cur_fail ("Lfail" single /
+  "Lfail_0" / "Lfail_<pid>")). func_data record (MODULE-LEVEL after local-type syntax FALSIFIED:
+  `type` is NOT allowed mid-expression let-chain — hoisted above `type artifact`): pid/sym/ret
+  (Hir.ty option)/params/insns/v/cu/hv/tmps/pc/fail. declare routes Formal (sid ∈ pp.params
+  defensive; bin_p law shared); formal_read/write `?line` helpers `mov k, i64:(v<sid>)` /
+  `mov i64:(v<sid>), rv` via is_formal; env0 seeds formals W(p); Call_s arm: by-ref E18 **0-based**
+  "by-reference actual argument N of call to 'ckey' is admitted at milestone P1-m3b", value-callee
+  defensive E18, arity defensive, per-actual bin_p(ac_ty)==bin_p(formal sty) then lower LTR, cells
+  hv<k> `mov i64:(hv<k>), rv` + `call pc<pid>, pli80_<ck>[, cells]` (void: no result); Put/GET
+  branches use `bne %s" !cur_fail`; GET in-place `alloca a1,8` only when NOT multi (multi hoists
+  a1+hv at entry, §P1-m3.2-4); void proc appends bare `ret` unless last insn is `ret`; assembly:
+  M0 / used pc protos ascending (empty proto void-no-formals) / console protos OR-across-funcs /
+  ONE import / s items / func items post-order / ONE `\texport` / endmodule; per-func locals
+  Autos,st,a1,hv,tmps(own module-wide numbers); tail iff func cu_any, `ret st` value / bare `ret`
+  void. Postlude bindings restored: `insns := List.rev entry_fd.fd_insns`, v_regs/entry_sym from
+  entry_fd, cu_any = module OR. `ret_p` reused for entry pp_ret_p (frozen window).
+- **`dune build` rc 0, ZERO warnings** (first-hand, after 5 measured fixes: local-type
+  falsification, missing `in`, extra `)`, fd_ret type, dfs int/string, unused entry_insns/ret_p).
+  NOT yet gate-tested: T1 sha, T2, hir_test 220/11, i6 pins, fixture .mir outputs — ALL PENDING.
+- NEXT (successor, unchanged hop-7 steps (3)-(8)): T1 `172595d5…` DIRECT → T2 → `timeout 900
+  python3 tools/hir_test.py` 220 ok-set cmp → i6 ALL PINS UNMOVED; then measured-first pins
+  hir/mir-call-expected/ (CALL02-05/09 via `pli80mir --export <e> -o`; CALLN1/N2/N3/N5 HIR-E07,
+  CALLN4/N6/N10 backend E18 — verify each text/label/layer vs PLAN §P1-m3 BEFORE cp; ×2;
+  negatives rc 2/zero stdout/no -o); §P1-m3.7 native legs from REPO ROOT (mir2o
+  build/p1m0-deps/mir2o -f; glibc native_check -DENTRY=pli80_<e> -DEXPECTED=2|37|91|9|3; cosmo
+  tiny WITH tools/mir_aot/pli_console.c chmod +x; CALL02 `2\n` dr2 / CALL03 EMPTY dr37 / CALL04
+  `91\n` dr91 / CALL05 EMPTY dr9 / CALL09 EMPTY dr3, pin EXACTLY 2 funcs no pli80_dead); C-M3a
+  scratch callee-after-caller → mir2o rc 1 `undeclared name` LOUD; commit explicit paths
+  (ocaml/hir/mir_backend.ml + hir/mir-call-expected/*) = m3a gate; durables; STOP (no m3b).
+  STANDING unchanged: ZERO oracle; config NEVER staged; scratch never committed; hir pins FROZEN.

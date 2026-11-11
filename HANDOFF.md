@@ -2117,22 +2117,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 759
-checkpoint-id: g759-78496f925b0e
-checkpoint-kind: auto
+checkpoint-generation: 762
+checkpoint-id: g762-7834bbb90265
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3633, session 01a1c987-b2a3-72be-9a2a-e2c82c2665da)
-checkpointed: 2026-11-11T07:58:02.955Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-6633, session 01a1c99d-bd45-72be-9a2a-e2cd39b44afb)
+checkpointed: 2026-11-11T08:26:54.341Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 8ae21ac8a3af4182068bf4d01f75a3e500ee0ef2a1c8d2c4f342608a96397dbe
+source-progress: 61550ae4244bd9461e5fe81522efc033c0d1955ebb9d16f793866f8271472b59
 source-handoff: fdea05c1e41c11d5c4a6d147c851b12ad9fec9289f930c187cd6f970d1b83c0e
-source-learnings: 94df122ab7ad9a7b988fc1855e29838e1de22a0a5fde6929b3ecbdbad1b0daca
+source-learnings: 4f67797414322d8a66c10ddf2d553c5d19ddcf1fa564f32a88c1b37941897688
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1c99d-bd45-72be-9a2a-e2cd39b44afb
+readiness-at: 2026-11-11T08:26:54.497Z
+readiness-checkpoint: g762-7834bbb90265
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-54/P1-m3 hop 9: m3a splice APPLIED to ocaml/hir/mir_backend.ml (UNCOMMITTED — KEEP, NEVER revert), dune build rc 0 ZERO warnings first-hand; gates (T1/T2/hir 220/i6), measured-first pins, native legs, C-M3a, commit = m3a gate ALL OWED — exact order in PROGRESS live hop-9 heading + LEARNINGS § hop 9. Fixtures already committed af6d255b; ZERO oracle; ledger 203/C380; m3b/m3c bytes FORBIDDEN before the m3a gate; handoff.config.json NEVER staged.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2905,5 +2908,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m3 hop 5 at 15508949: y1/y2 probes GREEN (void tail bare ret law; 232 and 5/4 dr4 executed); §P1-m3 pre-registration COMMITTED to PLAN.md (HOME-PASS ABI, CALL01-10/CALLN1-10 binding texts+bytes, amendments zero-blast, controls). SUCCESSOR: implement m3a in ocaml/hir/mir_backend.ml ONLY per PLAN §P1-m3.2/.3 -> gates own commands -> measured-first hir/mir-call-fixtures+mir-call-expected -> native panel -> C-M3a LOUD -> commit; m3a gate before m3b byte; m3b; gate; m3c; runner tools/mir_aot_call_test.py written-to-PLAN before first run repo-root; FULL FROZEN regression; CLOSE + STOP. Read PROGRESS live heading + LEARNINGS hop 5 VERBATIM first.
+E2E-54/P1-m3 hop 9: m3a splice APPLIED to ocaml/hir/mir_backend.ml (UNCOMMITTED — KEEP, NEVER revert), dune build rc 0 ZERO warnings first-hand; gates (T1/T2/hir 220/i6), measured-first pins, native legs, C-M3a, commit = m3a gate ALL OWED — exact order in PROGRESS live hop-9 heading + LEARNINGS § hop 9. Fixtures already committed af6d255b; ZERO oracle; ledger 203/C380; m3b/m3c bytes FORBIDDEN before the m3a gate; handoff.config.json NEVER staged.
 <!-- guard:end checkpoint -->
