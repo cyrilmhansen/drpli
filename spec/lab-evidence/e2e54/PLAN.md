@@ -5384,3 +5384,164 @@ MEASURED-FIRST from the amended fixtures, reviewed line-by-line against §P1-m3.
 and each pin's MEANING is reviewed against this amended independent contract — a pin is never
 accepted merely because it matches observed output. No DR oracle is involved anywhere in this
 amendment (backend engineering only; ledger stays 203 headers / C380).
+
+### P1-m3.16 OPERATOR AMENDMENT B (dated 2026-11-11 by the git/system clock — the date of the m3a close chain through HEAD `021a496c`; operator brief **E2E-54/P1-m3b APPROVED, P1-m3c NOT authorized**; issued by the OPERATOR and applied verbatim in the m3b session BEFORE any m3b source or fixture byte, PROTOCOL #1)
+
+**Authority and limits.** The operator authorized P1-m3b (genuine by-reference parameter
+passing) on top of the CLOSED m3a gate (`2be30a9c`, checkpoint g764) and, in the SAME brief,
+amended three points of the §P1-m3 pre-registration BEFORE implementation: **B1** (CALL10
+numeric safety), **B2** (C-M3b control direction), **B3** (CALLN10 transition procedure).
+This section OVERRIDES §P1-m3.6 (CALL10 text and expectations), §P1-m3.8 (the C-M3b
+procedure) and §P1-m3.9 item 2 / §P1-m3.13 step 3 (the CALLN10 migration mechanics) where
+they conflict; the original blocks STAND ABOVE AS HISTORY (PROTOCOL #2 — nothing deleted).
+NOTHING here weakens I1–I5 (§P1-m3.11) or §P1-m3.14; interprocedural value analysis, early/
+nested subsidiary RETURN, arrays, FILE streams and m3c bytes remain FORBIDDEN. The HOME-PASS
+ABI of §P1-m3.2 is unchanged in shape: by-ref rides the caller entry-hoisted home `h<sid>`
+exactly as §P1-m3.2-6 already specified.
+
+**Why the original predictions were not valid.**
+
+- **B1 (CALL10).** The original §P1-m3.6 text ends
+
+      call clob(20, 40);
+      x = x + y;
+      return (x);
+
+  and pre-registered stdout `7\n9\n`, `driver-return=9`. That expectation CONTRADICTS the
+  plan's own numeric law: by §P1-m3.2-8/I2 the call `clob(x, x)` passes `x` by reference, so
+  the caller env MUST widen `x` to the FULL declared window W(15) = [-16383, 16383] after the
+  call (the caller cannot know what the callee wrote); `y = 2` is preserved (by-value, I3).
+  Then `x + y` can reach 16385, OUTSIDE the declared window of `FIXED BINARY(15,0)`, so the
+  FROZEN window law I1 refuses `x = x + y;` with HIR-E19 — exactly the mechanism whose VALID
+  evidence §P1-m3.10 item 7 and §P1-m3.15 preserve for CALL02/CALL04. The pre-registered
+  positive was therefore UNSATISFIABLE by construction; the §P1-m3.10 item 5 note ("derives
+  `7\n9\n` dr 9") is superseded. The only honest fixes were an interprocedural narrowing
+  (FORBIDDEN, §P1-m3.14) or a text amendment (approved).
+- **B2 (C-M3b).** The original §P1-m3.8 procedure — replace the FIRST (by-reference) actual
+  `h<sid>` in the CALL06B call row with the caller's value cell — does NOT produce the
+  predicted `7\n7\n`: BOTH formals would then designate the value cell `hv<k>` holding the
+  pre-call copy; the callee `a = 7; put list(b);` would print the cell's 7 and the caller's
+  untouched `x = 2` would print 2 — stdout `2\n7\n`, IDENTICAL to the correct bytes. The
+  control as written was VACUOUS. The inverse mutation (below) is the non-vacuity fix.
+- **B3 (CALLN10).** §P1-m3.9-2/§P1-m3.13-3 said the transitional negative is "DELETED" and
+  "re-measured as POSITIVE" without naming the mechanics; the operator now prescribes them
+  (retirement with provenance, source survival, auditable mapping) below.
+
+**Amendment B1 — CALL10.pli (entry `mixmod`), numeric-safe second observation.** The single
+statement `x = x + y;` (line 9 of the original) is REPLACED by `put list(x);`. NOTHING else
+changes: `dcl y fixed bin(15);` and `y = 2;` REMAIN (the amended program no longer READS y;
+an unused-but-initialized local is legal and registers normally). Binding amended text
+(CRLF+`^Z` via `build/p1m2-scratch/mkpli.py`):
+
+    mixmod: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       dcl y fixed bin(15);
+       x = 2;
+       y = 2;
+       call clob(x, x);
+       put list(x);
+       call clob(20, 40);
+       put list(x);
+       return (x);
+       clob: procedure(a, b);
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          b = 3;
+          a = 7;
+       end clob;
+    end mixmod;
+
+INDEPENDENT derivation (PL/I semantics only; no call-site value crosses a boundary):
+site 1 `clob(x, x)` designates `x` TWICE — ONE home `h(x)`; inside the callee `b = 3` then
+`a = 7` both write that single cell, so x = 7; the first `put list(x)` prints **7**. Site 2
+`clob(20, 40)` passes two INDEPENDENT value cells; the callee writes ONLY the cells — caller
+`x` and `y` are UNTOUCHED (by-value write isolation, x8 PROVEN); the second `put list(x)`
+prints the still-current 7. `return (x)` is window-proved because the abstract env carries
+`x : W(15)` after site 1 (NOT the point 7 — the amendment forbids propagating the first
+call's concrete result into the environment; only the runtime cell holds 7) and W(15) ⊆ the
+result window of `returns(fixed bin(15))`. **Amended expectation: stdout `7\n7\n`,
+`driver-return=7\n`, process rc 0; glibc `native_check -DEXPECTED=7` EXEC rc 0.** The
+program validates MIXED PASSING MODES at one callee with NO interprocedural value analysis.
+
+**Amendment B2 — C-M3b (home vs value), inverse mutation.** On a DISPOSABLE copy of the
+MEASURED CALL06B pin under `build/p1m3-scratch/` ONLY (never a pin, never the compiler,
+never `hir/mir-call-fixtures/CALL06B.pli` or its accepted bytes): replace the SECOND call
+argument — the by-VALUE cell address `hv<k>` — in the single call row with the FIRST
+argument's by-reference HOME address:
+
+    original:  call pc<n>, pli80_alias, h<x>, hv<m>
+    corrupted: call pc<n>, pli80_alias, h<x>, h<x>
+
+The corrupted callee sees BOTH formals designating the caller variable `x`: `a = 7` writes
+x := 7 through the shared home and `put list(b)` reads the SAME cell, printing 7; the caller
+then prints x = 7. **Independently expected corrupted stdout: `7\n7\n`** — which MUST FAIL
+LOUDLY against the original, correct CALL06B expectation `2\n7\n` (the exact discriminator:
+`7\n7\n` is precisely what a home-vs-value ABI bug would produce). The corrupted program
+MUST genuinely `mir2o`, link and EXECUTE (rc 0, `driver-return=7\n`) — the LOUD failure is
+the stdout mismatch against the pinned contract, not a toolchain error. §P1-m3.8's C-M3b
+bullet is superseded by THIS paragraph; the original stands above as history.
+
+**Amendment B3 — CALLN10 transition (concrete migration procedure).** The m3a-only refusal
+arm ("by-reference actual argument N of call to <key> is admitted at milestone P1-m3b") and
+its negative expectation pins are RETIRED at m3b as follows; the negative diagnostic MUST
+NOT remain an accepted m3b result:
+
+1. The two m3a NEGATIVE pins `hir/mir-call-expected/CALLN10.rc` and
+   `hir/mir-call-expected/CALLN10.stderr.txt` are `git rm`'d (explicit paths) in the m3b
+   implementation commit. Historical provenance: they were MEASURED-FIRST at the m3a gate
+   commit `2be30a9c` (registered in §P1-m3.6 as the m3a TRANSITIONAL discriminator and
+   pre-registered for retirement in §P1-m3.9 item 2); their full bytes remain forever in the
+   git history of that commit, and this section names the retirement.
+2. The SOURCE FIXTURE `hir/mir-call-fixtures/CALLN10.pli` SURVIVES UNCHANGED under the same
+   id — the auditable mapping is: same fixture name, retired negative pins (history at
+   `2be30a9c`), NEW positive pin `hir/mir-call-expected/CALLN10.mir` (measured-first) plus
+   the full §P1-m3.7 native legs recorded in this milestone's evidence. The validation cannot
+   silently disappear: a successor that deletes either side sees the panel fail.
+3. The ORIGINAL source text (verified first-hand at the m3b start, byte-for-byte the §P1-m3.6
+   binding block) must COMPILE AND EXECUTE successfully under m3b. Independent derivation:
+   `x = 2;` `call clob2(x, x)` passes ONE home twice; `clob2` writes `a = 7` through the
+   shared cell, so caller x = 7; no console statement exists; `return (x)` returns 7.
+   **Positive expectation: stdout EMPTY, `driver-return=7\n`, process rc 0; glibc
+   `native_check -DEXPECTED=7` EXEC rc 0.** (A new m3b negative covering the by-ref family
+   is NOT added: see the D_elem paragraph — that guard arm is UNREACHABLE end-to-end and is
+   recorded, like §P1-m3.10 items 3/4, with NO invented fixture.)
+
+**D_elem (array-element reference actual) — guard arm + reachability law.** §P1-m3.2-6's
+`D_elem` E18 refusal arm is implemented; end-to-end it is UNREACHABLE: the backend's frozen
+`declare`/`bin_p` law refuses EVERY array declaration (`dcl arr fixed bin(15) (10);` ⇒
+HIR-E18 "type … is outside the native integer subset") and HIR itself refuses array-element
+assignment (P1-a1/E18-class), so NO reachable program can present an array element as a
+by-reference actual. PROVEN first-hand in the m3b session (scratch probe recorded here and
+in LEARNINGS, never fitted). The m3b NEGATIVE panel therefore exercises: CALLN7 (multi-proc
+`-g` E18 — already-pinned law, verified live against the NEW `CALL01.pli` fixture), CALLN8
+(uninitialized by-ref E19 — the NEW pinned negative, §P1-m3.6 text), the retained m3a
+negatives CALLN1–CALLN6 (unchanged), and the D_elem arm by CODE INSPECTION plus the array-
+declaration refusal measured as the earlier-layer witness (deviation class of §P1-m3.10
+items 3/4, recorded; runner greps the static `D_elem` arm).
+
+**Implementation addendum (loop hoists — pre-registered, not a law change).** §P1-m3.2-6
+requires value cells/homes hoisted at ENTRY, "never at the call site (no per-iteration stack
+growth)" — §P1-m3.14 makes a non-hoistable cell a STOP. The §P1-m2.3 verification pass over
+a loop body rewinds `insns`/`tmp_n`/`cf_n` but NOT the `hv` allocator, so a `Call_s` inside a
+verified loop body would DOUBLE-ALLOCATE dead value cells (a latent m3a defect NO m3a fixture
+reaches — recorded, never fitted). m3b rewinds the `hv` allocator and the `hv` cell list in
+that discarded pass too (rewind-on-discard idiom); every loop body in the panel is then
+hoist-clean by construction. Also pre-registered (conservative refusals, I2/I4): (R1) a loop
+BODY that passes a variable by reference DROPS that sid from the post-loop env (drop-not-
+inherit — a callee write in any iteration is invisible to the header env) unless the body
+itself re-initializes it; (R2) passing the loop INDUCTION VARIABLE by reference inside the
+body REFUSES the counted-loop shape — the step proof cannot hold; (R3) the per-proc HOME set
+is discovered by a pre-body scan, so one home per designated sid exists BEFORE the first
+lowered instruction and `v<sid>` never appears in that func's locals (the var has NO
+register, §P1-m3.2-6 verbatim).
+
+**Gate reading (m3b, under B1–B3).** §P1-m3.12's m3b gate is evaluated as: all of m3a
+re-green (fixtures and pins of the CLOSED gate UNMOVED — including the seven m3a negative
+pins, CALLN10's TWO negative pins EXCEPTED as retired per B3 with the provenance recorded
+here and accounted in the m3b commit); CALL01 `5\n4\n` dr 4; CALL06A `7\n` dr 7; CALL06B
+`2\n7\n` dr 7; **CALL10 (B1) `7\n7\n` dr 7**; **CALLN10 (B3) positive EMPTY dr 7**; every
+positive through the full §P1-m3.7 panel (×2 determinism, reviewed pins, mir2o, glibc, cosmo
+tiny static, nm, static laws); CALLN7/CALLN8 refuse as predicted (rc 2, ZERO stdout, NO
+artifact, ×2); **C-M3b (B2) fails LOUDLY against `2\n7\n` with corrupted stdout `7\n7\n`**;
+the FROZEN §P1-m3.9 falsifier panel byte-UNMOVED. No m3c byte. Zero oracle (backend
+engineering; ledger stays 203 headers / C380).
