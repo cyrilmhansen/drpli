@@ -12048,3 +12048,107 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   Controls C-M3a (callee-after-caller ⇒ mir2o rc 1), C-M3b (home→value-cell ⇒ `7\n7\n` ≠ `2\n7\n`),
   C-M3c (insert `add rt, rt, 1` before callee final `ret` ⇒ glibc leg executes 7 ≠ EXPECTED 6).
   NEXT: COMMIT PLAN.md explicit path (PROTOCOL #1 gate), then m3a implementation.
+
+## E2E-54/P1-m3 hop 6 (2026-11-13, session 01a1c956 fresh startup (NOT a renewal successor; chain counter 0/12 fresh, prior chain consumed 4/12); ZERO oracle; ledger 203/C380; ZERO repo source byte — BASELINE + FULL m3a DESIGN LOCKED) — m3a IMPLEMENTATION IS NEXT
+
+- Pre-registration gate CONFIRMED LANDED: §P1-m3 (PLAN.md 4572–5271, P1-m3.0–.14) is COMMITTED at
+  `15508949` (hop 5); HEAD `bc771bfb`; PLAN.md clean in git status; tree dirty ONLY managed blocks +
+  operator `handoff.config.json` (NEVER staged) + pre-existing untracked scratch. ACCEPTED.
+- BASELINE verified FIRST-HAND at `bc771bfb`, each OWN command: `cd ocaml && eval "$(opam env)" &&
+  dune build` rc 0; T1 `ocaml/_build/default/bin/pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; T2
+  `git diff --exit-code -- hir/expected hir/fixtures ocaml/lib ocaml/bin` rc 0; `timeout 900 python3
+  tools/hir_test.py` rc 0 **220 ok** with ok-set `cmp`-IDENTICAL to `build/e54p1m3-hop4-hirtest.log` →
+  ignored `build/e54p1m3-hop6-hirtest.log`; `python3 build/p1m2-scratch/i6_check.py` → **ALL PINS
+  UNMOVED** (N7 authorized-exception line prints its m2b re-pinned stderr; RESULT line green). ACCEPTED.
+- **PLAN §P1-m3.2-5 p_exit RATIONALE IMPRECISION (recorded, never "fixed" by touching anything):**
+  the PLAN says p_exit's proto "carries the leading bare `i64` result"; the MEASURED existing proto
+  (M05 pin + y2, both read first-hand) is `p_exit:\tproto\ti64:c` — a NAMED OPERAND c, NO result. The
+  LAW itself is unaffected: y2 EXECUTED `call p_exit, exit, st` + bare `ret` inside a VOID func rc 0.
+  The rationale parenthetical is wrong about WHY the row type-checks; nothing else moves.
+- y2_void_console.mir read VERBATIM = the PROVEN multi-func skeleton (console protos + `pcv` proto
+  BEFORE the ONE import; callee-first func items; void title `func i64:m` formals NOT in local; tail
+  call-line `call pcv, pli80_out, a1` NO result operand; per-func `Lfail0`/`Lfail1` UNINDENTED label
+  lines; entry tail `ret st`, void tail BARE `ret`; `\texport` after the LAST endfunc). probe_void =
+  bare `func` + bare `ret` + `pv: proto` (EMPTY proto) all PROVEN. ACCEPTED.
+- CAND06 (== CALL02 text) HIR dump read: entry PROC 0 scope=0 main; side PROC 1 scope=1 params=[1]
+  returns=none; SYM 1 n storage=formal scope=1; every dcl (formal included) lowers `declare sid`.
+  CAND09 nesting: deep's SCOPE 2 parent=1 → nesting law = non-entry proc whose scope HAS a CHILD scope.
+- **m3a IMPLEMENTATION DESIGN — LOCKED (proposed→adopted for the edit; pins will MEASURE it):**
+  (1) Edit `ocaml/hir/mir_backend.ml` ONLY, via a Python line-splice: replace the blanket multi-proc
+  E20 arm (keep the EMPTY-procs E20 message VERBATIM) with §P1-m3.2-1/2 selection+validation; replace
+  the whole region `(* ---- emission state ... ---- *)` … `let mir_text = Buffer.contents buf in` with
+  a generalized per-proc engine. Keep UNTOUCHED: header, Int_map, artifact type, lower_name,
+  portable_name, stmt_kind_name, window/in_window/show_iv/decimal_int, quote, the pre-checks
+  (proc_name/export-match/entry-params/entry-ret/maxp/bin_p), the postlude first_token/opcodes/
+  debug_map/Ok/`with Refusal`/For.
+  (2) Engine: ONE `lower_proc pp` closure parameterized by refs reset per proc (`insns` stays the SAME
+  mutable ref, drained into a per-proc buffer at the end; `declared := Int_map.empty`; per-proc
+  tmp base → own `t<base+1..end>`; `hv` cells `hv<k>` + `h<sid>`/`r<k>` class lists). SHARED
+  module-wide across procs: `fresh ()` (t numbering continues), `cf_n` (module-wide labels),
+  `string_items`, `hv_n`, `h<sid>` per-func. `emit`/`lower`/`lower_cond`/`declare` gain the formal
+  indirection: sid of storage Formal → READ `mov <k>, i64:(v<sid>)`, WRITE `mov i64:(v<sid>), <rv>`;
+  declare routes `sstorage = Formal` (sid ∈ pp.Hir.params, else E18 by name) registering `window p`;
+  callee INITIAL env seeds EVERY formal at `(lo,hi) = W(p)` (so `get`-into-formal `mov i64:(v<sid>),
+  i64:(a1)` is safe — the window law still proves EVERY store interval ⊆ W at the Assign/Get sites).
+  Per-proc final-statement law: value proc → EXISTING Return(Some) checks VERBATIM (entry messages
+  BYTE-FROZEN; per-proc ret window = its own ret precision); VOID proc → tail is BARE `ret` (bare
+  `RETURN;` as final statement lowers to bare `ret`; fall-through appends bare `ret`; `Return (Some _)`
+  in a void proc refuses by name; nested returns keep `no_return_in`).
+  (3) Call_s arm (m3a): look up callee pid; A_reference actual → E18 by name "by-reference actual
+  argument N ... admitted at milestone P1-m3b" (CALLN10, TRANSITIONAL); all-A_value: per actual in
+  source order `lower env e` (arguments evaluated LEFT-TO-RIGHT into temps — NO hv store before all
+  arg temps are produced), then BEFORE the call row `mov i64:(hv<k>), <rv>` per slot (one `hv<k>` per
+  site+position); callee formals ALL by-value cells (m3a has no homes); `alloca hv<k>, 8` HOISTED as
+  first insns after func/local; call row `call pc<pid>, pli80_<folded>, hv<k>...` (void: NO result
+  operand); caller env UNCHANGED afterwards (by-value isolation; no widening needed — no homes in
+  m3a). Defensive E18 if Call_s targets a value proc (HIR-E07 catches first). Call_e arm STAYS the
+  :295 E18 (m3c). STOP/arrays/convert refusals unchanged.
+  (4) Validation scans BEFORE any emission: (a) NESTING — EVERY non-entry proc whose scope has a child
+  scope → E18 by name (runs for unreached procs too — CALLN6); (b) DFS from entry over Call_s/Call_e
+  pids (args source order) with on-current-path revisit → E18 NAMING the path (CALLN4; self-call HIR
+  catches first); (c) unreached procs DROPPED (CALL09 pin: exactly TWO func items, `pli80_dsub` then
+  `pli80_uncalled`, NO pli80_dead, NO pc proto for dead); (d) per-reachable: portable folded name;
+  VALUE callee's FINAL body stmt must be Return (Some _) else E18 by name; formal sids of a reachable
+  proc must be its own syms with storage Formal. -g + >1 reached func → E18 BY NAME (law 9; CALLN7
+  m3b+ but the guard lands in m3a; single-proc -g bytes frozen).
+  (5) Module assembly: SINGLE-func programs reuse the EXISTING emission path byte-for-byte (no
+  pc-protos, shared `Lfail`, no hoists — I6 falsifier). MULTI-func: `M0:\tmodule` / callee protos
+  ascending pid `pc<pid>:\tproto\t[i64, ][i64:v<s1>…]` (void = no leading bare i64; EMPTY proto
+  `pc<pid>:\tproto` legal per probe_void) / console protos EXISTING fixed relative order used-only
+  across ALL funcs / ONE import line EXISTING canonical order + exit / s<k> items / func items DFS
+  POST-ORDER (callees first, ties ascending pid, entry LAST and ONLY export) / `\texport pli80_<entry>`
+  (SPACE after export — EXISTING line, y2's tab was probe-only) / `\tendmodule`. Per-func locals:
+  own Autos ascending v<sid>, `st` iff THIS func has a console call, `a1` iff this func has GET, then
+  own h/hv/r classes, then OWN `t<k>` (module-wide numbers). Per-func tail: single func → EXISTING
+  `Lfail:` + `ret st`; multi → `Lfail_0:` entry `ret st`, `Lfail_<pid>:` subsidiary; VOID subsidiary
+  tail ends BARE `ret` (hop-5 law); tail emitted ONLY when the func has console insns (CALL03
+  no-console = NO tails anywhere). Console folds (cu_put/cu_get/cu_text/cu_nl/cu_any) become per-func;
+  `bne Lfail_<pid>, st, 0` per func; single-proc fold result IDENTICAL (I6).
+  (6) F8 LAW re-verified first-hand (tools/hir_test.py F8_PATTERNS): comment-stripped source; strings
+  INCLUDED. New code MUST NOT contain: `\bCALL\b|\bJMP\b|\bMOV\b|\bSTA\b|\bLDA\b|\bHLT\b|\bC\b|\bM\b|\bP\b`
+  (word-boundary uppercase; `pli80_call02`/`Lfail_0`/`pc1`/`hv1` are SINGLE tokens — SAFE),
+  `\b(size|offset|reloc|pool)\b` anywhere incl. strings/diagnostic texts (say "amount", never size),
+  `0x` hex, `op_` identifiers. hir_test 220/11 MUST STAY GREEN after the edit.
+- NEXT VERBATIM (m3a, in order): (1) write fixtures CALL02–05, CALL09, CALLN1–N6, CALLN10.pli + the
+  CALLN7 command-leg (CALL01.pli text; CALL01 fixture too — it refuses E18/N10-shaped at m3a until
+  m3b) via `python3 build/p1m2-scratch/mkpli.py <out> "<program text VERBATIM from PLAN §P1-m3.6>"`
+  into `hir/mir-call-fixtures/`; (2) APPLY the mir_backend.ml splice (fix COMPILE defects only) →
+  gates each OWN command: build → T1 `172595d5…` DIRECT → T2 → hir_test 220/11 ok-set cmp → i6_check
+  ALL PINS UNMOVED; (3) measured-first pins into `hir/mir-call-expected/`: every line of every
+  positive .mir REVIEWED against §P1-m3.2 (esp. post-order, hoists, per-func st/a1/temps, tail law,
+  CALL09 drop-shape, export single) BEFORE the cp; ×2 fresh-process determinism; negatives rc 2 +
+  stderr bytes + ZERO stdout + NO -o file ×2 (layers: N1/N2/N3/N5 HIR-E07 — PRE-EXISTING, N4/N6/N10
+  backend E18 by name); (4) §P1-m3.7 native legs (pipeline pli80hir rc 0; mir2o -f rc 0; glibc
+  native_check EXPECTED 2/37/91/9/3 stdout `<v>\n` rc 0; cosmo TINY WITH tools/mir_aot/pli_console.c
+  + console_check.c chmod +x fresh-proc exec vs PLAN bytes VERBATIM: CALL02 `2\n` dr2, CALL03 EMPTY
+  stdout dr37, CALL04 `91\n` dr91, CALL05 EMPTY dr9, CALL09 EMPTY dr3; nm laws: entry `T`,
+  subsidiaries LOCAL `t`; NO PT_INTERP/dynamic section); (5) C-M3a on a DISPOSABLE scratch copy
+  (callee func AFTER caller → mir2o rc 1 `undeclared name`) OBSERVED LOUD; (6) commit explicit paths
+  (`ocaml/hir/mir_backend.ml`, `hir/mir-call-fixtures/*`, `hir/mir-call-expected/*`) = m3a gate; then
+  durables + **STOP — NO m3b byte in this session**.
+- STANDING: ZERO oracle; ledger 203/C380; handoff.config.json NEVER staged; no push; explicit paths
+  only; build/p1m3-scratch + build/e54p1m3-*.log NEVER committed; lab ccc92c5c/f541a7a5 +
+  build/p1m*-deps/p1mc-deps NEVER touched; hir pins FROZEN / mir pins ADDITIVE-only; F8;
+  eval "$(opam env)"; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo chmod +x;
+  console links include tools/mir_aot/pli_console.c; runners/gdb repo-root; printf %s\n; byte-exact
+  via Python subprocess; NEVER hand-edit managed checkpoint blocks.
