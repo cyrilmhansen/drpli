@@ -12231,3 +12231,59 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   F8; `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo chmod +x;
   console links include `tools/mir_aot/pli_console.c`; runners repo-root; printf `%s\n`; byte-exact via
   Python subprocess; NEVER hand-edit managed checkpoint blocks.
+
+## E2E-54/P1-m3 hop 8 (2026-11-13, session 01a1c987 renewal 2/12; ZERO oracle; ledger 203/C380; ZERO repo source byte — FIXTURES + STEP-0 LANDED; THE m3a SPLICE OWED)
+
+- Baseline verified FIRST-HAND at `cb2b6770`, each OWN command: build rc 0; T1 `pli80c.exe` sha
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; T2 rc 0; hir_test rc 0
+  **220 ok** ok-set `cmp`-IDENTICAL to `build/e54p1m3-hop4-hirtest.log` → ignored
+  `build/e54p1m3-hop8-hirtest.log`; `build/p1m2-scratch/i6_check.py` **ALL PINS UNMOVED**. ACCEPTED.
+- **STEP-0 RESOLVED (was the open pre-splice check): the HIR argument numbers are 0-BASED.**
+  `hir_build.ml:682-685` lower actuals with `List.mapi (fun pos (pm,a) -> lower_actual … pos …)`
+  over `List.combine ce_args args`, and `formal_ty` (≈:502) looks the row up by `fd.f_pos = pos`
+  and indexes `List.nth_opt bparams pos` — both 0-based. ⇒ the m3a CALLN10 refusal text
+  "by-reference actual argument **N** of call to <key>" MUST use the **0-based** index (first
+  argument = `argument 0`). No pinned stderr anywhere exercises `argument <n>` (grep EMPTY), so no
+  byte conflict. ACCEPTED (read first-hand).
+- Anchors RE-READ first-hand and confirmed: `hir.ml` `Call_s {pid;args}`, `actual {af;ac_ty;ac_ef;
+  ac_line}` with `A_value expr | A_reference designator`, `proc {pid;name;is_main;scope;params;ret;
+  body}`, `scope {scope_id;parent;skind}`, `storage = Auto|Static|Formal|External_sym`
+  (`pp_storage` → "formal"); `diagnostic.ml` E18 `e_mir_node` / E19 `e_mir_numeric` / E20
+  `e_mir_export`; F8_PATTERNS verbatim at `tools/hir_test.py:284-291` (`\b(size|offset|reloc|pool)\b`
+  strings included, `0x` hex, `op_` idents, uppercase `\bC\b|\bM\b|\bP\b|\bZ\b|CALL|JMP|MOV|…`);
+  pin dirs are at the REPO ROOT (`hir/mir-expected/`, `hir/mir-cf-expected/` — NOT under ocaml/);
+  NO pin anywhere contains "one procedure" (§P1-m3.9-1 blast radius re-verified ZERO); fixture shape
+  law confirmed by hexdump (final `end <name>;\r\n` then `^Z`, no trailing LF). ACCEPTED.
+- **STEP 1 LANDED (commit `af6d255b`):** the 12 binding m3a fixtures (PLAN §P1-m3.13-2 scope:
+  CALL02/03/04/05/09 + CALLN1–N6 + CALLN10) written into the NEW additive `hir/mir-call-fixtures/`.
+  METHOD (adopted, better than hand-typing): an ignored scratch script
+  `build/p1m3-scratch/extract_m3a_fixtures.py` extracts each program text MECHANICALLY from the
+  PLAN block quote (dedent 4, strip trailing blanks) and pipes it through
+  `build/p1m2-scratch/mkpli.py` (LF→CRLF + `^Z`); an INDEPENDENT re-extraction + byte-compare
+  script then verified all 12 disk files EQUAL the PLAN texts (12/12) and every one carries the
+  CRLF+`^Z` shape. Sizes 184–367 B. ACCEPTED (measured).
+- LESSON: generate fixtures from the pre-registration BY SCRIPT, then verify by a SECOND
+  independent extraction — transcription by hand is the failure mode, not the PL/I.
+- FALSIFIED-BY-MEASUREMENT (my own edit, recorded honestly): the FIRST splice attempt was REJECTED
+  because I anchored a header-comment edit on a line-wrap remembered from an earlier read
+  (`+ - * and unary negation. Every other HIR` is split differently in the file); the edit tool
+  applied NOTHING and `git status -- ocaml/hir/mir_backend.ml` is EMPTY (ZERO repo source byte,
+  exactly as required). LESSON: re-read the EXACT anchor bytes with `sed -n` IMMEDIATELY before
+  every `edit` call on a 1152-line file.
+- NEXT VERBATIM (this hop's remainder, in order): steps (2)–(8) of the PROGRESS live heading —
+  (2) splice `ocaml/hir/mir_backend.ml` ONLY: keep the `[]` no-procedure E20 message VERBATIM,
+  replace the multi-proc arm with the §P1-m3.2-1/2 selection+validation and generalize the
+  :190…:1084 per-proc engine per LEARNINGS hop-6 §(1)–(6) (HOME-PASS `Call_s` with 0-based N in
+  the by-ref refusal, `declare` Formal routing, formal reads `mov k, i64:(v<sid>)` / writes
+  `mov i64:(v<sid>), rv`, per-func `Lfail_0`/`Lfail_<pid>` tails with VOID bare `ret`, post-order
+  func items / entry LAST + the ONE `\texport <sym>` (ONE SPACE), per-func locals, entry-hoisted
+  `alloca hv<k>, 8`, `-g`+multi E18, F8 law, postlude still seeing `!insns`/`cu_any`/`v_regs`/
+  `entry_sym`); (3) gates each OWN command; (4) measured-first pins into `hir/mir-call-expected/`;
+  (5) §P1-m3.7 native legs from the REPO ROOT; (6) C-M3a LOUD; (7) explicit-path commit = m3a
+  gate; (8) durables + STOP. m3b/m3c bytes remain FORBIDDEN.
+- STANDING: ZERO oracle; ledger 203/C380; `handoff.config.json` NEVER staged; no push; explicit
+  paths; scratch `build/p1m3-scratch/` NEVER committed; lab `ccc92c5c`/`f541a7a5` +
+  `build/p1m*-deps`/`p1mc-deps` NEVER touched; hir pins FROZEN / mir ADDITIVE-only; F8;
+  `eval "$(opam env)"`; rc DIRECT; never batch build+tests; timeouts 60/120/900; cosmo `chmod +x`;
+  console links include `tools/mir_aot/pli_console.c`; runners repo-root; printf `%s\n`; byte-exact
+  via Python subprocess; NEVER hand-edit managed checkpoint blocks.
