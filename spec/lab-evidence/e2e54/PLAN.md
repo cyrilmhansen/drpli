@@ -5545,3 +5545,198 @@ tiny static, nm, static laws); CALLN7/CALLN8 refuse as predicted (rc 2, ZERO std
 artifact, ×2); **C-M3b (B2) fails LOUDLY against `2\n7\n` with corrupted stdout `7\n7\n`**;
 the FROZEN §P1-m3.9 falsifier panel byte-UNMOVED. No m3c byte. Zero oracle (backend
 engineering; ledger stays 203 headers / C380).
+
+### P1-m3.17 OPERATOR AMENDMENT C (dated 2026-11-11 by the git/system clock — the m3c chain; operator brief **"DRPLi — E2E-54/P1-m3c: Operator Amendment D and Gate Completion"**, §2 "Commit operator amendments C and D FIRST" + §4 "m3c validation panel"; amendments **C and D APPROVED**, m3c implementation+validation **APPROVED**, aggregate runner and overall §P1-m3 CLOSE **NOT AUTHORIZED**; issued by the OPERATOR and applied verbatim in the m3c session BEFORE any m3c source or fixture byte, PROTOCOL #1)
+
+**Authority and limits.** The operator adjudicated the hop-14 STOP-and-attribution (brief §3
+admission vs brief §6/§1/§7 + §P1-m3.12 "all m3a negatives still valid", irreconcilable at CALLN1)
+and, in the SAME brief, amended the two numeric-unprovable m3c positives **before** implementation.
+This section OVERRIDES §P1-m3.6 (the CALL07 and CALL08 program texts and their expected bytes) and
+§P1-m3.8 (the **C-M3c** procedure) where they conflict; the original blocks STAND ABOVE AS HISTORY
+(PROTOCOL #2 — nothing is deleted or edited). The m3c admission scope §P1-m3.5 and the HOME-PASS
+ABI law §P1-m3.2/.7 are **NOT** changed by this amendment — the operator's §3 wording ("whole-RHS
+`Assign(D_var sid, Call_e ...)`", "final `Return(Some(Call_e ...))`", all actuals `A_value`, nested
+`Call_e` / `Convert` / PUT / condition refusals, recursion refusals, result interval the callee's
+full declared `W(p)`, no caller-constant propagation, no callee-result narrowing, pure-argument
+`Pure` classification is NOT an interprocedural purity guarantee) is exactly the law already
+pre-registered there, so no law text moves. Invariants I1–I5 (§P1-m3.11) are NOT weakened and §P1-m3.14
+stays in force verbatim: **interprocedural value analysis/narrowing remains FORBIDDEN**. No DR oracle
+is involved (backend engineering; ledger stays 203 headers ending C380).
+
+**Why the original §P1-m3.6 positives were unsatisfiable (measured first-hand, reproducers kept).**
+The original texts are mechanically re-extracted from the §P1-m3.6 blocks above and re-measured in
+the m3c chain (ignored scratch only: `build/p1m3-scratch/g15/ORIG07.pli` 367 B,
+`build/p1m3-scratch/g15/ORIG08.pli` 276 B — each byte-verified EQUAL to its §P1-m3.6 binding block,
+CRLF+`^Z`; refusals re-run in the landing session into `build/p1m3-scratch/g16/`):
+
+- on the COMMITTED pre-m3c backend both refuse EARLIER, at the frozen backend value-position arm:
+  `HIR-E18: line 3: MIR backend: a value-position call is outside the native subset (brief §3)`
+  (ORIG07) and the same message at `line 4` (ORIG08), rc 2, ZERO stdout, NO `-o` artifact;
+- under the §3 admission (the hop-14 prototype backend) the ORIGINAL CALL07 refuses
+  `HIR-E19: line 11: binop '+' on operands proved within [-16383,16383] and [-16383,16383] can reach
+  [-32766,32766], leaving the declared-precision window [-16383,16383] of FIXED BINARY(15,0);
+  overflow behaviour is profile-UNKNOWN and is never assumed (brief §4)` and the ORIGINAL CALL08
+  refuses `HIR-E19: line 8: binop '+' on operands proved within [-16383,16383] and [1,1] can reach
+  [-16382,16384], leaving the declared-precision window [-16383,16383] of FIXED BINARY(15,0);
+  overflow behaviour is profile-UNKNOWN and is never assumed (brief §4)`.
+
+The mechanism is the plan's own law, not a defect: §P1-m3.2-6 seeds every callee formal at the FULL
+declared window `W(p)` with NO call-site knowledge crossing the boundary (I3), so `t = a + b + c` and
+`t = n + 1` on `FIXED BINARY(15,0)` formals are unprovable **by construction** — the identical
+falsification class preserved by §P1-m3.15 (A1/A2) and §P1-m3.16 (B1). The only two honest routes were
+interprocedural narrowing (FORBIDDEN, §P1-m3.14) or a fixture-text amendment (approved here). The
+original expectations (`6\n` dr 6; `42`/`EXPECTED=42`) are SUPERSEDED by C1/C2 below and kept as history.
+
+**Amendment C1 — CALL07.pli (entry `thrice`, callee `pick3`): whole-RHS `Assign(D_var, Call_e)` with
+THREE by-value actuals and console output from the CALLEE.** Binding text VERBATIM from the operator
+brief (CRLF+`^Z` via `build/p1m2-scratch/mkpli.py`, generated MECHANICALLY from this block quote and
+byte-verified against it):
+
+    thrice: procedure returns(fixed bin(15));
+       dcl z fixed bin(15);
+       z = pick3(1, 2, 3);
+       put list(z);
+       return (z);
+       pick3: procedure(a, b, c) returns(fixed bin(15));
+          dcl a fixed bin(15);
+          dcl b fixed bin(15);
+          dcl c fixed bin(15);
+          dcl t fixed bin(15);
+          put list(a);
+          put list(b);
+          t = c;
+          return (t);
+       end pick3;
+    end thrice;
+
+INDEPENDENT derivation (PL/I semantics only; no call-site value crosses the boundary): the entry
+evaluates the three literal actuals left to right (1, 2, 3 — all `A_value`, so §P1-m3.5 admits the
+whole-`Call_e` RHS) and calls `pick3`; inside the callee `put list(a)` prints **1** and `put list(b)`
+prints **2** — these are observable console effects of the CALLEE and MUST appear before the caller's
+own output (left-to-right / callee-before-caller-return order, §P1-m3.2); `t = c` is a pure COPY of
+the third formal (which the callee env seeds at the full `W(15)`) into the callee's own local, so NO
+arithmetic is proved and I1 is trivially satisfied; `return (t)` ends the value callee at its final
+statement (law 2d) and the `Call_e` node carries interval `W(15)` (§P1-m3.2-7 — no narrowing); the
+caller assigns that result to `z` and `put list(z)` prints **3**; `return (z)` returns 3 and `W(15) ⊆`
+the entry's declared result window, so the entry `Return` is window-proved. **Expected: stdout
+`1\n2\n3\n`, `driver-return=3\n`, process rc 0; glibc `native_check -DENTRY=pli80_thrice
+-DEXPECTED=3` EXEC rc 0; cosmo-tiny console leg EXACTLY those bytes.** This fixture is the m3c
+whole-RHS positive AND the observable-console-effect-in-a-subsidiary-with-value-call positive.
+
+**Amendment C2 — CALL08.pli (entry `wret`, callee `identity`): whole-`Return` `Call_e`, result
+returned without ever being stored.** Binding text VERBATIM from the operator brief:
+
+    wret: procedure returns(fixed bin(15));
+       dcl x fixed bin(15);
+       x = 41;
+       return (identity(x + 0));
+       identity: procedure(n) returns(fixed bin(15));
+          dcl n fixed bin(15);
+          dcl t fixed bin(15);
+          t = n + 0;
+          return (t);
+       end identity;
+    end wret;
+
+INDEPENDENT derivation: the actual is the EXPRESSION `x + 0`, evaluated in the CALLER env where `x` is
+proved 41 (the caller-side fact preserved in §P1-m3.15 — the caller may use its own window facts), and
+is passed `A_value`; `identity` seeds `n` at FULL `W(15)` and computes `t = n + 0`, whose sum interval
+`[-16383,16383] + [0,0] = [-16383,16383]` stays inside `W(15)` — window-provable with NO knowledge of
+the call site; `return (t)` yields interval `W(15)`; the entry's `Return (Some Call_e)` is the second
+admitted §P1-m3.5 shape (whole expression, value callee as the FINAL statement). No `put` statement
+exists in either procedure ⇒ **stdout EMPTY**, and the returned value is `41 + 0 + 0 = 41`.
+**Expected: stdout EMPTY, `driver-return=41\n`, process rc 0; glibc `native_check
+-DENTRY=pli80_wret -DEXPECTED=41` EXEC rc 0; cosmo-tiny console leg EMPTY stdout +
+`driver-return=41\n`.** Together C1/C2 pin BOTH admitted shapes (whole-RHS Assign, whole-Return) plus
+the CALL05/CALL08 void-vs-value tail pair already claimed by §P1-m3.5.
+
+**Amendment C3 — C-M3c REDEFINED (result corruption; supersedes the §P1-m3.8 C-M3c bullet, whose
+`-DEXPECTED=6` belongs to the superseded text).** On a DISPOSABLE copy of the MEASURED, AMENDED
+CALL07 `.mir` pin under `build/p1m3-scratch/` ONLY (never a pin, never the compiler, never
+`hir/mir-call-fixtures/CALL07.pli`), perturb ONLY the value the callee returns: insert
+`add <rt>, <rt>, 1` immediately BEFORE the callee `pick3`'s final `ret <rt>` (`<rt>` = that function's
+result register), i.e. returned value 3 → 4. The mutated artifact MUST then
+(1) `mir2o -f` rc 0 — the MIR stays syntactically and semantically VALID (a control that fails only
+because the corrupted MIR is rejected does **NOT** count and is itself a falsifier of non-vacuity);
+(2) genuinely LINK and EXECUTE — predicted corrupted observations: console stdout `1\n2\n4\n` with
+`driver-return=4\n`, and the glibc driver run with the **UNCHANGED** `-DEXPECTED=3` returning
+**rc 1** (the value 4 ≠ 3) — the native panel step for the perturbed copy therefore fails LOUDLY.
+A control that executes 3 is VACUOUS (the suite fails). If the pinned parser refuses the immediate
+form of `add`, the measured deviation is RECORDED and the equivalent register form is used — never a
+silent fit.
+
+**Gate reading (m3c positives, amended).** §P1-m3.12's clause "CALL07/08 green" is evaluated against
+THESE texts and THESE bytes. Pins are MEASURED-FIRST, every MIR line reviewed against §P1-m3.2/.5
+BEFORE any `cp`, determinism ×2 in fresh processes, and each pin's MEANING reviewed against this
+independent contract — a pin is never accepted merely because it matches observed output. No m3c byte
+exists in the repository before this section is committed (PROTOCOL #1).
+
+### P1-m3.18 OPERATOR AMENDMENT D (dated 2026-11-11 by the git/system clock; same operator brief as §P1-m3.17 — §2 "Amendment D — CALLN1 migration" + §5 "Frozen regressions"; **APPROVED** by the OPERATOR and applied verbatim in the m3c session BEFORE any m3c source or fixture byte, PROTOCOL #1)
+
+**Authority and limits.** The operator explicitly authorizes the transition of **CALLN1** from an
+m3a/m3b NEGATIVE fixture into an m3c POSITIVE fixture, and names it an **explicitly authorized
+exception** to the frozen m3a/m3b negative-pin requirements of §P1-m3.9/§P1-m3.12/§P1-m3.15/§P1-m3.16.
+ALL other frozen pins stay byte-UNMOVED: every `hir/mir-expected/*`, `hir/mir-cf-expected/*`,
+`hir/mir-debug-expected/*`, the CT2/debug `.o` shas, the suite counts (mir_aot 32, cosmo 25, console
+43, debug 23, CF 83), the gate counts, and EVERY negative pin except the two files retired here
+(CALLN10's two pins were already retired at m3b under §P1-m3.16 B3 — accounted, not re-touched).
+The brief FORBIDS the alternative: **no artificial special case may be introduced to keep rejecting
+CALLN1** — the general §P1-m3.5/§3 admission is implemented and CALLN1 lands as a positive because it
+is exactly the admitted shape. This is NOT authorization for the aggregate runner
+`tools/mir_aot_call_test.py`, for the overall §P1-m3 CLOSE, for any oracle call, or for weakening
+I1–I5/§P1-m3.14.
+
+**Prediction and refusal history (PROTOCOL #2 — preserved, not rewritten).**
+1. §P1-m3.6 registered CALLN1 as a NEGATIVE predicted `E07 procedure pv used as a value: P0 admits
+   calls only`, layer **HIR**, milestone "all".
+2. §P1-m3.15 **Amendment A3** corrected that PREDICTION (program text unchanged) to layer **BACKEND**,
+   measured VERBATIM `HIR-E18: line 3: MIR backend: a value-position call is outside the native
+   subset (brief §3)`.
+3. The two negative pins were MEASURED-FIRST and landed in the m3a GATE commit **`2be30a9c`** and have
+   been re-measured first-hand at every later milestone (hop-14, hop-15 and the landing session start:
+   rc 2, stderr byte-equal to the pin, ZERO stdout, NO `-o` artifact).
+4. That refusal was CORRECT for m3a and m3b — §P1-m3.5 admits `Call_e` in value position only at m3c.
+   When the operator authorized the m3c admission (brief §3), CALLN1's program
+   `y = pv(1);` became exactly `Assign (D_var y, whole Call_e)` with all-`A_value` actuals, so the
+   §3 admission and the "all m3a negatives still valid" clause became MUTUALLY UNSATISFIABLE; hop 14
+   STOPped and attributed the contradiction (prototype compiled CALLN1 rc 0 and mir2o produced a
+   1408 B object — the negative pin was PROVABLY DEAD), and the operator resolved it by THIS
+   retirement rather than by a special case. Mechanics follow the §P1-m3.16 B3 precedent.
+
+**Retirement mechanics (executed in the m3c IMPLEMENTATION commit, i.e. AFTER the commit that lands
+this section).**
+1. `git rm hir/mir-call-expected/CALLN1.rc hir/mir-call-expected/CALLN1.stderr.txt` — explicit paths;
+   historical provenance commit **`2be30a9c`** (with §P1-m3.15 A3's prediction correction); the full
+   bytes remain forever in that commit's git history and this section names the retirement.
+2. The SOURCE FIXTURE `hir/mir-call-fixtures/CALLN1.pli` SURVIVES **BYTE-IDENTICAL** and unchanged in
+   meaning as an m3c POSITIVE input: 213 B, sha256
+   `33d248d05428397735caeb8de6834b7a04dc764e38225204439796c5be6f376a` (verified first-hand at the m3c
+   baseline and re-verified at every gate; any change to this file is a STOP-and-attribute).
+3. NEW measured-first positive pin `hir/mir-call-expected/CALLN1.mir`, every line reviewed against
+   §P1-m3.2/.5 BEFORE the `cp`, determinism ×2 in fresh processes, NEVER hand-written.
+4. Auditable mapping (same idiom as B3): same fixture name, retired negative pins (history
+   `2be30a9c`), new positive pin plus the full §P1-m3.7 native legs recorded in this milestone's
+   evidence — a successor that deletes either side sees the panel fail; the validation cannot silently
+   disappear.
+
+**Independent positive expectation (hand-derived HERE, BEFORE any run).** Program (§P1-m3.6 text,
+unchanged): entry `pval` assigns `y = pv(1);` and returns `y`; callee `pv(n)` returns its formal.
+The literal actual `1` is `A_value`; the callee's `return (n)` reads the formal through
+`i64:(v<sid>)` and the value travels ONLY through the caller-local MIR result register `r<k>`; the
+`Call_e` node carries interval `W(15)` (§P1-m3.2-7), so `y` keeps `W(15)` after the call (I3/I4: NO
+caller-side narrowing to the point 1) and the entry's `return (y)` is window-proved inside `W(15)`.
+No `put` statement exists ⇒ **stdout EMPTY**; the PL/I value returned is 1. **Expected: stdout EMPTY,
+`driver-return=1\n`, process rc 0; glibc `native_check -DENTRY=pli80_pval -DEXPECTED=1` EXEC rc 0;
+cosmo-tiny console leg EMPTY stdout + `driver-return=1\n`; static laws and `nm T pli80_pval` +
+subsidiary `t pli80_pv`.**
+
+**Gate reading (m3c, complete).** §P1-m3.12's m3c gate is evaluated as: all m3a/m3b re-green with
+their pins byte-UNMOVED (m3a positives CALL02–05/CALL09; m3b positives CALL01/06A/06B/10 + the B3
+positive CALLN10; negatives CALLN2–CALLN6, CALLN7, CALLN8) — **the CALLN1 negative pair EXCEPTED as
+retired here, with provenance accounted above**; NEW positives CALL07 (C1), CALL08 (C2), CALLN1 (D)
+green through the FULL §P1-m3.7 panel (HIR admission, ×2 determinism, reviewed measured-first pins,
+mir2o, glibc ×2, cosmo-tiny ×2, static laws, `nm`); NEW negative CALLN9 refuses **E18 BY NAME** at the
+nested-value-call arm (rc 2, ZERO stdout, NO artifact, ×2; the whole-RHS/whole-Return admission must
+NOT admit `thrice3(1, 2, 3) + 5`); **C-M3c (C3) fails LOUDLY** while producing a valid, linkable,
+executing artifact; the FROZEN §P1-m3.9 falsifier panel byte-UNMOVED. Zero oracle; ledger 203 headers
+ending C380; `handoff.config.json` never staged; no push.
