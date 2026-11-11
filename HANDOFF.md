@@ -2139,25 +2139,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 778
-checkpoint-id: g778-6ea351393b63
-checkpoint-kind: auto
+checkpoint-generation: 779
+checkpoint-id: g779-8252ffcb2180
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3994, session 01a1cca7-0a51-70c9-8cd7-860045e23050)
-checkpointed: 2026-11-11T22:28:26.532Z
+status: checkpoint (guard level 0, remaining ~31564, session 01a1ccba-8e02-70c9-8cd7-8604b698067f)
+checkpointed: 2026-11-11T22:47:23.634Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: fdf64a602e93b75cf17b01d643fb7ff8f36422009f1e6754fc62b5c04582c293
-source-handoff: 8226a854845c58f63eb043495d3c982a1d9ed55cf52c3d851a993360974493a8
-source-learnings: 8d040fbb22dc007092880eb86a45fbe1eb880b3e0c56462b9cd5d325036d9cae
+source-progress: 7c8287ffd572624d7dcf7f6fc83c534b28899f5fa144306a5190526502f43fe6
+source-handoff: 8a1c88e573e52264a9f388bd1a000a1d5e53ed113080be489a60592a352b00ec
+source-learnings: 1c72b47406f0909850997a41223f32d8bcd08978372901cc665a39d8fae67689
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1cca7-0a51-70c9-8cd7-860045e23050
-readiness-at: 2026-11-11T22:29:00.466Z
-readiness-checkpoint: g778-6ea351393b63
+readiness-by: session:01a1ccba-8e02-70c9-8cd7-8604b698067f
+readiness-at: 2026-11-11T22:47:23.764Z
+readiness-checkpoint: g779-8252ffcb2180
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 0; checkpoint requested (finalize: E2E-54/P1-m3c hop 18: m3c GATE CLOSED at 5d8d2a4a (Call_e admission committed; CALLN1 negative pair retired per amendment D with named provenance; FULL FROZEN PANEL hit first-hand: gate 1328/1328-190/190-9/9-149rows0/0-16/0/25/0-prose5, hir 220 cmp-identical, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, DWARF M05 pins UNMOVED, fresh build hist 122 sha==kept, ledger 203/C380). Durables at 5b5c94bf. SESSION COMPLETE — STOP; the aggregate runner tools/mir_aot_call_test.py and the overall §P1-m3 CLOSE remain UNAUTHORIZED; await a NEW operator brief. On re-authorization: baseline FIRST-HAND at the close HEAD (build; T1 172595d5...aca281 DIRECT; T2; every hir/mir-call-expected pin UNMOVED incl. CALLN1.mir), READ LEARNINGS § hop 18 VERBATIM FIRST, then §§ hop 17/16/15, then PLAN §P1-m3 + .15–.18 (BINDING).)
 
 ### Unfinished operations
 - (none recorded)
@@ -2930,5 +2930,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m3c hop 17 → successor. VALIDATION PANEL COMPLETE first-hand (LEARNINGS § "E2E-54/P1-m3c hop 17" = the record; PROGRESS live heading hop 17; durables committed d4c32ca2): re-green 65 checks rc 0 (all m3a/m3b pins byte-UNMOVED, 7 negatives intact); CALL07/CALL08 (§P1-m3.17 C1/C2) + CALLN9 (§P1-m3.6) fixtures generated mechanically + independently round-trip verified; measured-first pins ×2 reviewed line-by-line BEFORE cp and re-verified AFTER (CALL07.mir/CALL08.mir/CALLN1.mir + CALLN9.rc/.stderr.txt; the three MIRs are diff-IDENTICAL to the preserved hop-14 prototype measurements); §P1-m3.7 native panel rc 0 30 checks (glibc EXPECTED 3/41/1 EXEC rc 0 ×2; cosmo TINY byte-exact 1\n2\n3\n dr3 / EMPTY dr41 / EMPTY dr1; static laws; nm T/t); C-M3c FAILED LOUDLY and NON-VACUOUSLY (inserted `add t9, t9, 1` before pick3's `ret t9` → mir2o rc 0 VALID, glibc with the UNCHANGED -DEXPECTED=3 EXEC rc 1 with 1\n2\n4\n4\n, cosmo executes 1\n2\n4\n dr 4). NOTE: the immediate `add` form WAS accepted — the PROPOSED register-form fallback was NOT needed (no deviation). Also: my hop-17 COMMIT MESSAGE contains one drafting slip ("-DEXPECTED=1? no: -DEXPECTED=3") — LEARNINGS § hop 17 is authoritative (the control used the UNCHANGED -DEXPECTED=3); do NOT rewrite committed history. ocaml/hir/mir_backend.ml carries the m3c admission UNCOMMITTED: KEEP, NEVER revert, NEVER re-derive. NEXT VERBATIM = LEARNINGS § hop 17 PENDING (6)-(8): (6) git rm hir/mir-call-expected/CALLN1.rc CALLN1.stderr.txt (amendment-D named retirement, provenance 2be30a9c + §P1-m3.15 A3); (7) FROZEN regressions each OWN rc (gate → build/e54p1m3c-reg-gate.log 1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5; hir 220 ok-set cmp==build/e54p1m3b-hirtest-reg.log; mir_aot 32; cosmo 25; console 43; debug 23 repo-root; CF 83; DWARF M05.mir/.p1md UNMOVED; fresh dune build --build-dir _build-e54p1m3c hist 122 sha==kept 172595d5…aca281; ledger 203/C380); confirm each runner name from the repo root before its first run; (8) explicit-path commit of ocaml/hir/mir_backend.ml + the 3 fixtures + the 5 new pins + the 2 retirement deletions (name amendment-D provenance in the message, as the CALLN10 retirement was at m3b), durables, finalize/renew, STOP. UNAUTHORIZED: aggregate runner tools/mir_aot_call_test.py, overall §P1-m3 CLOSE/RESULTS/arch/dashboard, oracle, interprocedural narrowing, any special case to keep CALLN1 negative. Standing: ZERO oracle; handoff.config.json NEVER staged; no push; no git add -A/clean/reset; explicit paths; scratch build/p1m3-scratch/g17/ NEVER committed; pins ADDITIVE-only except amendment D; hir pins FROZEN; rc DIRECT; never batch build with tests; timeouts 60/120/900; cosmo chmod +x; console links include tools/mir_aot/pli_console.c; LC_ALL=C; byte-exact via Python subprocess; never hand-edit managed blocks.
+E2E-54/P1-m3c hop 18: m3c GATE CLOSED at 5d8d2a4a (Call_e admission committed; CALLN1 negative pair retired per amendment D with named provenance; FULL FROZEN PANEL hit first-hand: gate 1328/1328-190/190-9/9-149rows0/0-16/0/25/0-prose5, hir 220 cmp-identical, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, DWARF M05 pins UNMOVED, fresh build hist 122 sha==kept, ledger 203/C380). Durables at 5b5c94bf. SESSION COMPLETE — STOP; the aggregate runner tools/mir_aot_call_test.py and the overall §P1-m3 CLOSE remain UNAUTHORIZED; await a NEW operator brief. On re-authorization: baseline FIRST-HAND at the close HEAD (build; T1 172595d5...aca281 DIRECT; T2; every hir/mir-call-expected pin UNMOVED incl. CALLN1.mir), READ LEARNINGS § hop 18 VERBATIM FIRST, then §§ hop 17/16/15, then PLAN §P1-m3 + .15–.18 (BINDING).
 <!-- guard:end checkpoint -->
