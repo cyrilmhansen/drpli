@@ -48,7 +48,25 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P1-m3 CLOSE session — **RUNNER `tools/mir_aot_call_test.py` TO BE WRITTEN; recovery DONE; brief §2–§6 REMAIN**; session 01a1d1fd fresh chain 0/12; ZERO oracle; ledger 203/C380; HEAD `ec277902`)
+## Next action (E2E-54/P1-m3 CLOSE session — **RUNNER GREEN + COMMITTED `eb1031a9` (86 checks); FULL FROZEN PANEL + CLOSE REMAIN**; renewal 1/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
+
+DONE: `tools/mir_aot_call_test.py` written to the pre-registered bytes BEFORE the first run
+(§P1-m3.6/.15/.16/.17/.18); first run 13 FAIL — ONE runner defect (raw `bytes` passed to
+`run()` → `str()` rendered the literal path; fixed in `mir2o_leg` to a disposable copy under
+`build/mir-call/runner/`), ZERO compiler/pin/fixture changes; second run rc **0** — **86**
+MEASURED checks, 13 positives × 4 native legs, 8 negatives with layer proofs, migration guards
+hold, C-M3a/C-M3b/C-M3c all FAILED LOUDLY. Committed `eb1031a9` (ONE explicit path).
+
+NEXT VERBATIM = LEARNINGS § "E2E-54/P1-m3 CLOSE session hop 2" PENDING (3)–(4): the FULL
+frozen panel each OWN rc (gate → `build/e54p1m3close-reg-gate.log` 1328/1328-190/190-9/9-149
+rows 0/0-16/0/25/0-prose 5; hir 220 cmp `build/e54p1m3b-hirtest-reg.log`; mir_aot 32; cosmo 25;
+console 43; debug 23; CF 83; DWARF M05 standalone; fresh `--build-dir _build-e54p1m3close` hist
+122 sha==`172595d5…aca281`; ledger 203/C380; T2), then CLOSE (RESULTS §P1-m3 template §P1-m2;
+arch `## 7-10`; PLAN `### P1-m3.19 Dashboard update` CLOSED row; durables) and **STOP — nothing
+after P1-m3 CLOSE is authorized.** Standing: ZERO oracle; config NEVER staged; no push; no
+add -A; explicit paths; NO compiler source changes; scratch never committed.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3 CLOSE session — **RUNNER `tools/mir_aot_call_test.py` TO BE WRITTEN; recovery DONE; brief §2–§6 REMAIN**; session 01a1d1fd fresh chain 0/12; ZERO oracle; ledger 203/C380; HEAD `ec277902`)
 
 **READ FIRST (VERBATIM): the new LEARNINGS § "E2E-54/P1-m3 CLOSE session" — it carries the COMPLETE
 verified contract: the 13 positives with entries/EXPECTED/cosmo+glibc exact bytes; the 8 surviving
@@ -4569,13 +4587,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 780
-checkpoint-id: g780-0a8217a85eba
+checkpoint-generation: 781
+checkpoint-id: g781-20a0651b799f
 checkpoint-kind: auto
-content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-12T23:29:49.295Z
+content-delta: none
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-12T23:30:07.162Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: d662dab1232588751ad65b74bce13304b08a306432b697bc3722c5bb0c22aaa6
 source-handoff: 32b7fdfc0f467cabb41dca39bb81fd357120a0163c6e7fbef32966c6e5cb12d8
@@ -5346,6 +5364,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1d1fd-d7b6-7719-ab09-cc0a5f6357bb
+readiness-at: 2026-11-12T23:30:20.495Z
+readiness-checkpoint: g781-20a0651b799f
 <!-- guard:end checkpoint -->
 
 ## Blockers

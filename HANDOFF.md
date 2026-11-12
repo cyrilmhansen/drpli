@@ -7,7 +7,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-5-e54p1m3close-1 (2026-11-12, session 01a1d1fd fresh startup chain 0/12; operator brief "E2E-54/P1-m3: Unified Native Call Runner and Formal CLOSE" **APPROVED**; ZERO oracle; ledger 203/C380; start HEAD `ec277902` == brief; g779 was current+FINALIZED at start): **IN FLIGHT — the runner `tools/mir_aot_call_test.py` is NOT yet written; the CLOSE is NOT done.** Recovery completed first-hand; the COMPLETE verified contract — 13 positives with entries/EXPECTED/exact console+glibc bytes, 8 surviving negatives CALLN2–N9 with layers, migration guards, the three corruption anchors VERIFIED against the committed pins, link commands, the frozen panel list, the dashboard convention (new `### P1-m3.19 Dashboard update` CLOSED row) — is VERBATIM in LEARNINGS § "E2E-54/P1-m3 CLOSE session"; **READ THAT FIRST**, then the PROGRESS live heading, then PLAN §P1-m3 + .15–.18. CONTINUE: write the runner (expected bytes from the pre-registration, NEVER from output), run from repo root, fix runner defects only, commit the ONE explicit path; run the FULL frozen panel (each OWN rc, fresh build dir `_build-e54p1m3close`); then CLOSE (RESULTS §P1-m3, arch §7-10, dashboard row, durables) and **STOP — no further phase is authorized.** ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset; explicit paths only; NO compiler source changes (STOP-and-attribute on any contradiction); NEVER hand-edit managed blocks; the implementation is already COMMITTED at `5d8d2a4a` and `mir_backend.ml` is CLEAN and must stay untouched.
+5-e54p1m3close-2 (2026-11-12, renewal 1/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380; HEAD `eb1031a9`): **the runner is DONE and COMMITTED — `tools/mir_aot_call_test.py` at `eb1031a9`, rc 0 with 86 MEASURED checks, all three controls FAILED LOUDLY, ZERO compiler/pin/fixture changes.** REMAINING (the ONLY authorized work): (3) the FULL FROZEN panel, each command its OWN rc — gate → `build/e54p1m3close-reg-gate.log` (expect 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5); hir_test 220 ok, full log `cmp`-identical to `build/e54p1m3b-hirtest-reg.log`; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; DWARF M05.mir/M05.p1md re-measured STANDALONE; fresh `dune build --build-dir _build-e54p1m3close` hist 122, exe sha == `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; ledger 203/C380; T2 exit-clean — then (4) CLOSE: RESULTS `## §P1-m3` (template §P1-m2, m3a/m3b/m3c separately, commit chain `15508949`→`af6d255b`→`2be30a9c`→`fc152391`→`1394f074`→`d3925d1c`→`5d8d2a4a`→`eb1031a9`), arch `docs/architecture/backend-boundary.md` `## 7-10`, PLAN `### P1-m3.19 Dashboard update` CLOSED row, durables — then **STOP; no further phase is authorized.** VERBATIM contract: LEARNINGS § "E2E-54/P1-m3 CLOSE session hop 2" then the hop-1 section. Standing: ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset; explicit paths; NO compiler source changes; scratch never committed; NEVER hand-edit managed blocks.
+
+SUPERSEDED-BY-ABOVE: 5-e54p1m3close-1 (2026-11-12, session 01a1d1fd fresh startup chain 0/12; operator brief "E2E-54/P1-m3: Unified Native Call Runner and Formal CLOSE" **APPROVED**; ZERO oracle; ledger 203/C380; start HEAD `ec277902` == brief; g779 was current+FINALIZED at start): **IN FLIGHT — the runner `tools/mir_aot_call_test.py` is NOT yet written; the CLOSE is NOT done.** Recovery completed first-hand; the COMPLETE verified contract — 13 positives with entries/EXPECTED/exact console+glibc bytes, 8 surviving negatives CALLN2–N9 with layers, migration guards, the three corruption anchors VERIFIED against the committed pins, link commands, the frozen panel list, the dashboard convention (new `### P1-m3.19 Dashboard update` CLOSED row) — is VERBATIM in LEARNINGS § "E2E-54/P1-m3 CLOSE session"; **READ THAT FIRST**, then the PROGRESS live heading, then PLAN §P1-m3 + .15–.18. CONTINUE: write the runner (expected bytes from the pre-registration, NEVER from output), run from repo root, fix runner defects only, commit the ONE explicit path; run the FULL frozen panel (each OWN rc, fresh build dir `_build-e54p1m3close`); then CLOSE (RESULTS §P1-m3, arch §7-10, dashboard row, durables) and **STOP — no further phase is authorized.** ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset; explicit paths only; NO compiler source changes (STOP-and-attribute on any contradiction); NEVER hand-edit managed blocks; the implementation is already COMMITTED at `5d8d2a4a` and `mir_backend.ml` is CLEAN and must stay untouched.
 
 
 5-e54p1m3c-5 (hop 18 **m3c GATE CLOSED** — session COMPLETE, git/system clock 2026-11-11, session 01a1ccba renewal 3/12 of chain 01a1cc7d; ZERO oracle; ledger 203/C380; implementation commit `5d8d2a4a`): **the E2E-54/P1-m3c bounded task is DONE and committed — nothing further is authorized; STOP and await the OPERATOR.** Landed first-hand this hop: (6) `git rm` of the retired CALLN1 negative pair (§P1-m3.18 amendment-D named retirement, provenance `2be30a9c` + §P1-m3.15 A3; git renders it as a rename to the byte-identical CALLN9 pair — retirement VERIFIED REAL via `git ls-tree`; CALLN1.pli survives as POSITIVE with the new measured-first `CALLN1.mir`); (7) FULL FROZEN PANEL HIT, each OWN command + DIRECT rc — gate rc 0 → `build/e54p1m3c-reg-gate.log` 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5; hir_test rc 0 220 ok full-log `cmp`-IDENTICAL to `build/e54p1m3b-hirtest-reg.log`; mir_aot 32; cosmo 25; console 43; debug 23 (D-C1/C2/C3 LOUD); CF 83; DWARF `M05.mir`/`M05.p1md` re-measured STANDALONE byte-UNMOVED; fresh `_build-e54p1m3c` rc 0 ZERO Error hist 122 sha == kept `172595d5…aca281`; ledger 203 headers ending C380; T2 exit-clean; (8) ONE explicit-path commit `5d8d2a4a` = `ocaml/hir/mir_backend.ml` (the Call_e admission — NOW COMMITTED; the hop-16/17 "UNCOMMITTED KEEP" obligation is DISCHARGED) + 3 fixtures (CALL07/CALL08/CALLN9.pli) + 5 pins (CALL07.mir/CALL08.mir/CALLN1.mir/CALLN9.rc/CALLN9.stderr.txt) + the 2 retirements, message naming the amendment-D provenance exactly as the CALLN10 retirement was accounted at m3b. **SUCCESSOR: NO NEXT ACTION EXISTS — the aggregate runner `tools/mir_aot_call_test.py`, the overall §P1-m3 CLOSE (RESULTS/arch §7-10/dashboard), interprocedural narrowing and any oracle work are UNAUTHORIZED pending a NEW operator brief.** On re-authorization: baseline FIRST-HAND at the close HEAD (build; T1 `172595d5…aca281` DIRECT; T2; every `hir/mir-call-expected/*` pin UNMOVED incl. `CALLN1.mir`; ledger 203/C380), READ LEARNINGS § "E2E-54/P1-m3c hop 18" VERBATIM FIRST, then §§ hop 17/16/15, then PLAN §P1-m3 + .15–.18 (BINDING). Standing: ZERO oracle; config NEVER staged; no push; no `git add -A`/clean/reset; explicit paths; scratch NEVER committed; pins ADDITIVE-only except the accounted amendment-D retirement; hir pins FROZEN; rc DIRECT; never batch build with tests; timeouts 60/120/900; cosmo chmod +x; console links include pli_console.c; LC_ALL=C; byte-exact via Python subprocess; NEVER hand-edit managed blocks. The hop-17 record below stands as history.
@@ -2142,13 +2144,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 780
-checkpoint-id: g780-0a8217a85eba
+checkpoint-generation: 781
+checkpoint-id: g781-20a0651b799f
 checkpoint-kind: auto
-content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6395, session 01a1d1fd-d7b6-7719-ab09-cc0a5f6357bb)
-checkpointed: 2026-11-12T23:29:49.295Z
+content-delta: none
+readiness: attested
+status: checkpoint (guard level 4, remaining ~4083, session 01a1d1fd-d7b6-7719-ab09-cc0a5f6357bb)
+checkpointed: 2026-11-12T23:30:07.162Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: d662dab1232588751ad65b74bce13304b08a306432b697bc3722c5bb0c22aaa6
 source-handoff: 32b7fdfc0f467cabb41dca39bb81fd357120a0163c6e7fbef32966c6e5cb12d8
@@ -2156,8 +2158,11 @@ source-learnings: f6202fa0ceac04bbb8e1cf45aaf4bf42d5ae943fccc55ae88f148f2b3ed678
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d1fd-d7b6-7719-ab09-cc0a5f6357bb
+readiness-at: 2026-11-12T23:30:20.495Z
+readiness-checkpoint: g781-20a0651b799f
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

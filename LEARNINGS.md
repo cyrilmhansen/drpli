@@ -5,6 +5,52 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P1-m3 CLOSE session hop 2 (2026-11-12, renewal 1/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380) — **RUNNER `tools/mir_aot_call_test.py` WRITTEN, GREEN, COMMITTED `eb1031a9`; FULL FROZEN PANEL + CLOSE REMAIN**
+
+- ACCEPTED (runner): written to the pre-registration BEFORE the first run — the 13 positives
+  (entry, EXPECTED, cosmo stdout, nfuncs) and 8 negatives copied from PLAN §P1-m3.6 +
+  §P1-m3.15 (A1/A2) + §P1-m3.16 (B1/B2/B3) + §P1-m3.17 (C1/C2/C3) + §P1-m3.18 (D), NEVER from
+  output; glibc stdout law = program bytes + `<v>\n`; cosmo stderr `driver-return=<v>\n`. Panels
+  U0 toolchain identity / U1 pins x2 fresh + pipeline proof + CALL09 review law / U2 negatives x2
+  with LAYER proofs (HIR N2/N3/N5 rc 2 in `pli80hir`; BACKEND N4/N6/N7/N8/N9 `pli80hir` rc 0 then
+  `pli80mir` rc 2; CALLN7 = CALL01 text with `-g --debug-map`, no map artifact) / U3 migration
+  guards (retired CALLN1/CALLN10 `.rc`+`.stderr.txt` must be ABSENT; `.mir` pins consumed; D_elem
+  static arm by grep) / U4 native legs (mir2o on pin bytes + `N function(s)` in stderr; glibc
+  `-O0` with `pli_console.c`; cosmo TINY chmod +x; static laws incl. readelf -d stdout law; nm
+  T/t) / U5 three controls, all FAILED LOUDLY.
+- FALSIFIED (runner, first run 13 FAIL): `mir2o_leg` passed the raw pin `bytes` to `run()` —
+  `str()` rendered them as the literal path `b'M0:...'` → `mir2o: cannot read input` rc 3.
+  Fix = write the pin bytes to a DISPOSABLE copy under `build/mir-call/runner/` and pass the
+  PATH (CF-runner `object_of` idiom). RUNNER defect only; ZERO compiler/pin/fixture changes.
+- ACCEPTED (second run): rc **0**, **86** MEASURED checks (count law §P1-m3.10 item 6 — no
+  formula); 52 U4 legs = 13×4; controls C-M3a (`ln 16: undeclared name pli80_side` rc 1, no
+  object), C-M3b (mutant executes `7\n7\n` vs `2\n7\n`), C-M3c (mutant valid 3416 B object,
+  glibc rc 1 `1\n2\n4\n4\n`, cosmo `1\n2\n4\n` dr 4) all loud. Object sizes match the
+  recorded hop-17 measurements (CALL07 3416 / CALL08 1416 / CALLN1 1408 / CALL09 1416 /
+  CALL10 2392 / CALLN10 1416). Logs: `build/e54p1m3close-callrunner-first.log` + `-second.log`
+  (ignored). Commit `eb1031a9` = ONE explicit path `tools/mir_aot_call_test.py`.
+- PENDING (successor, VERBATIM — the close contract above is unchanged): (3) FULL FROZEN panel
+  each OWN rc (gate `timeout 900 python3 tools/e2e_gate.py` → `build/e54p1m3close-reg-gate.log`
+  expect 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5; hir_test 220 ok full-log
+  `cmp` == `build/e54p1m3b-hirtest-reg.log`; mir_aot 32; cosmo 25; console 43; debug 23; CF 83;
+  DWARF M05.mir+M05.p1md standalone UNMOVED (`pli80mir -g --export iorw -o <scratch> hir/mir-fixtures/M05.pli`);
+  fresh `cd ocaml && dune build --build-dir _build-e54p1m3close` rc 0 ZERO Error hist 122 and
+  `sha256sum ocaml/_build-e54p1m3close/default/bin/pli80c.exe` ==
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; ledger `grep -cE '^## C'
+  spec/CLAIMS.md` == 203 ending C380; T2 `git diff --exit-code -- ocaml/lib ocaml/bin
+  hir/expected hir/fixtures` rc 0). (4) CLOSE: RESULTS `## §P1-m3 — ... CLOSED` in
+  `spec/lab-evidence/e2e54/RESULTS.md` (template = RESULTS §P1-m2, lines ~1320+; m3a/m3b/m3c
+  SEPARATELY, T-panel WITH values, deviations, matrix, reproduction, commit chain
+  `15508949`→`af6d255b`→`2be30a9c`→`fc152391`→`1394f074`→`d3925d1c`→`5d8d2a4a`→`eb1031a9`);
+  `docs/architecture/backend-boundary.md` `## 7-10 E2E-54/P1-m3 — ...` (template §7-9); PLAN
+  `### P1-m3.19 Dashboard update` CLOSED row; durables + explicit-path commits; **STOP — no
+  further phase authorized.**
+- STANDING: ZERO oracle; config NEVER staged; no push; no add -A; explicit paths; scratch
+  (`build/mir-call/`, `build/p1m3-scratch/`) NEVER committed; NO compiler source changes;
+  rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; `eval
+  "$(opam env)"`; cosmo chmod +x; console links include `pli_console.c`; repo-root runners;
+  NEVER hand-edit managed blocks.
+
 ## E2E-54/P1-m3 CLOSE session (2026-11-12, session 01a1d1fd fresh startup, chain 0/12; operator brief: unified runner + formal CLOSE APPROVED; ZERO oracle; ledger 203/C380) — RECOVERY DONE FIRST-HAND; RUNNER `tools/mir_aot_call_test.py` NOT YET WRITTEN (checkpoint here because context exhausted)
 
 - ACCEPTED (recovery): start HEAD `ec277902` (== brief, hop-18 managed refresh, g779
