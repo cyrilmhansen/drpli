@@ -5,6 +5,79 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P1-m3 CLOSE session (2026-11-12, session 01a1d1fd fresh startup, chain 0/12; operator brief: unified runner + formal CLOSE APPROVED; ZERO oracle; ledger 203/C380) — RECOVERY DONE FIRST-HAND; RUNNER `tools/mir_aot_call_test.py` NOT YET WRITTEN (checkpoint here because context exhausted)
+
+- ACCEPTED (recovery): start HEAD `ec277902` (== brief, hop-18 managed refresh, g779
+  attested+FINALIZED, `checkpoint: current` at session_start, renewals 0/12); tree dirty ONLY
+  operator `handoff.config.json` (maxRenewals 12, workingContextWindow 145000 — NEVER stage) +
+  pre-existing untracked scratch. `ocaml/hir/mir_backend.ml` CLEAN (the Call_e admission is
+  COMMITTED at `5d8d2a4a`); the multi-proc E20 `exactly one procedure` arm is GONE (grep rc 1).
+  Read VERBATIM: PLAN §P1-m3.0–.18 (incl. amendments A/B/C/D), RESULTS §P1-m2 (the CLOSE
+  template), backend-boundary §7-8/§7-9 (the arch template), LEARNINGS §§ hop 18/17/16/13/15/14,
+  PROTOCOL, the full CF runner `tools/mir_aot_cf_test.py` (the model: V0 toolchain law incl.
+  cosmo `--toolchain` sha `85b8c37a…`/`archive=absent` + `14.1.0`, run()/LC_ALL=C, byte
+  comparisons, measured CHECKS counter, controls that FAIL the suite when they pass).
+- ACCEPTED (contract for the runner — BRIEF §2 + PLAN §P1-m3.6/.7/.15/.16/.17/.18). POSITIVES 13
+  (fixture, entry, EXPECTED, cosmo stdout, glibc stdout = program bytes + `<v>\n`): CALL01
+  main3 4 `5\n4\n` / `5\n4\n4\n`; CALL02 call02 2 `2\n` / `2\n2\n`; CALL03 two 37 EMPTY /
+  `37\n`; CALL04 chain 91 `51\n` / `51\n91\n`; CALL05 retvoid 9 EMPTY / `9\n`; CALL06A aliasin
+  7 `7\n` / `7\n7\n`; CALL06B diffal 7 `2\n7\n` / `2\n7\n7\n`; CALL07 thrice 3 `1\n2\n3\n` /
+  `1\n2\n3\n3\n`; CALL08 wret 41 EMPTY / `41\n`; CALL09 uncalled 3 EMPTY / `3\n`; CALL10 mixmod
+  7 `7\n7\n` / `7\n7\n7\n`; CALLN1 pval 1 EMPTY / `1\n` (POSITIVE per amendment D); CALLN10
+  refm3a 7 EMPTY / `7\n` (POSITIVE per B3). ALL from the committed §P1-m3.6/.15/.16/.17/.18 —
+  NEVER from observed output. Legs per positive: pli80hir rc 0; pli80mir ×2 fresh (stdout==pin==
+  `-o`==pin, zero stderr); mir2o `-f` rc 0 (function count in stderr); glibc
+  `gcc -O0 -DENTRY=pli80_<e> -DEXPECTED=<v> tools/mir_aot/native_check.c
+  tools/mir_aot/pli_console.c <obj> -o <exe>` (g17 panel law) EXEC ×2; cosmo TINY
+  `sh tools/mir_aot/cosmo_link.sh tiny <exe> -- <obj> tools/mir_aot/pli_console.c
+  tools/mir_aot/console_check.c -DENTRY=pli80_<e>` + chmod +x, EXEC ×2 exact
+  stdout/stderr `driver-return=<v>\n`/rc 0; static laws (0x7fELF, `file` static, no PT_INTERP
+  via readelf -lW stdout, readelf -d `no dynamic section` on STDOUT — never infer from rc);
+  nm `T pli80_<e>` + subsidiary `t` for each other func. CALL09: EXACTLY 2 reached funcs and
+  `pli80_dead` absent from the pin. NEGATIVES 8 (surviving CALLN2–N9): pinned `.rc`+`.stderr.txt`
+  byte-equal, ZERO stdout, NO `-o`/NO map, ×2 fresh; layers: HIR (N2 disc, N3 nar, N5 vusage —
+  pli80hir rc 2) vs BACKEND (N4 cyc, N6 nest2, N7 `-g` of the CALL01 text with `--export main3`
+  — NO fixture, N8 uninit, N9 deep9 — pli80hir rc 0, pli80mir rc 2). MIGRATION GUARD: fail if
+  `CALLN1.rc`/`CALLN1.stderr.txt` or `CALLN10.rc`/`CALLN10.stderr.txt` reappear; both `.mir`
+  positive pins MUST be consumed. NO D_elem fixture — preserve the recorded reachability
+  evidence (parser earlier than E18; grep the static D_elem arm only if cheap).
+- ACCEPTED (control anchors, VERIFIED against the committed pins this session): C-M3a on the
+  CALL02 pin — swap the two `func…endfunc` items so the callee `pli80_side` follows the caller;
+  pinned mir2o MUST rc 1 with `undeclared name` (g11 measured `ln 16: undeclared name
+  pli80_side`), NO object. C-M3b on CALL06B pin — `\tcall pc1, pli80_alias, h0, hv1\n` →
+  `\tcall pc1, pli80_alias, h0, h0\n` (assert exactly 1); mutant must mir2o rc 0, LINK, EXECUTE
+  stdout `7\n7\n` rc 0 dr 7 — LOUD vs the correct `2\n7\n`; the runner counts the DETECTION,
+  never a positive pass. C-M3c on CALL07 pin — insert `\tadd t9, t9, 1\n` immediately before
+  the callee's `\tret t9` (assert the line occurs exactly once — t9 IS pick3's result register,
+  verified in the pin); mutant mir2o rc 0 (1184 B mutant, object 3416 B), glibc with the
+  UNCHANGED `-DEXPECTED=3` EXEC rc **1** with `1\n2\n4\n4\n`; cosmo executes `1\n2\n4\n` dr 4.
+- ACCEPTED (frozen panel, §P1-m3.12 + brief §5): gate `timeout 900 python3 tools/e2e_gate.py`
+  (1328/1328-190/190-9/9-149 rows 0/0-16/0/25/0-prose 5) → `build/e54p1m3close-reg-gate.log`;
+  hir_test 220 ok (log cmp `build/e54p1m3b-hirtest-reg.log`); mir_aot 32; cosmo 25; console 43;
+  debug 23; CF 83; DWARF M05.mir/M05.p1md standalone UNMOVED; fresh `dune build --build-dir
+  _build-e54p1m3close` hist 122 ZERO Error, exe sha == `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; ledger 203/C380; T2 clean. EVERY command OWN rc.
+- ACCEPTED (dashboard law, re-read this session): the authoritative per-slice dashboard lives in
+  `spec/lab-evidence/e2e54/PLAN.md` as `### P1-mX.N Dashboard update` table sections (e.g.
+  `### P1-m2.14 Dashboard update` ~line 4566; P1-m1.12, P1-mD.11 likewise). §P1-m3 has NO such
+  section yet — CLOSE adds `### P1-m3.19 Dashboard update` (next free number after .18) with the
+  CLOSED row, plus RESULTS `## §P1-m3 — … CLOSED` (template = RESULTS §P1-m2, lines 1320+) and
+  `docs/architecture/backend-boundary.md` `## 7-10 E2E-54/P1-m3 — …` (template = §7-9).
+- PENDING (successor contract — VERBATIM ORDER): (1) WRITE `tools/mir_aot_call_test.py`
+  (model on the CF runner; expected bytes from the list above, written BEFORE the first run;
+  repo-root; evidence under `build/mir-call/runner/`; measured CHECKS counter) — do NOT derive
+  anything from output. (2) Run from repo root; fix RUNNER defects only, re-run; commit the
+  runner by EXPLICIT PATH alone. (3) FULL FROZEN panel T1–T11 each OWN rc (the list above;
+  build dir `_build-e54p1m3close`). (4) CLOSE: RESULTS §P1-m3, arch §7-10, PLAN dashboard
+  §P1-m3.19, LEARNINGS/PROGRESS/HANDOFF durables, `/handoff` refresh + attest; explicit-path
+  commits; **STOP — no further phase**.
+- STANDING: ZERO oracle; config NEVER staged; no push; no add -A; explicit paths; scratch
+  (`build/p1m3-scratch/`, `build/mir-call/`) NEVER committed; NO compiler source changes —
+  STOP-and-attribute if the compiler contradicts a pin; never batch build with tests; timeouts
+  60/120/900; `eval "$(opam env)"`; `LC_ALL=C`; cosmo chmod +x; console links include
+  pli_console.c; readelf -d stdout law; NEVER hand-edit managed blocks; the 3-tier evidence
+  discipline in the brief (prereg vs measured vs interpretation) governs the CLOSE prose.
+
+
 ## E2E-54/P1-m3c hop 18 (git/system clock 2026-11-11; session 01a1ccba = RENEWAL 3/12 successor of chain 01a1cc7d; ZERO oracle; ledger 203/C380) — **m3c GATE CLOSED at `5d8d2a4a`: CALLN1 NEGATIVE PAIR RETIRED (amendment D), FULL FROZEN PANEL HIT FIRST-HAND, IMPLEMENTATION+FIXTURES+PINS COMMITTED; SESSION COMPLETE — STOP**
 
 - ACCEPTED (recovery): start HEAD `8016877f`; tree dirty ONLY `ocaml/hir/mir_backend.ml` (the validated
