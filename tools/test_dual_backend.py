@@ -111,6 +111,13 @@ if has_api("assess_case"):
     v = assess([lane80("1\n2\n"), lane80("1\n2\n")], [lane_native("1\n2\n"), lane_native("1\n9\n")])
     check("T3 native run1 matches, run2 differs -> NOT BOTH-PASS",
           v is not None and v["verdict"] != "BOTH-PASS", str(v and v["verdict"]))
+    # T4 (PLAN §P2-DIFF-2.1 row T4, added by the §P2-DIFF-2.9 amendment C): the FIRST correct
+    # native observation must NEVER mask the second execution's non-zero process status.
+    v = assess([lane80("1\n2\n"), lane80("1\n2\n")],
+               [lane_native("1\n2\n", rc=0), lane_native("1\n2\n", rc=4)])
+    check("T4 native run1 correct, run2 with non-zero rc -> NOT BOTH-PASS, infrastructure",
+          v is not None and v["verdict"] != "BOTH-PASS" and v["infrastructure_failure"],
+          str(v))
     v = assess([lane80("1\n2\n"), blocked("8080", "run")], [lane_native("1\n2\n"), lane_native("1\n2\n")])
     check("T6a a MISSING second 8080 execution -> NOT BOTH-PASS, infrastructure",
           v is not None and v["verdict"] != "BOTH-PASS" and v["infrastructure_failure"],
@@ -248,7 +255,12 @@ if has_api("assess_case"):
                [lane_native("1\n2\nOK\n"), lane_native("1\n2\nOK\n")])
     check("T8e unexpected text in EITHER lane's observation is a validity failure, not a verdict",
           v is not None and v["verdict"] != "BOTH-PASS", str(v and v["verdict"]))
-    v = assess([lane80("1\n2\n"), lane80("1\n2\n")],
+    # T7c (PLAN §P2-DIFF-2.1 row T7; the §P2-DIFF-2.9 amendment A corrects the ORIGINAL
+    # injection of 06a7fdbf — [1,2] on the 8080 lane against expected [1,2] is 8080-ONLY,
+    # not the BOTH-FAIL-SAME the check claims; the original test and its error stay in the
+    # protocol history, only the injected observations are amended).  BOTH lanes must carry
+    # the SAME WRONG vector, twice each.
+    v = assess([lane80("9\n9\n"), lane80("9\n9\n")],
                [lane_native("9\n9\n"), lane_native("9\n9\n")])
     check("T7c both lanes the same WRONG vector, twice each -> BOTH-FAIL-SAME",
           v is not None and v["verdict"] == "BOTH-FAIL-SAME", str(v and v["verdict"]))
