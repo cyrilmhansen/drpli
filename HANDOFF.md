@@ -2146,25 +2146,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 784
-checkpoint-id: g784-290b6ffd7b83
-checkpoint-kind: auto
+checkpoint-generation: 787
+checkpoint-id: g787-b1c1ac4d56e7
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4654, session 01a1d22d-dc41-7719-ab09-cc13f9e4f908)
-checkpointed: 2026-11-13T00:11:37.149Z
+status: checkpoint (guard level 4, remaining ~984, session 01a1d39e-0b57-77bd-adf7-c27385f1daa5)
+checkpointed: 2026-11-13T06:58:48.928Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7ff3f7494fc9d9deb4559cd75cee30e225b25436d03c8d2779c7325b45cbc852
+source-progress: a5ece2f853c942727a929ba89b9bd38576f8a2b96303d61d002dee4d387c7069
 source-handoff: cb0455d797ee40d3ac074998f96b7cfd9a0fd84adfaf500e72ec66e0d645c397
-source-learnings: 5aa943170c52fbf54eeb4e8931021b29b0258a651310b6e24831e284e7412607
+source-learnings: 076d70377f1773089c11cd5a240e6620f2e7071c79b070fea09d656ea8993355
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d22d-dc41-7719-ab09-cc13f9e4f908
-readiness-at: 2026-11-13T00:12:02.443Z
-readiness-checkpoint: g784-290b6ffd7b83
+readiness-by: session:01a1d39e-0b57-77bd-adf7-c27385f1daa5
+readiness-at: 2026-11-13T06:58:49.057Z
+readiness-checkpoint: g787-b1c1ac4d56e7
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2937,5 +2937,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P1-m3 CLOSE hop 2 COMPLETE: runner tools/mir_aot_call_test.py committed at eb1031a9 (rc 0, 86 MEASURED checks; first run 13 FAIL = one runner defect fixed in mir2o_leg only; C-M3a/b/c all FAILED LOUDLY). Durables committed at 6baeb36d (tree clean except operator handoff.config.json — NEVER stage — and pre-existing scratch). NEXT EXACT ACTIONS (VERBATIM in LEARNINGS § 'E2E-54/P1-m3 CLOSE session hop 2' PENDING (3)-(4), READ FIRST): (3) FULL FROZEN panel, each command its OWN rc, from repo root: gate timeout 900 python3 tools/e2e_gate.py > build/e54p1m3close-reg-gate.log (expect 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5); python3 tools/hir_test.py 220 ok, full log cmp-identical to build/e54p1m3b-hirtest-reg.log; mir_aot_test.py 32; mir_aot_cosmo_test.py 25; mir_aot_console_test.py 43; mir_aot_debug_test.py 23; mir_aot_cf_test.py 83; DWARF M05.mir/M05.p1md re-measured STANDALONE (pli80mir -g --export iorw); fresh cd ocaml && dune build --build-dir _build-e54p1m3close rc 0 ZERO Error hist 122 sha256 of _build-e54p1m3close/default/bin/pli80c.exe == 172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281; ledger 203 headers ending C380; T2 git diff --exit-code -- ocaml/lib ocaml/bin hir/expected hir/fixtures rc 0. Then (4) CLOSE: RESULTS ## §P1-m3 (template = RESULTS §P1-m2; m3a/m3b/m3c separately, T-panel with values, deviations, commit chain 15508949→af6d255b→2be30a9c→fc152391→1394f074→d3925d1c→5d8d2a4a→eb1031a9); docs/architecture/backend-boundary.md ## 7-10 (template §7-9); PLAN ### P1-m3.19 Dashboard update CLOSED row; durables; explicit-path commits; STOP — no further phase authorized. ZERO oracle; NO compiler source changes; no push; no add -A; explicit paths only; scratch never committed.
+E2E-54/P2-DIFF-1 recon hop 1 closed at 0300fa1a. SAME-SOURCE PROVEN (native-form CALL06B compiles+links+runs on CP/M, console 2/7 matching native expectation). Successor: run baseline panels (each OWN rc), then PROTOCOL #1 §P2-DIFF-1 preregistration to PLAN.md BEFORE any fixture byte, then pilot + dual runner. Full contract: LEARNINGS § "E2E-54/P2-DIFF-1 recon hop" + PROGRESS live heading.
 <!-- guard:end checkpoint -->
