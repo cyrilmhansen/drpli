@@ -553,3 +553,37 @@ narrowing being the obvious next candidate, and each needing its own PROTOCOL #1
 pre-registration plus operator authorization. Zero oracle throughout — this is backend
 engineering evidence, never a DR claim; the ledger stays **203 headers ending C380**. Panel:
 RESULTS §P1-m3.
+
+## 7-11 E2E-54/P2-DIFF-1 — Cross-backend differential validation (CLOSED 2026-11-13)
+
+The two backends that share this front end — the historical 8080 `codegen.ml`/`rel80.ml` path and
+the native `hir/mir_backend.ml` path — were compared for the first time **behaviorally**, on
+identical committed source bytes, through the runner `tools/dual_backend_test.py`. Four programs
+(a bounded counted `do while`, a three-deep call chain whose only output is in the DEEPEST
+procedure, a by-reference aliasing differential, and a value-returning call whose result the
+caller prints) produced the **same complete ordered console integer vector on both lanes** as the
+hand-derived expectation, in two fresh executions per lane, and the comparator's three
+mutation controls (change / delete / permute) plus the empty-expectation attack all rejected
+against the real observations.
+
+Two architectural facts this slice establishes, and both are worth keeping in mind for any later
+work on the boundary:
+
+1. **The boundary is only where the target ABI starts.** The two lanes share the parser, the
+   binder and the HIR, and they differ in nothing that is observable through the *program's own*
+   console output; the divergence is entirely in the 8080 instruction/`REL`-record/`?STOPX`
+   chain versus the `mir2o`/`i64`/C-driver chain. The differential is therefore a real
+   **end-to-end** check of the shared front end + HIR, not of the backends' internals.
+2. **The two entry mechanisms are independent and that sets the limit of the claim.** The native
+   lane needs a `--export`-fold-matching zero-argument value-returning entry and a C driver that
+   prints the result to **stderr**; the 8080 lane takes the outermost procedure as `MAIN` and its
+   exit convention is CP/M's process status, **not** a PL/I return value. The only common
+   observable is the program's own console output, so `driver-return` is excluded from the
+   comparison and any case whose sole output is a returned value (D01 `M02`) is
+   **NOT-COMPARABLE**, not a failed test. The pilot accordingly says nothing about return
+   values, call mechanisms, or full PL/I equivalence.
+
+This is NOT a DR oracle comparison: the historical LINK-80/PLILIB are the linker and runtime, but
+the object code on that lane is produced by the reproduction compiler, and `PLI.COM` was never
+executed. The evidence is integration evidence — `spec/lab-evidence/e2e54/RESULTS.md` §P2-DIFF-1;
+the ledger stays **203 headers ending C380**.

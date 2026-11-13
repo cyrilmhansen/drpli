@@ -1747,3 +1747,172 @@ CALLN10 retirement); **amendments C+D `d3925d1c`** (PLAN §P1-m3.17/.18) → **m
 `eb1031a9`** (`tools/mir_aot_call_test.py`, first-ever run 13 FAIL → one runner defect → rc 0 with
 86 measured checks, all three controls failing loudly); CLOSE (this commit: RESULTS §P1-m3 +
 arch §7-10 + PLAN `### P1-m3.19` dashboard CLOSED + LEARNINGS + durables).
+
+## §P2-DIFF-1 — Cross-backend differential validation: the 8080 and native MIR paths on one common observable — CLOSED 2026-11-13 (sessions 01a1d39e→01a1d4d5)
+
+Pre-registered as PLAN §P2-DIFF-1 (PROTOCOL #1 gate: committed `ddff0717` **BEFORE any pilot
+fixture, manifest or runner byte**); the runner `tools/dual_backend_test.py` is likewise
+written to that PLAN before its first execution (committed `50b88594`). **This is an
+integration/behavioral-validation slice, NOT compiler development: ZERO compiler source, ZERO
+MIR/ABI, ZERO golden, ZERO pin and ZERO claims byte moved** (T2 `git diff --exit-code --
+ocaml/lib ocaml/bin hir/expected hir/fixtures` rc 0; `git diff --exit-code -- hir/` rc 0; the
+ledger stays **203 headers ending C380**).
+
+**ORACLE BOUNDARY (stated in every report, per brief §3):** the DR compiler oracle `PLI.COM` was
+NEVER executed — this is ZERO oracle. The 8080 lane DOES run the historical Digital Research
+`LINK-80` 1.31 + `PLILIB.IRL` under `cpmsim`, but those are the *linker and runtime*, not the
+*compiler*: **the object code on that lane is produced by MY `pli80c`**. The agreement below is
+therefore agreement between MY two backends, not a DR comparison.
+
+### P2-DIFF-1.1 The four SAME-SOURCE pilots — verdicts (each measured, ×2 fresh per lane)
+
+| ID | Committed fixture (sha-verified BEFORE any execution) | entry | independent expectation (§P2-DIFF-1.4, hand-derived) | 8080 lane | native lane | verdict |
+|---|---|---|---|---|---|---|
+| D02 | `hir/mir-cf-fixtures/CF06.pli` `bb2ba55e…` | `count` | `[0, 1, 2]` | `[0,1,2]` ×2 | `[0,1,2]` ×2 | **BOTH-PASS** |
+| D03 | `hir/mir-call-fixtures/CALL04.pli` `72c418e4…` | `chain` | `[51]` | `[51]` ×2 | `[51]` ×2 | **BOTH-PASS** |
+| D04 | `hir/mir-call-fixtures/CALL06B.pli` `f0e915dd…` | `diffal` | `[2, 7]` | `[2,7]` ×2 | `[2,7]` ×2 | **BOTH-PASS** |
+| D05 | `hir/mir-call-fixtures/CALL07.pli` `0b2d3bdc…` | `thrice` | `[1, 2, 3]` | `[1,2,3]` ×2 | `[1,2,3]` ×2 | **BOTH-PASS** |
+
+Plus **D01 = `hir/mir-fixtures/M02.pli`**, classified **NOT-COMPARABLE** by the operator
+refinement and recorded, never executed as a comparison: it performs no PL/I console output, and
+the native `driver-return` is not a common observable against CP/M's process status.
+
+Three-way comparison law honored: each lane was compared with the INDEPENDENT expectation
+FIRST, then the lanes with each other. The four expectations are the §P2-DIFF-1.4 hand-derivations
+(D02 the counted `do while` with the guard failing at `3 < 3`; D03 the `51` printed by the
+DEEPEST procedure of `chain → mid → leaf`, the caller's later `x = x + 40` unobservable; D04 the
+by-reference alias store plus the callee's value copy; D05 the returned `3` assigned and then
+printed by the caller) — never read back from any output.
+
+### P2-DIFF-1.2 Raw evidence, kept SEPARATELY from the normalized vectors (the §P2-DIFF-1.5/.6 law)
+
+| ID | 8080 region (hex, isolated console region) | native stdout (hex) | 8080 region bytes | determinism |
+|---|---|---|---|---|
+| D02 | `20·8 30 20·9 31 20·9 32 0d 0a` | `30 0a 31 0a 32 0a` | 31 | normalized ✓, raw ✓ both lanes |
+| D03 | `20·7 35 31 0d 0a` | `35 31 0a` | 11 | ✓ |
+| D04 | `20·8 32 20·9 37 0d 0a` | `32 0a 37 0a` | 21 | ✓ |
+| D05 | `20·8 31 20·9 32 20·9 33 0d 0a` | `31 0a 32 0a 33 0a` | 31 | ✓ |
+
+The raw forms legitimately differ (10-position right-justified CP/M fields with one separating
+blank and one final `CR LF` vs plain decimal lines) and raw cross-lane byte equality was NEVER
+required or claimed; the ONLY thing compared across lanes is the ordered signed-decimal vector.
+The 8080 full transcripts, the `.REL`/`.COM` hashes and the console regions are all retained in
+ignored `build/dual-backend/` — never a golden, never the coverage registry.
+
+**Tool and artifact identities (measured, this run):** compiler `pli80c.exe`
+`172595d5…aca281` (the kept fingerprint); `mir2o` `5f2e7aa7…`; `cosmo_link.sh` `8de9eae6…`;
+`pli_console.c` `fc2dd85e…`; `console_check.c` `8c8efa13…`; `functional_runner.py` `115f159f…`;
+`oracle/linkrun.py` `198b83b6…`.
+`.REL`: CF06 256 B `3a3af1fd…`, CALL04 256 B `2161eb57…`, CALL06B 384 B `19c84aba…`, CALL07 384 B
+`e79b052b…`. `.COM` (LINK-80 + PLILIB, `parse_undefined` EMPTY on the FULL segment in all four):
+CF06 6912 B `481e8a95…`, CALL04 6912 B `8c5f822f…`, CALL06B 6912 B `d41e969e…`, CALL07 7040 B
+`084fe5c0…`; linked CODE/DATA/COMMON: CF06 `180C/01C5/00E6`, CALL04 `1837/01D3/00E6`,
+CALL06B `1834/01CF/00E6` (reproducing the recon probe exactly), CALL07 `184B/01D9/00E6`. Native `mir2o` objects (reached-function
+counts 1/3/2/2): CF06 2040 B `e96dca3c…`, CALL04 3304 B `9e2f9f57…`, CALL06B 2936 B `7eb7e7de…`,
+CALL07 3416 B `3c32dafa…`; cosmo **tiny** static ELFs (all `7f 45 4c 46`, no PT_INTERP, no
+dynamic section) 235904/236192/236064/236064 B.
+
+**The pre-registered hypothesis is now MEASURED.** §P2-DIFF-1.1 listed as a known risk that
+CF06, CALL04 and CALL07 had NO committed LINK-80/CP/M execution witness — only CALL06B did, from
+the recon hop. All three now compile, link clean and RUN on CP/M, and the CALL06B region
+reproduces the recon probe's `        2         7^M` byte-for-byte. The lane-level per-stage
+evidence (SOURCE/COMPILE/LINK/RUN with `done (prompt returned)` witnesses; native
+mir/mir2o/cosmo/exec all rc 0) is in the machine-readable report.
+
+### P2-DIFF-1.3 Comparator non-vacuity (§P2-DIFF-1.10) — 14 controls, ALL REJECTED
+
+C-DF1 (change one expected integer), C-DF2 (delete one mandatory item), C-DF3 (permute two items
+of differing value) and the empty-expectation completeness attack, each run against the **REAL,
+UNMODIFIED** observation with a DISPOSABLE in-memory expectation — the committed sources and
+executables are never touched. None of the 14 was accepted: the comparator's rejection is
+sensitivity, not a syntax error (every corrupted vector is still a well-formed vector).
+D03's single-item expectation yields no C-DF2/C-DF3 (there is nothing to delete or permute
+without an empty vector), which is why the count is 14 and not 16.
+
+### P2-DIFF-1.4 Deviations and measured notes (recorded, NOT fitted)
+
+1. **The operator refinement changed the pilot list before any byte** (§P2-DIFF-1.2): D01 M02
+   was excluded as NOT-COMPARABLE, and D03's CALL02 was replaced by CALL04 because CALL02's
+   printed `2` is the caller's own pre-call `x` — a no-op callee would print the same vector, so
+   it discriminates nothing. The `51` of CALL04 is printed by the DEEPEST procedure.
+2. **`driver-return` is EXCLUDED from the comparison** (brief §5/§6): the native driver's stderr
+   diagnostic (`3`, `91`, `7`, `3`) is lane-specific evidence with no CP/M counterpart — the
+   PLILIB `?STOPX` exit chain yields a process status, NOT a PL/I return value. The observed
+   agreement says NOTHING about return values, call mechanisms or full PL/I equivalence.
+3. **Only program stdout is the native region**; the runner records stderr and the host exit
+   status separately and never merges them into the observation.
+4. **One runner defect at first run** (harness, ZERO repo byte elsewhere): the report holds the
+   raw lane output as `bytes`, and the JSON dump raised `TypeError: Object of type bytes is not
+   JSON serializable`. Fixed by a `default=` that renders bytes as latin-1 at the JSON boundary
+   only; the on-disk evidence files remain raw. The second run (and the full re-run) are rc 0.
+5. **`--case`/`--json` are exercised**, not just implemented: `--case D04` alone rc 0 (1 case,
+   4 controls, 5 checks); `--case D02 --json` produced a parseable `pli80-dual-backend/1`
+   document with `failures: []`.
+6. **No new PL/I fixture, no manifest file** — the four sources are the committed fixtures,
+   reused byte-for-byte, sha-verified against the PLAN table before any execution.
+
+### P2-DIFF-1.5 Limitations (the honest boundary)
+
+* Four programs, four *different* constructs, one observable class: the numeric console vector.
+  This is a **feasibility-plus-method demonstration**, not a corpus: it does not establish
+  equivalence of the two backends on expressions, storage layout, `PUT EDIT`, FILE streams,
+  `GET`, character data, or any program that refuses on either side.
+* The lanes are compared through a NORMALIZATION, not through raw bytes; the raw forms differ by
+  design.
+* Three of the four cases are single-shot programs (no input, no loop over the transcript); the
+  8080 lane's observation is bounded by the FS-01 cut and its fail-closed ambiguous-terminator
+  rule.
+* The verdicts are REPORTED, not counted as a pass/fail metric: the runner's exit code is 0 only
+  when every case is BOTH-PASS *and* every control is rejected — a wrong answer is a result.
+
+### P2-DIFF-1.6 Full frozen regression panel (each command its OWN measured rc; no repository byte moved)
+
+`build/e54p2diff-reg-gate.log` gate rc **0**: **1328/1328** byte-exact, **190/190** negative,
+**9/9** divergence, coverage **149 rows 0/0**, census **16/0/25/0**, prose **5** — and the log is
+**byte-identical** to the m3b and m3c-close gate logs and to the baseline-hop gate log.
+`hir_test` rc 0 **220 ok**, full log **byte-identical** to `build/e54p1m3b-hirtest-reg.log`.
+`mir_aot_test` **32**, `mir_aot_cosmo_test` **25**, `mir_aot_console_test` **43**,
+`mir_aot_debug_test` **23** (D-C1/C2/C3 LOUD), `mir_aot_cf_test` **83** (C-M2a/C-M2b/W3 LOUD),
+`mir_aot_call_test` **86** (C-M3a/b/c LOUD) — all six logs **byte-identical** to the baseline
+hop's. Every pin UNMOVED: `git diff --exit-code -- hir/` rc 0; the standalone DWARF re-measurement
+(`pli80mir -g --export iorw`, rc 0, zero stderr) `cmp`-equal to `hir/mir-expected/M05.mir` and
+`hir/mir-debug-expected/M05.p1md`. Fresh `dune build --build-dir _build-e54p2diff` rc 0, ZERO
+`Error`, warning history **122** `File "` headers (log byte-identical to the m3-close log), exe
+sha == kept `172595d5…aca281`. Ledger **203/C380**.
+
+### P2-DIFF-1.7 Reproduction
+
+```bash
+eval "$(opam env)" && cd ocaml && dune build          # rc 0; pli80c.exe 172595d5…aca281
+cd /home/john/projects/sushiworks/pli80               # REPO ROOT (cwd law)
+timeout 900 python3 tools/dual_backend_test.py        # rc 0; 4×BOTH-PASS; 14 controls REJECTED; 18 checks
+timeout 900 python3 tools/dual_backend_test.py --case D04
+timeout 900 python3 tools/dual_backend_test.py --json
+# the frozen panel (each its own rc):
+timeout 900 python3 tools/e2e_gate.py
+timeout 900 python3 tools/hir_test.py
+timeout 900 python3 tools/mir_aot_test.py
+timeout 900 python3 tools/mir_aot_cosmo_test.py
+timeout 900 python3 tools/mir_aot_console_test.py
+timeout 900 python3 tools/mir_aot_debug_test.py
+timeout 900 python3 tools/mir_aot_cf_test.py
+timeout 900 python3 tools/mir_aot_call_test.py
+```
+
+The runner needs the CP/M substrate (LINK-80/LIB/RMAC/PLILIB in `artefacts/`, `cpmsim`, the two
+boot seeds, cpmtools) and the pinned `mir2o` + Cosmopolitan toolchain; a missing dependency is
+reported as a `BLOCKED` stage that NAMES what is missing, never as a comparison.
+
+### P2-DIFF-1.8 Commits (explicit paths, hop order)
+
+recon hop `0300fa1a` (SAME-SOURCE proven) → baseline hop `250465e6` (frozen panel + the
+8080-feasibility sweep matrix) → pre-registration hop `3060ed7c` (the brief recovered verbatim;
+never in the repository) → **pre-registration `ddff0717`** (PLAN §P2-DIFF-1, ONE explicit path,
+BEFORE any fixture/manifest/runner byte) → pilot hop `86402cb1` (the disposable pilot: 4/4
+BOTH-PASS) → **runner `50b88594`** (`tools/dual_backend_test.py`, written to the PLAN, first run
+rc 0) → CLOSE (this commit: RESULTS §P2-DIFF-1 + PLAN `### P2-DIFF-1.15` dashboard CLOSED +
+LEARNINGS + durables).
+
+**STOP — the campaign ends here.** No new functionality is authorized by this slice: extending
+the differential to more programs, to non-numeric output, to `GET`/FILE/`PUT EDIT`, or to any
+return-value comparison needs a NEW operator brief.
