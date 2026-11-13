@@ -4789,7 +4789,7 @@ checkpoint-generation: 795
 checkpoint-id: g795-341c14d83337
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-13T13:01:36.394Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -5562,6 +5562,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1d4e7-bd90-71bb-af06-188f198ccc9d
+readiness-at: 2026-11-13T13:01:52.156Z
+readiness-checkpoint: g795-341c14d83337
 <!-- guard:end checkpoint -->
 
 ## Blockers
