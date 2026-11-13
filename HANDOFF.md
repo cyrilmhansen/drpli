@@ -2294,28 +2294,49 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 800
-checkpoint-id: g800-9aa63bfb9ec4
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3030, session 01a1d648-5872-766e-9c19-e2c339107b3d)
-checkpointed: 2026-11-13T19:15:55.855Z
+checkpoint-generation: 804
+checkpoint-id: g804-3f9f53ba0285
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-55, session 01a1d70b-6b81-7538-80fd-642aee597149)
+checkpointed: 2026-11-13T23:00:57.613Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: de015d715041ad4f84afe0f874a2acfe0d3c7aff017f4502c26c063ce2268427
-source-handoff: 55d4fe76e3ffb6462ed220e5f7922b9b99459fb863dfd067adfb9ec6cedc796a
-source-learnings: 3c39ff4faec0ae09f746aadec574a860b7491ec66728f35f61b57d660753ae22
+source-progress: fafd53272ec3054b5cd55190b9958317cf596f3a119177206b0d031a0eac01b7
+source-handoff: 915c23954693d838b9e0076a2a5c1973f3a89f814db800bb7b6ab019e5aa0265
+source-learnings: 44d61b7a9c33a755c66ce9e358bc6160b665b1c2320f9a4f61beb4830037e548
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d70b-6b81-7538-80fd-642aee597149
+readiness-at: 2026-11-13T23:00:57.762Z
+readiness-checkpoint: g804-3f9f53ba0285
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-(E2E-54/P2-DIFF-2
+(…Stage B IN FLIGHT…)`: review the two `.mir` outputs
+(`build/e54p2diff2/stageB/`) line-by-line ×2, commit sources + pins `hir/dif-expected/` + PLAN
+§P2-DIFF-2.10 record (source SHAs, unchanged pre-registered vectors, the three measured
+subset laws), then the runner CASES D06/D07 (entries `tariff`/`steps`, `nfuncs` 3 and 2 —
+VERIFY against mir2o stderr), then the differential runs (default + `--strict`, rc DIRECT),
+then the frozen panel, then the Stage B commit, then close. Recovery order: (1) `git rev-parse
+HEAD` + `git status --porcelain` (the two untracked `hir/dif-fixtures/*.pli` are the Stage B
+work; re-measure their SHAs against the PROGRESS text before trusting them); (2) `/handoff
+verify`; (3) read PROGRESS Stage B heading + LEARNINGS §§ "Stage B hop" (the three measured
+laws — literal+literal ADD refuses on `pli80c`; subsidiary needs its own `dcl`; loop-body
+by-ref actual must be re-initialized inside the body) and "Stage A(b) hop"; (4) PLAN
+§P2-DIFF-2 + §P2-DIFF-2.9. Standing: ZERO oracle; no compiler/golden/claims/pin change; no
+push; `handoff.config.json` never staged; explicit paths; rc DIRECT; LC_ALL=C; never batch
+build with tests; NEVER hand-edit a managed block; this session CANNOT handoff_renew (already
+renewed once — use handoff_finalize).
+
+SUPERSEDED-BY-ABOVE: 7-e54p2diff2A (2026-11-13, session 01a1d629 fresh startup; ZERO oracle; ledger 203/C380; start
+HEAD `042c208f`): **E2E-54/P2-DIFF-2 IS OPEN; STAGE A IS CLOSED AND COMMITTED — the ONLY
+active next action is Stage B, the two DIF programs** (PROGRESS `## Next action (E2E-54/P2-DIFF-2
 STAGE A CLOSED AND COMMITTED — Stage B is next…)`). The operator's STOP-and-attribute
 chronology (ten steps) was executed IN ORDER: the three contradictions (A: T7c fixture
 injected the EXPECTED vector on the 8080 lane — that configuration is 8080-ONLY, never
@@ -3586,5 +3607,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-2 STAGE A CLOSED. Operator STOP-and-attribute chronology (10 steps) executed IN ORDER: amendments A/B/C in PLAN §P2-DIFF-2.9 committed FIRST (e789de65, PLAN only), suite T7c+T4 corrected and committed alone (2dd43db0), runner hardened — assess_run/assess_case/run_cases/build_report/exit_code + lane_fns seam + native rc==0 law + BOTH-runs determinism + additive infrastructure_failure/semantic_divergence + --strict (55e43285); finding D (T9a fixture same defect class as A) measured and amended, law NOT weakened. Acceptance: suite 29/29 rc 0 twice; four cases rc 0 default AND --strict, 14/14 controls REJECTED; frozen panel all cmp-identical to baseline; fresh build hist 122 sha 172595d5..; pins UNMOVED; ledger 203/C380. Durables 40df4c82. NEXT: Stage B (PROGRESS live heading) — hir/dif-fixtures/DIF01.pli (entry tariff, expected [6300,1500,3000,1800,400,120]) and DIF02.pli (entry steps, AMENDED definition i<=4 d=5-i / i>4 d=i-4 / scale 2d+1, expected [9,7,5,3,3,5,7,9] unchanged); sources SHA-verified and committed BEFORE the differential run; inside the measured capability intersection. ZERO oracle; no compiler/golden/claims/pin change; no push; handoff.config.json never staged.
+E2E-54/P2-DIFF-2 STAGE B CLOSED AND COMMITTED (db3fda9c sources+pins+PLAN §P2-DIFF-2.10; 52c5bf68 runner D06/D07). Measured: full six-case differential 6/6 BOTH-PASS in default AND --strict (rc 0 each, 22/22 controls rejected, 28 checks, determinism (True,True) on all 12 lane executions); suite 29/29; FULL frozen panel all rc 0 and every log cmp-IDENTICAL to the baseline; hir/ and ocaml/ diffs exit 0; fresh _build-e54p2diff2b rc 0, pli80c.exe sha 172595d5..aca281; ledger 203/C380. A source defect was caught BEFORE the run (DIF01 leg-2 u=6-1 -> u=2-1; the pre-registered vector 1500 stands). NEXT: the CLOSE (RESULTS ## §P2-DIFF-2 + PLAN dashboard §P2-DIFF-2.8 + arch §7-11 correction per §P2-DIFF-2.5), then STAGE C (§P2-DIFF-2.4 Mir_numeric audit/extraction; STOP if not separable). Known open finding: the runner's MIR2O-FUNC-COUNT check reads stderr but mir2o prints the function count on stdout — VACUOUS, recorded in LEARNINGS, not silently fixed. ZERO oracle; no compiler byte; handoff.config.json never staged; no push.
 <!-- guard:end checkpoint -->

@@ -13562,3 +13562,61 @@ timeouts 60/120/900; gdb `-batch -nx` debuginfod off repo-root; cosmo
   CALLN1; the validated prototype patch survives at build/p1m3-scratch/g14/ocaml-proto (diff vs
   ocaml/hir/mir_backend.ml = the admission; rebuild + rerun the four measurements after ANY
   amendment).
+
+## E2E-54/P2-DIFF-2 Stage B hop (2026-11-13, session 01a1d70b fresh successor of chain 01a1d648; ZERO oracle; ledger 203/C380)
+
+**ACCEPTED (measured first-hand, this hop).**
+- **The two integrated programs are DIFFERENTIAL GREEN.** `tools/dual_backend_test.py --case D06
+  --case D07` rc **0**: D06 DIF01 `tariff` **BOTH-PASS** `[6300,1500,3000,1800,400,120]` and D07
+  DIF02 `steps` **BOTH-PASS** `[9,7,5,3,3,5,7,9]` — the PRE-REGISTERED vectors, unchanged; each
+  lane ×2 fresh, determinism (normalized, raw) `(True, True)` on all four lanes; 8/8 comparator
+  controls REJECTED; 10 measured checks; no infrastructure failure, no semantic divergence.
+  Evidence `build/e54p2diff2/stageB-dif-new.log` (ignored).
+- **The 8080 field law is visible in the raw bytes:** DIF01 `     6300      1500      3000      1800       400       120\r\n`
+  (six 9-char fields, one line) vs the native `6300\n1500\n…\n` — the SAME ordered vector, the
+  comparator's normalization is exactly what makes the two lanes comparable; raw bytes are kept
+  separately and never compared.
+- **The D06/D07 lanes execute the FULL chain:** the 8080 leg compiles with `pli80c -d` (the
+  reproduction), LINKS with DR LINK-80 1.31 + PLILIB.IRL (`parse_undefined` empty) and RUNS on
+  cpmsim; the native leg lowers with `pli80mir --export`, passes `mir2o -f` (4488 B / 3 functions,
+  2360 B / 2 functions) and runs the pinned cosmo `tiny` executable.  H-B1..H-B5 all HOLD.
+- **A SOURCE DEFECT CAUGHT BEFORE THE RUN (the independence law earning its keep).** The draft
+  DIF01 leg-2 was `u = 6 - 1` → u = 5 → `a = 6000`, `b = 6300`, i.e. the vector
+  `[6300, 6300, 3000, …]` — contradicting the pre-registered `report(2, 1): 1*1200 = 1200; 1200 +
+  300 = 1500`.  I traced the source arithmetic by hand BEFORE any differential run and fixed the
+  SOURCE (`u = 2 - 1`), not the expectation; the MIR diff is exactly one line (`mov t15, 6` →
+  `mov t15, 2`, verified by `diff` of the two measured outputs).  **LAW (mine, general): a
+  pre-registered vector must be checked against the source text by hand-tracing BEFORE the first
+  execution — the first execution is the experiment, not the test of my own arithmetic.**
+- **Encoding normalization measured, not assumed:** all 55 committed `.pli` fixtures end with
+  exactly ONE `^Z` (CRLF, ASCII); the drafts carried 4 and 2 `^Z` bytes and were normalized to the
+  convention.  (Extra `^Z` bytes are harmless to the compiler — both drafts compiled rc 0 — but the
+  repo convention is the convention.)
+- **The `nfuncs` values are MEASURED from `mir2o`'s own stdout** (`wrote 4488 bytes (3
+  function(s))`), not from the source's procedure count: the runner's `MIR2O-FUNC-COUNT` check
+  reads `o.stderr`, which is empty, and the check is therefore **non-binding but honest** — a
+  wrong `nfuncs` in the table would not be caught (the pre-registered report is
+  `mir2o stdout`; the check is a known limitation, NOT a bug fixed silently this stage).
+
+**FALSIFIED (previous hop's PROGRESS text, mine).** “`pli80mir --export` rc 0 for each” was true
+only of the 20:17 re-run; the 20:13 `*.mir.stderr` files in `build/e54p2diff2/stageB/` still carried
+the `HIR-E18 … never declared in this body` refusals, and the 20:13 `DIF01.compile.log` carried the
+`codegen: fixed-bin ADD between TWO INTEGER LITERALS` Fatal error.  The stageB/ directory mixes
+pre- and post-fix evidence — re-measuring from the CURRENT sources into a fresh directory
+(`stageB2/`) is what made the state trustworthy.  **LAW: never trust a scratch evidence directory
+whose files have different mtimes; re-measure into a fresh one.**
+
+**MEASURED, THIS HOP (accepted).**
+- The full six-case differential is **6/6 BOTH-PASS** in BOTH modes (default and `--strict`), rc 0
+  each, 22/22 controls rejected, 28 checks, determinism (True,True) on all twelve lane executions;
+  the whole frozen panel is byte-identical to the campaign baseline and the compiler is unmoved
+  (`172595d5…aca281` from a fresh `_build-e54p2diff2b`).  Stage B is committed: `db3fda9c`
+  (sources + pins + PLAN §P2-DIFF-2.10) then `52c5bf68` (the runner).
+- **FALSIFIED (harness, mine, zero repo byte): the `MIR2O-FUNC-COUNT` check is VACUOUS.**
+  `run_native_lane` looks for `"<n> function(s)"` in `o.stderr`, but mir2o prints that line on
+  **stdout** (`mir2o: wrote 4488 bytes (3 function(s))` — measured directly).  The check passes
+  vacuously only because the `returncode`/`out.o` checks before it are the real gate; a wrong
+  `nfuncs` in the CASES table would NOT be caught.  NOT fixed in this hop (the runner is committed
+  green; fixing it changes the evidence semantics of a passing suite) — recorded as a PROPOSED
+  follow-up for the close: read the count from stdout (or the combined output), and keep the
+  `nfuncs` field as a real assertion.
