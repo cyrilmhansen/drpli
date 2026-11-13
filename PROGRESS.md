@@ -4889,21 +4889,43 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 797
-checkpoint-id: g797-ba3fb5ef583f
-checkpoint-kind: auto
+checkpoint-generation: 798
+checkpoint-id: g798-68c3e24a586b
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-13T18:19:49.031Z
+checkpointed: 2026-11-13T18:21:12.341Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 9847bdc368334bce8b24804d71cbfe5a0a7c5b970fcb394741001fb767d21dc0
-source-handoff: ba657092b68cbdeff010c9250e49dab93967263de2334285f002558a5b0f2457
-source-learnings: 01bc162c2b08c2974fadf5b04b8c0d01a7a12e2d9bf03347bffc35278f1a2073
+source-handoff: 76fce514c85502e1a5a30e1053cbaa258c7d7f485c6a7ab1979c3d7b83ccd90e
+source-learnings: 2faa1a40da15995b343cea71a45d6758f2fa3cdd0ac39c81113058c6679b506a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (E2E-54/P2-DIFF-2 IN FLIGHT — Stage A …)`.
-Recovery order: (1) `git rev-parse HEAD` (expect the pre-registration commit, then the Stage-A
-commits) and `git status --porcelain` (the ONLY tracked dirty file may be the operator's
+next-action: (E2E-54/P2-DIFF-2 IN FLIGHT at
+Stage A(b) …)`: harden `tools/dual_backend_test.py` (add `assess_run`/`assess_case`/`run_cases`
+with an injectable `lane_fns` seam and `exit_code(report, strict)`; the native status law is
+**`rc == 0`**; BOTH executions of EACH lane must match; `infrastructure_failure` and
+`semantic_divergence` are ADDITIVE fields; `failures`/`verdict`/`raw_*`/`normalized_*`/
+`determinism_*`/`controls`/`lane` keep their existing meaning), then re-run the suite to rc 0,
+then the four existing cases (rc 0, 4/4 BOTH-PASS), then the frozen panel (§P2-DIFF-2.6), then
+commit Stage A INDEPENDENTLY before Stage B. Recovery order: (1) `git rev-parse HEAD` +
+`git status --porcelain` (only the operator's `handoff.config.json` may be dirty, never staged;
+untracked scratch is pre-existing); (2) `/handoff verify` (the managed block below is from the
+PREVIOUS campaign — legitimately stale); (3) read the committed `spec/lab-evidence/e2e54/PLAN.md`
+**§P2-DIFF-2** in full (the whole campaign is pre-registered there); (4) the baseline measured
+first-hand in `build/e54p2diff2/base-*.log` (gate 1328/1328-190/190-9/9-149-16/0/25/0-prose 5,
+hir 220, mir 32, cosmo 25, console 43, debug 23, CF 83, call 86, runner 0, functional 211/211,
+hist `172595d5…aca281`, pins clean, ledger 203/C380 — every panel log `cmp`-identical to the
+P2-DIFF-1 baseline's); (5) `LEARNINGS.md` §§ "E2E-54/P2-DIFF-2 Stage A hop" and "…pre-registration
+hop" for the method lessons and the HIR/MIR laws that constrain the Stage-B programs. §P2-DIFF-1
+is CLOSED and immutable — do not edit it. Standing: ZERO oracle; no compiler/golden/pin change;
+no push; no `git add -A`; explicit paths; rc DIRECT; `LC_ALL=C`; no automatic renewal; never
+hand-edit a managed checkpoint block.
+
+SUPERSEDED-BY-ABOVE: 5-e54p2diff-close (2026-11-13, session 01a1d4e7 renewal 1/12 of chain 01a1d4d5; ZERO oracle;
+ledger 203/C380; start HEAD `86402cb1`) — the entry below was written when the previous campaign
+was the active one; its recovery text continued: (expect the pre-registration commit, then the
+Stage-A commits) and `git status --porcelain` (the ONLY tracked dirty file may be the operator's
 `handoff.config.json`, never staged; untracked scratch is pre-existing — `S*.PLI`/`S*.log`,
 `golden/e5*/…/dir.txt`, `ocaml/_build-*`, `build/e54p2diff2/`); (2) `/handoff verify` (the
 managed block below is from the PREVIOUS campaign and is expected to be stale — a prose edit
@@ -6106,6 +6128,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1d53d-3f86-7183-9f6a-b2f26c5bf990
+readiness-at: 2026-11-13T18:21:12.476Z
+readiness-checkpoint: g798-68c3e24a586b
 <!-- guard:end checkpoint -->
 
 ## Blockers
