@@ -7,7 +7,40 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-5-e54p2diff-pilot (2026-11-13, session 01a1d4d5; ZERO oracle; ledger 203/C380; start HEAD `31824e26`; the checkpoint is STALE after my prose edits): **THE PRE-REGISTRATION IS COMMITTED `ddff0717` (PLAN §P2-DIFF-1, 348 lines, ONE explicit path, BEFORE any fixture/runner byte) AND THE DISPOSABLE PILOT RAN GREEN — ALL FOUR `BOTH-PASS`, each lane ×2 fresh contexts, RAW-deterministic.** The operator REFINEMENT landed in the PLAN: D01 M02 EXCLUDED (NOT-COMPARABLE, no console output), D03 CALL04 REPLACES CALL02 (deepest-procedure `51`), four SAME-SOURCE sha's measured (CF06 `bb2ba55e…`, CALL04 `72c418e4…`, CALL06B `f0e915dd…`, CALL07 `0b2d3bdc…`). The 8080 lane COMPILED, LINKED CLEAN (`parse_undefined` empty on the full segment) and RAN on CP/M for ALL FOUR (the CF06/CALL04/CALL07 link+run hypothesis is now MEASURED; the recon probe's `        2         7^M` reproduced exactly); raw regions D02 `        0         1         2^M$`, D03 `       51^M$` (the 9-char field), D05 `        1         2         3^M$`; native lane pin-consistent, cosmo-tiny EXECUTED `0\n1\n2\n`/`51\n`/`2\n7\n`/`1\n2\n3\n` (driver-return 3/91/7/3 EXCLUDED — lane-specific). **`tools/dual_backend_test.py` IS WRITTEN to §P2-DIFF-1.9 (imports functional_runner stages + the pinned cosmo recipe; three comparator controls C-DF1/2/3) BUT NOT YET EXECUTED.** NEXT VERBATIM: (1) `eval "$(opam env)" && python3 tools/dual_backend_test.py` (repo root, timeout 900, rc DIRECT) — fix RUNNER defects only, re-run until all controls REJECT; commit the ONE explicit path; (2) the FROZEN PANEL each own rc (gate 1328/1328-190/190-9/9-149-0/0-16/0/25/0-prose 5 → `build/e54p2diff-reg-gate.log`; hir 220 cmp; mir 32; cosmo 25; console 43; debug 23; CF 83; call 86; pins UNMOVED; fresh build hist 122 sha==`172595d5…`; ledger 203/C380); (3) RESULTS `## §P2-DIFF-1` + PLAN dashboard CLOSED row + arch note if justified + durables + `/handoff finalize` + STOP. FULL RECORD: LEARNINGS § "E2E-54/P2-DIFF-1 PILOT hop" (VERBATIM FIRST) + PROGRESS live heading. Falsified (harness, mine, zero repo byte): `Stage` field is `witness` not `code`; bytes previews need decoding for json.dumps. Standing: ZERO oracle (the LINKER/RUNTIME are DR, the COMPILER is mine); NO compiler/pin/fixture/claims byte; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset; scratch `build/e54p2-scratch/` + `build/dual-backend/` NEVER committed; rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo `chmod +x`; NEVER hand-edit managed checkpoint blocks.
+5-e54p2diff-close (2026-11-13, session 01a1d4e7 renewal 1/12 of chain 01a1d4d5; ZERO oracle;
+ledger 203/C380; start HEAD `86402cb1`): **THE E2E-54/P2-DIFF-1 SLICE IS COMPLETE AND CLOSED —
+NO NEXT ACTION EXISTS.** Landed first-hand: the runner `tools/dual_backend_test.py` FIRST RUN
+rc **0** — **D02 CF06 `count` [0,1,2] / D03 CALL04 `chain` [51] / D04 CALL06B `diffal` [2,7] /
+D05 CALL07 `thrice` [1,2,3] ALL `BOTH-PASS`**, ×2 fresh per lane, raw+normalized determinism
+True, **14/14 comparator controls REJECTED**, 18 measured checks, second full run also rc 0;
+one runner defect fixed at first run (harness `json.dump` on retained raw `bytes` → a latin-1
+`default=` at the JSON boundary only); committed `50b88594` (ONE explicit path). The
+pre-registered hypothesis is MEASURED: CF06/CALL04/CALL07 (no committed LINK/RUN witness before
+this campaign) link clean (`parse_undefined` EMPTY on the FULL segment) and run on CP/M; the
+8080 regions are 31/11/21/31 bytes, `.COM` 6912/6912/6912/7040 B; CALL06B reproduces the recon
+probe byte-for-byte. THE FULL FROZEN PANEL ALL HIT, every command its OWN rc: gate 0 →
+1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5 (`build/e54p2diff-reg-gate.log`,
+byte-identical to the m3b/m3c-close/baseline gate logs); hir 220 (log cmp-identical to the m3b
+reg log); mir 32, cosmo 25, console 43, debug 23, CF 83, call 86 (all six byte-identical to the
+baseline logs); `git diff --exit-code -- hir/` rc 0 + the standalone DWARF re-measurement
+(`M05.mir`, `M05.p1md` cmp-equal); fresh `_build-e54p2diff` rc 0 ZERO `Error` hist 122 (log
+cmp-identical to the m3-close log) sha == `172595d5…aca281`; T2 exit-clean; ledger 203/C380.
+CLOSE committed `f7016a40` (three explicit paths: RESULTS `## §P2-DIFF-1`, PLAN `###
+P2-DIFF-1.15` CLOSED row, additive `docs/architecture/backend-boundary.md` §7-11). ZERO
+compiler/MIR/ABI/golden/pin/claims byte touched. **STOP AND AWAIT THE OPERATOR** — extending the
+differential (more programs, non-numeric output, `GET`/FILE/`PUT EDIT`, any return-value claim)
+and every other phase need a NEW operator brief. On re-authorization: the runner is at `50b88594`
+and GREEN, the pre-registration is `ddff0717`, the four source SHAs are in PLAN §P2-DIFF-1.2;
+baseline FIRST-HAND (build rc 0; T1 `172595d5…aca281` DIRECT; T2 exit-clean; every pin UNMOVED;
+ledger 203/C380), then READ LEARNINGS § "E2E-54/P2-DIFF-1 CLOSE hop" VERBATIM FIRST, then the
+pilot/pre-registration/baseline/recon hop sections, then RESULTS §P2-DIFF-1 + PLAN §P2-DIFF-1.
+Standing: ZERO oracle (the LINKER/RUNTIME are Digital Research's, the COMPILER is mine —
+distinguish in every report; `PLI.COM` never ran); `handoff.config.json` NEVER staged; no push;
+no `git add -A`/clean/reset; explicit paths; scratch `build/e54p2-scratch/` + `build/dual-backend/`
+NEVER committed; rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo
+`chmod +x`; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: 5-e54p2diff-pilot (2026-11-13, session 01a1d4d5; ZERO oracle; ledger 203/C380; start HEAD `31824e26`; the checkpoint is STALE after my prose edits): **THE PRE-REGISTRATION IS COMMITTED `ddff0717` (PLAN §P2-DIFF-1, 348 lines, ONE explicit path, BEFORE any fixture/runner byte) AND THE DISPOSABLE PILOT RAN GREEN — ALL FOUR `BOTH-PASS`, each lane ×2 fresh contexts, RAW-deterministic.** The operator REFINEMENT landed in the PLAN: D01 M02 EXCLUDED (NOT-COMPARABLE, no console output), D03 CALL04 REPLACES CALL02 (deepest-procedure `51`), four SAME-SOURCE sha's measured (CF06 `bb2ba55e…`, CALL04 `72c418e4…`, CALL06B `f0e915dd…`, CALL07 `0b2d3bdc…`). The 8080 lane COMPILED, LINKED CLEAN (`parse_undefined` empty on the full segment) and RAN on CP/M for ALL FOUR (the CF06/CALL04/CALL07 link+run hypothesis is now MEASURED; the recon probe's `        2         7^M` reproduced exactly); raw regions D02 `        0         1         2^M$`, D03 `       51^M$` (the 9-char field), D05 `        1         2         3^M$`; native lane pin-consistent, cosmo-tiny EXECUTED `0\n1\n2\n`/`51\n`/`2\n7\n`/`1\n2\n3\n` (driver-return 3/91/7/3 EXCLUDED — lane-specific). **`tools/dual_backend_test.py` IS WRITTEN to §P2-DIFF-1.9 (imports functional_runner stages + the pinned cosmo recipe; three comparator controls C-DF1/2/3) BUT NOT YET EXECUTED.** NEXT VERBATIM: (1) `eval "$(opam env)" && python3 tools/dual_backend_test.py` (repo root, timeout 900, rc DIRECT) — fix RUNNER defects only, re-run until all controls REJECT; commit the ONE explicit path; (2) the FROZEN PANEL each own rc (gate 1328/1328-190/190-9/9-149-0/0-16/0/25/0-prose 5 → `build/e54p2diff-reg-gate.log`; hir 220 cmp; mir 32; cosmo 25; console 43; debug 23; CF 83; call 86; pins UNMOVED; fresh build hist 122 sha==`172595d5…`; ledger 203/C380); (3) RESULTS `## §P2-DIFF-1` + PLAN dashboard CLOSED row + arch note if justified + durables + `/handoff finalize` + STOP. FULL RECORD: LEARNINGS § "E2E-54/P2-DIFF-1 PILOT hop" (VERBATIM FIRST) + PROGRESS live heading. Falsified (harness, mine, zero repo byte): `Stage` field is `witness` not `code`; bytes previews need decoding for json.dumps. Standing: ZERO oracle (the LINKER/RUNTIME are DR, the COMPILER is mine); NO compiler/pin/fixture/claims byte; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset; scratch `build/e54p2-scratch/` + `build/dual-backend/` NEVER committed; rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo `chmod +x`; NEVER hand-edit managed checkpoint blocks.
 
 SUPERSEDED-BY-ABOVE: 5-e54p2diff-prereg (2026-11-13, session 01a1d4a9 renewal 1/12 of chain 01a1d3b4; ZERO oracle; ledger 203/C380; start HEAD `250465e6`; g789 attested at start): **THE §P2-DIFF-1 PRE-REGISTRATION COMMIT IS THE ONE OWED NEXT ACTION — no fixture or runner byte before it.** Landed first-hand: (0) build rc 0, T1 `172595d5…aca281` DIRECT, HEAD `250465e6`, tree dirty only the managed blocks + operator config (NEVER staged) + pre-existing scratch. (1) **THE OPERATOR BRIEF IS NOT IN THE REPOSITORY** — it was recovered VERBATIM from the parent chain transcript `~/.sushi/pi/sessions/--home-john-projects-sushiworks-pli80--/2026-11-13T06-35-12-601Z_01a1d39e-0b57-77bd-adf7-c27385f1daa5.jsonl` (first `user` record; parse with Python `json`, never grep); its full §1–§10 content is reproduced in LEARNINGS § "E2E-54/P2-DIFF-1 pre-registration hop" — READ THAT SECTION VERBATIM FIRST, it is the single most complete contract statement in the repo. (2) CP/M toolchain verified first-hand (linkrun SIM present, 4 DR tools in `artefacts/`, both boot seeds). (3) The recon probe's evidence re-read: `build/e54p2-scratch/probe/` link transcript (LINK 1.31, NO `UNDEFINED SYMBOLS`, CODE 1834) and run transcript line 23 `        2         7^M`. (4) NEW dual-lane measurements (disposable, ZERO repo byte): 8080 lane rc 0 for M02 128 B / CF06 256 / CF07 128 / CF10 256 / CALL02 256 / CALL06A 256 / CALL07 384 (sizes reproduce the baseline sweep); native lane `pli80mir --export` rc 0 ZERO stderr for m02/count/zero/stepdn. (5) The nine source SHAs are recorded in LEARNINGS. **THE PILOT IS DECIDED (PROPOSED, to be committed in the PLAN): all five are EXISTING committed fixtures, reused WITHOUT editing — D01 M02 (scalar arithmetic, native 45), D02 CF06 (counted `do while`, `0 1 2` then 3), D03 CALL02 (value-arg call, PUT `2`), D04 CALL06B (by-ref aliasing differential, the recon-proven SAME-SOURCE pair `2 7`), D05 CALL07 (value-call used by the caller, `1 2 3` then 3); ALL GET-free (no input stream); ALL SAME-SOURCE (the native `--export <entry>` vs the 8080 LINK-80 MAIN entry is a difference of INVOCATION, not of source bytes).** Then pilot measured-first → `tools/dual_backend_test.py` → RESULTS §P2-DIFF-1 + additive arch note → STOP. Standing: ZERO oracle (the historical LINKER/RUNTIME is NOT the DR COMPILER ORACLE — distinguish in every report); NO compiler source change; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset; explicit paths; scratch `build/e54p2-scratch/` NEVER committed; rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo `chmod +x`; console links include `tools/mir_aot/pli_console.c`; NEVER hand-edit managed checkpoint blocks.
 
@@ -2152,22 +2185,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 792
-checkpoint-id: g792-c08ebf450632
+checkpoint-generation: 795
+checkpoint-id: g795-341c14d83337
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6606, session 01a1d4d5-14c2-71bb-af06-188aa0222b15)
-checkpointed: 2026-11-13T12:34:19.864Z
+status: checkpoint (guard level 4, remaining ~3167, session 01a1d4e7-bd90-71bb-af06-188f198ccc9d)
+checkpointed: 2026-11-13T13:01:36.394Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: ff173216772c76a6d87df34ada254b86dd715ba02a52d3b357a5eb3a1e1f4cda
-source-handoff: def188fda2d9f095b6a900d4ecbc70a73b27ebdb3fc8ede0f8533073644a9ca9
-source-learnings: 00df7758d2e4850d1bfddc217bcb4aded03dbb11e457206e67ae0cf3156dc1f2
+source-progress: a7699128ae21dcad862eace308dbecefaaf6db267f1a21027b9a7c44562033f3
+source-handoff: c1050698748dc8df40ff2fe058df58cc333b4b87fe1ab8fde2c1615b3bc62c32
+source-learnings: 5674746ce27ed2dc17a3802c5e51d5118bd77117bff5bcd6049d977dbc3b802f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

@@ -48,7 +48,48 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-1 PILOT hop — **§P2-DIFF-1 PRE-REGISTRATION COMMITTED `ddff0717`; DISPOSABLE PILOT RAN 4/4 BOTH-PASS ×2 per lane; THE RUNNER `tools/dual_backend_test.py` IS WRITTEN, ITS FIRST RUN OWED**; session 01a1d4d5; ZERO oracle; ledger 203/C380; start HEAD `31824e26`)
+## Next action (E2E-54/P2-DIFF-1 **CLOSED** — the runner ran GREEN and is committed; THE CAMPAIGN ENDS HERE; **NO NEXT ACTION EXISTS — STOP and await the OPERATOR**)
+
+**DONE FIRST-HAND THIS CLOSE HOP** (session 01a1d4e7 renewal 1/12 of chain 01a1d4d5; start HEAD
+`86402cb1`; ZERO oracle; ledger 203/C380):
+(1) `tools/dual_backend_test.py` FIRST RUN rc **0** — **D02/D03/D04/D05 ALL `BOTH-PASS`**, each
+lane ×2 fresh contexts, determinism True on the normalized vector AND the raw bytes; **14/14
+comparator controls REJECTED**; 18 measured checks; a second full run also rc 0; `--case D04` and
+`--case D02 --json` both exercised rc 0. ONE runner defect fixed at first run (harness only:
+`json.dump` on the retained raw `bytes` → `default=` renders latin-1 at the JSON boundary; the
+on-disk evidence stays raw). Committed **`50b88594`** (ONE explicit path).
+(2) THE PRE-REGISTERED HYPOTHESIS IS MEASURED: CF06, CALL04, CALL07 (no committed LINK/RUN witness
+before this campaign) now link clean (`parse_undefined` EMPTY on the FULL segment) and RUN on
+CP/M; the 8080 regions are CF06 `        0         1         2\r\n` (31 B), CALL04 `       51\r\n`
+(11 B), CALL06B `        2         7\r\n` (21 B, byte-identical to the recon probe), CALL07
+`        1         2         3\r\n` (31 B); `.COM` 6912/6912/6912/7040 B.
+(3) FULL FROZEN PANEL, every command its OWN rc: gate **0** → 1328/1328-190/190-9/9-149 rows
+0/0-census 16/0/25/0-prose 5 (`build/e54p2diff-reg-gate.log`, **byte-identical** to the m3b,
+m3c-close and baseline-hop gate logs); hir 220 (log `cmp`-identical to
+`build/e54p1m3b-hirtest-reg.log`); mir 32, cosmo 25, console 43, debug 23, CF 83, call 86 (all six
+**byte-identical to the baseline logs**); `git diff --exit-code -- hir/` rc 0 (ALL PINS UNMOVED)
+plus the standalone DWARF re-measurement (`M05.mir` + `M05.p1md` `cmp`-equal); fresh
+`_build-e54p2diff` rc 0, ZERO `Error`, hist **122** (log `cmp`-identical to the m3-close log),
+exe sha == kept `172595d5…aca281`; T2 exit-clean; ledger 203/C380.
+(4) CLOSE committed **`f7016a40`** (three explicit paths): RESULTS `## §P2-DIFF-1` (verdict table,
+raw-vs-normalized evidence, tool/artifact identities, the 14 controls, 6 deviations, the
+limitations, the panel, the reproduction, the commit chain), PLAN `### P2-DIFF-1.15` dashboard
+**CLOSED**, additive `docs/architecture/backend-boundary.md` **§7-11**.
+
+**SUCCESSOR: NOTHING IS AUTHORIZED.** The brief ends at the close; extending the differential
+(more programs, non-numeric output, `GET`/FILE/`PUT EDIT`, any return-value claim) needs a NEW
+operator brief. If granted: the runner is at `50b88594` and GREEN; the pre-registration is
+`ddff0717`; the four source SHAs are in PLAN §P2-DIFF-1.2; the full record is LEARNINGS §
+"E2E-54/P2-DIFF-1 CLOSE hop" (READ VERBATIM FIRST) then the pilot/pre-registration/baseline/recon
+hop sections; baseline FIRST-HAND = build rc 0, T1 `172595d5…aca281` DIRECT, T2 exit-clean, the
+frozen panel, ledger 203/C380.
+Standing: ZERO oracle (the LINKER/RUNTIME are Digital Research's, the COMPILER is mine — say so in
+every report; `PLI.COM` never ran); `handoff.config.json` NEVER staged; no push; no
+`git add -A`/clean/reset; explicit paths; scratch `build/e54p2-scratch/` + `build/dual-backend/`
+NEVER committed; rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo
+`chmod +x`; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-1 PILOT hop## Next action (E2E-54/P2-DIFF-1 PILOT hop — **§P2-DIFF-1 PRE-REGISTRATION COMMITTED `ddff0717`; DISPOSABLE PILOT RAN 4/4 BOTH-PASS ×2 per lane; THE RUNNER `tools/dual_backend_test.py` IS WRITTEN, ITS FIRST RUN OWED**; session 01a1d4d5; ZERO oracle; ledger 203/C380; start HEAD `31824e26`)
 
 **DONE FIRST-HAND:** the operator REFINEMENT is recorded in the committed §P2-DIFF-1 (D01 M02
 NOT-COMPARABLE/excluded; D03 CALL04 replaces CALL02; four SAME-SOURCE sha's). The disposable
@@ -4744,17 +4785,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 792
-checkpoint-id: g792-c08ebf450632
+checkpoint-generation: 795
+checkpoint-id: g795-341c14d83337
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-13T12:34:19.864Z
+guard-level: 4
+checkpointed: 2026-11-13T13:01:36.394Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: ff173216772c76a6d87df34ada254b86dd715ba02a52d3b357a5eb3a1e1f4cda
-source-handoff: def188fda2d9f095b6a900d4ecbc70a73b27ebdb3fc8ede0f8533073644a9ca9
-source-learnings: 00df7758d2e4850d1bfddc217bcb4aded03dbb11e457206e67ae0cf3156dc1f2
+source-progress: a7699128ae21dcad862eace308dbecefaaf6db267f1a21027b9a7c44562033f3
+source-handoff: c1050698748dc8df40ff2fe058df58cc333b4b87fe1ab8fde2c1615b3bc62c32
+source-learnings: 5674746ce27ed2dc17a3802c5e51d5118bd77117bff5bcd6049d977dbc3b802f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
