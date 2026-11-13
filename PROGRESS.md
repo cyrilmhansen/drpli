@@ -48,7 +48,11 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P1-m3 CLOSE session hop 3 — **FULL FROZEN PANEL HIT + CLOSE LANDED `3edfb64a`; THE §P1-m3 SLICE IS COMPLETE — STOP, NOTHING FURTHER IS AUTHORIZED**; renewal 2/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P2-DIFF-1 recon hop 1 — **SAME-SOURCE PROVEN; BASELINE PANELS + §P2-DIFF-1 PREREGISTRATION OWED**; session 01a1d39e fresh startup; ZERO oracle; ledger 203/C380)
+
+**IN FLIGHT:** operator brief E2E-54/P2-DIFF-1 (cross-backend behavioral equivalence) authorized; baseline HEAD `a8eb7d59` verified; build rc 0; Cosmopolitan pin + cpmsim + cpmtools + DR link tools all present FIRST-HAND. THE KEY MEASUREMENT (LEARNINGS § "E2E-54/P2-DIFF-1 recon hop"): native-form entry `CALL06B.pli` compiles with `pli80c` (384 B REL), LINKS CLEAN (parse_undefined empty on FULL segment) and RUNS on CP/M → `        2         7\r\n` matching the native independent expectation `2\n7\n`/dr 7. **SAME-SOURCE route is ALIVE** (SHARED-CORE fallback only). 8080 console subset traps: bare `put list(4)` refuses; `6*7` refuses. NEXT VERBATIM = the SUCCESSOR CONTRACT in LEARNINGS § "E2E-54/P2-DIFF-1 recon hop": baseline panels (each OWN rc: hir 220, mir 32, cosmo 25, console 43, debug 23, CF 83, call 86; gate 1328/…; T1 `172595d5…`; ledger 203/C380) → **PROTOCOL #1 preregistration commit to `spec/lab-evidence/e2e54/PLAN.md` BEFORE any fixture byte** → pilot D01–D05 → `tools/dual_backend_test.py` → RESULTS → STOP. No compiler source changes; zero oracle; config never staged; no push; scratch (`build/e54p2-scratch/`) never committed.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3 CLOSE session hop 3 — **FULL FROZEN PANEL HIT + CLOSE LANDED `3edfb64a`; THE §P1-m3 SLICE IS COMPLETE — STOP, NOTHING FURTHER IS AUTHORIZED**; renewal 2/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
 
 **THE E2E-54/P1-m3 SLICE IS CLOSED.** Done FIRST-HAND this hop (full record LEARNINGS §
 "E2E-54/P1-m3 CLOSE session hop 3" — READ VERBATIM FIRST, then §§ hop 2 / hop 1 / m3c hop 18 /
@@ -4625,17 +4629,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 784
-checkpoint-id: g784-290b6ffd7b83
+checkpoint-generation: 786
+checkpoint-id: g786-5d429a1f1e6c
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-13T00:11:37.149Z
+checkpointed: 2026-11-13T06:57:49.416Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7ff3f7494fc9d9deb4559cd75cee30e225b25436d03c8d2779c7325b45cbc852
 source-handoff: cb0455d797ee40d3ac074998f96b7cfd9a0fd84adfaf500e72ec66e0d645c397
-source-learnings: 5aa943170c52fbf54eeb4e8931021b29b0258a651310b6e24831e284e7412607
+source-learnings: 076d70377f1773089c11cd5a240e6620f2e7071c79b070fea09d656ea8993355
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -5402,9 +5406,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d22d-dc41-7719-ab09-cc13f9e4f908
-readiness-at: 2026-11-13T00:12:02.443Z
-readiness-checkpoint: g784-290b6ffd7b83
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -5,6 +5,78 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-1 recon hop (2026-11-13, session 01a1d39e fresh startup; ZERO oracle; ledger 203/C380) — dual-backend feasibility gate IN FLIGHT; entry-contract facts MEASURED
+
+ACCEPTED (verified by reading the committed code + disposably running the compilers on
+ALREADY-COMMITTED sources; no repo byte of compiler/fixture/pin touched):
+- Baseline: HEAD `a8eb7d59` (== the brief start); `cd ocaml && eval "$(opam env)" && dune
+  build` rc 0; tree dirty ONLY the operator `handoff.config.json` (never staged) +
+  pre-existing untracked scratch (S2..S5, golden dir.txt rows). The historical regression
+  panels (gate 1328, hir 220, mir 32/25/43/23/83/86) have NOT yet been re-run this session.
+- Toolchain availability verified first-hand: `build/p1m0-deps/mir2o` present; pinned
+  Cosmopolitan tree `build/p1mc-deps` (cosmocc 4.0.2, zip sha pinned in
+  `tools/mir_aot/cosmo_link.sh`); `cpmsim` at `/home/john/pli/cpm/z80pack/cpmsim/cpmsim`
+  AND `thirdparty/z80pack/cpmsim/cpmsim`; `/usr/bin/mkfs.cpm` (the `oracle/cpmwork.py`
+  TOOLS default) exists; `artefacts/` DR tools present. `oracle/linkrun.py` +
+  `oracle/cpmwork.py` + `tools/functional_runner.py` carry the FULL lane machinery
+  (stage_compile `pli80c -d`; LINK via `parse_undefined` on the FULL transcript segment —
+  [C137] law; RUN via `##WAIT` prompt-sync + the FS-01 anchor law console-region cut;
+  ASSERT `collapse-spaces-v1` complete-stream).
+- THE ENTRY CONTRACTS ARE MUTUALLY EXCLUSIVE BY DESIGN (read first-hand):
+  * NATIVE lane (`ocaml/hir/mir_backend.ml`): the entry must be a zero-arg
+    `PROCEDURE ... RETURNS(FIXED BIN(p,0))` whose body ENDS with `RETURN(expr)`
+    (the `None`-ret and non-`Fixed_bin` arms refuse ~:196-208); `Hir.Stop` is refused
+    BY NAME (~:1612 "stop is outside the native subset"); a nested procedure inside a
+    subsidiary refuses (~:222); `--export` must fold-match the head procedure name.
+  * 8080 lane (`ocaml/lib/codegen.ml` `emit_program`): `check_bopts` refuses any block
+    option other than `MAIN`/`STACK`; the MAIN prologue/epilogue is selected
+    unconditionally — the documented no-`options(main)` gap is the FLOAT path
+    (~:2060-2100), NOT the integer path.
+- FEASIBILITY MEASUREMENT (the KEY finding, disposable compile of committed fixtures):
+  * `pli80c -d hir/mir-call-fixtures/CALL06B.pli` → **rc 0, CALL06B.REL 384 B**
+    (code=94 data=12); `CALL04.pli` → rc 0, 256 B (code=97 data=16). The native
+    ENTRY FORM (`returns(fixed bin(15))`, no `options(main)`, final `RETURN`) COMPILES
+    under the historical compiler. `M01.pli` refuses (fixed-bin MULTIPLY of two
+    literals unsampled — a CODEGEN subset refusal, not an entry refusal); CALL01
+    refuses `PUT form not in E2E-3a subset` at line 5 (`put list(4);` — a bare
+    numeric literal PUT is NOT in the 8080 console subset!).
+  * PROPOSED (NOT yet proven): the 8080-side .REL for a native-form entry may LINK and
+    RUN under cpmsim (the `?STOPX`/epilogue question is UNMEASURED — the program has no
+    STOP). THIS IS THE FIRST EXPERIMENT THE SUCCESSOR MUST RUN: link + run
+    CALL06B.REL through the functional-runner Lane B machinery (fresh isolated
+    workspace; parse_undefined on the full transcript; console capture). If it links
+    and runs with a clean termination witness, SAME-SOURCE is alive for the whole
+    shared subset; if not, fall back to SHARED-CORE (two wrappers: 8080
+    `options(main)`+`stop;` vs native `returns(fixed bin(15))`+final `RETURN(expr)`,
+    identical core statements, identity verified by byte diff of the core block).
+- CONSOLE FORMAT DIFFERENCE (read first-hand, drives the §5 normalization):
+  * 8080 `PUT LIST` = 10-position right-justified numeric fields, NO line terminator
+    (README §6, [C352] framing); native `PUT LIST` = one item per statement, plain
+    decimal + `\n` (the backend closes every PUT with `pli_console_put_nl`; the
+    `pli_console.c` contract). Expected output lines in the 8080 corpus are
+    `collapse-spaces-v1` normalized; the differential comparator must be the
+    **ordered signed-decimal integer vector** (brief §5), NOT raw bytes.
+- 8080 FUNCTIONAL SUBSET (already-committed corpus): `spec/functional/tests/*.PLI` uses
+  `fixed` (decimal) types heavily, `put skip list('TXT=', n)` (two-item PUT), recursion,
+  arrays — the native lane has NO arrays, NO decimal (`fixed` alone is DECIMAL, NOT in
+  `Fixed_bin`; the native subset is `FIXED BINARY(p,0)` only), NO recursion (DFS cycle
+  refusal), NO multi-item PUT, NO PUT SKIP, NO STOP. So the shared executable core is
+  SMALL: `fixed bin(15)` scalars, `call`/value-call (non-recursive, entry-level),
+  IF/ELSE, counted `do while`, single-item `put list(<var>)` / `put list('lit')`,
+  `get list(scalar)`.
+- Incident (recorded honestly): an `edit` call with a bad anchor replaced the LEARNINGS
+  title line with `PLACEHOLDER-NOT-USED` and was immediately restored via
+  `git checkout -- LEARNINGS.md` (single-file, only my own bad edit; the file is clean
+  at HEAD — verified by empty `git diff`). Lesson: NEVER use a one-line `oldText` that
+  can collide with the header; anchor on the unique full heading line.
+
+NEXT (successor, VERBATIM order): (1) run the disposables: link+run CALL06B.REL (and
+CALL04.REL) under Lane B — if the native-form entry RUNS under CP/M, the SAME-SOURCE
+route is PROVEN; (2) baseline regressions (gate; hir 220; mir 32; cosmo 25; console 43;
+debug 23; CF 83; call runner 86) each OWN rc; (3) then the §P2-DIFF-1 PRE-REGISTRATION
+commit to `spec/lab-evidence/e2e54/PLAN.md` (PROTOCOL #1, BEFORE any fixture byte);
+(4) pilot D01–D05; (5) `tools/dual_backend_test.py`.
+
 ## E2E-54/P1-m3 CLOSE session hop 3 (2026-11-13, renewal 2/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380) — **FULL FROZEN PANEL HIT + THE §P1-m3 CLOSE LANDED at `3edfb64a`; SLICE COMPLETE — STOP**
 
 - ACCEPTED (recovery): start HEAD `6baeb36d`, guard checkpoint `g782-acc6e089842a` reported
