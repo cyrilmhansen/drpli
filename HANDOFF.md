@@ -7,7 +7,41 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-8-e54p2diff2B (2026-11-13, session 01a1d648 renewal 1/12 of chain 01a1d629 — the ONLY renewal
+9-e54p2diff2-close (2026-11-13, session 01a1d725 renewal 2/12 of chain 01a1d648 — the LAST renewal
+this chain may use; ZERO oracle; ledger 203/C380; HEAD now `b4d8c33d`): **E2E-54/P2-DIFF-2 CLOSE IN
+FLIGHT — the RESULTS `## §P2-DIFF-2` DRAFT is committed; the dashboard row, the arch §7-11
+correction and STAGE C remain.** The ONLY active next action is PROGRESS `## Next action (… CLOSE
+IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
+Stage-B CLOSED note + `docs/architecture/backend-boundary.md` §7-11 correction (the §P2-DIFF-2.5
+wording: the parser and bind are the shared foundations; `pli80c` NEVER builds `Hir.program`; the
+8080 backend does NOT consume the HIR) + a new §7-12, then an explicit-path commit; (2) STAGE C
+(§P2-DIFF-2.4): the audit is DONE read-only and the seam IS separable — extract
+`ocaml/hir/mir_numeric.ml` (`window`, `in_window`, `show_iv`, `decimal_int`, `iv_add`, `iv_sub`,
+`iv_mul`, `iv_neg`, `iv_hull`; NO `Hir` dependency), add `mir_numeric` to the `pli80_hir` dune
+`(modules …)` list, MEASURED CONSTRAINT: `join_env` CANNOT move as-is (two `Map.Make (Int)`
+instances are distinct types — verified with `ocamlopt`), so only the `Some/Some` hull moves and the
+`merge` stays in `mir_backend`; tests via a NEW `tools/mir_numeric_test.py` + an `ocaml/hir/mirnumtest.ml`
+executable (the `semtest` precedent) — **NEVER add checks to `tools/hir_test.py`: the 220-ok count
+is a frozen panel constant**; then the equivalence panel (every §P2-DIFF-2.6 log byte-identical,
+`pli80c.exe` sha `172595d5…aca281`, `git diff --exit-code -- hir/` and `-- ocaml/` after the
+extraction only). If the seam is NOT separable: STOP and report (no cosmetic alternative).
+**KEY FINDING THIS SESSION (accepted, with a falsification): the previous hop's "the
+`MIR2O-FUNC-COUNT` check is VACUOUS" is FALSE — `mir2o` writes
+`mir2o: wrote 4488 bytes (3 function(s))` to **stderr** (stdout is 0 B; the runner's own
+`build/dual-backend/native/DIF01/20261113T224643Z-it1/mir2o.{stdout,stderr}` prove it) and the
+runner checks `o.stderr`, so the check is on the right stream. Non-vacuity was MEASURED three ways
+on disposable copies of the runner (the copy MUST live in `tools/` — `ROOT` is
+`dirname(dirname(__file__))` and `functional_runner` is imported): `nfuncs` 2 → rc 1 named
+`MIR2O-FUNC-COUNT` block, 4 → rc 1, the path-only positive control 3 → rc 0 `BOTH-PASS`
+(`build/e54p2diff2/fcctl-{mut2,mut4,pos}.log`); the copies were deleted and `git status
+--porcelain tools/` is EMPTY. Method law: measure a stream claim with the streams SPLIT, never from
+a merged terminal display. Recovery order: (1) `git rev-parse HEAD` + `git status --porcelain`
+(only the operator `handoff.config.json` may be dirty, never staged); (2) `/handoff verify`; (3)
+read PROGRESS live heading + LEARNINGS § "E2E-54/P2-DIFF-2 close hop"; (4) PLAN §P2-DIFF-2 (the
+whole campaign, .9 amendments + .10 Stage-B record) + RESULTS §P2-DIFF-2 (marked DRAFT in its
+commit-chain section until the close commit lands).
+
+SUPERSEDED-BY-ABOVE: 8-e54p2diff2B (2026-11-13, session 01a1d648 renewal 1/12 of chain 01a1d629 — the ONLY renewal
 this session may use; ZERO oracle; ledger 203/C380; start HEAD `62de5663`): **E2E-54/P2-DIFF-2
 OPEN; STAGE B IN FLIGHT — the two sources EXIST UNCOMMITTED and are MEASURED GREEN on BOTH
 compilation paths** (`pli80c -d` rc 0 and `pli80mir --export` rc 0 for each). The ONLY active
@@ -2294,25 +2328,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 804
-checkpoint-id: g804-3f9f53ba0285
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-55, session 01a1d70b-6b81-7538-80fd-642aee597149)
-checkpointed: 2026-11-13T23:00:57.613Z
+checkpoint-generation: 806
+checkpoint-id: g806-54a65d365de7
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4196, session 01a1d725-06dd-7538-80fd-642fadce7d50)
+checkpointed: 2026-11-13T23:17:11.685Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: fafd53272ec3054b5cd55190b9958317cf596f3a119177206b0d031a0eac01b7
+source-progress: ba295fa3983f7779785d76d1148bbabfa1dbe4dfb517305018af01f019152421
 source-handoff: 915c23954693d838b9e0076a2a5c1973f3a89f814db800bb7b6ab019e5aa0265
-source-learnings: 44d61b7a9c33a755c66ce9e358bc6160b665b1c2320f9a4f61beb4830037e548
+source-learnings: de9fd33918ae5222c51b014c9f7dd1146a0427ade5190dfef79327ce4be36935
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d70b-6b81-7538-80fd-642aee597149
-readiness-at: 2026-11-13T23:00:57.762Z
-readiness-checkpoint: g804-3f9f53ba0285
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
