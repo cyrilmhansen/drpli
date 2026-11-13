@@ -7,7 +7,32 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-5-e54p2diff-close (2026-11-13, session 01a1d4e7 renewal 1/12 of chain 01a1d4d5; ZERO oracle;
+6-e54p2diff2 (2026-11-13, session 01a1d53d fresh startup; ZERO oracle; ledger 203/C380; start
+HEAD `7e45868b`): **E2E-54/P2-DIFF-2 IS OPEN AND IN FLIGHT AT STAGE A.** The ONLY active
+next action is in `PROGRESS.md` → `## Next action (E2E-54/P2-DIFF-2 IN FLIGHT — Stage A …)`.
+Recovery order: (1) `git rev-parse HEAD` (expect the pre-registration commit, then the Stage-A
+commits) and `git status --porcelain` (the ONLY tracked dirty file may be the operator's
+`handoff.config.json`, never staged; untracked scratch is pre-existing — `S*.PLI`/`S*.log`,
+`golden/e5*/…/dir.txt`, `ocaml/_build-*`, `build/e54p2diff2/`); (2) `/handoff verify` (the
+managed block below is from the PREVIOUS campaign and is expected to be stale — a prose edit
+makes it legitimately stale, never a refusal); (3) read the committed
+`spec/lab-evidence/e2e54/PLAN.md` **§P2-DIFF-2** (the whole campaign is pre-registered there:
+the three runner defects H-A1/H-A2/H-A3 and their falsifiers, the native status law `rc == 0`,
+the exit-code policy, the ten adversarial attacks T1–T10, the measured capability intersection,
+the two integrated programs with their hand-derived vectors `DIF01 [6300,1500,3000,1800,400,120]`
+and `DIF02 [9,7,5,3,3,5,7,9]` written BEFORE the sources existed, the Stage-C `Mir_numeric`
+invariants, the §7-11 correction, the frozen panel, the STOP conditions); (4) the baseline
+measured first-hand is `build/e54p2diff2/base-*.log` (gate 1328/1328-190/190-9/9-149-16/0/25/0-5,
+hir 220, mir 32, cosmo 25, console 43, debug 23, CF 83, call 86, runner 0, functional 211/211,
+hist `172595d5…aca281`, pins clean, ledger 203/C380; every panel log `cmp`-identical to the
+P2-DIFF-1 baseline's); (5) `LEARNINGS.md` § "E2E-54/P2-DIFF-2 pre-registration hop" for the
+method lessons (the HIR/MIR numeric-window and loop/call laws that constrain the programs).
+§P2-DIFF-1 is CLOSED and immutable — do not edit it. Stage A must be committed independently
+before Stage B; Stage C separately from both. Standing: ZERO oracle; no compiler/golden/pin
+regeneration; no push; no `git add -A`; explicit paths; rc DIRECT; `LC_ALL=C`; no automatic
+renewal; never hand-edit a managed checkpoint block.
+
+SUPERSEDED-BY-ABOVE: 5-e54p2diff-close (2026-11-13, session 01a1d4e7 renewal 1/12 of chain 01a1d4d5; ZERO oracle;
 ledger 203/C380; start HEAD `86402cb1`): **THE E2E-54/P2-DIFF-1 SLICE IS COMPLETE AND CLOSED —
 NO NEXT ACTION EXISTS.** Landed first-hand: the runner `tools/dual_backend_test.py` FIRST RUN
 rc **0** — **D02 CF06 `count` [0,1,2] / D03 CALL04 `chain` [51] / D04 CALL06B `diffal` [2,7] /

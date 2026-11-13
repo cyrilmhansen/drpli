@@ -6094,3 +6094,295 @@ no extended gate modes.
 | slice | status | notes |
 |---|---|---|
 | P2-DIFF-1 | **CLOSED 2026-11-13** (recon/baseline/pre-registration/pilot sessions `01a1d39e`→`01a1d4d5`; pre-registration `ddff0717` BEFORE any fixture/manifest/runner byte; runner `50b88594` first run rc **0** — **4/4 BOTH-PASS**, **14** comparator controls **ALL REJECTED**, **18** measured checks) | the differential method LANDED and is FEASIBLE: four SAME-SOURCE pilots (D02 CF06 `count` `[0,1,2]`, D03 CALL04 `chain` `[51]` — PUT in the DEEPEST procedure, D04 CALL06B `diffal` `[2,7]` — by-ref aliasing, D05 CALL07 `thrice` `[1,2,3]` — returned value used by the caller) execute the identical committed source bytes on BOTH backends and agree with the hand-derived expectations AND with each other, ×2 fresh per lane, raw bytes/transcript/region kept SEPARATELY; D01 M02 recorded **NOT-COMPARABLE** (no console observable). The pre-registered risk that CF06/CALL04/CALL07 had no LINK/RUN witness is RESOLVED — all three link clean (`parse_undefined` EMPTY on the FULL segment) and run on CP/M. **NOT a DR oracle comparison**: the linker/runtime are Digital Research's, the COMPILER is mine; `PLI.COM` never ran. FULL FROZEN PANEL ALL HIT and every panel log byte-identical to the baseline's (gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5, hir 220, mir 32, cosmo 25, console 43, debug 23, CF 83, call 86, pins UNMOVED, DWARF standalone UNMOVED, fresh build hist 122 sha==`172595d5…aca281`, ledger 203/C380, T2 clean); ZERO compiler/MIR/golden/pin/claims byte. RESULTS §P2-DIFF-1; **STOP — the campaign ends here, any extension needs a NEW operator brief** |
+
+---
+
+## §P2-DIFF-2 — Pre-registration: differential-runner hardening, integrated PL/I programs, and one bounded OCaml responsibility extraction (committed BEFORE any runner or compiler behaviour change and BEFORE any new experiment)
+
+**Operator brief:** E2E-54/P2-DIFF-2, authorized 2026-11-13. The brief text is NOT stored in the
+repository. This section is the PROTOCOL #1 pre-registration for the whole campaign; §P2-DIFF-1
+above is **CLOSED and immutable** and is never edited by this campaign.
+
+**Character of the campaign.** Integration + harness-validity + maintainability. It is NOT a
+compiler-development campaign and NOT a DR oracle campaign: the original Digital Research
+`PLI.COM` is **NEVER executed** (ZERO oracle; the scientific ledger stays 203 headers ending
+**C380**; no new claim is derivable from any of this, because nothing here observes DR). The
+historical LINK-80 1.31, `PLILIB.IRL` and the CP/M simulator ARE authorized and ARE the
+execution substrate of the 8080 lane — but the object code on that lane is produced by the
+**reproduction compiler**, which is mine; every report must keep that distinction.
+
+**Long-term objective served:** grow a corpus of *complete executable programs* judged against
+*independent specifications*, on both backends, and reduce the structural complexity of the OCaml
+implementation where a real seam exists.
+
+### P2-DIFF-2.0 Measured baseline (this session 01a1d53d, start HEAD `7e45868b`, 2026-11-13, each command its OWN rc, logs under `build/e54p2diff2/`)
+
+| item | command | rc | measured |
+|---|---|---|---|
+| gate (compile tier) | `python3 tools/e2e_gate.py` | 0 | **1328/1328** byte-exact / 0 fail, **190/190** negatives, **9/9** divergences, coverage **149 rows 0/0**, census **16/0/25/0**, prose **5** |
+| hir | `python3 tools/hir_test.py` | 0 | **220** checks |
+| MIR AOT | `python3 tools/mir_aot_test.py` | 0 | **32** |
+| Cosmopolitan | `python3 tools/mir_aot_cosmo_test.py` | 0 | **25** |
+| console | `python3 tools/mir_aot_console_test.py` | 0 | **43** |
+| debug | `python3 tools/mir_aot_debug_test.py` | 0 | **23** |
+| control flow | `python3 tools/mir_aot_cf_test.py` | 0 | **83** |
+| procedure calls | `python3 tools/mir_aot_call_test.py` | 0 | **86** |
+| differential (current runner) | `python3 tools/dual_backend_test.py` | 0 | **4/4 BOTH-PASS**, 14 controls, 18 checks |
+| functional runner hostile suite | `python3 tools/test_functional_runner.py` | 0 | **211/211** |
+| historical compiler | `sha256sum ocaml/_build/default/bin/pli80c.exe` | 0 | `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` |
+| ledger | `grep -c '^## C' spec/CLAIMS.md` | 0 | **203** headers, last `## C380` |
+| pins | `git diff --exit-code -- ocaml/hir/` | 0 | clean |
+
+Every panel log above is **byte-identical** (`cmp`) to the corresponding P2-DIFF-1 baseline log
+(`build/e54p2diff-baseline-*.log`, `build/e54p2diff-reg-gate.log`): the tree is at the same
+observable state as the previous campaign's close. MEASURED PRE-EXISTING and NOT fixed (recorded,
+never silently repaired): `tools/test_functional_dashboard.py` **rc 1**, sole verbatim FAIL
+`integration: unmapped COVERAGE rows are listed, not dropped` — the stale HARDCODED `**26**`
+check (documented since E2E-52/P1; unchanged by this campaign).
+
+The four existing differential source SHAs re-verified first-hand: CF06 `bb2ba55e…`, CALL04
+`72c418e4…`, CALL06B `f0e915dd…`, CALL07 `0b2d3bdc…`.
+
+### P2-DIFF-2.1 Stage A — the three runner defects, stated as hypotheses with falsifiers
+
+Independent inspection of `tools/dual_backend_test.py` at `50b88594`/`7e45868b` (read first-hand,
+quoted below) identifies THREE validity defects. Each is a hypothesis about the CURRENT code,
+each with a test that must FAIL against the current code and PASS after the fix.
+
+**H-A1 (determinism does not affect validity).** `rec["verdict"] = verdict(case["expected"],
+v80[0] if v80 else None, vn[0] if vn else None)` — the verdict is computed from the FIRST
+observation of each lane only. `determinism_8080` / `determinism_native` are recorded but never
+consulted, and a missing second observation is silently ignored.
+*Falsifier of the fix:* a case where run 1 matches the expectation and run 2 does not (on either
+lane) must NOT be `BOTH-PASS`; a case where either lane yielded fewer than two complete
+observations must NOT be `BOTH-PASS`; the raw second observation must still be preserved in the
+report and the failure must be attributed to the lane/run that produced it.
+
+**H-A2 (native process status is not checked).** `run_native_lane` returns `{"ok": True, …,
+"rc": p.returncode}` after `exec` without ever testing `p.returncode`; the aggregation code reads
+only `stdout`. A native process that CRASHES or exits with a runtime I/O status (the §P1-m1
+status law `OK0/EOF1/BAD2/RANGE3/IOERR4`) can therefore be recorded as a successful lane as long
+as its stdout happens to match.
+*Falsifier of the fix:* an injected lane result with matching stdout and a non-zero process
+`rc` must NOT be `BOTH-PASS` and must be classified as an infrastructure/execution failure.
+*Status policy (pre-registered, consistent with the committed driver):* `tools/mir_aot/
+console_check.c` prints `driver-return=<v>` to **stderr** and returns `0` on normal completion;
+the runtime failure tail `exit(status)`s with a NONZERO status (0 is never reached on the failure
+path). Therefore the native process status is a **validity requirement: `rc == 0`**, and the
+`driver-return` value remains a lane-specific diagnostic that is NOT a cross-backend observable.
+The PL/I function's return value and the process status are two different things and are kept in
+separate report fields.
+
+**H-A3 (the exit-code contract is self-contradictory).** The module docstring says
+`exit codes: 0 every case BOTH-PASS and all controls failed LOUDLY; 1 otherwise (a behavioral
+verdict, a BLOCKED case, …)`; the code comment at the verdict-reporting block says
+`verdicts are REPORTED, only BLOCKED cases and control failures are runner errors`. The code
+implements the second (`return 0 if not report["failures"] else 1`, and only BLOCKED/control
+failures are appended to `failures`). So a `DIVERGENT`/`8080-ONLY`/`BOTH-FAIL-SAME` measurement
+exits 0 — a scientific result that must be retained, but a silent signal for a CI gate.
+*Adjudicated policy (binding for the fix):*
+1. A completed measurement is ALWAYS retained and reported — divergent outcomes included.
+   No successful execution is discarded or rewritten.
+2. The DEFAULT (diagnostic) mode's exit code keeps its **existing meaning**: `0` iff the run
+   produced no `failures` entry (no BLOCKED case, no vacuous control); a semantic verdict is
+   still a reported outcome, not a runner error. Changing it would silently change the meaning of
+   an existing interface (the brief forbids that).
+3. A new explicit `--strict` (gating) mode makes the runner exit non-zero for ANY result outside
+   the acceptance criterion — every compared case `BOTH-PASS`, all controls rejected, no
+   infrastructure failure.
+4. The machine-readable report distinguishes the two failure classes WITHOUT renaming or
+   redefining any existing field: `infrastructure_failure` (a lane that could not produce a
+   complete, valid, repeated observation) and `semantic_divergence` (a completed measurement whose
+   verdict is not `BOTH-PASS`) are new ADDITIVE lists; `failures`, `cases`, `verdict`, `controls`,
+   `normalized_*`, `raw_*`, `determinism_*`, `lane` keep their existing meanings.
+
+**Adversarial tests (A4).** A NEW hostile suite `tools/test_dual_backend.py` (check-style,
+self-counting, like `tools/test_functional_runner.py`): `python3 tools/test_dual_backend.py`,
+exit 0 iff every check passes. NO compiler, LINK-80, cpmsim, emulator or oracle process is
+launched by it: the lane functions are INJECTED (the hardened runner gains a `run_cases(...,
+lane_fns=…)` seam whose default is the real `run_8080_lane`/`run_native_lane`), and the comparator
+attacked with disposable expectations. Minimum required cases (brief §3/A4):
+
+| # | attack | expected verdict under the hardened law |
+|---|---|---|
+| T1 | 8080 run1 correct, run2 wrong | NOT `BOTH-PASS` (determinism/validity failure) |
+| T2 | 8080 run1 wrong, run2 correct | NOT `BOTH-PASS` |
+| T3 | native run1 correct, run2 wrong | NOT `BOTH-PASS` |
+| T4 | native run1 correct, run2 with non-zero process `rc` | NOT `BOTH-PASS`, infrastructure failure |
+| T5 | correct stdout, native `rc` nonzero | NOT `BOTH-PASS` (H-A2) |
+| T6 | missing second execution / missing observation on either lane | NOT `BOTH-PASS`, infrastructure failure |
+| T7 | both lanes produce the SAME wrong vector | `BOTH-FAIL-SAME`, never `BOTH-PASS` |
+| T8 | normalization rejects unexpected text and an incomplete vector | raises (never silent) |
+| T9 | exit-code law: divergent case is reported and retained; default mode `0`/`1` per its existing meaning; `--strict` mode non-zero | measured |
+| T10 | observation attribution preserved: the failing run's raw bytes are kept in the report | measured |
+
+The suite MUST be committed and run against the CURRENT runner FIRST (demonstrating the old
+behaviour), and only then against the fixed runner. Stage A is committed independently of
+Stage B and Stage C.
+
+### P2-DIFF-2.2 The overlapping capability set (Stage B feasibility analysis, read first-hand)
+
+Derived from the ACTUAL sources, not from documents: `ocaml/hir/hir_build.ml` (the HIR subset
+gate), `ocaml/hir/hir.ml` (the closed node grammar), `ocaml/hir/mir_backend.ml` (the native
+subset + the interval/join/counted-loop/call laws), and the 25 existing positive fixtures
+(`hir/mir-fixtures`, `hir/mir-cf-fixtures`, `hir/mir-call-fixtures`). The 8080 lane uses the
+historical `pli80c` path, which is the byte-exact DR reproduction and is strictly more permissive
+than the HIR/MIR subset for the constructs below; the differential therefore runs on the
+INTERSECTION, and the intersection is what the programs are designed inside.
+
+| capability | native (HIR + MIR) | measured witness |
+|---|---|---|
+| entry: outermost/zero-param `returns(fixed bin(15))`, one final top-level `RETURN(expr)` | required | M01–M06, CF01–CF10, CALL01–CALL10 |
+| `if`/`else` with the six relational operators, arms nested | YES | CF01–CF05 |
+| bounded `DO WHILE` (counted-loop proof: `iv` point-initialized, `iv = iv ± <positive literal>` EXACTLY once, guard `iv <op> <constant point>`, direction match, no nested loop, IV not by-ref in a body call) | YES | CF06–CF10 |
+| join law: one-arm assignment ⇒ the sid is `None` afterwards (drop-not-inherit) | enforced | CF02/CF04, `hir_test` CFN1 |
+| loop-exit law: every body-written sid (top-level `Assign`/`Get` in the body list, or a by-ref actual of a body `Call_s`) is DROPPED after the loop; the IV survives at its exact exit value | enforced | §P1-m2.3, CF09 |
+| `call` statement to a VOID procedure: by-reference bare-name actuals (home-pass, real aliasing) and by-value expression actuals | YES | CALL01/04/05/06A/06B/10 |
+| `x = f(<all-by-value actuals>)` as a whole RHS; a bare-name or literal actual is BY REFERENCE by bind's own evidence, so a value call needs an expression actual (the `n + 0` idiom is the proven witness) | YES | CALL04/07/08/10 |
+| result of a value call = the callee's FULL declared window `W(q)` — **no interprocedural narrowing** | enforced | §P1-m3 I3, `wret`/`thrice` |
+| after a `Call_s` with a by-ref actual, that sid widens to `W(declared)` | enforced | §P1-m3.2-8 |
+| every literal: plain non-negative decimal, ≤ 9 digits, typed `bin(default p)`, ≤ `bin(15)` (the ceiling is 15) | enforced | `hir_build.lower_lit` |
+| every intermediate expression: type-equal operands + exact interval inside `W(15)` (±32767) or the node is refused | enforced | §P1-m0.3, `lower` |
+| `put list(<one item>)` — one value or one printable literal; NO control items, NO multiple items, NO `PUT EDIT`, NO stream | YES | M04–M06, CF01–CF10 |
+| `get list(<scalar>)` | native only in this campaign (the 8080 lane runs with a one-`^Z` script: an EOF is a nonzero status) | §P1-m1 |
+| `dcl` statements before the body; `fixed bin(p,0)` only; no `STATIC`/`EXTERNAL`/`ENTRY` | enforced | all fixtures |
+
+NOT available on BOTH lanes (each is a documented blocker, not a gap to be papered over):
+`DO n = … TO …` (the parser has no `FOR` form in the HIR subset — `Sdoto` refuses), `DO` groups
+(`Sdobegin` → HIR-E05), `GOTO`/labels, `SELECT`, arrays (`D_elem`/`Elem_read` refuse `E18`),
+`FIXED DECIMAL`, character/`VARCHAR` data, division, `**`, `&`, `|`, `^` on arithmetic values,
+built-in functions, recursion, nested procedures, early/nested `RETURN`, `PUT EDIT`, `FILE`/
+`GET`, non-`STOP` program end, `>15`-bit precision. **No new numeric semantics, no array, no
+`GET`/`PUT EDIT` is added in this campaign** (brief §4).
+
+### P2-DIFF-2.3 The two integrated programs (design, prediction, and independence)
+
+Both are ORIGINAL, self-contained, deterministic programs (no `GET`, no input). They are NOT
+enlarged copies of any existing fixture. Sources: `hir/dif-fixtures/DIF01.pli` (entry `tariff`)
+and `hir/dif-fixtures/DIF02.pli` (entry `steps`), committed with the conventional encoding
+(ASCII, CRLF, `^Z`-terminated) and SHA-256 recorded BEFORE any execution.
+
+**DIF01 "tariff" — rule-based calculation.** A telephone-style tariff: three subscriber classes
+with a per-unit charge, a fixed deposit, and a class-dependent surcharge. Interacts: nested
+`IF`/`ELSE` rule selection, `+`/`-`/`*` arithmetic, a `Call_s` to a void `report` procedure
+(by-reference actual + a by-value expression actual), a value `Call_e` to `tier`, and a
+deterministic repetition of the rule set. Hand-derived expected console vector (the ONLY
+observable; the entry's return value is NOT compared):
+
+```
+tier(100)  = 100*18 = 1800
+tier(10)   = 10*40  = 400
+tier(1)    = 1*120  = 120
+report(1, 5):  5*1200 = 6000 ; 6000 + 300 = 6300
+report(2, 1):  1*1200 = 1200 ; 1200 + 300 = 1500
+report(3, 2):  2*1200 = 2400 ; 2400 + 600 = 3000
+```
+expected vector `[6300, 1500, 3000, 1800, 400, 120]` — derived from the ALGORITHM and the source
+text here, before either compiler is run, and never from any output.
+
+**DIF02 "steps" — bounded sequence processing.** The absolute deviation of each step of a bounded
+counted sequence from its midpoint, doubled and offset. Interacts: bounded `DO WHILE` with the
+counted-loop proof, scalar state, a `Call_s` to a VOID procedure whose by-reference actual is
+modified by the callee (real aliasing) and re-read, a value `Call_e`, and per-iteration output.
+Hand-derived expected vector: `d = |i-5|` for `i = 1..8` → `4,3,2,1,1,2,3,4`; `scale(d) = d*2+1`
+→ `[9, 7, 5, 3, 3, 5, 7, 9]`.
+
+**Independence law (brief §4, binding).** The algorithm, the expected vector and the invariants of
+each program are written HERE, in this pre-registered commit, BEFORE the source files exist in
+the tree; the sources are then prepared, SHA-verified and committed; only then does the
+differential run. If a prediction is falsified, the ORIGINAL prediction and the falsifying
+evidence are both preserved (PROTOCOL #2) — no fitting, no re-derivation from an output.
+Expected OUTCOME classes: `BOTH-PASS` for both, or a documented precise blocker (a named
+`HIR-E1x` refusal, a `my-gap` 8080 compile failure, or a lane-status failure) with the smallest
+meaningful general solution recorded. A compilation refusal is a scientific result.
+
+**Predictions and falsifiers (Stage B).**
+* H-B1: every program compiles on the historical path (`pli80c -d`, rc 0, no `[TBD]` refusal).
+  Falsified by any nonzero rc.
+* H-B2: every program lowers to MIR and the emitted `.mir` passes `mir2o` and links (rc 0).
+  Falsified by any named refusal (which then IS the blocker).
+* H-B3: the 8080 lane links (`parse_undefined` empty) and runs with the `done (prompt returned)`
+  witness and the FS-01 region cut. Falsified by any stage failure.
+* H-B4: both lanes produce the hand-derived vector in BOTH fresh executions → `BOTH-PASS`.
+  Falsified by any other verdict; a divergent verdict is retained and reported.
+* H-B5: the hardened comparator's controls still all reject (non-vacuity).
+
+### P2-DIFF-2.4 Stage C — the `Mir_numeric` extraction (audit first, then ONE responsibility)
+
+`ocaml/hir/mir_backend.ml` is 1936 lines whose `compile` function holds procedure selection,
+numeric analysis, definite initialization, control-flow joins, call conventions, MIR emission and
+textual assembly. The authorized candidate seam is the **pure numeric-domain algebra**: the
+declared-precision window, containment, interval display, hull/point tests, and the exact
+interval arithmetic of `+ - *`/negation. The pure candidates found in the current code are
+`window` (mir_backend.ml:120), `in_window` (:124), `show_iv` (:126), `decimal_int` (:131), the
+`Add`/`Sub`/`Mul` interval algebra in `lower` (:645–:657), the `Neg` flip (:668), and the
+`Some/Some` hull arm of `join_env` (:684).
+*Invariants (pre-registered):*
+1. Behavioural equivalence: the extracted operations are exact integer functions; the MIR
+   artifacts, the diagnostic strings and the refusal ORDER must be byte-identical (the whole
+   panel is the proof).
+2. Dependency law: the new module imports NOTHING from MIR emission, mutable instruction state,
+   `rel80`/REL-80 layout, or compiler-global state; its only allowed dependency is `Hir` (for
+   the `Fixed_bin` type) or nothing at all.
+3. No new numeric acceptance rule: the extraction MOVES code, it does not add, widen or narrow a
+   domain.
+4. The historical compiler is byte-identical: `pli80c.exe` sha `172595d5…aca281` and the gate
+   1328/1328, and `ocaml/lib`/`ocaml/bin` untouched (the extraction lives only in `ocaml/hir/`).
+*STOP condition:* if the audit shows the numeric algebra is NOT separable at these call sites
+(e.g. it needs the emission context or the diagnostic attribution), the extraction is NOT
+performed and the reason is reported; no cosmetic substitute is performed.
+
+### P2-DIFF-2.5 Documentation correction (brief §5)
+
+`docs/architecture/backend-boundary.md` §7-11 currently states that the two lanes "share the
+parser, the binder and the HIR". The measured pipeline (§0 of the same document) is:
+`pli80c` = Parser → Bind → **Codegen** (never constructs `Hir.program`); `pli80mir` = Parser →
+Bind → `Semantic_env` → `Hir_build` → **Hir** → MIR. The corrected text must say: the parser and
+bind are the shared semantic foundations; the NATIVE MIR backend consumes the HIR; the historical
+Intel 8080 backend still uses the existing `codegen.ml` path and does NOT consume the HIR. No
+architectural migration is claimed.
+
+### P2-DIFF-2.6 Frozen regression panel (the same panel as §P2-DIFF-1.13, plus the new suite)
+
+`tools/e2e_gate.py` (1328/1328 — 190/190 — 9/9 — 149 rows 0/0 — 16/0/25/0 — prose 5);
+`tools/hir_test.py` (220); `tools/mir_aot_test.py` (32); `tools/mir_aot_cosmo_test.py` (25);
+`tools/mir_aot_console_test.py` (43); `tools/mir_aot_debug_test.py` (23); `tools/mir_aot_cf_test.py`
+(83); `tools/mir_aot_call_test.py` (86); `tools/test_dual_backend.py` (NEW, measured count);
+`tools/dual_backend_test.py` (the four EXISTING cases must remain `BOTH-PASS` under the hardened
+law); all existing MIR/CF/call pins UNMOVED (`git diff --exit-code -- hir/`); the historical
+compiler sha `172595d5…aca281` from a fresh build dir; `spec/CLAIMS.md` 203 headers ending C380.
+NO `--runtime` / `--link-run` extended gate mode. Each command its OWN measured rc.
+
+### P2-DIFF-2.7 Work order (each stage an independent commit set), STOP conditions
+
+1. **This pre-registration** (ONE explicit path) — committed BEFORE any runner or compiler
+   behaviour change and BEFORE any new fixture.
+2. **Stage A:** (a) `tools/test_dual_backend.py` committed and RUN against the current runner —
+   the old behaviour must be demonstrated (recorded rc, the FAILing checks verbatim);
+   (b) the hardened `tools/dual_backend_test.py`; (c) the suite re-run green; (d) the four
+   existing differential cases re-run. Stage A is committed and CLOSED before Stage B starts.
+3. **Stage B:** the two sources + their reference specifications committed; then the differential
+   run; then the capability matrix + the blocker list.
+4. **Stage C:** the audit, the `Mir_numeric` module, its independent tests, the equivalence
+   panel; the §7-11 correction; committed separately.
+5. **Close:** RESULTS `## §P2-DIFF-2`, the dashboard row, the durables, the checkpoint.
+
+**STOP conditions (binding):** (i) any Stage-A test that CANNOT distinguish the old behaviour
+from the new — stop and re-audit the test; (ii) a Stage-B program that needs a missing feature —
+stop that program, document the exact blocker, do NOT weaken the program to make it pass, and do
+NOT extend the compiler; (iii) a Stage-C seam that is not safely separable — STOP and report, no
+cosmetic alternative; (iv) any panel regression or any pin/golden move — STOP and attribute;
+(v) any temptation to run `PLI.COM` — forbidden, full stop.
+
+**FORBIDDEN routes (binding):** no execution of the original DR `PLI.COM`; no behavioural change
+to the historical compiler (`ocaml/lib`, `ocaml/bin`); no golden regeneration; no change to any
+historical claim; no new MIR ABI; no new numeric acceptance rule; no general rewrite of the
+historical code generator; no `git add -A`/`reset`/`clean`; never stage or modify
+`handoff.config.json` (the operator's edit stays unstaged); no push; no automatic handoff
+renewal.
+
+### P2-DIFF-2.8 Dashboard row (added at close)
+
+| slice | status | notes |
+|---|---|---|
+| P2-DIFF-2 | (open at close) | — |

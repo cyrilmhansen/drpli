@@ -48,7 +48,62 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-1 **CLOSED** — the runner ran GREEN and is committed; THE CAMPAIGN ENDS HERE; **NO NEXT ACTION EXISTS — STOP and await the OPERATOR**)
+## Next action (E2E-54/P2-DIFF-2 **IN FLIGHT** — Stage A; the §P2-DIFF-2 PRE-REGISTRATION IS COMMITTED; the ADVERSARIAL SUITE against the CURRENT runner is the next single step)
+
+**Session:** new operator campaign E2E-54/P2-DIFF-2 (brief: hardened differential runner +
+integrated PL/I programs + one OCaml responsibility extraction). Start HEAD `7e45868b`
+(== the brief's last verified HEAD); tree dirty ONLY the operator's `handoff.config.json`
+(never staged) + untracked scratch (`S*.PLI/.log`, `golden/e5*/…dir.txt`, `ocaml/_build-*`,
+this session's `build/e54p2diff2/`). ZERO oracle; ledger 203 headers ending **C380**.
+
+**DONE FIRST-HAND this hop (ACCEPTED).**
+1. BASELINE MEASURED, every command its own rc, logs in `build/e54p2diff2/` (base-*): gate **0**
+   (1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5), hir **0** 220, mir_aot **0** 32,
+   cosmo **0** 25, console **0** 43, debug **0** 23, CF **0** 83, call **0** 86, the CURRENT
+   runner **0** (4/4 BOTH-PASS, 14 controls, 18 checks), `test_functional_runner` **0** 211/211,
+   `git diff --exit-code -- ocaml/hir/` **0**, compiler sha `172595d5…aca281`, ledger 203/C380.
+   **EVERY panel log is `cmp`-IDENTICAL to the P2-DIFF-1 baseline logs** — the tree is at the
+   previous campaign's close state. MEASURED PRE-EXISTING, NOT fixed: `test_functional_dashboard`
+   rc **1** (the stale `**26**` check).
+2. §P2-DIFF-2 PRE-REGISTRATION appended to `spec/lab-evidence/e2e54/PLAN.md` (§P2-DIFF-1 kept
+   CLOSED/immutable): the three runner defects as H-A1/H-A2/H-A3 with falsifiers, the
+   **pre-registered native status law `rc == 0`** (from `console_check.c`: driver returns 0 on
+   normal completion; the runtime failure tail `exit(status)`s nonzero — the PL/I return value and
+   the process status are DIFFERENT fields), the adjudicated **exit-code policy** (default mode
+   keeps its existing meaning; a NEW `--strict` gate mode exits non-zero on any verdict outside
+   `BOTH-PASS`; `infrastructure_failure` and `semantic_divergence` are ADDITIVE report fields —
+   no existing field is redefined), the TEN adversarial attacks T1–T10, the measured capability
+   intersection table (§P2-DIFF-2.2), the two integrated programs WITH their hand-derived vectors
+   written BEFORE any source exists (DIF01 tariff `[6300,1500,3000,1800,400,120]`, DIF02 steps
+   `[9,7,5,3,3,5,7,9]`), the Stage-C `Mir_numeric` invariants and the §7-11 documentation
+   correction.
+3. ARCHITECTURE READ FIRST-HAND (the feasibility basis): `tools/dual_backend_test.py` (the
+   `v80[0]`/`vn[0]` verdict line, the unchecked `rc`, the contradictory docstring vs the
+   `failures` comment), `tools/mir_aot/console_check.c`, the whole MIR subset (HIR node grammar,
+   the window/join/counted-loop/call laws), the 25 positive fixtures, the 8080 lane scripts.
+
+**PROPOSED (unverified, to be MEASURED at Stage B):** the two programs lower on both lanes and
+the expected vectors above are correct; the multiplication-window analysis (all literals type
+`bin(default p)`, every intermediate must stay inside ±32767, a value-call result widens to
+`W(15)`, so a returned value must be re-copied through a tight assignment before it is multiplied)
+is the binding design constraint.
+
+**NEXT VERBATIM (Stage A, step a):** create `tools/test_dual_backend.py` (check-style, self-
+counting, NO subprocess — lane functions injected; import the CURRENT runner as `dbl`), commit it
+ALONE, and RUN it against the UNMODIFIED runner: `python3 tools/test_dual_backend.py` — the
+checks attacking H-A1/H-A2/H-A3 must FAIL (record the rc and the verbatim FAIL lines as the
+demonstration of the old behaviour). Then (b) harden `tools/dual_backend_test.py` (both-runs
+verdict + `rc==0` native status + `--strict` + additive report fields + the `run_cases(lane_fns=…)`
+injection seam), (c) re-run the suite to green, (d) re-run the four existing cases
+(`python3 tools/dual_backend_test.py`, expect rc 0, 4/4 BOTH-PASS), (e) the frozen panel
+(§P2-DIFF-2.6) with each own rc, (f) commit Stage A INDEPENDENTLY, then start Stage B.
+
+Standing constraints: ZERO oracle; `handoff.config.json` NEVER staged; no push; no
+`git add -A`/clean/reset; explicit paths; rc DIRECT; timeouts 60/120/900; `LC_ALL=C`; cosmo
+`chmod +x`; never batch build with tests; NEVER hand-edit a managed checkpoint block; no
+automatic renewal.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-1 **CLOSED** — the runner ran GREEN and is committed; THE CAMPAIGN ENDS HERE; **NO NEXT ACTION EXISTS — STOP and await the OPERATOR**)
 
 **DONE FIRST-HAND THIS CLOSE HOP** (session 01a1d4e7 renewal 1/12 of chain 01a1d4d5; start HEAD
 `86402cb1`; ZERO oracle; ledger 203/C380):
