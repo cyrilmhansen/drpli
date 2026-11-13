@@ -48,7 +48,60 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-1 baseline hop — **BASELINE PANELS ALL HIT + 8080-FEASIBILITY SWEEP DONE; §P2-DIFF-1 PRE-REGISTRATION OWED NEXT**; session 01a1d3b4 renewal 1/12 of chain 01a1d39e; ZERO oracle; ledger 203/C380; HEAD start `a0c56195`)
+## Next action (E2E-54/P2-DIFF-1 pre-registration hop — **THE BRIEF IS RECOVERED VERBATIM + BASELINE AND PILOT CANDIDATES RE-MEASURED ON BOTH LANES; §P2-DIFF-1 PRE-REGISTRATION COMMIT IS OWED AND IS THE NEXT SINGLE STEP**; session 01a1d4a9 renewal 1/12 of chain 01a1d3b4; ZERO oracle; ledger 203/C380; HEAD start `250465e6`)
+
+**DONE FIRST-HAND THIS HOP (full record LEARNINGS § "E2E-54/P2-DIFF-1 pre-registration hop" — READ
+VERBATIM FIRST, it contains the COMPLETE operator brief text, which is NOT stored in the repository):**
+(0) recovery: checkpoint `g789` attested at start; HEAD `250465e6`; `dune build` rc 0; T1
+`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT.
+(1) **THE OPERATOR BRIEF RECOVERED** from the parent chain transcript
+`~/.sushi/pi/sessions/--home-john-projects-sushiworks-pli80--/2026-11-13T06-35-12-601Z_01a1d39e-0b57-77bd-adf7-c27385f1daa5.jsonl`
+(first user record; parse with Python `json`, never grep) — §1 recovery, §2 the SAME-SOURCE /
+SHARED-CORE / NOT-COMPARABLE feasibility gate, §3 the oracle boundary (historical LINK-80/PLILIB
+PERMITTED, DR COMPILER ORACLE FORBIDDEN, ledger stays 203/C380), §4 pre-register 3–5 tests
+(D01–D05) with source sha + independent expectations BEFORE the fixtures, §5 the comparison law
+(never exit codes as PL/I returns; raw bytes / raw transcript / extracted region kept SEPARATELY;
+the five extraction proofs; a missing result is a FAILURE), §6 the seven verdict classes
+`BOTH-PASS / 8080-ONLY / NATIVE-ONLY / BOTH-FAIL-SAME / DIVERGENT / BLOCKED / NOT-COMPARABLE` and
+the two never-count-as-success laws, §7 the runner `tools/dual_backend_test.py` REUSING the
+functional-runner stage machinery + `oracle/linkrun.py` + the comparator-mutation control, §8 the
+frozen panel, §9 deliverables, §10 boundaries.
+(2) CP/M toolchain verified FIRST-HAND (not assumed): `oracle/linkrun.py` `SIM` binary present,
+all four DR tools in `artefacts/`, both boot seeds present.
+(3) The recon probe's evidence re-read and confirmed: `build/e54p2-scratch/probe/`
+`link.raw-transcript.txt` (LINK 1.31, NO `UNDEFINED SYMBOLS`, `CODE SIZE 1834`) and
+`run.raw-transcript.txt` line 23 = `        2         7^M` (cat -A: 8 SP, `2`, 9 SP, `7`, CR).
+(4) **NEW 8080-lane measurements (disposable `/tmp`, ZERO repo byte):** M02 128 B (26/4), CF06 256
+(54/2), CF07 128 (30/2), CF10 256 (55/2), CALL02 256 (67/10), CALL06A 256 (76/10), CALL07 384
+(117/16) — all rc 0, reproducing the baseline sweep. **NEW native-lane measurements:**
+`pli80mir.exe --export <entry>` rc 0 / ZERO stderr for M02 `m02`, CF06 `count`, CF07 `zero`,
+CF10 `stepdn`. (5) The nine source SHAs recorded (in LEARNINGS) for the pre-registration's
+source-identity fields.
+
+**NEXT VERBATIM (unchanged in substance, now with the design decided):** (1) WRITE + COMMIT
+§P2-DIFF-1 in `spec/lab-evidence/e2e54/PLAN.md` (ONE explicit path, PROTOCOL #1, BEFORE any fixture
+or runner byte) — .0 scope + the brief's boundaries; .1 measured facts (this hop + the baseline
+sweep matrix); .2 THE COMPARATOR/NORMALIZATION LAW (ordered signed-decimal integer vector, the five
+extraction proofs, raw/transcript/region kept separately, `driver-return` EXCLUDED from the
+comparison — it is lane-specific native evidence, no CP/M equivalent); .3 the seven verdict classes
++ the two never-count-as-success laws; .4 THE FIVE PILOTS, all existing committed fixtures reused
+WITHOUT editing (brief §4): **D01 M02** (scalar arithmetic, native 45), **D02 CF06** (counted
+`do while`, `0 1 2` then 3), **D03 CALL02** (value-arg call, PUT `2`), **D04 CALL06B** (by-ref
+aliasing differential, the recon-proven SAME-SOURCE pair `2 7`), **D05 CALL07** (value-call used by
+the caller, `1 2 3` then 3) — each with its source sha, SAME-SOURCE classification, the
+INVOCATION-difference note (native `--export <entry>` vs the 8080 LINK-80 MAIN entry — the SAME
+bytes, not two wrappers), no input stream (all five are GET-free), and the INDEPENDENTLY derived
+per-lane expected bytes; .5 the runner design; .6 the comparator-mutation + swap/remove controls;
+.7 the frozen panel list; .8 the work order, complexity stop, FORBIDDEN routes; .9 the dashboard
+row. (2) pilot measured-first; (3) `tools/dual_backend_test.py`; (4) RESULTS §P2-DIFF-1 + additive
+`docs/architecture/backend-boundary.md` note; (5) durables + **STOP**.
+Standing: ZERO oracle (the historical LINKER/RUNTIME is NOT the DR COMPILER ORACLE — distinguish in
+every report); NO compiler source change; `handoff.config.json` NEVER staged; no push; no
+`git add -A`/clean/reset; explicit paths; scratch `build/e54p2-scratch/` NEVER committed; rc
+DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo `chmod +x`; console
+links include `tools/mir_aot/pli_console.c`; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-1 baseline hop — **BASELINE PANELS ALL HIT + 8080-FEASIBILITY SWEEP DONE; §P2-DIFF-1 PRE-REGISTRATION OWED NEXT**; session 01a1d3b4 renewal 1/12 of chain 01a1d39e; ZERO oracle; ledger 203/C380; HEAD start `a0c56195`)
 
 **DONE FIRST-HAND THIS HOP:** (0) recovery: `dune build` rc 0; T1 `pli80c.exe` sha
 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; fresh
@@ -4664,17 +4717,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 787
-checkpoint-id: g787-b1c1ac4d56e7
-checkpoint-kind: manual
+checkpoint-generation: 790
+checkpoint-id: g790-81dd0706d2ca
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-13T06:58:48.928Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-13T11:39:50.567Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a5ece2f853c942727a929ba89b9bd38576f8a2b96303d61d002dee4d387c7069
-source-handoff: cb0455d797ee40d3ac074998f96b7cfd9a0fd84adfaf500e72ec66e0d645c397
-source-learnings: 076d70377f1773089c11cd5a240e6620f2e7071c79b070fea09d656ea8993355
+source-progress: d991b142e84175c2351f89eb9ce0de7031291a9bb0feaaa7fb80e53161e951df
+source-handoff: def188fda2d9f095b6a900d4ecbc70a73b27ebdb3fc8ede0f8533073644a9ca9
+source-learnings: 383ffb5e50ed581cc0d831244573fad0e3e41bc4fb24778d25407eda4638b43a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -5441,9 +5494,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d39e-0b57-77bd-adf7-c27385f1daa5
-readiness-at: 2026-11-13T06:58:49.057Z
-readiness-checkpoint: g787-b1c1ac4d56e7
 <!-- guard:end checkpoint -->
 
 ## Blockers

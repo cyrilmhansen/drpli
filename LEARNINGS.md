@@ -5,6 +5,126 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-1 pre-registration hop (2026-11-13, session 01a1d4a9 fresh startup, renewal 1/12 of chain 01a1d3b4; ZERO oracle; ledger 203/C380; HEAD start `250465e6`) — THE BRIEF RECOVERED VERBATIM + BASELINE RE-VERIFIED + PILOT CANDIDATES MEASURED ON BOTH LANES
+
+- ACCEPTED (recovery, each command its OWN rc): start checkpoint `g789-9f5de5f19722` reported
+  **attested** at session_start; HEAD `250465e6` (the baseline-hop durables commit); tree dirty
+  ONLY the two managed blocks + operator `handoff.config.json` (NEVER staged) + pre-existing
+  untracked scratch (`S2..S5.PLi/logs`, `golden/*/dir.txt`, `ocaml/_build-*`, `build/*`).
+  `cd ocaml && eval "$(opam env)" && dune build` **rc 0**; T1
+  `ocaml/_build/default/bin/pli80c.exe` sha
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` **DIRECT** (== the kept
+  fingerprint).
+- ACCEPTED (METHOD — the operator brief is NOT in the repository and was never saved for this
+  slice): the FULL E2E-54/P2-DIFF-1 brief text was recovered VERBATIM from the parent chain
+  session transcript at
+  `~/.sushi/pi/sessions/--home-john-projects-sushiworks-pli80--/2026-11-13T06-35-12-601Z_01a1d39e-0b57-77bd-adf7-c27385f1daa5.jsonl`
+  (first `user` record, parsed with Python `json`, NOT grepped). **A successor must read this
+  session file or this section — the brief cannot be re-derived from the repo.** Its verbatim
+  headings and binding numbers: §1 recovery/baseline; §2 the mandatory feasibility gate with the
+  THREE explicit classifications SAME-SOURCE / SHARED-CORE / NOT-COMPARABLE ("never merged into a
+  single undifferentiated parity PASS"; "Do not modify either compiler to make the experiment
+  convenient"); §3 the oracle boundary (running the historical LINK-80/PLILIB is PERMITTED, the DR
+  COMPILER ORACLE is FORBIDDEN; ledger stays 203/C380); §4 pre-register 3–5 whole-program tests
+  (D01 scalar arithmetic, D02 conditional/counted loop, D03 value-arg call, D04 by-ref aliasing,
+  D05 returned value used by the caller — "if supported in both lanes"), each with EXACT source
+  identity + SHA-256, classification, wrapper differences, INDEPENDENTLY derived expectations,
+  the integer sequence and statement order, required input stream, expected stages, known
+  restrictions and falsifiers, committed BEFORE the fixtures; §5 the comparison law (never
+  compare host exit codes as PL/I returns; keep raw bytes, raw transcript, and the extracted
+  region SEPARATELY; normalization must prove: only the intended region, every integer
+  recognised, nothing non-whitespace silently discarded, order+multiplicity preserved, a missing
+  result is a FAILURE not an empty success); §6 the SEVEN verdict classes
+  `BOTH-PASS / 8080-ONLY / NATIVE-ONLY / BOTH-FAIL-SAME / DIVERGENT / BLOCKED / NOT-COMPARABLE`
+  with the two laws "a matching pair of incorrect outputs must never count as equivalence
+  success" and "a failed compiler, unresolved linker symbol, crash, timeout or absent artifact
+  must never be reported as a successful runtime comparison"; §7 the runner
+  `tools/dual_backend_test.py` — REUSE the functional-runner stage/safety machinery, isolated
+  bounded runs, ignored dirs, never overwrite goldens, raw+normalized separately, verify source
+  and expected-reference integrity, per-lane per-stage reporting, infrastructure-vs-semantic
+  distinction, focused selection, machine-readable summary + readable report, and the
+  **comparator-mutation control** (alter ONE expected integer on a DISPOSABLE expected copy,
+  source and executables UNCHANGED, the comparator must FAIL; plus, if feasible, swap/remove a
+  required item must fail); §8 the mandatory evidence (×2 fresh runs per lane, no fitting) and
+  the frozen panel list; §9 deliverables (6 items) and the report list; §10 non-negotiable
+  boundaries (NO compiler source change, no ABI redesign, no interprocedural narrowing, no
+  arrays/FILE/PUT EDIT/multi-proc DWARF, no new DR oracle/goldens/claims, no `git add -A`/reset/
+  clean, never stage the config, STOP-and-attribute on contradiction, finish with a verified
+  checkpoint and STOP, no push).
+- ACCEPTED (toolchain, verified first-hand this hop): `oracle/linkrun.py` imports cleanly and
+  reports `SIM = /home/john/pli/cpm/z80pack/cpmsim/cpmsim` EXISTING, all four DR tools
+  (`LINK.COM LIB.COM RMAC.COM PLILIB.IRL`) present in `artefacts/`, both boot seeds present —
+  the brief §1 "do not assume a previously working external CP/M installation remains
+  accessible" is satisfied MEASURED, not assumed.
+- ACCEPTED (the recon probe's evidence survives and is re-read; it lives in ignored
+  `build/e54p2-scratch/probe/` — NOT in the repository, so a successor must look there): `link.raw-transcript.txt` shows
+  `LINK 1.31` / `PLILIB RQST DIFFAL 0100 /SYSIN/ 1998 /SYSPRI/ 19BF` with NO `UNDEFINED SYMBOLS`
+  section and `CODE SIZE 1834 / DATA SIZE 01CF / COMMON SIZE 00E6`; `run.raw-transcript.txt`
+  line 23 is the program's console region `        2         7^M` (cat -A verified: 8 SP + `2` +
+  9 SP + `7` + CR, then the `D>` prompt). This is the CALL06B SAME-SOURCE witness.
+- ACCEPTED (NEW MEASUREMENTS THIS HOP — disposable, ZERO repo byte): re-compiled the pilot
+  candidates on the 8080 lane with the committed `pli80c.exe -d` into `/tmp` (NOT the repo, NOT
+  `build/`): **M02 128 B (code 26/data 4), CF06 256 (54/2), CF07 128 (30/2), CF10 256 (55/2),
+  CALL02 256 (67/10), CALL06A 256 (76/10), CALL07 384 (117/16)** — all rc 0, reproducing the
+  baseline-hop sweep sizes exactly. And the native lane on the four CF/M candidates:
+  `ocaml/_build/default/hir/pli80mir.exe --export <entry> <fixture>` rc 0, ZERO stderr for
+  **M02 (`m02`), CF06 (`count`), CF07 (`zero`), CF10 (`stepdn`)** — the entry name is read from
+  the fixture's own `^proc:` label (mechanical extraction).
+- ACCEPTED (source identities for the pre-registration; sha256 of the committed fixtures, recorded
+  HERE so the PLAN section can carry them and the runner can verify identity BEFORE any run):
+  M02 `5f1ad6dace164feab6cb2dc719dd36eb997b2bf5d647def6b7934b62daafd621`,
+  CF06 `bb2ba55e8e27dca1fde994a564f790c0b3fd1b5a82c9483a578c04fe3440da2f`,
+  CF07 `1c75f9f3bc400a6473807726809a966dd2e44719c5d1881eaefb5a5cae1a06ba`,
+  CF10 `01e9e46c4f7863a8c211d8bf0cb0f38a0797fd71f0216335df0f3f24cb865988`,
+  CALL02 `100a6f58f04150ff8f8cb45433e644739fa646c004da27c37d930f32cee04a8b`,
+  CALL06A `5451f684dfb9eb29e1f987a9aab28a668e5b97d95d5517fcae0ebc0627098b84`,
+  CALL06B `f0e915dd51f49c644448a291919658f1e055878f485c7654cbb50f61b8503cf8`,
+  CALL07 `0b2d3bdc2f9d54907fd7bb975b4fef2ade95b16f027a374652e83f5b2650977f`,
+  CALL10 `50a5786311c58d4f0db2678c67e84bf32127a988c427e0786f31944945abbb7a`.
+- ACCEPTED (the comparator's numeric facts, re-read first-hand): the 8080 FIXED-BIN print width is
+  `ocaml/lib/codegen.ml:105` `binw p = min 9 (digits10(2^p-1)+4)` — for `fixed bin(15)` that is
+  `min(9, 5+4) = 9` digits-worth ⇒ the measured 10-position field (README §6 law: 10-position
+  right-justified, one blank between items of the SAME statement, NO line terminator between
+  statements, exactly ONE final newline from the exit chain [C352]); the native lane emits
+  `pli_console_put_i64` (plain decimal, no padding) + a `put_nl` per PUT statement, and the
+  `console_check` driver reports `driver-return=<v>` on **stderr**, stdout belonging to the program
+  alone — so the native lane's stdout is the program's own PUT region, and the driver-return is
+  lane-specific evidence that is NEVER part of the 8080 comparison (no CP/M equivalent).
+- PROPOSED (the pilot design to be written into the PLAN — NOT yet committed): the 5 pilots are
+  existing committed fixtures, reused WITHOUT editing their authoritative copies (brief §4
+  "Favor existing committed MIR fixtures"): **D01 = M02** (scalar arithmetic + a visible result,
+  `y=10; z=y+5; return (z*3)`, native 45), **D02 = CF06** (counted `do while` with 3 PUTs,
+  `0,1,2` then 3), **D03 = CALL02** (value-arg call `call side(4+x)`, PUT `2`), **D04 = CALL06B**
+  (by-reference mutation + the aliasing differential, the recon-proven SAME-SOURCE pair),
+  **D05 = CALL07** (the value-call `z = pick3(1,2,3)` used by the caller, 3 PUTs + the return).
+  All five are GET-FREE (no input stream on either lane — the baseline hop's input-channel
+  asymmetry), all five are in the sweep's rc-0 matrix on the 8080 lane and are native positives
+  with committed `.mir` pins. ALL FIVE ARE SAME-SOURCE (the same bytes, the native entry form
+  `returns(fixed bin(15))` + final `RETURN(expr)`; no `options(main)`/`stop` wrapper needed —
+  PROVEN by the recon probe). NOTE the caveat: on the 8080 lane the entry is the MAIN program
+  because the historical LINK-80 treats the linked program as the COM; the native lane needs the
+  same file with `--export <entry>` — a difference of the INVOCATION, not of the source bytes.
+- NEXT VERBATIM (successor): (1) WRITE + COMMIT §P2-DIFF-1 in `spec/lab-evidence/e2e54/PLAN.md`
+  (ONE explicit path, PROTOCOL #1, BEFORE any fixture/runner byte) — sections: .0 scope + the
+  brief's own §1–§10 boundary (cite the transcript path for the brief text), .1 measured facts
+  (this hop's matrix + the baseline hop's sweep), .2 the comparator/normalization law (the
+  ordered signed-decimal integer vector; the 5 extraction proofs; the raw-vs-normalized
+  separation; the CRLF/`collapse-spaces-v1` registration; the driver-return EXCLUDED from the
+  comparison), .3 the three-way/seven-way verdict law + the two never-count-as-success laws,
+  .4 the five pilot definitions with source sha + INDEPENDENT hand-derived expectations (both
+  lanes, statement order, no input stream), .5 the SAME-SOURCE classification and the invocation
+  difference, .6 the runner `tools/dual_backend_test.py` (reuse `functional_runner` stage
+  machinery + `oracle/linkrun.py`; never a new CP/M framework), .7 the comparator-mutation
+  control + the swap/remove control, .8 the frozen panel list, .9 the work order + complexity
+  stop + FORBIDDEN routes, .10 the dashboard row. Then (2) pilot measured-first; (3) the runner;
+  (4) RESULTS §P2-DIFF-1 + additive `docs/architecture/backend-boundary.md` note; (5) durables
+  and STOP. Standing: ZERO oracle (the historical LINKER/RUNTIME is NOT the DR COMPILER ORACLE —
+  distinguish them in every report); NO compiler source change; `handoff.config.json` NEVER
+  staged; no push; no `git add -A`/clean/reset; explicit paths; scratch `build/e54p2-scratch/`
+  NEVER committed; rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`;
+  cosmo `chmod +x`; console links include `tools/mir_aot/pli_console.c`; NEVER hand-edit managed
+  checkpoint blocks.
+
 ## E2E-54/P2-DIFF-1 baseline hop (2026-11-13, session 01a1d3b4 renewal 1/12 of chain 01a1d39e; ZERO oracle; ledger 203/C380; HEAD start `a0c56195`) — BASELINE PANELS ALL HIT FIRST-HAND + THE 8080-FEASIBILITY SWEEP OF EVERY COMMITTED MIR FIXTURE; §P2-DIFF-1 PRE-REGISTRATION OWED
 
 - ACCEPTED (baseline, each command its OWN rc, `eval "$(opam env)"`, `LC_ALL=C`, timeouts 900,
