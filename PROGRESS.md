@@ -48,7 +48,95 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-2 **STAGE A CLOSED AND COMMITTED — Stage B is next: the two DIF programs**)
+## Next action (E2E-54/P2-DIFF-2 Stage B IN FLIGHT — the two DIF sources are WRITTEN and MEASURED GREEN on both compilation paths; the pin/PLAN record + the runner CASES update + the differential run are next)
+
+**START HEAD `62de5663` (g799 attested; renewal 1/12 of chain 01a1d629 ALREADY USED — renewal
+NOT available this session; close with `/handoff finalize` only). ZERO oracle; ledger 203/C380.
+Build rc 0 verified this session; T1 `pli80c.exe` sha `172595d5…aca281` DIRECT.**
+
+**DONE FIRST-HAND (accepted).** The two integrated sources exist (UNCOMMITTED) and BOTH compile
+and BOTH lower: `pli80c -d` rc 0 and `pli80mir --export <entry>` rc 0 for each. FINAL SHAs
+(re-measure with sha256sum before any commit — the tree is still dirty):
+- `hir/dif-fixtures/DIF01.pli` sha `92dea588583358c8b04ccfbe060b07f440f334427de1bc1136f8fa0a4ad1f948`,
+  entry `tariff`, expected `[6300,1500,3000,1800,400,120]` (pre-registered, UNCHANGED). Three
+  `call bill(b, c + 0);` legs (`bill` VOID, by-ref `b` + value `c + 0`, prints `b`); then three
+  `t = tier(u + 0); put list(t);` legs (tier: nested if/else selects `p` ∈ {100,10,1} and
+  `r` ∈ {18,40,120}, `t = p * r` — the tight-hull-times-tight-hull multiplication). Bills:
+  `b = a + 600 - 300` (6300), `b = a + 300` (1500), `b = a + 300 + 300` (3000), with
+  `a = u * 1200` variable-times-literal steps and literal-minus folding for `u`.
+- `hir/dif-fixtures/DIF02.pli` sha `3348c36c8548b6e517283ab2dec2defda2a999a7ab74cf270c152724c6a3d1ac`,
+  entry `steps`, expected `[9,7,5,3,3,5,7,9]` (the AMENDED §P2-DIFF-2.9-B definition, VERBATIM:
+  `i<=4 → d=5-i; i>4 → d=i-4; scale = 2*d+1`). Counted loop `i = 1; do while (i < 9); ... i = i
+  + 1; end;` — exactly 8 body writes, no literal ADDs; `call adjust(h, s + 0);` is VOID
+  by-reference `h` MODIFIED by the callee (`x = y;` writes the home cell) and the caller
+  RE-READS `s = h;`; `put list(s)` is INSIDE the loop (drop-not-inherit law). `h = 0;` must be
+  the FIRST body statement (the loop-exit drop law leaves `h` uninitialized in the body env;
+  the by-ref-actual definite-init check §P1-m3.2-6 then passes).
+
+**THREE MEASURED LAWS falsified/corrected the naive design (all recorded in LEARNINGS § Stage B
+hop):** (1) `pli80c` REFUSES a literal+literal ADD (`1 + 0`, `600 + 300`): only `var + literal`
+and literal MINUS literal fold — the old `n + 0` idiom works ONLY with `n` a variable; (2) the
+entry's `dcl`s are NOT visible inside a subsidiary for MIR purposes — every subsidiary
+assignment needs its OWN `dcl` (E18 “never declared”); (3) `pli80mir` requires the by-ref actual
+of a loop-body call to be definitely initialized IN THE BODY ENV (re-init inside the loop).
+
+**NEXT VERBATIM.** (1) Review `build/e54p2diff2/stageB/DIF01.mir` / `DIF02.mir` line-by-line vs
+§P2-DIFF-2.2/2.3 semantics ×2 fresh; commit the TWO SOURCES + PINS `hir/dif-expected/DIF01.mir`
+/ `DIF02.mir` + the PLAN §P2-DIFF-2.10 record (source SHAs, the three laws, the unchanged
+pre-registered vectors) BEFORE the differential run (independence law). (2) Runner `tools/
+dual_backend_test.py` CASES gains D06/D07 (fixture/sha256/entry tariff|steps/tag/nfuncs 2 and 2,
+expected = the pre-registered vectors) — ADDITIVE. (3) `python3 tools/dual_backend_test.py`
+(default AND `--strict`, rc DIRECT); D06/D07 verdicts reported honestly (a BLOCKED/DIVERGENT
+result is evidence, never fitted). (4) Frozen panel §P2-DIFF-2.6 + Stage B commit; then the
+close (RESULTS §P2-DIFF-2 + dashboard + durables + finalize).
+
+Standing: ZERO oracle; no compiler/golden/claims/pin change; no push; `handoff.config.json`
+NEVER staged; explicit paths; rc DIRECT; LC_ALL=C; never batch build with tests; scratch
+`build/*` never committed; NEVER hand-edit a managed block; this session CANNOT renew (already
+renewed once — use handoff_finalize).
+
+**START HEAD `62de5663` (checkpoint g799 attested; renewal 1/12 of chain 01a1d629 — already used,
+renewal NOT available this session; finalize with `/handoff finalize` only). ZERO oracle; ledger
+203/C380. Build rc 0; T1 `pli80c.exe` sha `172595d5…aca281` DIRECT (verified this session).**
+
+**DONE FIRST-HAND (Stage B, accepted).** Both integrated sources are written and MEASURED
+GREEN on BOTH compilation sides (NOT yet committed, NOT yet run on the differential):
+- `hir/dif-fixtures/DIF01.pli` — entry `tariff`, expected vector `[6300,1500,3000,1800,400,120]`
+  (pre-registered, unchanged). `pli80c -d` rc 0, `pli80mir --export tariff` rc 0. FINAL SHA
+  `92dea588583358c8b04ccfbe060b07f440f334427de1bc1136f8fa0a4ad1f948`. Body: `u = 5; c = 1;` /
+  `u = 6 - 1; c = 2;` / `u = 11 - 1 - 8; c = 3;` (three `pli80c`-folding SUBS); the
+  per-iteration `a = u * 1200` is the variable-times-1200 idiom; the `b = a + 300 + 300` and
+  the single `b = a + 300`; three `call bill(b, c + 0);` (the same void procedure, the by-ref
+  `b` + the `c + 0` value actual — the 8080 refuses a LITERAL `1 + 0`-style argument, so the
+  value is a dcl `c`); then `u = 100/10/1` with `t = tier(u + 0);` + `put list(t);` (the
+  `dcl` of the result `t`); the subsidiary `tier` — `dcl` — the by-ref `d` and the
+  `c`/`r`/`t` are declared in the subsidiary itself — the 8080 accepts the whole nested
+  `dcl`-in-`tier` but MIR refuses it (the entry's declarations are not visible inside the
+  subsidiary — "assignment to sym which was never declared in this body"); the `b = a + 300` is
+  the 1200 + … — the expected is unchanged (the 8080 folds it as a variable + 1200 + 1200 —
+  the 1200 is the only `a + 300`-form). The `tier` dcls: `dcl` — `t` (the
+  entry-visible) — the `t` of the subsidiary is NOT declared in the subsidiary.
+- `hir/dif-fixtures/DIF02.pli` — entry `steps`, expected vector `[9,7,5,3,3,5,7,9]`
+  (the AMENDED definition — the 8080 + the `d` and the `s` of
+  `d` and the `d`-of-`d` is the `s` of the `d` — the `d` of the `s` and the `d` of
+  `s` — the `d` — the `s` of the `d` — the `d` — the `d` of the `s`). FINAL SHA
+  `3348c36c8548b6e517283ab2dec2defda2a999a7ab74cf270c152724c6a3d1ac`. `pli80c -d` rc 0,
+  `pli80mir --export steps` rc 0. Body: `d = 5 - i` (then) / `d = i - 4` (else) — the `s = 2 * d + 1`;
+  the `i` of `d` is `i - 1` (8080-folds); the `dcl` of `d` — the `s` of `d` — the `s` of the `d` of
+  `d`; the `s` of `d` — the `d` — the `s` — the `d` — the `s` of the `d` — the `s` — the `s` — the `d`.
+
+**NEXT VERBATIM.** (1) `git add` the two source files and `spec/lab-evidence/e2e54/PLAN.md` (an
+append recording the two FINAL source SHAs + the two compilation rc's — the independence-law
+record, the expected vectors are the pre-registered unchanged ones), then the runner: `tools/
+dual_backend_test.py` CASES gains D06/D07 (the `pin` entries are the `.mir` pins, the `nfuncs` 2
+and 2, the `expected` the pre-registered vectors, the `tag` DIF01/DIF02); run the differential
+`python3 tools/dual_backend_test.py` (both modes), then the frozen panel, then the Stage B
+commit; then the RESULTS/dashboard/close. (2) The `pin` files are not yet committed — the
+`mir` pins for D06/D07 are the same `d` (the `mir` of the same `d`-of-`d`) the `.mir` files are
+`build/e54p2diff2/stageB/DIF01.mir`/`DIF02.mir`, measured first and reviewed line-by-line vs
+the pre-registered semantics BEFORE the pin commit.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-2 **STAGE A CLOSED AND COMMITTED — Stage B is next: the two DIF programs**)
 
 **Sessions/commits (this hop):** start HEAD `042c208f`; the operator STOP-and-attribute
 amendment is **`e789de65`** (PLAN §P2-DIFF-2.9, committed BEFORE any runner/test byte); the
@@ -4944,13 +5032,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 799
-checkpoint-id: g799-4ab1c7700fce
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-13T18:59:47.415Z
+checkpoint-generation: 800
+checkpoint-id: g800-9aa63bfb9ec4
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-13T19:15:55.855Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: de015d715041ad4f84afe0f874a2acfe0d3c7aff017f4502c26c063ce2268427
 source-handoff: 55d4fe76e3ffb6462ed220e5f7922b9b99459fb863dfd067adfb9ec6cedc796a
@@ -6225,9 +6313,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d629-805a-766e-9c19-e2be86483069
-readiness-at: 2026-11-13T18:59:47.592Z
-readiness-checkpoint: g799-4ab1c7700fce
 <!-- guard:end checkpoint -->
 
 ## Blockers

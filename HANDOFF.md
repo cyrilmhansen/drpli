@@ -7,7 +7,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-7-e54p2diff2A (2026-11-13, session 01a1d629 fresh startup; ZERO oracle; ledger 203/C380; start
+8-e54p2diff2B (2026-11-13, session 01a1d648 renewal 1/12 of chain 01a1d629 — the ONLY renewal
+this session may use; ZERO oracle; ledger 203/C380; start HEAD `62de5663`): **E2E-54/P2-DIFF-2
+OPEN; STAGE B IN FLIGHT — the two sources EXIST UNCOMMITTED and are MEASURED GREEN on BOTH
+compilation paths** (`pli80c -d` rc 0 and `pli80mir --export` rc 0 for each). The ONLY active
+next action is PROGRESS `## Next action (…Stage B IN FLIGHT…)`: review the two `.mir` outputs
+(`build/e54p2diff2/stageB/`) line-by-line ×2, commit sources + pins `hir/dif-expected/` + PLAN
+§P2-DIFF-2.10 record (source SHAs, unchanged pre-registered vectors, the three measured
+subset laws), then the runner CASES D06/D07 (entries `tariff`/`steps`, `nfuncs` 3 and 2 —
+VERIFY against mir2o stderr), then the differential runs (default + `--strict`, rc DIRECT),
+then the frozen panel, then the Stage B commit, then close. Recovery order: (1) `git rev-parse
+HEAD` + `git status --porcelain` (the two untracked `hir/dif-fixtures/*.pli` are the Stage B
+work; re-measure their SHAs against the PROGRESS text before trusting them); (2) `/handoff
+verify`; (3) read PROGRESS Stage B heading + LEARNINGS §§ "Stage B hop" (the three measured
+laws — literal+literal ADD refuses on `pli80c`; subsidiary needs its own `dcl`; loop-body
+by-ref actual must be re-initialized inside the body) and "Stage A(b) hop"; (4) PLAN
+§P2-DIFF-2 + §P2-DIFF-2.9. Standing: ZERO oracle; no compiler/golden/claims/pin change; no
+push; `handoff.config.json` never staged; explicit paths; rc DIRECT; LC_ALL=C; never batch
+build with tests; NEVER hand-edit a managed block; this session CANNOT handoff_renew (already
+renewed once — use handoff_finalize).
+
+SUPERSEDED-BY-ABOVE: 7-e54p2diff2A (2026-11-13, session 01a1d629 fresh startup; ZERO oracle; ledger 203/C380; start
 HEAD `042c208f`): **E2E-54/P2-DIFF-2 IS OPEN; STAGE A IS CLOSED AND COMMITTED — the ONLY
 active next action is Stage B, the two DIF programs** (PROGRESS `## Next action (E2E-54/P2-DIFF-2
 STAGE A CLOSED AND COMMITTED — Stage B is next…)`). The operator's STOP-and-attribute
@@ -2274,13 +2294,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 799
-checkpoint-id: g799-4ab1c7700fce
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~20729, session 01a1d629-805a-766e-9c19-e2be86483069)
-checkpointed: 2026-11-13T18:59:47.415Z
+checkpoint-generation: 800
+checkpoint-id: g800-9aa63bfb9ec4
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3030, session 01a1d648-5872-766e-9c19-e2c339107b3d)
+checkpointed: 2026-11-13T19:15:55.855Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: de015d715041ad4f84afe0f874a2acfe0d3c7aff017f4502c26c063ce2268427
 source-handoff: 55d4fe76e3ffb6462ed220e5f7922b9b99459fb863dfd067adfb9ec6cedc796a
@@ -2288,11 +2308,8 @@ source-learnings: 3c39ff4faec0ae09f746aadec574a860b7491ec66728f35f61b57d660753ae
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d629-805a-766e-9c19-e2be86483069
-readiness-at: 2026-11-13T18:59:47.592Z
-readiness-checkpoint: g799-4ab1c7700fce
 ### Last verified state
-guard level 0; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
