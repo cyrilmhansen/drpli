@@ -7,7 +7,46 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-6-e54p2diff2 (2026-11-13, session 01a1d53d fresh startup; ZERO oracle; ledger 203/C380; start
+7-e54p2diff2A (2026-11-13, session 01a1d629 fresh startup; ZERO oracle; ledger 203/C380; start
+HEAD `042c208f`): **E2E-54/P2-DIFF-2 IS OPEN; STAGE A IS CLOSED AND COMMITTED — the ONLY
+active next action is Stage B, the two DIF programs** (PROGRESS `## Next action (E2E-54/P2-DIFF-2
+STAGE A CLOSED AND COMMITTED — Stage B is next…)`). The operator's STOP-and-attribute
+chronology (ten steps) was executed IN ORDER: the three contradictions (A: T7c fixture
+injected the EXPECTED vector on the 8080 lane — that configuration is 8080-ONLY, never
+BOTH-FAIL-SAME; B: DIF02's `d = |i-5|` was mathematically incompatible with its own predicted
+`[9,7,5,3,3,5,7,9]` — amended to `i<=4 → d=5-i, i>4 → d=i-4, scale=2d+1`, the vector
+UNCHANGED; C: the pre-registered T4 attack was never implemented — added) are recorded in PLAN
+§P2-DIFF-2.9 and committed FIRST, PLAN only (`e789de65`); the suite was corrected + committed
+alone (`2dd43db0`); the runner was hardened (`55e43285`, the Stage A commit — additive
+`assess_run`/`assess_case`/`run_cases`/`build_report`/`exit_code`/`--strict`, native `rc==0`
+status law, BOTH-runs determinism law, additive `infrastructure_failure`/`semantic_divergence`;
+the `record` self-reference must be a NON-CIRCULAR copy or json.dump raises). A fourth
+finding (D, the same fixture class as A, in the T9a block) was MEASURED during the first
+hardened run and is documented in §P2-DIFF-2.9-D — the fixture, not the law, was amended.
+Acceptance measured: suite 29/29 rc 0 twice; the four historical cases rc 0 default AND
+`--strict`, 4/4 BOTH-PASS, determinism (True,True) everywhere, 14/14 controls REJECTED; the
+FULL FROZEN PANEL §P2-DIFF-2.6 with every command its own rc and every panel log
+`cmp`-IDENTICAL to the baseline logs (gate 1328/1328-190/190-9/9-149 rows 0/0-census
+16/0/25/0-prose 5; hir 220; mir 32; cosmo 25; console 43; debug 23; CF 83; call 86; functional
+211/211); fresh `_build-e54p2diff2a` rc 0 ZERO Error hist 122, sha `172595d5…aca281`; pins
+UNMOVED; ledger 203/C380. Recovery order: (1) `git rev-parse HEAD` (expect `55e43285` or
+later) + `git status --porcelain` (only the operator's `handoff.config.json` may be dirty,
+never staged); (2) `/handoff verify` (the managed block may lag the Stage A prose — a stale
+block is refreshed by `/handoff`, never hand-edited); (3) read the COMMITTED PLAN
+§P2-DIFF-2 (the whole campaign, §P2-DIFF-2.9 amendments included) and the PROGRESS live
+heading; (4) read LEARNINGS §§ "Stage A(b) hop" and "Stage A hop" for the method and the
+measured capability intersection; (5) Stage B: `hir/dif-fixtures/DIF01.pli` (entry `tariff`,
+expected `[6300,1500,3000,1800,400,120]`) and `hir/dif-fixtures/DIF02.pli` (entry `steps`,
+AMENDED definition, expected `[9,7,5,3,3,5,7,9]` unchanged) — sources prepared, SHA-verified
+and committed BEFORE the differential run, inside the measured intersection (literals ≤ 32767
+`bin(15)`; `a*b` on two variables REFUSES — a tight operand needed; a `Call_e` result widens
+and must be re-copied before multiplication; loop output must be INSIDE the loop; bare-name
+actuals are BY REFERENCE; statement calls VOID only; `put list` one item). §P2-DIFF-1 is
+CLOSED and immutable. Standing: ZERO oracle; no compiler/golden/claims/pin change; no push;
+no `git add -A`; explicit paths; rc DIRECT; `LC_ALL=C`; never batch build with tests; no
+automatic renewal.
+
+SUPERSEDED-BY-ABOVE: 6-e54p2diff2 (2026-11-13, session 01a1d53d fresh startup; ZERO oracle; ledger 203/C380; start
 HEAD `7e45868b`): **E2E-54/P2-DIFF-2 IS OPEN AND IN FLIGHT AT STAGE A(b).** LANDED: the
 §P2-DIFF-2 PRE-REGISTRATION `41fca33e` and the pre-fix ADVERSARIAL SUITE `06a7fdbf`
 (`tools/test_dual_backend.py`, measured rc **1**: 4 FAIL + 3 hardened-API groups missing —

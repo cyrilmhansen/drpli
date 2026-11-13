@@ -48,7 +48,62 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-2 **IN FLIGHT at Stage A(b)** — the pre-registration and the adversarial suite are COMMITTED; the RUNNER HARDENING is the next single step)
+## Next action (E2E-54/P2-DIFF-2 **STAGE A CLOSED AND COMMITTED — Stage B is next: the two DIF programs**)
+
+**Sessions/commits (this hop):** start HEAD `042c208f`; the operator STOP-and-attribute
+amendment is **`e789de65`** (PLAN §P2-DIFF-2.9, committed BEFORE any runner/test byte); the
+amended suite is **`2dd43db0`** (T7c fixed, T4 added); the hardening + the T9a finding (D) is
+**`55e43285`** (the Stage A commit, independent of B and C). ZERO oracle; ledger 203/C380;
+the tree is clean except the operator's `handoff.config.json` (never staged) + pre-existing
+untracked scratch.
+
+**DONE FIRST-HAND (ACCEPTED).** The operator's ten-step chronology is COMPLETE: (1) HEAD/tree
+verified; (2) the three contradictions recorded in PLAN §P2-DIFF-2.9 (A: the T7c fixture
+injected the EXPECTED vector on the 8080 lane, so it was 8080-ONLY, never BOTH-FAIL-SAME —
+only the injection was corrected; B: DIF02's `d = |i-5|` was mathematically incompatible with
+its own predicted vector — the AMENDED definition `i<=4 → d=5-i; i>4 → d=i-4; scale=2d+1`
+reproduces the ORIGINAL `[9,7,5,3,3,5,7,9]` and the old text is preserved; C: the T4 attack
+was pre-registered but never implemented — it is now; the DIF02 source may now be created —
+the amendment commit exists, as the operator's timing law required); (3) PLAN-only commit; (4/5) the
+suite corrected + committed alone; (6) the runner hardened — `assess_run`/`assess_case`/
+`run_cases`/`build_report`/`exit_code` with the `lane_fns` injection seam, the native `rc==0`
+status law, both-runs determinism law, and the additive `infrastructure_failure` +
+`semantic_divergence` fields (the report's `record` self-reference MUST be a non-circular copy
+or json.dump raises); (7) the suite green: **29/29 rc 0**, twice; during the first hardened
+run the T9a block revealed a fixture defect of the SAME class (D) — the hardened runner
+measured it correctly, the FIXTURE was amended, the law was not; (8) the four historical
+cases rc **0** default AND `--strict`, 4/4 BOTH-PASS, determinism (True,True) everywhere,
+14/14 controls REJECTED; (9) the FULL FROZEN PANEL §P2-DIFF-2.6 with every command its own rc
+— gate 0 (1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5, log cmp-IDENTICAL to
+`base-gate.log`), hir 220, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, call 86 (all
+six cmp-IDENTICAL), functional 211/211, fresh `_build-e54p2diff2a` rc 0 ZERO Error hist 122,
+exe sha `172595d5…aca281`, `git diff --exit-code -- hir/` and `-- ocaml/hir/` both 0, ledger
+203/C380; (10) Stage A committed independently.
+
+**NEXT VERBATIM (Stage B — §P2-DIFF-2.7-3, the campaign is OPEN):** write the two integrated
+programs as the PRE-REGISTERED (and now amended) sources — `hir/dif-fixtures/DIF01.pli` (entry
+`tariff`, expected `[6300,1500,3000,1800,400,120]`) and `hir/dif-fixtures/DIF02.pli` (entry
+`steps`, the AMENDED definition: `i<=4 → d=5-i`, `i>4 → d=i-4`, `scale(d)=2d+1`, expected
+`[9,7,5,3,3,5,7,9]` — the vector is UNCHANGED, the formula was). The design must stay inside
+the measured capability intersection (PLAN §P2-DIFF-2.2): literals ≤ 32767 typed `bin(15)`;
+a multiplication needs a tight-interval operand (a point from a literal, or an `if/else` hull
+of literals — `a*b` on two variables REFUSES); a `Call_e` result widens to `W(15)` and must be
+re-copied through a tight assignment before multiplication; every body-written sid is DROPPED
+at the loop exit (output must be INSIDE the loop; a loop cannot accumulate a total read after
+it); a bare-name or literal actual is BY REFERENCE — a value call needs an expression actual
+(`n + 0`); statement calls target VOID only; `put list(<one item>)` only. Sources are
+prepared, SHA-verified and committed BEFORE the differential run (independence law §P2-DIFF-2.3);
+then run the four cases + the two new cases (the runner's CASES table gains D06/D07 — a
+runner change, additive, with the pre-registered expected vectors) and the two new cases
+through the hardened runner in default AND `--strict` mode, then the frozen panel. STOP
+conditions §P2-DIFF-2.7 bind: a program needing a missing feature is a DOCUMENTED blocker, not
+a reason to weaken the program or extend the compiler.
+
+**Standing constraints (unchanged):** ZERO oracle; `handoff.config.json` NEVER staged; no push;
+no `git add -A`/clean/reset; explicit paths; rc DIRECT; timeouts 60/120/900; `LC_ALL=C`;
+never batch build with tests; NEVER hand-edit a managed checkpoint block.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-2 **IN FLIGHT at Stage A(b)** — the pre-registration and the adversarial suite are COMMITTED; the RUNNER HARDENING is the next single step)
 
 **Sessions/commits:** start HEAD `7e45868b`; the §P2-DIFF-2 pre-registration is **`41fca33e`**;
 the Stage-A(a) adversarial suite `tools/test_dual_backend.py` is **`06a7fdbf`**. ZERO oracle;
