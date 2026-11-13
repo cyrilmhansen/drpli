@@ -5,6 +5,60 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-1 PILOT hop (2026-11-13, this session; ZERO oracle; ledger 203/C380; start HEAD `31824e26`) — PRE-REGISTRATION COMMITTED + THE DISPOSABLE PILOT RAN GREEN 4/4 BOTH-PASS; THE RUNNER `tools/dual_backend_test.py` IS WRITTEN, FIRST RUN OWED
+
+- ACCEPTED (recovery, own rc): HEAD `31824e26` == the brief's reference; build rc 0; T1
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; ledger 203 headers
+  ending C380; `tools/mir_aot_call_test.py` + `tools/functional_runner.py` present; the managed
+  block is FINALIZED at `31824e26` (the HEAD commit IS the checkpoint).
+- ACCEPTED (PROTOCOL #1 — THE PRE-REGISTRATION COMMIT): `ddff0717` = §P2-DIFF-1 appended to
+  `spec/lab-evidence/e2e54/PLAN.md` (ONE explicit path, 348 lines, BEFORE any fixture/runner
+  byte). It carries the operator REFINEMENT (the brief's original D01–D05): D01 M02 EXCLUDED
+  (NOT-COMPARABLE: no PL/I console output; driver-return vs the CP/M process status is not a
+  common observable); D03 CALL02 REPLACED by CALL04 (CALL02's printed `2` is the caller's own
+  pre-call `x` — a no-op callee would print the same; CALL04's `51` is printed by the DEEPEST
+  procedure of `chain→mid→leaf`); the four SAME-SOURCE sha's (CF06 `bb2ba55e…`, CALL04
+  `72c418e4…`, CALL06B `f0e915dd…`, CALL07 `0b2d3bdc…`), the entry-mechanism independence and
+  its LIMITATION (the 8080 exit chain is NOT a PL/I return value — agreement proves nothing
+  about return values, call mechanisms or full equivalence), the five extraction proofs, the
+  seven verdict classes, the ×2 fresh-law, the controls, the risks, the per-case falsifiers.
+- ACCEPTED (the four new source SHAs measured; CALL04 `72c418e4d21b80cf2e7a20eee41c6846a3f27532be3c6b8b971d13bb716e8906` was
+  NOT in the pre-registration hop's nine — it is NEW here); the other three reproduce the
+  recorded values byte-for-byte.
+- ACCEPTED (THE DISPOSABLE PILOT, `build/e54p2-scratch/pilot/pilot.py` — NEVER committed; two
+  full rounds; round 2 → all four `BOTH-PASS`, each lane ×2 fresh contexts, RAW-deterministic):
+  * 8080 lane (the REAL functional_runner stages — `stage_source`/`stage_compile`/`stage_link`/
+    `stage_run` on a minimal spec dict; fresh workspace per execution): CF06 6912 B .COM;
+    ALL FOUR LINKED CLEAN (parse_undefined EMPTY on the full segment) AND RAN. The pre-
+    registration's honest caveat ("CF06/CALL04/CALL07 have NO committed LINK/RUN witness —
+    hypotheses, not claims") is now RESOLVED: the hypothesis is MEASURED. Raw regions (cat -A):
+    D02 `        0         1         2^M$`, D03 `       51^M$` (7SP+51 — the 9-char field of
+    `min(9,5+4)`), D04 `        2         7^M$` (reproduces the recon probe EXACTLY),
+    D05 `        1         2         3^M$`. Normalized: [0,1,2]/[51]/[2,7]/[1,2,3].
+  * native lane: pin-consistent (pli80mir stdout == the committed .mir), mir2o reached-func
+    counts 1/3/2/2, cosmo tiny EXECUTED: stdout `0\n1\n2\n`/`51\n`/`2\n7\n`/`1\n2\n3\n`,
+    stderr driver-return=3/91/7/3 (lane-specific, EXCLUDED from the comparison).
+- FALSIFIED (harness, MINE, caught and fixed immediately, ZERO repo byte): the `Stage` dataclass
+  field is `witness`, NOT `code` (pilot round 1 died with AttributeError); and the pilot's
+  `json.dumps` needed the bytes previews decoded. No behavior was affected; the committed
+  runner already uses the right names.
+- ACCEPTED (the runner): `tools/dual_backend_test.py` WRITTEN to §P2-DIFF-1.9 (reuse law:
+  imports `functional_runner` Host/LaneCtx/stages; the pinned cosmo-tiny recipe; the FS-01 cut
+  VERBATIM; `--case`/`--json`; evidence `build/dual-backend/` ignored; report schema
+  `pli80-dual-backend/1`). Its three comparator controls (C-DF1 change / C-DF2 delete +
+  empty-expectation / C-DF3 permute-differing) attack the REAL observations with DISPOSABLE
+  in-memory expectations only — a control that is ACCEPTED is a runner failure. **FIRST RUN
+  OWED — the file is written but NOT yet executed; if defects appear, fix the runner and re-run,
+  then commit the ONE explicit path.**
+- NEXT VERBATIM (successor): (1) `python3 tools/dual_backend_test.py` (repo root, timeout 900,
+  rc DIRECT); fix RUNNER defects only; re-run; (2) the FROZEN PANEL each own rc (gate
+  1328/190/9/149-0/0/16/0/25/0/5; hir 220; mir 32; cosmo 25; console 43; debug 23; CF 83;
+  call 86; pins UNMOVED; fresh build hist 122 sha==`172595d5…`; ledger 203/C380); (3) RESULTS
+  `## §P2-DIFF-1` + the dashboard CLOSED row + the additive arch note if justified + durables
+  + `/handoff finalize` + STOP. Standing: ZERO oracle; NO compiler/pin/fixture/claims byte;
+  `handoff.config.json` NEVER staged; no push; scratch `build/e54p2-scratch/` +
+  `build/dual-backend/` NEVER committed; explicit paths.
+
 ## E2E-54/P2-DIFF-1 pre-registration hop (2026-11-13, session 01a1d4a9 fresh startup, renewal 1/12 of chain 01a1d3b4; ZERO oracle; ledger 203/C380; HEAD start `250465e6`) — THE BRIEF RECOVERED VERBATIM + BASELINE RE-VERIFIED + PILOT CANDIDATES MEASURED ON BOTH LANES
 
 - ACCEPTED (recovery, each command its OWN rc): start checkpoint `g789-9f5de5f19722` reported

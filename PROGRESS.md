@@ -48,7 +48,34 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-1 pre-registration hop — **THE BRIEF IS RECOVERED VERBATIM + BASELINE AND PILOT CANDIDATES RE-MEASURED ON BOTH LANES; §P2-DIFF-1 PRE-REGISTRATION COMMIT IS OWED AND IS THE NEXT SINGLE STEP**; session 01a1d4a9 renewal 1/12 of chain 01a1d3b4; ZERO oracle; ledger 203/C380; HEAD start `250465e6`)
+## Next action (E2E-54/P2-DIFF-1 PILOT hop — **§P2-DIFF-1 PRE-REGISTRATION COMMITTED `ddff0717`; DISPOSABLE PILOT RAN 4/4 BOTH-PASS ×2 per lane; THE RUNNER `tools/dual_backend_test.py` IS WRITTEN, ITS FIRST RUN OWED**; session 01a1d4d5; ZERO oracle; ledger 203/C380; start HEAD `31824e26`)
+
+**DONE FIRST-HAND:** the operator REFINEMENT is recorded in the committed §P2-DIFF-1 (D01 M02
+NOT-COMPARABLE/excluded; D03 CALL04 replaces CALL02; four SAME-SOURCE sha's). The disposable
+pilot (`build/e54p2-scratch/pilot/`, never committed) ran the full dual lane TWICE: ALL FOUR
+`BOTH-PASS` — the 8080 lane COMPILED, LINKED CLEAN (`parse_undefined` empty) and RAN on CP/M for
+CF06/CALL04/CALL07 (hypotheses → MEASURED), raw regions deterministic; native lane pin-consistent
+and EXECUTED (driver-return EXCLUDED from the comparison). `tools/dual_backend_test.py` is
+WRITTEN to §P2-DIFF-1.9 (reuses functional_runner stages + the pinned cosmo recipe; three
+comparator controls C-DF1/2/3 attacking the REAL observations with disposable expectations).
+
+**NEXT VERBATIM:** (1) `eval "$(opam env)" && python3 tools/dual_backend_test.py` (repo root,
+timeout 900, rc DIRECT) — fix RUNNER defects only, re-run until all controls REJECT and the four
+verdicts report; then commit the ONE explicit path. (2) the FROZEN PANEL each own rc (gate
+1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5 → `build/e54p2diff-reg-gate.log`;
+hir 220 cmp-identical; mir 32; cosmo 25; console 43; debug 23; CF 83; call 86; every MIR/CF pin
+UNMOVED byte-compare; fresh `_build-e54p2diff` hist 122 sha==`172595d5…aca281`; ledger 203/C380).
+(3) RESULTS `## §P2-DIFF-1` (verdict table, source+tool identities, repetition, falsification,
+limitations) + PLAN `### P2-DIFF-1.15` dashboard CLOSED row + additive `docs/architecture/
+backend-boundary.md` note if justified + durables + `/handoff finalize` + STOP (the campaign
+ends at the close — no new functionality).
+Standing: ZERO oracle (the LINKER/RUNTIME are DR, the COMPILER is mine — distinguish in every
+report); NO compiler/pin/fixture/claims byte; `handoff.config.json` NEVER staged; no push; no
+`git add -A`/clean/reset; scratch `build/e54p2-scratch/` + `build/dual-backend/` NEVER committed;
+rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo `chmod +x`;
+NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-1 pre-registration hop — **THE BRIEF IS RECOVERED VERBATIM + BASELINE AND PILOT CANDIDATES RE-MEASURED ON BOTH LANES; §P2-DIFF-1 PRE-REGISTRATION COMMIT IS OWED AND IS THE NEXT SINGLE STEP**; session 01a1d4a9 renewal 1/12 of chain 01a1d3b4; ZERO oracle; ledger 203/C380; HEAD start `250465e6`)
 
 **DONE FIRST-HAND THIS HOP (full record LEARNINGS § "E2E-54/P2-DIFF-1 pre-registration hop" — READ
 VERBATIM FIRST, it contains the COMPLETE operator brief text, which is NOT stored in the repository):**
@@ -4717,17 +4744,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 791
-checkpoint-id: g791-649e4222b324
+checkpoint-generation: 792
+checkpoint-id: g792-c08ebf450632
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-13T11:40:12.620Z
+content-delta: new
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-13T12:34:19.864Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d991b142e84175c2351f89eb9ce0de7031291a9bb0feaaa7fb80e53161e951df
+source-progress: ff173216772c76a6d87df34ada254b86dd715ba02a52d3b357a5eb3a1e1f4cda
 source-handoff: def188fda2d9f095b6a900d4ecbc70a73b27ebdb3fc8ede0f8533073644a9ca9
-source-learnings: 383ffb5e50ed581cc0d831244573fad0e3e41bc4fb24778d25407eda4638b43a
+source-learnings: 00df7758d2e4850d1bfddc217bcb4aded03dbb11e457206e67ae0cf3156dc1f2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -5494,9 +5521,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d4a9-7cd3-7119-a4fd-036ff3acd3aa
-readiness-at: 2026-11-13T11:40:25.838Z
-readiness-checkpoint: g791-649e4222b324
 <!-- guard:end checkpoint -->
 
 ## Blockers
