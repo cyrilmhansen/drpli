@@ -1,0 +1,26 @@
+steps: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   dcl d fixed bin(15);
+   dcl s fixed bin(15);
+   dcl h fixed bin(15);
+   i = 1;
+   do while (i < 9);
+      h = 0;
+      if i < 5 then
+         d = 5 - i;
+      else
+         d = i - 4;
+      s = 2 * d + 1;
+      call adjust(h, s + 0);
+      s = h;
+      put list(s);
+      i = i + 1;
+   end;
+   return (i);
+   adjust: procedure(x, y);
+      dcl x fixed bin(15);
+      dcl y fixed bin(15);
+      x = y;
+   end adjust;
+end steps;
+

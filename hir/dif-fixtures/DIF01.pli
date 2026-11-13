@@ -1,0 +1,62 @@
+tariff: procedure returns(fixed bin(15));
+   dcl u fixed bin(15);
+   dcl r fixed bin(15);
+   dcl a fixed bin(15);
+   dcl b fixed bin(15);
+   dcl t fixed bin(15);
+   dcl c fixed bin(15);
+   u = 5;
+   c = 1;
+   r = 1200;
+   a = u * r;
+   b = a + 600 - 300;
+   call bill(b, c + 0);
+   u = 2 - 1;
+   c = 2;
+   a = u * 1200;
+   b = a + 300;
+   call bill(b, c + 0);
+   u = 11 - 1 - 8;
+   c = 3;
+   a = u * 1200;
+   b = a + 300 + 300;
+   call bill(b, c + 0);
+   u = 100;
+   t = tier(u + 0);
+   put list(t);
+   u = 10;
+   t = tier(u + 0);
+   put list(t);
+   u = 1;
+   t = tier(u + 0);
+   put list(t);
+   return (t);
+   tier: procedure(x) returns(fixed bin(15));
+      dcl x fixed bin(15);
+      dcl p fixed bin(15);
+      dcl r fixed bin(15);
+      dcl t fixed bin(15);
+      if x > 50 then
+         p = 100;
+      else
+         if x > 5 then
+            p = 10;
+         else
+            p = 1;
+      if x > 50 then
+         r = 18;
+      else
+         if x > 5 then
+            r = 40;
+         else
+            r = 120;
+      t = p * r;
+      return (t);
+   end tier;
+   bill: procedure(a, c);
+      dcl a fixed bin(15);
+      dcl c fixed bin(15);
+      put list(a);
+   end bill;
+end tariff;
+

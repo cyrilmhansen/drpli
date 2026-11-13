@@ -6472,3 +6472,64 @@ divergent fixture — BOTH lanes wrong AND different from each other (`[1,3]` vs
 the check label, the asserted verdict and the retention law are unchanged. The original
 injection and its error stay in the protocol history at `06a7fdbf`; no verdict classification
 was weakened.
+
+### P2-DIFF-2.10 Stage B — the two integrated sources, their measured compilation and the pin record
+
+Committed WITH the two sources and their two `.mir` pins, BEFORE any differential execution
+(independence law §P2-DIFF-2.3).  Everything below was measured first-hand in this session; the
+expected vectors are the §P2-DIFF-2.3 ones, **UNCHANGED** (the amendment §P2-DIFF-2.9-B definition
+for DIF02 is what the source implements).
+
+**The sources (final, committed with this record).**  Encoding convention verified first-hand
+against all 55 committed fixtures: ASCII, every line CRLF-terminated, exactly ONE trailing `^Z`
+(`hir/dif-fixtures/DIF01.pli` 1249 B, `DIF02.pli` 521 B — the drafts carried 4 and 2 `^Z` bytes
+and were normalized to the convention).
+
+| case | source | sha256 | entry | nfuncs | expected vector |
+|---|---|---|---|---|---|
+| D06 | `hir/dif-fixtures/DIF01.pli` | `011dc4e7fc1e1d4b4e50d525817829b3dc7923b904dfb31537a977838d59bdaf` | `tariff` | 3 | `[6300, 1500, 3000, 1800, 400, 120]` |
+| D07 | `hir/dif-fixtures/DIF02.pli` | `15ce8bcddf2f76149261e86f0d9f5b06d2999d236f3681a322862e24cea8489a` | `steps` | 2 | `[9, 7, 5, 3, 3, 5, 7, 9]` |
+
+**The pins (measured first, reviewed line-by-line against §P2-DIFF-2.2/2.3 BEFORE the copy, ×2
+fresh executions, `--export` stdout byte-identical to the `-o` file and to the second run).**
+
+| pin | sha256 | bytes |
+|---|---|---|
+| `hir/dif-expected/DIF01.mir` | `ca313ff305e7a66b51747e9f5ff72abaed596e88a78cb0a7bb639aacfb64676c` | 3974 |
+| `hir/dif-expected/DIF02.mir` | `cdcb84fee357e69efcd3e9c6feae78062e2ff24cdcd527ad3725e91125f24742` | 1404 |
+
+**Measured compilation (each command its own DIRECT rc, `LC_ALL=C`, evidence in the ignored
+`build/e54p2diff2/stageB2/`, ×2 determinism on both the `.REL` and the `.mir`).**
+
+* `pli80c.exe -d` (the historical 8080 path): DIF01 rc 0 `PROGRAM TARIFF  CODE=509 DATA=54
+  ITEMS=546 -> 1152 bytes`; DIF02 rc 0 `PROGRAM STEPS  CODE=154 DATA=18 ITEMS=163 -> 384 bytes` —
+  H-B1 holds for both (no `[TBD]` refusal).
+* `pli80mir.exe --export <entry>`: rc 0 with ZERO stderr for both; `.mir` 3974 / 1404 bytes.
+* `build/p1m0-deps/mir2o -f`: rc 0, `wrote 4488 bytes (3 function(s))` for DIF01 and
+  `wrote 2360 bytes (2 function(s))` for DIF02 — the `nfuncs` 3 and 2 used by the runner's
+  `MIR2O-FUNC-COUNT` check are MEASURED, not assumed.
+
+**One source defect found and corrected BEFORE the run (PROTOCOL #2: the prediction stands, the
+source is fixed).**  The first DIF01 draft computed the second bill as `u = 6 - 1` (u = 5), which
+yields `a = 6000`, `b = 6300` — i.e. the vector `[6300, 6300, 3000, …]`, contradicting the
+pre-registered `report(2, 1): 1*1200 = 1200; 1200 + 300 = 1500`.  The pre-registered vector is the
+contract and the source is the thing that was wrong; `u = 6 - 1` was amended to `u = 2 - 1` (u = 1),
+which reproduces the pre-registered 1500.  The amendment is a single MIR byte (`mov t15, 6` →
+`mov t15, 2`, verified by `diff` of the two measured outputs); no expectation was re-derived from
+any output.  Hand re-derivation of both vectors from the source text alone reproduces the
+pre-registered sequences exactly.
+
+**Three measured subset laws (accepted; they shaped the sources; see LEARNINGS § "Stage B hop").**
+
+1. `pli80c` REFUSES a literal+literal `fixed bin` ADD — the `n + 0` value-actual idiom works only
+   when `n` is a variable; literal MINUS literal does fold (the `u = 2 - 1`, `u = 11 - 1 - 8`
+   steps).
+2. The entry's `dcl`s are not visible to a subsidiary in the MIR backend: every subsidiary
+   assignment target needs its own `dcl` (else `HIR-E18: assignment to sym(k) which was never
+   declared in this body`).
+3. A by-reference actual of a `Call_s` inside a loop body must be re-initialized INSIDE the body
+   (the loop-exit drop law leaves the body environment without it).
+
+**D06/D07 are the runner's two new CASES entries** (additive, `tools/dual_backend_test.py`); the
+`nfuncs` values above are the measured ones.  The verdict law, the controls and the exit-code
+policy are unchanged from §P2-DIFF-2.1.
