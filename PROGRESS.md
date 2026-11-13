@@ -48,7 +48,45 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P1-m3 CLOSE session — **RUNNER GREEN + COMMITTED `eb1031a9` (86 checks); FULL FROZEN PANEL + CLOSE REMAIN**; renewal 1/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P1-m3 CLOSE session hop 3 — **FULL FROZEN PANEL HIT + CLOSE LANDED `3edfb64a`; THE §P1-m3 SLICE IS COMPLETE — STOP, NOTHING FURTHER IS AUTHORIZED**; renewal 2/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
+
+**THE E2E-54/P1-m3 SLICE IS CLOSED.** Done FIRST-HAND this hop (full record LEARNINGS §
+"E2E-54/P1-m3 CLOSE session hop 3" — READ VERBATIM FIRST, then §§ hop 2 / hop 1 / m3c hop 18 /
+m3b hop 13 / m3a hop 11, then PLAN §P1-m3 + amendments .15–.19):
+**(3) FULL FROZEN PANEL, every command its OWN rc** — gate rc 0 → `build/e54p1m3close-reg-gate.log`
+**1328/1328 — 190/190 — 9/9 — 149 rows 0/0 — census 16/0/25/0 — prose 5** (additionally
+`cmp`-IDENTICAL to the m3c gate log: no repository byte moved between the milestones);
+`hir_test.py` rc 0 **220 ok** with the FULL log `cmp`-IDENTICAL to
+`build/e54p1m3b-hirtest-reg.log`; `mir_aot_test.py` **32**; cosmo **25**; console **43**; debug
+**23** (D-C1/C2/C3 LOUD); CF **83** (C-M2a/C-M2b/W3 LOUD); DWARF STANDALONE `pli80mir -g --export
+iorw -o build/p1m3-scratch/g18/M05.g.mir hir/mir-fixtures/M05.pli` rc 0 zero stderr — `M05.mir`
+AND `M05.p1md` pins byte-UNMOVED; fresh `cd ocaml && dune build --build-dir _build-e54p1m3close`
+rc 0, ZERO `Error`, hist **122**, `sha256sum` of that exe == kept
+`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`; ledger **203** headers ending
+**C380**; T2 `git diff --exit-code -- ocaml/lib ocaml/bin hir/expected hir/fixtures` rc 0.
+**(4) CLOSE committed `3edfb64a`** (three explicit paths ONLY): `spec/lab-evidence/e2e54/RESULTS.md`
+`## §P1-m3` (m3a/m3b/m3c SEPARATELY, T1–T11 WITH values, the 13-positive table with the exact
+console+glibc bytes and object sizes, the 8-negative table with layers and stderr sizes, 17
+deviations, the accepted/unsupported matrix, the reproduction, the commit chain),
+`docs/architecture/backend-boundary.md` `## 7-10` (the HOME-PASS ABI, the callee-first order law,
+monotone widening, the `Call_e` admission with NO interprocedural narrowing, the two
+STOP-and-attribute resolutions, the two named retirements as the ONLY moved artifacts), and
+`spec/lab-evidence/e2e54/PLAN.md` `### P1-m3.19 Dashboard update` CLOSED row. Zero compiler
+source, zero pin, zero fixture byte was touched by this hop.
+
+**SUCCESSOR: NO NEXT ACTION EXISTS.** Interprocedural narrowing, multi-procedure DWARF, arrays/
+`D_elem`, FILE streams, `PUT EDIT`, any oracle work and any new phase ALL require a NEW operator
+brief. On re-authorization: baseline FIRST-HAND at the close HEAD (build rc 0; T1 `172595d5…aca281`
+DIRECT; T2 exit-clean; EVERY `hir/mir-call-expected/*` pin UNMOVED including the migrated
+`CALLN1.mir`/`CALLN10.mir`; ledger 203/C380), read RESULTS §P1-m3 + LEARNINGS § hop 3 VERBATIM,
+then PLAN §P1-m3 + .15–.19 (BINDING).
+STANDING: ZERO oracle; `handoff.config.json` NEVER staged; no push; no `git add -A`/clean/reset;
+explicit paths; scratch (`build/mir-call/`, `build/p1m3-scratch/`, `build/e54p1m3close-*.log`)
+NEVER committed; hir pins FROZEN / mir pins ADDITIVE-only except the two accounted retirements;
+rc DIRECT; never batch build with tests; timeouts 60/120/900; `LC_ALL=C`; cosmo `chmod +x`;
+console links include `tools/mir_aot/pli_console.c`; NEVER hand-edit managed checkpoint blocks.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3 CLOSE session — **RUNNER GREEN + COMMITTED `eb1031a9` (86 checks); FULL FROZEN PANEL + CLOSE REMAIN**; renewal 1/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
 
 DONE: `tools/mir_aot_call_test.py` written to the pre-registered bytes BEFORE the first run
 (§P1-m3.6/.15/.16/.17/.18); first run 13 FAIL — ONE runner defect (raw `bytes` passed to
@@ -4587,17 +4625,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 781
-checkpoint-id: g781-20a0651b799f
+checkpoint-generation: 784
+checkpoint-id: g784-290b6ffd7b83
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
+content-delta: new
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-12T23:30:07.162Z
+checkpointed: 2026-11-13T00:11:37.149Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d662dab1232588751ad65b74bce13304b08a306432b697bc3722c5bb0c22aaa6
-source-handoff: 32b7fdfc0f467cabb41dca39bb81fd357120a0163c6e7fbef32966c6e5cb12d8
-source-learnings: f6202fa0ceac04bbb8e1cf45aaf4bf42d5ae943fccc55ae88f148f2b3ed678a8
+source-progress: 7ff3f7494fc9d9deb4559cd75cee30e225b25436d03c8d2779c7325b45cbc852
+source-handoff: cb0455d797ee40d3ac074998f96b7cfd9a0fd84adfaf500e72ec66e0d645c397
+source-learnings: 5aa943170c52fbf54eeb4e8931021b29b0258a651310b6e24831e284e7412607
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (E2E-54/P1-a2 hop 4 — STEP 2 env API LANDED…)` VERBATIM — execute §P1-a2.9 STEP 3 NOW: `hir.ml` (designator/actual per §P1-a2.4, dump bytes FROZEN) + `hir_build.ml` (lower_args per §P1-a2.5, E15/E16/E17, statement-call-with-args → Call_s) + `diagnostic.ml` (three codes appended) + `semtest.ml` MINIMAL compile-adapt preserving ALL walk counts — ONE commit → build+T1+hir_test+T2 clean → then steps 4–8 (fixtures H16–H21 measured; semtest I11–I13 + 4 corrupt modes + hir_test extension; FULL gate FROZEN → `build/gate-e54p1a2-reg.log` + fresh `--build-dir _build-e54p1a2`; CLOSE RESULTS §P1-a2 + arch §7-3 + dashboard; **STOP**). If H16 dies E16 the PHYSICAL-node matching law is FALSIFIED — re-audit bind, never positional-guess. Standing: ZERO oracle; ledger C380; config NEVER staged; no push; explicit paths; `eval "$(opam env)"` every shell; rc DIRECT/PIPESTATUS; never batch build with tests; `timeout 60` per fixture; scratch never committed; `superseded/` never rewritten; H01–H15 frozen; F8/T6 vocabulary law binds new code strings.
 
@@ -5364,9 +5402,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d1fd-d7b6-7719-ab09-cc0a5f6357bb
-readiness-at: 2026-11-12T23:30:20.495Z
-readiness-checkpoint: g781-20a0651b799f
 <!-- guard:end checkpoint -->
 
 ## Blockers

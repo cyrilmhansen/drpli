@@ -5,6 +5,51 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P1-m3 CLOSE session hop 3 (2026-11-13, renewal 2/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380) — **FULL FROZEN PANEL HIT + THE §P1-m3 CLOSE LANDED at `3edfb64a`; SLICE COMPLETE — STOP**
+
+- ACCEPTED (recovery): start HEAD `6baeb36d`, guard checkpoint `g782-acc6e089842a` reported
+  **attested** at session_start (no staleness); tree dirty ONLY the two managed blocks + operator
+  `handoff.config.json` (maxRenewals 12, workingContextWindow 145000 — NEVER staged) + pre-existing
+  untracked scratch (`S2..S5.PLi/logs`, `golden/*/dir.txt`, `ocaml/_build-*`, `ocaml/scratch-*`).
+  `dune build` rc 0 and T1 `pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT.
+- ACCEPTED (step 3, the FULL FROZEN panel — every command its OWN rc, NEVER batched, timeouts
+  900, `LC_ALL=C`, `eval "$(opam env)"`): gate rc 0 → `build/e54p1m3close-reg-gate.log` **1328/1328
+  byte-exact — 190/190 refused — 9/9 divergence — coverage 149 rows 0/0 — census 16/0/25/0 —
+  prose 5**; hir_test rc 0 **220 ok** with the FULL log `cmp`-IDENTICAL to
+  `build/e54p1m3b-hirtest-reg.log` (→ `build/e54p1m3close-hirtest-reg.log`); `mir_aot_test.py` rc 0
+  **32**; cosmo **25**; console **43**; debug **23** (D-C1/C2/C3 LOUD); CF **83** (C-M2a/C-M2b/W3
+  LOUD); DWARF STANDALONE `pli80mir -g --export iorw -o build/p1m3-scratch/g18/M05.g.mir
+  hir/mir-fixtures/M05.pli` rc 0, ZERO stderr, `M05.g.mir` `cmp` == `hir/mir-expected/M05.mir` AND
+  `M05.g.mir.p1md` `cmp` == `hir/mir-debug-expected/M05.p1md` — BOTH UNMOVED; fresh
+  `dune build --build-dir _build-e54p1m3close` rc 0, **ZERO** `Error`, hist **122** `File "`
+  headers, exe sha == kept `172595d5…aca281`; ledger **203** headers ending **C380**; T2
+  `git diff --exit-code -- ocaml/lib ocaml/bin hir/expected hir/fixtures` rc 0.
+- ACCEPTED (free extra falsifier, worth keeping as a method): the close gate log is
+  **byte-identical to the m3c gate log** (`cmp build/e54p1m3close-reg-gate.log
+  build/e54p1m3c-reg-gate.log` rc 0) — the strongest single proof that no repository byte moved
+  between two milestones. `grep -c ' ok'` on the hir log returns 0 because the lines are
+  `^ok    ` (no leading space): count with `grep -cE '^ok'` (220), never `grep ' ok'`.
+- ACCEPTED (step 4, the CLOSE, committed `3edfb64a` — three explicit paths only,
+  `RESULTS.md` + `backend-boundary.md` + `PLAN.md`): RESULTS `## §P1-m3` (new `P1-m3.1` milestones
+  SEPARATELY, `P1-m3.2` T1–T11 with values, `P1-m3.3` the 13-positive table (entry/EXPECTED/cosmo
+  bytes+dr/glibc bytes/object size/func count — 2888/2216/1408/3304(3)/1416/2232/2936/3416/1416/
+  1416/2392/1408/1416 B) and the 8-negative table (layer + measured stderr text + byte size
+  91/78/98/79/160/199/235/93), `P1-m3.4` **17 deviations**, `P1-m3.5` matrix, `P1-m3.6`
+  reproduction, `P1-m3.7` commit chain `15508949`→`af6d255b`→`fca7c3af`→`2be30a9c`→`fc152391`→
+  `1394f074`→`d3925d1c`→`5d8d2a4a`→`eb1031a9`); arch `## 7-10`; PLAN `### P1-m3.19 Dashboard
+  update` CLOSED row (the next free number after §P1-m3.18, per the dashboard convention).
+- ACCEPTED (tooling, re-verified): the prose check is the ONLY gate leg that reads the ACTIVE
+  description files — `tools/file_prose_check.py` polices `ACTIVE` (5 files) and is pointedly
+  SILENT on `spec/lab-evidence/**` and `spec/notes/e2e41-*` (the historical record must survive),
+  so appending to RESULTS/PLAN/arch cannot trip it; run it STANDALONE (rc 0, 5 files clean) instead
+  of re-running the whole 900-second gate after a prose-only commit.
+- SESSION STATE: **the E2E-54/P1-m3 slice is COMPLETE.** Nothing further is authorized —
+  interprocedural narrowing, multi-proc DWARF, `D_elem`/arrays, FILE/`PUT EDIT`, any oracle work
+  and any new phase need a NEW operator brief. STANDING: ZERO oracle; config NEVER staged; no
+  push; no `git add -A`/clean/reset; explicit paths; scratch (`build/mir-call/`,
+  `build/p1m3-scratch/`, `build/e54p1m3close-*.log`) NEVER committed; hir pins FROZEN / mir pins
+  ADDITIVE-only except the two accounted retirements; NEVER hand-edit managed blocks.
+
 ## E2E-54/P1-m3 CLOSE session hop 2 (2026-11-12, renewal 1/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380) — **RUNNER `tools/mir_aot_call_test.py` WRITTEN, GREEN, COMMITTED `eb1031a9`; FULL FROZEN PANEL + CLOSE REMAIN**
 
 - ACCEPTED (runner): written to the pre-registration BEFORE the first run — the 13 positives
