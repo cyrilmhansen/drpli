@@ -2274,31 +2274,73 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 798
-checkpoint-id: g798-68c3e24a586b
+checkpoint-generation: 799
+checkpoint-id: g799-4ab1c7700fce
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1751, session 01a1d53d-3f86-7183-9f6a-b2f26c5bf990)
-checkpointed: 2026-11-13T18:21:12.341Z
+status: checkpoint (guard level 0, remaining ~20729, session 01a1d629-805a-766e-9c19-e2be86483069)
+checkpointed: 2026-11-13T18:59:47.415Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9847bdc368334bce8b24804d71cbfe5a0a7c5b970fcb394741001fb767d21dc0
-source-handoff: 76fce514c85502e1a5a30e1053cbaa258c7d7f485c6a7ab1979c3d7b83ccd90e
-source-learnings: 2faa1a40da15995b343cea71a45d6758f2fa3cdd0ac39c81113058c6679b506a
+source-progress: de015d715041ad4f84afe0f874a2acfe0d3c7aff017f4502c26c063ce2268427
+source-handoff: 55d4fe76e3ffb6462ed220e5f7922b9b99459fb863dfd067adfb9ec6cedc796a
+source-learnings: 3c39ff4faec0ae09f746aadec574a860b7491ec66728f35f61b57d660753ae22
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d53d-3f86-7183-9f6a-b2f26c5bf990
-readiness-at: 2026-11-13T18:21:12.476Z
-readiness-checkpoint: g798-68c3e24a586b
+readiness-by: session:01a1d629-805a-766e-9c19-e2be86483069
+readiness-at: 2026-11-13T18:59:47.592Z
+readiness-checkpoint: g799-4ab1c7700fce
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-54/P2-DIFF-2 Stage A(a) complete: pre-registration 41fca33e + pre-fix adversarial suite 06a7fdbf (rc 1, defects H-A1/H-A2/H-A3 demonstrated) + durables 181b0850. Next: harden tools/dual_backend_test.py (assess_run/assess_case/run_cases/exit_code; native rc==0 status law; BOTH executions of EACH lane; additive infrastructure_failure/semantic_divergence), then suite rc 0, the four cases rc 0, the frozen panel, Stage A committed independently. Zero oracle; no push; no renewal.)
+guard level 0; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-(E2E-54/P2-DIFF-2 IN FLIGHT at
+(E2E-54/P2-DIFF-2
+STAGE A CLOSED AND COMMITTED — Stage B is next…)`). The operator's STOP-and-attribute
+chronology (ten steps) was executed IN ORDER: the three contradictions (A: T7c fixture
+injected the EXPECTED vector on the 8080 lane — that configuration is 8080-ONLY, never
+BOTH-FAIL-SAME; B: DIF02's `d = |i-5|` was mathematically incompatible with its own predicted
+`[9,7,5,3,3,5,7,9]` — amended to `i<=4 → d=5-i, i>4 → d=i-4, scale=2d+1`, the vector
+UNCHANGED; C: the pre-registered T4 attack was never implemented — added) are recorded in PLAN
+§P2-DIFF-2.9 and committed FIRST, PLAN only (`e789de65`); the suite was corrected + committed
+alone (`2dd43db0`); the runner was hardened (`55e43285`, the Stage A commit — additive
+`assess_run`/`assess_case`/`run_cases`/`build_report`/`exit_code`/`--strict`, native `rc==0`
+status law, BOTH-runs determinism law, additive `infrastructure_failure`/`semantic_divergence`;
+the `record` self-reference must be a NON-CIRCULAR copy or json.dump raises). A fourth
+finding (D, the same fixture class as A, in the T9a block) was MEASURED during the first
+hardened run and is documented in §P2-DIFF-2.9-D — the fixture, not the law, was amended.
+Acceptance measured: suite 29/29 rc 0 twice; the four historical cases rc 0 default AND
+`--strict`, 4/4 BOTH-PASS, determinism (True,True) everywhere, 14/14 controls REJECTED; the
+FULL FROZEN PANEL §P2-DIFF-2.6 with every command its own rc and every panel log
+`cmp`-IDENTICAL to the baseline logs (gate 1328/1328-190/190-9/9-149 rows 0/0-census
+16/0/25/0-prose 5; hir 220; mir 32; cosmo 25; console 43; debug 23; CF 83; call 86; functional
+211/211); fresh `_build-e54p2diff2a` rc 0 ZERO Error hist 122, sha `172595d5…aca281`; pins
+UNMOVED; ledger 203/C380. Recovery order: (1) `git rev-parse HEAD` (expect `55e43285` or
+later) + `git status --porcelain` (only the operator's `handoff.config.json` may be dirty,
+never staged); (2) `/handoff verify` (the managed block may lag the Stage A prose — a stale
+block is refreshed by `/handoff`, never hand-edited); (3) read the COMMITTED PLAN
+§P2-DIFF-2 (the whole campaign, §P2-DIFF-2.9 amendments included) and the PROGRESS live
+heading; (4) read LEARNINGS §§ "Stage A(b) hop" and "Stage A hop" for the method and the
+measured capability intersection; (5) Stage B: `hir/dif-fixtures/DIF01.pli` (entry `tariff`,
+expected `[6300,1500,3000,1800,400,120]`) and `hir/dif-fixtures/DIF02.pli` (entry `steps`,
+AMENDED definition, expected `[9,7,5,3,3,5,7,9]` unchanged) — sources prepared, SHA-verified
+and committed BEFORE the differential run, inside the measured intersection (literals ≤ 32767
+`bin(15)`; `a*b` on two variables REFUSES — a tight operand needed; a `Call_e` result widens
+and must be re-copied before multiplication; loop output must be INSIDE the loop; bare-name
+actuals are BY REFERENCE; statement calls VOID only; `put list` one item). §P2-DIFF-1 is
+CLOSED and immutable. Standing: ZERO oracle; no compiler/golden/claims/pin change; no push;
+no `git add -A`; explicit paths; rc DIRECT; `LC_ALL=C`; never batch build with tests; no
+automatic renewal.
+
+SUPERSEDED-BY-ABOVE: 6-e54p2diff2 (2026-11-13, session 01a1d53d fresh startup; ZERO oracle; ledger 203/C380; start
+HEAD `7e45868b`): **E2E-54/P2-DIFF-2 IS OPEN AND IN FLIGHT AT STAGE A(b).** LANDED: the
+§P2-DIFF-2 PRE-REGISTRATION `41fca33e` and the pre-fix ADVERSARIAL SUITE `06a7fdbf`
+(`tools/test_dual_backend.py`, measured rc **1**: 4 FAIL + 3 hardened-API groups missing —
+T1/T6a = H-A1, T5 = H-A2, T9a = H-A3 — verbatim in `build/e54p2diff2/stageA-pretest.log`). The
+ONLY active next action is in `PROGRESS.md` → `## Next action (E2E-54/P2-DIFF-2 IN FLIGHT at
 Stage A(b) …)`: harden `tools/dual_backend_test.py` (add `assess_run`/`assess_case`/`run_cases`
 with an injectable `lane_fns` seam and `exit_code(report, strict)`; the native status law is
 **`rc == 0`**; BOTH executions of EACH lane must match; `infrastructure_failure` and
@@ -3527,5 +3569,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-2 Stage A(a) complete: pre-registration 41fca33e + pre-fix adversarial suite 06a7fdbf (rc 1, defects H-A1/H-A2/H-A3 demonstrated) + durables 181b0850. Next: harden tools/dual_backend_test.py (assess_run/assess_case/run_cases/exit_code; native rc==0 status law; BOTH executions of EACH lane; additive infrastructure_failure/semantic_divergence), then suite rc 0, the four cases rc 0, the frozen panel, Stage A committed independently. Zero oracle; no push; no renewal.
+E2E-54/P2-DIFF-2 STAGE A CLOSED. Operator STOP-and-attribute chronology (10 steps) executed IN ORDER: amendments A/B/C in PLAN §P2-DIFF-2.9 committed FIRST (e789de65, PLAN only), suite T7c+T4 corrected and committed alone (2dd43db0), runner hardened — assess_run/assess_case/run_cases/build_report/exit_code + lane_fns seam + native rc==0 law + BOTH-runs determinism + additive infrastructure_failure/semantic_divergence + --strict (55e43285); finding D (T9a fixture same defect class as A) measured and amended, law NOT weakened. Acceptance: suite 29/29 rc 0 twice; four cases rc 0 default AND --strict, 14/14 controls REJECTED; frozen panel all cmp-identical to baseline; fresh build hist 122 sha 172595d5..; pins UNMOVED; ledger 203/C380. Durables 40df4c82. NEXT: Stage B (PROGRESS live heading) — hir/dif-fixtures/DIF01.pli (entry tariff, expected [6300,1500,3000,1800,400,120]) and DIF02.pli (entry steps, AMENDED definition i<=4 d=5-i / i>4 d=i-4 / scale 2d+1, expected [9,7,5,3,3,5,7,9] unchanged); sources SHA-verified and committed BEFORE the differential run; inside the measured capability intersection. ZERO oracle; no compiler/golden/claims/pin change; no push; handoff.config.json never staged.
 <!-- guard:end checkpoint -->
