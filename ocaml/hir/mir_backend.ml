@@ -113,27 +113,20 @@ let stmt_kind_name = function
   | Hir.Put _ -> "put"
   | Hir.Get _ -> "get"
 
-(* §P1-m0.3: the declared-precision value window W(p) of FIXED BINARY(p,0) — the
-   same ±(2^(p-1)-1) domain in which the byte-exact bin(15) goldens live. p is
-   bounded by the profile ceiling (15), so OCaml int arithmetic on endpoints and
-   on the four products below is exact (|v| <= 32767, products <= 2^30). *)
-let window p =
-  let lim = (1 lsl (p - 1)) - 1 in
-  (- lim, lim)
+(* §P1-m0.3 / E2E-54/P2-DIFF-2 §P2-DIFF-2.4 (Stage C): the numeric-domain algebra
+   — the declared-precision window W(p), containment, interval display, the exact
+   endpoint arithmetic of + - * and negation, and the join hull — lives in
+   Mir_numeric (ocaml/hir/mir_numeric.ml), a PURE module with no dependency at
+   all.  These are the backend's own names, bound by delegation: the code below
+   is UNCHANGED and the diagnostic strings, the refusal order and the emission
+   context stay exactly here (invariants 1-3 of §P2-DIFF-2.4). *)
+let window = Mir_numeric.window
 
-let in_window (lo, hi) (a, b) = lo <= a && b <= hi
+let in_window = Mir_numeric.in_window
 
-let show_iv (a, b) = "[" ^ string_of_int a ^ "," ^ string_of_int b ^ "]"
+let show_iv = Mir_numeric.show_iv
 
-(* Literal text as written in the source; only a plain non-negative decimal
-   integer (no sign, no leading zero, no suffix, at most 9 digits) is accepted
-   (§P1-m0.3-1: a non-canonical literal refuses, it is never reinterpreted). *)
-let decimal_int (s : string) : int option =
-  let digits = String.length s > 0 && String.for_all (fun c -> c >= '0' && c <= '9') s in
-  let canonical =
-    String.length s <= 9 && (String.length s = 1 || s.[0] <> '0')
-  in
-  if digits && canonical then Some (int_of_string s) else None
+let decimal_int (s : string) : int option = Mir_numeric.decimal_int s
 
 let compile ~(profile : Target.profile) ~(export : string)
     ?(debug_source : string option = None) (prog : Hir.program)
@@ -644,14 +637,9 @@ let compile ~(profile : Target.profile) ~(export : string)
           let rr, ir = lower env right in
           let iv =
             match op with
-            | Hir.Add -> (fst il + fst ir, snd il + snd ir)
-            | Hir.Sub -> (fst il - snd ir, snd il - fst ir)
-            | Hir.Mul ->
-                let c1 = fst il * fst ir
-                and c2 = fst il * snd ir
-                and c3 = snd il * fst ir
-                and c4 = snd il * snd ir in
-                (min (min c1 c2) (min c3 c4), max (max c1 c2) (max c3 c4))
+            | Hir.Add -> Mir_numeric.iv_add il ir
+            | Hir.Sub -> Mir_numeric.iv_sub il ir
+            | Hir.Mul -> Mir_numeric.iv_mul il ir
             | _ -> assert false
           in
           let v =
@@ -665,7 +653,7 @@ let compile ~(profile : Target.profile) ~(export : string)
       | Hir.Neg { e = inner } ->
           let w = win () in
           let ri, iiv = lower env inner in
-          let niv = (- (snd iiv), - (fst iiv)) in
+          let niv = Mir_numeric.iv_neg iiv in
           let v = prove w niv ("the negation of " ^ show_iv iiv) in
           let k = fresh () in
           emit ~line "neg %s, %s" k ri;
@@ -681,7 +669,7 @@ let compile ~(profile : Target.profile) ~(export : string)
       Int_map.merge
         (fun _k x y ->
           match (x, y) with
-          | Some (a1, a2), Some (b1, b2) -> Some (min a1 b1, max a2 b2)
+          | Some iv, Some iv' -> Some (Mir_numeric.iv_hull iv iv')
           | _ -> None)
         a b
     in

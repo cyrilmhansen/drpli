@@ -5,6 +5,62 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-2 close + Stage-C hop (2026-11-13, session 01a1d734 renewal 3/12 of chain 01a1d648; ZERO oracle; ledger 203/C380)
+
+**ACCEPTED (verified first-hand).**
+- **The close LANDED at `11c7e191`** (three explicit paths: RESULTS, PLAN, arch). The §7-11
+  correction was written ONLY after re-verification against the code: `pli80c.ml` =
+  `Parser.parse_source → Codegen.rows_of → Codegen.emit_program → Rel80.encode` and
+  `grep -rn "Hir_build|Hir\.program"` over `ocaml/lib` + `ocaml/bin` is EMPTY; the native front
+  door `ocaml/hir/pli80mir.ml` is `Parser → Hir_build.build → Backend.Driver (Mir_backend)`. So
+  the two lanes share the **parser and the binder**, NOT the HIR. The 9/10-char CP/M field claim in
+  the new §7-12 was re-verified against the live report
+  (`build/dual-backend/report-20261113T224643Z.json`: D06 raw 61 B, D07 81 B) — prose in a
+  handoff document is never a source for a document I am authoring.
+- **The predecessor's chain-cap belief was WRONG**: the durable `.pi-guard/renewal-state.json`
+  says `renewalsDone: 3` of `maxRenewals: 12`, `stopped: false`. **LAW: chain state is read from
+  the durable state file / `/guard status`, never from a predecessor's prose** — a note that
+  claims "the last renewal" can be a belief, not a measurement.
+- **MEASURED, and it changes the Stage-C panel law: the `hir_test` log line embeds the hir FILE
+  COUNT.** `F8_FILES = sorted(glob("ocaml/hir/*.ml"))` and the check prints
+  `ok F8 HIR purity …: 11 files clean of 7 patterns`. Adding the extraction + its driver to that
+  directory therefore makes the line read `13 files` and the log can NEVER be `cmp`-identical to
+  the baseline while the extraction lives there — the byte-identical-log law and the
+  "extraction lives in `ocaml/hir/`" law are in DIRECT CONFLICT, and the pre-registration did not
+  notice. **LAW: when an extraction adds a file, re-read the frozen panel's IMPLEMENTATION and
+  check which of its assertions are functions of the file set, not only of the behaviour.**
+  The `220` count itself is safe: the per-file check emits ONE `ok` line (`check_greps` →
+  `if not bad: ok(...)`), and `220` = lines starting `ok ` (verified in all three campaign
+  baseline logs). The Stage-C equivalence claim is therefore: hir rc 0, **220 ok**, diff vs the
+  baseline = EXACTLY the F8 line (`11 files` → `13 files`); any other diff is STOP-and-attribute.
+  (The alternative — a nested `ocaml/hir/mir_numeric/` directory to keep the glob at 11 files —
+  was measured and REJECTED: it satisfies the letter of the panel law but hides the new unit from
+  the F8 purity audit, which is the substantive law.)
+- **The behavioural-equivalence proof of the extraction is the PINS, not the log text.** The
+  strongest available assertion is that every committed `.mir` (the `hir/mir-expected/*`,
+  `mir-cf-expected/*`, `mir-call-expected/*`, `dif-expected/*` pins) is re-measured from the
+  committed fixtures and is `cmp`-equal to the pin, PLUS the `pli80c.exe` sha
+  `172595d5…aca281` (the extraction does not touch `ocaml/lib`/`ocaml/bin`) and the whole suite
+  panel. Designing `tools/mir_numeric_test.py` to re-measure the pins makes it a genuine
+  regression tool rather than a log diff.
+
+**PROPOSED (in flight, UNMEASURED — do not trust until the build and the panel run).**
+- The seam: `ocaml/hir/mir_numeric.ml` with `window`, `in_window`, `show_iv`, `decimal_int`,
+  `iv_add`, `iv_sub`, `iv_mul`, `iv_neg`, `iv_hull` and **no dependency at all**; `mir_backend`
+  keeps the diagnostic strings, the `win`/`prove` wrappers, the operator dispatch and the
+  `Map.merge` (the `join_env` hull moved as `iv_hull` only — the measured generative-`Map`
+  constraint), with four delegating `let` bindings so the 1900-line body is untouched.
+- `mirnumtest.ml` is the `semtest` precedent: hand-derived vectors + a SECOND independent
+  reference formulation + an exhaustive [-6,6] envelope law + four `--corrupt-*` modes that must
+  fail LOUDLY (the S6/T7 non-vacuity law). Note the drafting trap: a `let rec … and f …` chain
+  cannot be extended with a non-`rec` helper by `and` — the first `edit` pass had to move
+  `quote` up.
+
+**Standing:** ZERO oracle; ledger 203/C380; the extraction must leave `git diff --exit-code --
+hir/` at 0 (the pins are the proof); `handoff.config.json` never staged; no push; explicit paths;
+rc DIRECT; `LC_ALL=C`; never batch build with tests; disposable `tools/_*.py` copies never
+survive a command.
+
 ## E2E-54/P2-DIFF-2 Stage B hop (2026-11-13, session 01a1d648 renewal 1/12; ZERO oracle; ledger 203/C380) — THE TWO DIF SOURCES WRITTEN AND MEASURED GREEN ON BOTH COMPILATION PATHS; PIN/PLAN RECORD AND THE RUNNER OWED
 
 - ACCEPTED (recovery): start HEAD `62de5663`, g799 attested; build rc 0; T1 sha `172595d5…aca281` DIRECT; tree clean except the operator config and the pre-existing untracked scratch.

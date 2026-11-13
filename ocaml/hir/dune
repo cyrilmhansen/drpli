@@ -1,6 +1,6 @@
 (library
  (name pli80_hir)
- (modules diagnostic hir target semantic_env hir_build backend mir_backend sha256)
+ (modules diagnostic hir target semantic_env hir_build backend mir_numeric mir_backend sha256)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
 
@@ -20,4 +20,14 @@
  (name semtest)
  (modules semtest)
  (libraries pli80 pli80_hir)
+ (flags (:standard -warn-error -a)))
+
+; E2E-54/P2-DIFF-2 Stage C: the independent test driver for the pure Mir_numeric
+; algebra (the semtest precedent — a small executable in the same library, driven
+; by tools/mir_numeric_test.py, NOT by tools/hir_test.py whose 220-ok count is a
+; frozen panel constant).
+(executable
+ (name mirnumtest)
+ (modules mirnumtest)
+ (libraries pli80_hir)
  (flags (:standard -warn-error -a)))
