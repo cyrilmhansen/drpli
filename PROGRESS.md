@@ -48,9 +48,44 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-1 recon hop 1 — **SAME-SOURCE PROVEN; BASELINE PANELS + §P2-DIFF-1 PREREGISTRATION OWED**; session 01a1d39e fresh startup; ZERO oracle; ledger 203/C380)
+## Next action (E2E-54/P2-DIFF-1 baseline hop — **BASELINE PANELS ALL HIT + 8080-FEASIBILITY SWEEP DONE; §P2-DIFF-1 PRE-REGISTRATION OWED NEXT**; session 01a1d3b4 renewal 1/12 of chain 01a1d39e; ZERO oracle; ledger 203/C380; HEAD start `a0c56195`)
 
-**IN FLIGHT:** operator brief E2E-54/P2-DIFF-1 (cross-backend behavioral equivalence) authorized; baseline HEAD `a8eb7d59` verified; build rc 0; Cosmopolitan pin + cpmsim + cpmtools + DR link tools all present FIRST-HAND. THE KEY MEASUREMENT (LEARNINGS § "E2E-54/P2-DIFF-1 recon hop"): native-form entry `CALL06B.pli` compiles with `pli80c` (384 B REL), LINKS CLEAN (parse_undefined empty on FULL segment) and RUNS on CP/M → `        2         7\r\n` matching the native independent expectation `2\n7\n`/dr 7. **SAME-SOURCE route is ALIVE** (SHARED-CORE fallback only). 8080 console subset traps: bare `put list(4)` refuses; `6*7` refuses. NEXT VERBATIM = the SUCCESSOR CONTRACT in LEARNINGS § "E2E-54/P2-DIFF-1 recon hop": baseline panels (each OWN rc: hir 220, mir 32, cosmo 25, console 43, debug 23, CF 83, call 86; gate 1328/…; T1 `172595d5…`; ledger 203/C380) → **PROTOCOL #1 preregistration commit to `spec/lab-evidence/e2e54/PLAN.md` BEFORE any fixture byte** → pilot D01–D05 → `tools/dual_backend_test.py` → RESULTS → STOP. No compiler source changes; zero oracle; config never staged; no push; scratch (`build/e54p2-scratch/`) never committed.
+**DONE FIRST-HAND THIS HOP:** (0) recovery: `dune build` rc 0; T1 `pli80c.exe` sha
+`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` DIRECT; fresh
+`--build-dir _build-e54p2diff-baseline` rc 0 ZERO `Error` same sha; T2 rc 0; ledger 203/C380.
+(1) THE FULL FROZEN PANEL, every command its OWN rc, logs `build/e54p2diff-baseline-*.log`:
+gate rc 0 **1328/1328 — 190/190 — 9/9 — 149 rows 0/0 — census 16/0/25/0 — prose 5**; hir_test rc 0
+**220 ok** FULL log `cmp`-IDENTICAL to `build/e54p1m3b-hirtest-reg.log`; mir_aot **32**; cosmo
+**25**; console **43**; debug **23** (D-C1/C2/C3 LOUD); CF **83** (C-M2a/C-M2b/W3 LOUD); call
+**86** (C-M3a/b/c LOUD). (2) THE 8080-FEASIBILITY SWEEP (brief §2, disposable outputs in ignored
+`build/e54p2-scratch/sweep/`, ZERO repo byte): `pli80c -d` over EVERY committed MIR fixture —
+**rc 0** CALL02/03/04/05/06A/06B/07/08/09/10 + CALLN1/CALLN10 + CF01/02/03/06/07/09/10 +
+CFN3–CFN6 + M02/M05; **rc 2** CALL01 (`PUT form not in E2E-3a subset`), CALLN2 (NOT PROC),
+CALLN5 (TYPES NOT=), CF04/05/08 (`condition form not in E2E-3b subset: (>= x 2)`, `(<= x 0)`,
+`(<= i 2)` — the 8080 subset has `<`, `>`, `=` but NOT `>=`/`<=`), CFN1/2, M01/03/04/06
+(`fixed-bin MULTIPLY between two integer literals is unsampled`). This matrix, NOT inference,
+BINDS the pilot selection. The 8080 numeric-field law read first-hand: `codegen.ml:99-105`
+`min(9, digits(2^p-1)+4)`; the observed CALL06B CP/M console is `        2         7` vs the
+native `2\n7\n` — the comparator must be the ordered signed-decimal vector. (3) The input-channel
+asymmetry recorded: native `get` is plain stdin with `W(p)` RANGE test; CP/M reads SYSIN via
+PLILIB `?SYSIN` with the harness default one-`^Z` script → PROPOSED the pilot uses GET-free
+fixtures only. (4) FALSIFIED method: `tr -d '\x1a'` is NOT a GNU-tr hex escape — it deletes
+`x`,`1`,`a` silently; use `\032` or the `read` tool.
+
+**NEXT VERBATIM (the successor contract, unchanged in substance):** (1) WRITE + COMMIT §P2-DIFF-1
+in `spec/lab-evidence/e2e54/PLAN.md` by explicit path BEFORE any fixture byte (PROTOCOL #1) —
+the section structure, the pilot list, the three-way verdict law and the comparator-mutation
+control are spelled out in full in LEARNINGS § "E2E-54/P2-DIFF-1 baseline hop" NEXT VERBATIM;
+READ THAT SECTION VERBATIM FIRST, then the recon-hop section above it, then PLAN §P1-m3 (the
+template). Pilot = 3–5 tests from the sweep matrix (D01 scalar arithmetic, D02 conditional/counted
+loop, D03 value-arg call, D04 by-ref aliasing, D05 returned value used by the caller), SAME-SOURCE
+classification where the recon hop proved it, INDEPENDENTLY derived expectations (never from an
+executable), raw + normalized evidence per lane, the §6 verdict classes, the §7 runner
+`tools/dual_backend_test.py` reusing `tools/functional_runner.py` + `oracle/linkrun.py` (never a
+new CP/M framework), the §8 frozen panel list. (2) pilot D01–D05 measured-first; (3) the runner;
+(4) RESULTS + additive architecture note; (5) STOP.
+
+SUPERSEDED-BY-ABOVE: **IN FLIGHT:** operator brief E2E-54/P2-DIFF-1 (cross-backend behavioral equivalence) authorized; baseline HEAD `a8eb7d59` verified; build rc 0; Cosmopolitan pin + cpmsim + cpmtools + DR link tools all present FIRST-HAND. THE KEY MEASUREMENT (LEARNINGS § "E2E-54/P2-DIFF-1 recon hop"): native-form entry `CALL06B.pli` compiles with `pli80c` (384 B REL), LINKS CLEAN (parse_undefined empty on FULL segment) and RUNS on CP/M → `        2         7\r\n` matching the native independent expectation `2\n7\n`/dr 7. **SAME-SOURCE route is ALIVE** (SHARED-CORE fallback only). 8080 console subset traps: bare `put list(4)` refuses; `6*7` refuses. NEXT VERBATIM = the SUCCESSOR CONTRACT in LEARNINGS § "E2E-54/P2-DIFF-1 recon hop": baseline panels (each OWN rc: hir 220, mir 32, cosmo 25, console 43, debug 23, CF 83, call 86; gate 1328/…; T1 `172595d5…`; ledger 203/C380) → **PROTOCOL #1 preregistration commit to `spec/lab-evidence/e2e54/PLAN.md` BEFORE any fixture byte** → pilot D01–D05 → `tools/dual_backend_test.py` → RESULTS → STOP. No compiler source changes; zero oracle; config never staged; no push; scratch (`build/e54p2-scratch/`) never committed.
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P1-m3 CLOSE session hop 3 — **FULL FROZEN PANEL HIT + CLOSE LANDED `3edfb64a`; THE §P1-m3 SLICE IS COMPLETE — STOP, NOTHING FURTHER IS AUTHORIZED**; renewal 2/12 of chain 01a1d1fd; ZERO oracle; ledger 203/C380)
 

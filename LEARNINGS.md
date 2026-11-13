@@ -5,6 +5,82 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-1 baseline hop (2026-11-13, session 01a1d3b4 renewal 1/12 of chain 01a1d39e; ZERO oracle; ledger 203/C380; HEAD start `a0c56195`) — BASELINE PANELS ALL HIT FIRST-HAND + THE 8080-FEASIBILITY SWEEP OF EVERY COMMITTED MIR FIXTURE; §P2-DIFF-1 PRE-REGISTRATION OWED
+
+- ACCEPTED (baseline, each command its OWN rc, `eval "$(opam env)"`, `LC_ALL=C`, timeouts 900,
+  never batched with the build): `cd ocaml && dune build` rc 0 and T1
+  `ocaml/_build/default/bin/pli80c.exe` sha `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+  DIRECT; `e2e_gate.py` rc 0 → `build/e54p2diff-baseline-gate.log` **1328/1328 — 190/190 — 9/9 —
+  coverage 149 rows 0/0 — census 16/0/25/0 — prose 5**; `hir_test.py` rc 0 **220 ok** with the FULL
+  log `cmp`-IDENTICAL to `build/e54p1m3b-hirtest-reg.log` (→ `build/e54p2diff-baseline-hirtest.log`);
+  `mir_aot_test.py` rc 0 **32**; `mir_aot_cosmo_test.py` **25**; `mir_aot_console_test.py` **43**;
+  `mir_aot_debug_test.py` **23** (D-C1/C2/C3 LOUD); `mir_aot_cf_test.py` **83** (C-M2a/C-M2b/W3
+  LOUD); `mir_aot_call_test.py` **86** (C-M3a/C-M3b/C-M3c LOUD) — logs `build/e54p2diff-baseline-*.log`
+  (ignored). Fresh `dune build --build-dir _build-e54p2diff-baseline` rc 0, ZERO `Error`, exe sha
+  == the same kept `172595d5…aca281`. T2 `git diff --exit-code -- ocaml/lib ocaml/bin hir/expected
+  hir/fixtures` rc 0; ledger 203 headers ending C380; tree dirty ONLY the operator
+  `handoff.config.json` (never staged) + pre-existing untracked scratch.
+- ACCEPTED (THE PILOT-DESIGN MEASUREMENT — the 8080 lane run over EVERY already-committed MIR
+  fixture, disposable, outputs in ignored `build/e54p2-scratch/sweep/`, ZERO repo byte):
+  `pli80c.exe -d <fixture> <out>.REL`
+  * CALL panel: **rc 0** = CALL02 256 B (code 67/data 10), CALL03 128 (40/8), CALL04 256 (97/16),
+    CALL05 128 (24/6), CALL06A 256 (76/10), CALL06B 384 (94/12), CALL07 384 (117/16), CALL08 128
+    (40/10), CALL09 128 (38/10), CALL10 384 (101/16), plus the migrated positives CALLN1 128 (28/6)
+    and CALLN10 128 (38/10). **rc 2** = CALL01 `PUT form not in E2E-3a subset (line 5)`; CALLN2
+    `CALL of addone: DR rejects this -- NOT PROC`; CALLN5 `side2() in an expression: DR rejects
+    this -- TYPES NOT=`. (The four native-NEGATIVE fixtures CALLN3/N4/N6/N8/N9 compile fine on the
+    8080 lane — they are HIR/backend refusals, not 8080 ones.)
+  * CF panel: **rc 0** = CF01 384, CF02 256, CF03 384, CF06 256, CF07 128, CF09 384, CF10 256;
+    **rc 2** = CF04 `condition form not in E2E-3b subset: (>= x 2)`, CF05 `(<= x 0)`, CF08 `(<= i 2)`
+    — i.e. the 8080 subset carries `<`, `>`, `=` but NOT `>=`/`<=`; CFN1/CFN2 also refuse
+    (`compare > k<=0 form unproven`), CFN3–CFN6 compile.
+  * M panel: **rc 0** = M02 128, M05 256; **rc 2** = M01/M03/M04/M06 `fixed-bin MULTIPLY between
+    two integer literals is unsampled` — the 8080 lane refuses a literal×literal product.
+  * CONSEQUENCE FOR THE PILOT (binding on my pre-registration): the shared executable subset is
+    DETERMINED BY THIS MATRIX, not by inference. Usable same-source candidates: CALL02 (value-arg
+    call), CALL04 (3-proc chain + console in the deepest subsidiary), CALL05 (void bare-`RETURN`),
+    CALL06A/CALL06B (by-ref + the aliasing differential), CALL07 (value-call + 3-item console),
+    CALL08 (whole-`RETURN` value call), CALL09 (unreached sibling), CALL10 (mixed-mode),
+    CALL03/CALLN1/CALLN10, and CF01/CF02/CF03 (GET + IF/ELSE), CF06 (counted `do while`),
+    CF07 (zero-trip), CF09 (IF inside a loop), CF10 (descending loop) — with the caveat that the
+    CF fixtures need a scripted `get list` input stream on BOTH lanes.
+- ACCEPTED (the input-channel asymmetry, read first-hand): the native lane's `get` is
+  `pli_console_get_i64(out, lo, hi)` — plain stdin, skips blanks/CR/LF, RANGE-tested against
+  `W(p)` (tools/mir_aot/pli_console.c); the CP/M lane reads SYSIN through PLILIB `?SYSIN` with the
+  harness's default one-`^Z` script (`oracle/linkrun.py` INPUTS). PROPOSED: prefer the GET-free
+  fixtures (CALL02/04/05/06A/06B/07/08/09/10) for the pilot so no input-channel difference enters
+  the comparison; if a CF fixture is used, its input stream must be byte-identical on both lanes.
+- ACCEPTED (the 8080 numeric-field law, read first-hand): `ocaml/lib/codegen.ml:99-105` —
+  the FIXED BIN print width is `min(9, digits(2^p-1)+4)`; the observed CP/M transcript for CALL06B
+  is `        2         7` (10-position right-justified items, one statement, no line terminator
+  of its own), vs the native `2\n7\n` — which is exactly why brief §5 forbids byte comparison and
+  the comparator must be the ordered signed-decimal vector.
+- FALSIFIED (method — mine, caught immediately): `tr -d '\x1a'` is NOT a GNU-tr hex escape; it
+  silently deletes the characters `x`, `1` and `a` (the dump showed `fixed`→`fied`, `call`→`cll`).
+  Use octal `\032` or `cat -v`, or the `read` tool. NEVER inspect a fixture with `tr -d` with a
+  `\x` escape; the corruption is silent and looks like a plausible source.
+- NEXT VERBATIM (successor): (1) WRITE + COMMIT §P2-DIFF-1 in `spec/lab-evidence/e2e54/PLAN.md`
+  (explicit path, PROTOCOL #1, BEFORE any fixture byte) — template §P1-m3 (0 scope/1 measured
+  facts/2 ABI-or-comparator/3 fixtures with INDEPENDENT expectations/4 normalization law/5
+  three-way verdict law/6 runner/7 controls/8 gate+falsifiers/9 work order/10 dashboard); the
+  pilot is 3–5 tests from the matrix above (D01 scalar arithmetic, D02 conditional/counted loop,
+  D03 value-arg call, D04 by-ref aliasing, D05 returned value used by the caller); record the
+  SAME-SOURCE classification of the recon hop (CALL06B: native-form source, 8080 compile+link+run
+  GREEN, console `        2         7`) and the brief's §5 extraction proofs (only the intended
+  region, every integer recognised, nothing silently discarded, order+multiplicity preserved, a
+  missing result is a FAILURE); §6 three-way verdicts BOTH-PASS/8080-ONLY/NATIVE-ONLY/
+  BOTH-FAIL-SAME/DIVERGENT/BLOCKED/NOT-COMPARABLE, a matching WRONG pair is never equivalence;
+  §7 runner `tools/dual_backend_test.py` reusing `tools/functional_runner.py` stage machinery +
+  `oracle/linkrun.py` (never a new CP/M framework), per-lane/per-stage reporting, machine-readable
+  summary, comparator-mutation control (alter ONE expected integer on a DISPOSABLE copy, source
+  and executables unchanged, must FAIL); §8 the frozen panel list above. (2) pilot D01–D05
+  measured-first; (3) the runner; (4) RESULTS + arch note; (5) STOP. Standing: ZERO oracle
+  (Distinguish the historical LINKER/RUNTIME from the DR COMPILER ORACLE in every report); no
+  compiler source change; config NEVER staged; no push; no `git add -A`/clean/reset; explicit
+  paths; scratch `build/e54p2-scratch/` NEVER committed; rc DIRECT; timeouts 60/120/900;
+  `LC_ALL=C`; cosmo `chmod +x`; console links include `tools/mir_aot/pli_console.c`; NEVER
+  hand-edit managed checkpoint blocks.
+
 ## E2E-54/P2-DIFF-1 recon hop (2026-11-13, session 01a1d39e fresh startup; ZERO oracle; ledger 203/C380) — dual-backend feasibility gate IN FLIGHT; entry-contract facts MEASURED
 
 ACCEPTED (verified by reading the committed code + disposably running the compilers on
