@@ -43,6 +43,14 @@ caller).  D01 (M02) is NOT-COMPARABLE by pre-registered decision — it has
 no PL/I console output; its only observation is a return value the 8080
 lane never shows.
 
+The two INTEGRATED programs of §P2-DIFF-2.10 (Stage B, original sources
+written for this campaign, same SAME-SOURCE law): D06 DIF01 `tariff`
+[6300,1500,3000,1800,400,120] (void by-ref+by-value calls, nested if/else
+hulls, three value calls whose results the caller prints) and D07 DIF02
+`steps` [9,7,5,3,3,5,7,9] (the counted do-while loop, the amended
+§P2-DIFF-2.9-B deviation, callee-modified by-reference home re-read, PUT
+inside the loop).
+
 COMPARATOR FALSIFICATION (§P2-DIFF-1.10): after the real observations are
 in hand, the comparator is attacked with THREE DISPOSABLE corrupted
 expectations (change / delete / permute — sources and executables
@@ -134,6 +142,36 @@ CASES = {
         "nfuncs": 2,
         "note": "pick3(1,2,3) prints 1 and 2, RETURNS 3; the caller assigns the return and "
                 "prints 3 — the returned value IS observed only because the source prints it",
+    },
+    # §P2-DIFF-2.10 — the two INTEGRATED programs (Stage B).  Sources and pins
+    # committed BEFORE the differential run; the expected vectors are the
+    # pre-registered §P2-DIFF-2.3 ones (DIF02 under the §P2-DIFF-2.9-B amended
+    # definition), hand-derived from the algorithm and never from any output.
+    "D06": {
+        "fixture": "hir/dif-fixtures/DIF01.pli",
+        "sha256": "011dc4e7fc1e1d4b4e50d525817829b3dc7923b904dfb31537a977838d59bdaf",
+        "entry": "tariff", "tag": "DIF01",
+        "expected": [6300, 1500, 3000, 1800, 400, 120],
+        "pin": "hir/dif-expected/DIF01.mir",
+        "nfuncs": 3,
+        "note": "integrated tariff: three void bill(b, c+0) calls (by-reference home + "
+                "by-value copy, the 8080 refuses a literal+literal ADD) whose bills are "
+                "6000+600-300, 1200+300, 2400+300+300; then three tier(u+0) value calls "
+                "(nested if/else hulls 100/10/1 times 18/40/120) printed by the caller; "
+                "the entry's return value is NOT observed",
+    },
+    "D07": {
+        "fixture": "hir/dif-fixtures/DIF02.pli",
+        "sha256": "15ce8bcddf2f76149261e86f0d9f5b06d2999d236f3681a322862e24cea8489a",
+        "entry": "steps", "tag": "DIF02",
+        "expected": [9, 7, 5, 3, 3, 5, 7, 9],
+        "pin": "hir/dif-expected/DIF02.mir",
+        "nfuncs": 2,
+        "note": "integrated steps: counted do while (i < 9) over i = 1..8, d = 5 - i for "
+                "i < 5 else i - 4 (the §P2-DIFF-2.9-B amended definition), scale = 2*d + 1, "
+                "a void adjust(h, s+0) that writes the by-reference home and the caller's "
+                "re-read s = h; the PUT is INSIDE the loop (the loop-exit drop law); the "
+                "return value 9 is NOT observed",
     },
 }
 
