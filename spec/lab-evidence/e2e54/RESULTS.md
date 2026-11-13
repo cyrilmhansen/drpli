@@ -1494,3 +1494,256 @@ hop-6 durables `ab66668a`, renewal boundary `00471053`, operational record
 `518a5827`; **CF runner `2c08a90b`** (`tools/mir_aot_cf_test.py`, first-ever run
 rc 0, 83 measured checks, three runner defects fixed honestly); CLOSE (this
 commit: RESULTS §P1-m2 + arch §7-9 + dashboard CLOSED + LEARNINGS + durables).
+
+## §P1-m3 — Native procedure calls: by-value, by-reference/aliasing, value-position `Call_e` — CLOSED 2026-11-13 (hops 1–18 + close session, sessions 01a1c75f→01a1d1fd)
+
+Pre-registered as PLAN §P1-m3 (PROTOCOL #1 gate: committed `15508949` **BEFORE any repository
+source byte**, after four recon hops and five scratch-probe hops); executed in work-order
+§P1-m3.13 steps 2–7 through three separately gated milestones, with FOUR operator amendments
+(`.15` A, `.16` B, `.17` C, `.18` D) each committed to the PLAN before the byte it authorizes.
+ZERO oracle throughout: backend engineering evidence, never a DR claim — the ledger stays
+**203 headers ending C380**. One compiler file was touched in the whole slice:
+`ocaml/hir/mir_backend.ml` (`ocaml/lib`, `ocaml/bin`, `hir/expected`, `hir/fixtures` byte-clean
+at every close — T2).
+
+### P1-m3.1 Milestones delivered (SEPARATELY, per §P1-m3.0)
+
+**m3a — by-value calls: PASS** (gate `2be30a9c`; pre-registration `15508949`, fixtures `af6d255b`,
+amendment `fca7c3af`). The blanket multi-procedure E20 refusal was replaced by the §P1-m3.2
+selection/validation arms and the single-procedure engine was generalized into a
+**discovery-order per-procedure engine with callee-first post-order assembly**: entry emitted
+LAST with the ONE `export` (single space), used-only protos before the ONE import line,
+title-carried formals (`func i64, i64:x` = result type FIRST), formals excluded from the locals
+line, per-func `t<k>` continuation with module-wide numbering, per-func `st`/`a1` and
+`Lfail`/`Lfail_0`/`Lfail_<pid>` tails with the **measured bare-`ret` law on void tails**
+(§P1-m3.10 item 1), DFS cycle refusal, unreached-sibling DROP, nested-procedure refusal, and
+`-g` + multi-proc refusal. `Hir.Call_s` lowers with `A_value` actuals only; an `A_reference`
+refuses E18 BY NAME as the milestone discriminator (CALLN10). GREEN first-hand: the FIVE
+positives CALL02/03/04/05/09 EXECUTED the §P1-m3.6 bytes (as amended) on **both** the glibc and
+the cosmo-tiny console legs, ×2 fresh processes; CALL09 proved the DROP law (EXACTLY 2 func
+items, `pli80_dead` absent); CALL04 proved the three-deep chain `chain → mid → leaf` with the
+console write in the DEEPEST callee and the caller's `51 + 40 = 91` in entry scope (no
+interprocedural propagation); the seven negatives rc 2 with pinned stderr, zero stdout, no
+artifact, layers attributed by `pli80hir` (HIR E07 N2/N3/N5; BACKEND E18 N1/N4/N6/N10); **C-M3a
+FAILED LOUDLY** (swapped callee-after-caller copy → `mir2o` rc 1 `ln 16: undeclared name
+pli80_side`, no object). Two measured defects caught and fixed honestly in the slice: the
+first splice emitted caller-first (mir2o rc 1) — fixed by appending callees before the caller
+(hop 10); and the original §P1-m3.6 CALL02/CALL04 texts refused `HIR-E19` at line 10 because
+`+ literal` on a formal seeded at full `W(15)` is not window-provable under the frozen law I1 —
+STOP-AND-ATTRIBUTED (hop 10) and adjudicated by the operator in §P1-m3.15 option (a) (`t = n + 0;`
+/ `t = m + 0;`, CALL04 stdout becoming `51\n` dr 91); the original refusals are preserved as
+VALID evidence of the conservative window analysis, not defects.
+
+**m3b — by-reference actuals and aliasing: PASS** (gate `1394f074`; amendment B `fc152391`).
+The **HOME-PASS ABI**: a bare-name actual (`A_reference (D_var sid)`) passes the caller's
+entry-hoisted `alloca h<sid>, 8` home and the callee reads/writes that home through
+`i64:(h<sid>)` — the callee's writes are visible to the caller through the alias (executed, not
+argued); after every call the designated sids are WIDENED to the declared window `W(declared)`
+(I2/I4, monotone, never to a narrower `Some`); a by-ref actual whose designation is not
+definitely initialized refuses `E19` by name (CALLN8); a `D_elem` designation refuses E18 (the
+static arm — the end-to-end class is UNREACHABLE because an array `dcl` dies at the PARSER,
+deviation 15); `Call_s` with mixed modes at two sites of the same callee is supported through
+**entry-hoisted per-slot value cells** `hv<k>` rewritten before every call and never read back
+(the CALL10 discriminator). GREEN first-hand: CALL01 `5\n4\n` dr 4 (the brief's recorded
+`show` bytes), CALL06A `7\n` dr 7, the differential CALL06B `2\n7\n` dr 7 (same callee, same
+variable, value-vs-reference — the value call leaves the caller untouched), CALL10 `7\n7\n` dr 7
+(B1-amended), and CALLN10 landing as a POSITIVE with EMPTY stdout dr 7 (B3); CALLN7 (the CALL01
+text with `-g`) and CALLN8 refused by name; the CALLN10 negative pair was retired with named
+provenance; **C-M3b FAILED LOUDLY and NON-VACUOUSLY** (per B2, the INVERSE mutation: `h0, hv1` →
+`h0, h0` on a disposable copy — the mutant LINKS and EXECUTES `7\n7\n`, which the pre-registered
+`2\n7\n` REJECTS; the detection, not the pass, is what the suite counts).
+
+**m3c — value-position calls (`Call_e`): PASS** (gate `5d8d2a4a`; amendments C+D `d3925d1c`).
+`Hir.Call_e` lowers ONLY as the whole RHS of `Assign (D_var sid, ex)` or the whole expression of
+`Return (Some ex)`, with all actuals `A_value`, a value callee ending `RETURN(expr)` as its final
+statement, a caller-local result register `r<k>` and result interval `W(ret-p)` — **no
+interprocedural narrowing is claimed or performed** (I3). A `Call_e` anywhere else (inside a
+`Bin`, a `Convert`, a PUT item, a GET target, a condition) refuses E18 by name (CALLN9).
+GREEN first-hand: CALL07 `thrice`/`pick3` executed `1\n2\n3\n` driver-return 3 (the returned
+value reaching `put` through the result register), CALL08 `wret`/`identity` executed EMPTY stdout
+driver-return 41 (`return (identity(x + 0))` whole-Return), and the migrated CALLN1 `pval`
+executed EMPTY stdout driver-return 1; **C-M3c FAILED LOUDLY while producing a valid, linkable,
+EXECUTING artifact** (per C3, one `add t9, t9, 1` inserted before the unique `ret t9` — `t9` IS
+`pick3`'s result register — mir2o rc 0, 1184 B mutant text, 3416 B object; the UNCHANGED
+`-DEXPECTED=3` glibc driver returns rc 1 with `1\n2\n4\n4\n`, and the cosmo leg executes
+`1\n2\n4\n` dr 4). Two STOP-and-attribute events were required and honored: hop 14 (the brief's
+§3 admission and §6/§1/§7's frozen CALLN1 negative were mutually unsatisfiable at the same
+program — proven by a scratch prototype that compiled it, no repo byte) and hop 15 (the
+originally pre-registered CALL07/CALL08 are **numerically unprovable** under the frozen I1 window
+law — measured `E19` at line 11/line 8); the operator resolved both in §P1-m3.17 (new texts) and
+§P1-m3.18 (CALLN1 migration, negative pair retired with provenance, the fixture SURVIVING
+byte-identical as a positive).
+
+### P1-m3.2 Falsifier panel (T1–T11) — every measured value (close-session runs, each its OWN command)
+
+- **T1 PASS** — kept exe `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` verified DIRECT this session, and again at the fresh build below (T8).
+- **T2 PASS** — `git diff --exit-code -- ocaml/lib ocaml/bin hir/expected hir/fixtures` rc **0** at close; every runner leg re-compares regenerated bytes against the committed pins.
+- **T3 PASS** — `timeout 900 python3 tools/hir_test.py` rc 0 **220 ok**, FULL log byte-`cmp`-IDENTICAL to the m3b close baseline `build/e54p1m3b-hirtest-reg.log` → `build/e54p1m3close-hirtest-reg.log` (the 11 frozen semtest numbers UNMOVED, F8 green).
+- **T4 PASS** — FULL gate `timeout 900 python3 tools/e2e_gate.py` rc 0 **FROZEN ALL HIT**: byte panel **1328/1328**, negatives **190/190**, divergence **9/9**, coverage **149 rows 0/0**, census **EXACT 16 / DIFFERS 0 / REFUSED 25 / UNEXPECTED 0**, prose **5** → `build/e54p1m3close-reg-gate.log`, which is additionally **byte-identical to the m3c gate log** (`build/e54p1m3c-reg-gate.log`) — no repository byte has moved since the m3c gate.
+- **T5 PASS** — `tools/mir_aot_test.py` rc 0 **32 checks** (positives 42/45/10/2 EXECUTED, 6 negatives, C-a/C-b fail natively) → `build/e54p1m3close-miraot.log`.
+- **T6 PASS** — `tools/mir_aot_cosmo_test.py` rc 0 **25 checks** → `build/e54p1m3close-cosmo.log`.
+- **T7 PASS** — `tools/mir_aot_console_test.py` rc 0 **43 checks** and `tools/mir_aot_debug_test.py` rc 0 **23 checks** (D-C1/D-C2/D-C3 LOUD), both from the repo root → `build/e54p1m3close-{console,debug}.log`.
+- **T8 PASS** — fresh `cd ocaml && dune build --build-dir _build-e54p1m3close` rc 0, **ZERO `Error`** lines, warning history **122** `File "` headers, and `sha256sum ocaml/_build-e54p1m3close/default/bin/pli80c.exe` == kept `172595d5…aca281` (the historical compiler is bit-UNCHANGED by the hir-only slice) → `build/e54p1m3close-freshbuild.log`.
+- **T9 PASS** — EVERY pre-existing pin byte-UNMOVED through all three milestones: all `hir/mir-expected/*`, all `hir/mir-cf-expected/*`, `hir/mir-debug-expected/M05.p1md`, the CT2 `.o` shas `78656e6c…/3822f777…/02c15b1b…` and the debug `.o` `cb263c2c…3984782` (re-verified inside the re-run suites), plus the STANDALONE DWARF re-measurement this session: `pli80mir -g --export iorw -o build/p1m3-scratch/g18/M05.g.mir hir/mir-fixtures/M05.pli` rc 0 → `M05.g.mir` `cmp` == `hir/mir-expected/M05.mir` AND `M05.g.mir.p1md` `cmp` == `hir/mir-debug-expected/M05.p1md`, zero stderr (the ONLY two pre-existing artifacts that moved in the whole slice are the two named, operator-authorized negative-pair retirements — CALLN10 at m3b, CALLN1 at m3c — each with provenance in its commit message).
+- **T10 PASS** — NEW `tools/mir_aot_call_test.py` rc 0 **86 MEASURED checks** (count law §P1-m3.10 item 6 — measured, never a formula; committed `eb1031a9`): U0 toolchain identity; U1 the 13 positives re-generated in two fresh processes each (`stdout == pin == -o`, zero stderr, deterministic) plus the CALL09 DROP review law; U2 the 8 surviving negatives with pinned rc/stderr and LAYER proofs (HIR N2/N3/N5 refuse in `pli80hir`; BACKEND N4/N6/N7/N8/N9 admitted at HIR then refused); U3 migration guards (the retired `CALLN1`/`CALLN10` negative pairs MUST NOT exist; both `.mir` pins are consumed as positives); U4 the full native legs — 13 × 4 = 52 legs (`mir2o -f` with the reached-function count, glibc `-O0` `native_check` ×2, cosmo **tiny** static console ×2, static laws + `nm` `T`/`t`); U5 **C-M3a, C-M3b and C-M3c all OBSERVED FAILING LOUDLY INSIDE**, a control that passes failing the suite.
+- **T11 PASS** — ZERO oracle (no DR compiler/cpmsim/LINK-80/Rune CI); ledger **203 headers ending C380** verified at close HEAD; `handoff.config.json` NEVER staged; explicit-path commits only; scratch (`build/p1m3-scratch/`, `build/mir-call/`, `build/mir-*`) NEVER committed; lab `ccc92c5c`/`f541a7a5` and `build/p1m*-deps`/`build/p1mc-deps` NEVER edited or advanced; no push; timeouts 60/120/900; `LC_ALL=C` on every toolchain call.
+
+### P1-m3.3 The 13 positives and the 8 surviving negatives — every measured value
+
+| fixture | entry | EXPECTED | cosmo-tiny stdout / dr | glibc stdout | object | funcs |
+|---|---|---|---|---|---|---|
+| CALL01 (m3b) | `main3` | 4 | `5\n4\n` / 4 | `5\n4\n4\n` | 2888 B | 2 |
+| CALL02 (m3a) | `call02` | 2 | `2\n` / 2 | `2\n2\n` | 2216 B | 2 |
+| CALL03 (m3a) | `two` | 37 | EMPTY / 37 | `37\n` | 1408 B | 2 |
+| CALL04 (m3a, amended A) | `chain` | 91 | `51\n` / 91 | `51\n91\n` | 3304 B | **3** |
+| CALL05 (m3a) | `retvoid` | 9 | EMPTY / 9 | `9\n` | 1416 B | 2 |
+| CALL06A (m3b) | `aliasin` | 7 | `7\n` / 7 | `7\n7\n` | 2232 B | 2 |
+| CALL06B (m3b) | `diffal` | 7 | `2\n7\n` / 7 | `2\n7\n7\n` | 2936 B | 2 |
+| CALL07 (m3c, amended C) | `thrice` | 3 | `1\n2\n3\n` / 3 | `1\n2\n3\n3\n` | 3416 B | 2 |
+| CALL08 (m3c, amended C) | `wret` | 41 | EMPTY / 41 | `41\n` | 1416 B | 2 |
+| CALL09 (m3a, DROP law) | `uncalled` | 3 | EMPTY / 3 | `3\n` | 1416 B | 2 |
+| CALL10 (m3b, amended B1) | `mixmod` | 7 | `7\n7\n` / 7 | `7\n7\n7\n` | 2392 B | 2 |
+| CALLN1 (m3c, migrated D) | `pval` | 1 | EMPTY / 1 | `1\n` | 1408 B | 2 |
+| CALLN10 (m3b, migrated B3) | `refm3a` | 7 | EMPTY / 7 | `7\n` | 1416 B | 2 |
+
+Every leg executed byte-exactly in TWO fresh processes (the glibc stdout is program bytes THEN the
+driver's own `<v>\n` — `native_check` prints the return, `pli_console.c` writes the PUTs; recorded
+as a semantics-derived law before running, never fitted). The `.mir` pins are 737/730/452/1019/295/
+671/925/1169/462/341/999/323/321 bytes.
+
+| negative | layer | measured refusal |
+|---|---|---|
+| CALLN2 | HIR E07 | `line 4: statement-level call to function addone discards a value; unlowered in P0` (91 B) |
+| CALLN3 | HIR E07 | `line 4: call to side passes 1 arguments to 2 bind-registered formals` (78 B) |
+| CALLN4 | BACKEND E18 | `cyclic procedure calls are outside the native subset: cyc -> p1 -> p2 -> p1` (98 B) |
+| CALLN5 | HIR E07 | `line 3: procedure side2 has no bind RETURNS fact: value use unlowered` (79 B) |
+| CALLN6 | BACKEND E18 | `procedure 'mid' contains a nested procedure; …` (160 B) |
+| CALLN7 | BACKEND E18 | `a multi-procedure program with the debug sidecar (-g) is outside the native subset` (199 B; no fixture — the CALL01 text with `-g`) |
+| CALLN8 | BACKEND E19 | `line 3: by-reference actual argument 0 of call to 'al' designates sym(0) which is not definitely initialized` (235 B, 0-based) |
+| CALLN9 | BACKEND E18 | `line 3: a value-position call is outside the native subset (brief §3)` (93 B) |
+
+All eight: rc 2, ZERO stdout, NO `-o` artifact, NO map, ×2 fresh processes, stderr byte-equal to
+the committed pins.
+
+### P1-m3.4 Deviations and measured notes (recorded, NOT fitted)
+
+1. **§P1-m3.10 item 1 (pre-registered):** the void failure tail was hop-4 pre-registered as
+   `ret st`; the pinned `mir2o` REJECTED it (verbatim `… number of operands in return does not
+   correspond number of function returns. Expected 0, got 1`); the law is **bare `ret`** on void
+   tails. §P1-m3.2-5 states the measured law.
+2. **The operator brief was never saved** (no `build/p1m3-brief-true.md`); only the hop-1/hop-2
+   recorded expectation bytes survive (`show` → `5\n4\n` dr 4, `alias(x,x)` → `7\n` dr 7,
+   `alias(x,x+0)` → `2\n7\n` dr 7). The CALL fixture PROGRAMS are mine, honoring those bytes
+   exactly where an honest program yields them — CALL01/06A/06B hit them verbatim.
+3. **`_<pid>` collision suffix UNREACHABLE** (HIR-E11 makes folded names unique): recorded, no
+   fixture, no invented negative.
+4. **Narrow-formal / window-overflow-at-formal class UNEXERCISABLE** (E17 typing: every
+   literal/binop actual is `FIXED BINARY(15,0)`): recorded, no fixture.
+5. **CALL10 expectation moved twice, both times in the PLAN before any byte:** the hop-4 sketch
+   `7\n34\n` dr 48 is not reproducible from any initialized program whose text survives
+   (§P1-m3.10 item 5), the settled pre-registration derives `7\n9\n` dr 9, and operator
+   amendment B1 re-registered it as `7\n7\n` dr 7 — the measured value is B1's.
+6. **The call panel's check count is MEASURED (86), not a formula** (the §P1-m2 CF 27→32 precedent).
+7. **Falsification preserved (hop 10, §P1-m3.10 item 7):** the ORIGINAL §P1-m3.6 CALL02/CALL04
+   refused `HIR-E19` at line 10 (`+ literal` on a formal seeded at full `W(15)` vs the frozen
+   window law I1, pre-existence proven by an entry-only scratch reproducer); the CALLN1 negative
+   measured the BACKEND E18 value-position arm, not the predicted HIR E07. Both were
+   STOP-AND-ATTRIBUTED, adjudicated by the operator, and the original §P1-m3.6 blocks stand as
+   history.
+8. **Amendment A (§P1-m3.15, `fca7c3af`) — the only pre-registered positive texts that moved:**
+   `t = n + 0;` (CALL02, bytes UNCHANGED) and `t = m + 0;` (CALL04, stdout `91\n` → `51\n`, driver
+   return 91 UNCHANGED via the untouched caller-side `x = x + 40`). I1–I5 and §P1-m3.14 are
+   UNWEAKENED; the acceptance law is restated — caller knowing `x = 51` and callee NOT assuming
+   `m = 51` are distinct facts.
+9. **Amendment B (§P1-m3.16, `fc152391`):** B1 CALL10 → `7\n7\n` dr 7; B2 redefined C-M3b as the
+   INVERSE mutation (a corrupting edit that makes a mutant EXECUTE the wrong bytes is the proof;
+   a control that passes fails the suite); B3 migrated CALLN10 from negative to POSITIVE (EMPTY
+   stdout dr 7) with its negative pair `git rm`'d — provenance `2be30a9c`.
+10. **Amendment C (§P1-m3.17, `d3925d1c`):** the original CALL07/CALL08 were proven **numerically
+    unprovable** under I1 (hop-15 measurement: `E19` at line 11/line 8); the texts were replaced
+    by `thrice`/`pick3` and `wret`/`identity`, and C-M3c was redefined to require a mutant that
+    is VALID, LINKABLE and EXECUTING — a syntactically invalid control does not count.
+11. **Amendment D (§P1-m3.18, `d3925d1c`):** CALLN1 migrated negative → positive; the pair
+    `CALLN1.rc`/`CALLN1.stderr.txt` was `git rm`'d at `5d8d2a4a` (the ONLY two pre-existing
+    negative pins besides CALLN10's to move in the slice, both operator-authorized with
+    provenance), the fixture SURVIVING byte-identical (213 B, sha `33d248d0…376a`) with a new
+    measured-first `CALLN1.mir`.
+12. **`git` rename rendering:** both retirements are shown by git as RENAMEs to the byte-identical
+    new pairs (CALLN10 → CALLN7, CALLN1 → CALLN9). The deletions were VERIFIED REAL via
+    `git ls-tree` (the retired paths are absent from the tree), and the rendering is disclosed in
+    each commit message.
+13. **`readelf -d` prints `There is no dynamic section in this file.` on STDOUT** (rc 0, empty
+    stderr) — the static-ELF law must read stdout, never stderr (falsified at hop 12, harness
+    only, ZERO repo byte).
+14. **The `--export <name>` probe is NOT a layer-proof shortcut:** `--export x` hits the E20
+    export-mismatch BEFORE the backend negative arm under test (three false FAILs at hop 13,
+    self-caught, pins UNMOVED); the backend-layer legs must use the fixture's TRUE entry name.
+15. **`D_elem` is end-to-end UNREACHABLE in the current subset:** an array `dcl` (e.g.
+    `dcl arr fixed bin(15) (10);`) dies at the PARSER (`rc 2 expected statement`) — EARLIER than
+    the backend E18 declaration law. Both layers prove unreachability; no fixture was invented
+    (the static guard arm is checked by code inspection in runner U3).
+16. **Runner first-run defect (close hop, self-caught; ZERO compiler/pin/fixture change):**
+    `mir2o_leg` passed the raw pin `bytes` to `run()` so `str()` rendered the literal path
+    `b'M0:…'` → `mir2o: cannot read input` rc 3 (13 FAIL). Fixed by writing the pin bytes to a
+    DISPOSABLE copy under `build/mir-call/runner/` and passing the PATH (the CF-runner `object_of`
+    idiom). Second run rc 0, 86 checks, all three controls failing loudly INSIDE.
+17. **`i6_check.py` carries a stale N7 banner** (a known quirk, not a failure; its re-pin landed
+    at §P1-m2.8 item 2) — the script still reports `56 checks, ALL PINS UNMOVED`.
+
+### P1-m3.5 Accepted/unsupported matrix (the slice's honest boundary)
+
+| construct | status | evidence |
+|---|---|---|
+| `Call_s` to a VOID subsidiary with by-value actuals (literal or expression) | **SUPPORTED, NATIVELY EXECUTED** | CALL02, CALL03, CALL05 (bare `RETURN;` law), CALL10 (mixed mode) |
+| `Call_s` to a value-returning subsidiary (statement-level, value discarded) | **REFUSED BY NAME** (HIR E07) | CALLN2 — never silently discarded |
+| A REACHED set: callee-first post-order assembly, entry LAST, ONE `export`, used-only protos, unreached siblings DROPPED | **SUPPORTED, NATIVELY EXECUTED** | CALL09 (2 funcs, `pli80_dead` absent), CALL04 (3 funcs, `leaf`→`mid`→`chain`) |
+| `A_reference` (bare-name) actual: caller's entry-hoisted home, callee writes visible | **SUPPORTED, NATIVELY EXECUTED** | CALL01, CALL06A, the differential CALL06B `2\n7\n` |
+| Post-call env widening to the declared window; monotone, never narrower | **SUPPORTED, LAWN** | I2/I4; the CALL06B/CALL10 pins |
+| By-ref actual not definitely initialized | **REFUSED BY NAME** (E19, 0-based) | CALLN8 |
+| `D_elem` by-reference designation | **REFUSED BY NAME** (static arm) + end-to-end UNREACHABLE (PARSER) | deviation 15 |
+| `Call_e` as whole RHS of `Assign` / whole `Return`, all `A_value` | **SUPPORTED, NATIVELY EXECUTED** | CALL07, CALL08, CALLN1 |
+| `Call_e` anywhere else (inside `Bin`, `Convert`, PUT item, GET, condition) | **REFUSED BY NAME** (E18) | CALLN9 |
+| Result interval `W(ret-p)` — NO interprocedural narrowing | **SUPPORTED, PROVEN** (I3) | CALL07/CALLN1 pins; the amended CALL04 acceptance law |
+| Mutual recursion / cycles | **REFUSED BY NAME** (backend DFS) | CALLN4 (`cyc -> p1 -> p2 -> p1`) |
+| Nested procedure inside a subsidiary | **REFUSED BY NAME** | CALLN6 |
+| `-g` DWARF sidecar with more than one procedure | **REFUSED BY NAME** (deliberate scope stop) | CALLN7 |
+| Non-constant actuals with arithmetic on a formal, `PM_copy_in`, whole-array, `ENTRY` parameters | **REFUSED** (E17/E15/E16 unchanged) | §P1-m3.1-1 |
+| Early/nested `RETURN` in subsidiaries, interprocedural value analysis, general fixpoint, FILE streams, `PUT EDIT`, multi-CU, APE, production-backend adoption | **PROPOSED ONLY** | each needs its own PROTOCOL #1 pre-registration + operator authorization |
+
+### P1-m3.6 Reproduction
+
+```bash
+eval "$(opam env)"
+cd ocaml && dune build                              # rc 0; T1 exe 172595d5… DIRECT
+sh tools/mir_aot/build_native.sh                    # rc 0 (mir2o from committed C; lab pins verified)
+cd /home/john/projects/sushiworks/pli80             # REPO ROOT (cwd law)
+timeout 900 python3 tools/mir_aot_call_test.py      # rc 0; 86 measured checks; C-M3a/C-M3b/C-M3c FAIL LOUDLY inside
+timeout 900 python3 tools/mir_aot_test.py           # rc 0; 32 checks
+timeout 900 python3 tools/mir_aot_cosmo_test.py     # rc 0; 25 checks
+timeout 900 python3 tools/mir_aot_console_test.py   # rc 0; 43 checks
+timeout 900 python3 tools/mir_aot_debug_test.py     # rc 0; 23 checks (repo root)
+timeout 900 python3 tools/mir_aot_cf_test.py        # rc 0; 83 checks
+timeout 900 python3 tools/hir_test.py               # rc 0; 220 ok; log cmp-identical to the m3b baseline
+timeout 900 python3 tools/e2e_gate.py               # rc 0; FROZEN ALL HIT
+python3 build/p1m2-scratch/i6_check.py              # rc 0; 56 checks, ALL PINS UNMOVED
+# DWARF standalone (T9):
+ocaml/_build/default/hir/pli80mir.exe -g --export iorw -o <scratch>/M05.g.mir hir/mir-fixtures/M05.pli
+#   → M05.g.mir cmp == hir/mir-expected/M05.mir ; M05.g.mir.p1md cmp == hir/mir-debug-expected/M05.p1md
+cd ocaml && timeout 900 dune build --build-dir _build-e54p1m3close   # rc 0; ZERO Error; hist 122; sha==kept
+```
+
+Every expected byte is in PLAN §P1-m3.6 as amended by §P1-m3.15/.16/.17/.18; the runner carries
+them as COPIES of the pre-registration, never as readings of output.
+
+### P1-m3.7 Commits (explicit paths, hop order)
+
+pre-registration `15508949` (PLAN §P1-m3, PROTOCOL #1) BEFORE any source byte; hop-8 fixtures
+`af6d255b` (12 m3a inputs, mechanical extraction + independent byte-verification); **amendment A
+`fca7c3af`** (PLAN §P1-m3.15) → **m3a gate `2be30a9c`** (`mir_backend.ml` multi-proc engine + the
+two amended fixtures + 19 additive pins); **amendment B `fc152391`** (PLAN §P1-m3.16) →
+**m3b gate `1394f074`** (HOME-PASS splice + CALL01/06A/06B/10 + CALLN8 fixtures/pins + CALLN7 +
+CALLN10 retirement); **amendments C+D `d3925d1c`** (PLAN §P1-m3.17/.18) → **m3c gate `5d8d2a4a`**
+(`Call_e` admission + CALL07/08/CALLN9 + CALLN1.mir + the CALLN1 retirement); **call runner
+`eb1031a9`** (`tools/mir_aot_call_test.py`, first-ever run 13 FAIL → one runner defect → rc 0 with
+86 measured checks, all three controls failing loudly); CLOSE (this commit: RESULTS §P1-m3 +
+arch §7-10 + PLAN `### P1-m3.19` dashboard CLOSED + LEARNINGS + durables).

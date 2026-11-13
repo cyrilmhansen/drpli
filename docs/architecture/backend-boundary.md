@@ -508,3 +508,48 @@ Scope stops at one function, scalar autos, no early/nested RETURN, no
 parameters/aggregates/arrays/FILE streams/`ON` conditions, no general fixpoint;
 everything beyond is **PROPOSED ONLY**. Zero oracle throughout — ledger stays
 **C380**. Panel: RESULTS §P1-m2.
+
+## 7-10 E2E-54/P1-m3 — Native procedure calls in the MIR backend (CLOSED 2026-11-13)
+
+The native MIR path now lowers **calls between procedures** — by-value, by-reference (with real
+aliasing) and value-position `Call_e` — in one MIR module per program. All of it still lives in
+`ocaml/hir/mir_backend.ml`, the only compiler file touched in the whole slice (18 hops, four
+operator amendments, three separately gated milestones). The blanket one-procedure E20 refusal was
+replaced by a **selection/validation pass** (entry = `procs` head, `--export` must fold-equal the
+entry, entry stays zero-parameter value-returning, cycles refused by DFS, unreached siblings
+DROPPED, nested procedures refused, `-g` + multi-proc refused) and a **discovery-order
+per-procedure engine** assembled callee-first in post-order with the entry LAST and the ONE
+`export` — the callee-first ORDER is a pinned-parser law, not a style choice: the swapped copy
+makes `mir2o` fail with `ln 16: undeclared name` (C-M3a, observed loudly). The ABI is the
+**HOME-PASS**: every callee formal is accessed through `i64:(v<sid>)`; a bare-name (`A_reference`)
+actual passes the caller's entry-hoisted `alloca h<sid>, 8` HOME so the callee's writes are
+visible to the caller — executed, not argued, on the differential CALL06B (`2\n7\n`: a value call
+and a reference call on the same variable in the same program) — while a by-value actual passes
+an entry-hoisted **per-slot** `hv<k>` cell rewritten before every call and never read back, which
+is what makes ONE callee legal at mixed-mode sites (CALL10). After each call the designated sids
+widen **monotonically** to the declared window (`W(declared)`); nothing is ever narrowed to a
+`Some` a call could invalidate (I2/I4), and a by-ref actual whose designation is not definitely
+initialized refuses `E19` by name. `Call_e` is admitted ONLY as the whole RHS of an assignment or
+the whole `Return` expression, all actuals `A_value`, with the result in a caller-local register
+carrying the callee's interval `W(ret-p)` — **no interprocedural value analysis is performed or
+claimed anywhere in this slice** (I3), and that honesty is exactly what made the originally
+pre-registered `+ literal`-on-a-formal fixtures `E19` (hop 10) and `CALL07/CALL08` unprovable
+(hop 15): both were STOP-AND-ATTRIBUTED and resolved by OPERATOR amendments to the PLAN, never by
+weakening the window law. The scientific law of the slice is the §P1-m2 one carried forward:
+**an unprovable program is never accepted to make a fixture pass** — the eight surviving negatives
+pin named refusals, and the three non-vacuity controls are executed in the committed runner
+`tools/mir_aot_call_test.py` (86 measured checks; all three observed failing loudly INSIDE, each
+producing a valid, linkable, EXECUTING artifact where the law says it must not). Two pre-existing
+negative pairs were retired — the ONLY artifacts that moved, both operator-authorized with
+named provenance (`CALLN10` → positive at m3b, `CALLN1` → positive at m3c), and `git`'s
+rename-rendering of both was disclosed and verified against the tree. Every other pin — all of
+`hir/mir-expected/*`, `hir/mir-cf-expected/*`, the debug sidecar and `.o` shas, `hir_test`
+(220 ok, 11 numbers UNMOVED), the AOT suites (32/25/43/23/83), the FULL gate (1328/1328 … prose
+5) — stayed FROZEN ALL HIT through all three milestones and the close. Scope stops at entry-level
+procedures, scalar autos, `D_var` designations, no early/nested `RETURN`, no aggregates/arrays/
+`D_elem` (end-to-end unreachable: an array `dcl` dies at the PARSER), no FILE streams, no
+`PUT EDIT`, no multi-proc DWARF; everything beyond is **PROPOSED ONLY** — interprocedural
+narrowing being the obvious next candidate, and each needing its own PROTOCOL #1
+pre-registration plus operator authorization. Zero oracle throughout — this is backend
+engineering evidence, never a DR claim; the ledger stays **203 headers ending C380**. Panel:
+RESULTS §P1-m3.

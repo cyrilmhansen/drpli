@@ -5740,3 +5740,9 @@ nested-value-call arm (rc 2, ZERO stdout, NO artifact, ×2; the whole-RHS/whole-
 NOT admit `thrice3(1, 2, 3) + 5`); **C-M3c (C3) fails LOUDLY** while producing a valid, linkable,
 executing artifact; the FROZEN §P1-m3.9 falsifier panel byte-UNMOVED. Zero oracle; ledger 203 headers
 ending C380; `handoff.config.json` never staged; no push.
+
+### P1-m3.19 Dashboard update
+
+| slice | status | notes |
+|---|---|---|
+| P1-m3 | **CLOSED 2026-11-13** (hops 1–18 + close session; m3a `2be30a9c`, m3b `1394f074`, m3c `5d8d2a4a`, runner `eb1031a9` rc 0 **86 measured checks**) | native procedure calls GREEN end-to-end: HOME-PASS ABI (callee formals via `i64:(v<sid>)`, `A_reference` → caller entry-hoisted `alloca h<sid>,8` home with visible aliasing, `A_value` → per-slot `hv<k>` cells), callee-first post-order assembly with the entry LAST and ONE `export`, monotone post-call widening to `W(declared)`, `Call_e` only as whole-RHS/whole-`Return` with `W(ret-p)` and NO interprocedural narrowing; 13 positives EXECUTED byte-exactly on BOTH glibc and cosmo-tiny legs ×2 fresh, 8 negatives pinned by named refusal and LAYER; C-M3a/C-M3b/C-M3c all observed failing LOUDLY inside the committed runner; four operator amendments (A/B/C/D) each committed to the PLAN before the byte it authorized, two negative pairs retired with named provenance (the only artifacts that moved); FULL FROZEN regression ALL HIT (gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5, hir 220, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, DWARF pins UNMOVED, fresh build hist 122 sha==`172595d5…`, ledger 203/C380, T2 clean); RESULTS §P1-m3 + arch §7-10; **STOP — no next phase authorized without the OPERATOR** |
