@@ -6386,3 +6386,78 @@ renewal.
 | slice | status | notes |
 |---|---|---|
 | P2-DIFF-2 | (open at close) | — |
+
+### P2-DIFF-2.9 Amendments A/B/C — STOP-and-attribute (operator-approved 2026-11-13, committed BEFORE any runner or test byte is amended; PROTOCOL #1)
+
+A fresh independent review of the files published at HEAD `042c208f` found THREE methodological
+contradictions in the campaign's own pre-registered artifacts. The operator authorized the
+three corrections below. The campaign stays OPEN; no new campaign is opened. The original texts
+are quoted VERBATIM and are NOT overwritten — the pre-registration above stands as history;
+this section is the binding amendment (the §P1-m3.15/.16/.17/.18 precedent).
+
+**A — the T7c fixture was WRONG (adversarial suite `tools/test_dual_backend.py`, commit `06a7fdbf`).**
+The pre-registered check at lines 251–254 reads:
+
+```python
+    v = assess([lane80("1\n2\n"), lane80("1\n2\n")],
+               [lane_native("9\n9\n"), lane_native("9\n9\n")])
+    check("T7c both lanes the same WRONG vector, twice each -> BOTH-FAIL-SAME",
+          v is not None and v["verdict"] == "BOTH-FAIL-SAME", str(v and v["verdict"]))
+```
+
+The injected observations are `[1,2]` on the 8080 lane and `[9,9]` on the native lane against
+the disposable case's expected `[1,2]`; the check nonetheless demands `BOTH-FAIL-SAME`. Under
+the §P2-DIFF-1.7 verdict law that configuration is `8080-ONLY` — one lane matches the
+expectation, the other does not. The fixture never exercised the class it claimed.
+*Disposition:* the initial test and its error are preserved in the protocol history (commit
+`06a7fdbf`, pre-fix log `build/e54p2diff2/stageA-pretest.log` — neither is rewritten). The
+injected observations are corrected so BOTH lanes produce `[9,9]` (genuinely the same wrong
+vector, twice each), keeping the expected verdict `BOTH-FAIL-SAME`. The check label and the
+asserted verdict are unchanged; only the injection is amended.
+
+**B — DIF02 was MATHEMATICALLY CONTRADICTORY (PLAN §P2-DIFF-2.3, commit `41fca33e`).**
+The pre-registered text at lines 6286–6288 reads:
+
+> Hand-derived expected vector: `d = |i-5|` for `i = 1..8` → `4,3,2,1,1,2,3,4`;
+> `scale(d) = d*2+1` → `[9, 7, 5, 3, 3, 5, 7, 9]`.
+
+The formula and the values are incompatible: `|i-5|` for `i = 1..8` is `4,3,2,1,0,1,2,3` —
+not symmetric, and it contains `0` (which would scale to `1`, not `3`). The predicted `d`-vector
+`4,3,2,1,1,2,3,4` does not follow from the stated formula.
+*Disposition:* the operator KEEPS the original symmetric-sequence objective and the expected
+vector `[9, 7, 5, 3, 3, 5, 7, 9]`. The definition of `d` is amended (the distance is computed
+from the centre between 4 and 5, on both sides):
+
+- if `i <= 4`, `d = 5 - i`;
+- otherwise (`i > 4`), `d = i - 4`;
+- then `scale(d) = 2*d + 1`.
+
+For `i = 1..8` this yields `d = 4,3,2,1,1,2,3,4` and `scale = 9,7,5,3,3,5,7,9` — the
+ORIGINALLY PREDICTED vector, unchanged. The old prediction, its error and the justification of
+this amendment are preserved above; no re-derivation from any output occurs. **TIMING LAW
+(binding): the DIF02 source must NOT be created before THIS amendment commit exists** — the
+independence law of §P2-DIFF-2.3 requires the corrected definition to be committed first.
+
+**C — the T4 control was pre-registered but NOT implemented (PLAN §P2-DIFF-2.1 table row T4,
+commit `41fca33e`, vs the suite at `06a7fdbf`).**
+The pre-registered attack T4 reads:
+
+> | T4 | native run1 correct, run2 with non-zero process `rc` | NOT `BOTH-PASS`, infrastructure failure |
+
+The suite never implemented it: T5 attacks a single run's `rc` and `assess_run` never sees the
+run-2 status; the pre-fix run (rc 1, 4 FAIL + 3 missing groups) therefore demonstrated H-A1/H-A2
+but NOT the run-2-masking case.
+*Disposition:* the T4 check is added to the adversarial suite in the hardened section. The
+first correct observation must NEVER mask the second execution's failure; the result must carry
+an infrastructure-failure classification (`infrastructure_failure`), and the verdict must not be
+`BOTH-PASS`. This is an ADDITION of the pre-registered attack, not a relaxation: no verdict
+classification is weakened anywhere to make any test pass.
+
+**Amended order of operations (binding, operator chronology 2026-11-13):** (1) this
+amendment is committed with ONLY `spec/lab-evidence/e2e54/PLAN.md`; (2) the suite
+`tools/test_dual_backend.py` is corrected (T7c injection, T4 added) and committed as its own
+explicit path; (3) the runner hardening (Stage A(b)) proceeds per §P2-DIFF-2.7-2 with the
+hardened checks INCLUDING T4; (4) the four existing differential cases, the frozen panel
+(§P2-DIFF-2.6), and Stage A is committed independently before Stage B. Standing constraints
+unchanged: ZERO oracle (`PLI.COM` never runs); no compiler/golden/claims/pin change; no push;
+`handoff.config.json` never staged; explicit paths; rc DIRECT.
