@@ -197,7 +197,12 @@ if has_api("build_report") and has_api("run_cases"):
     # The hardened law: the report SAYS which class of problem it is, and the exit code is
     # mode-dependent.  A divergent measurement is RETAINED in both modes.
     def f80_div(case, it, tag):
-        return lane80("1\n2\n")
+        # §P2-DIFF-2.9 amendment D (same defect class as A): the ORIGINAL
+        # 06a7fdbf injection returned lane80("1\n2\n") — the EXPECTED vector —
+        # which under the §P2-DIFF-1.7 verdict law is 8080-ONLY, never
+        # DIVERGENT.  A truly divergent fixture: BOTH lanes wrong AND
+        # different from each other.
+        return lane80("1\n3\n")
 
     def fn_div(case, it, tag):
         return lane_native("9\n9\n")

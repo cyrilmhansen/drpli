@@ -54,10 +54,16 @@ usage (from the REPO ROOT):
     eval "$(opam env)" && python3 tools/dual_backend_test.py
     eval "$(opam env)" && python3 tools/dual_backend_test.py --case D04
     eval "$(opam env)" && python3 tools/dual_backend_test.py --json
+    eval "$(opam env)" && python3 tools/dual_backend_test.py --strict   # GATE mode
 
-exit codes: 0 every case BOTH-PASS and all controls failed LOUDLY;
-1 otherwise (a behavioral verdict, a BLOCKED case, a vacuous control or a
-harness failure).  Evidence: ignored build/dual-backend/ (never a golden,
+exit codes (the §P2-DIFF-2.1 H-A3 adjudication):
+  DEFAULT (diagnostic) mode — the EXISTING meaning, unchanged: 0 iff the run
+  produced no `failures` entry (no BLOCKED case, no vacuous control); a
+  semantic verdict is a REPORTED outcome, not a runner error.
+  --strict (gate) mode — additionally non-zero for ANY result outside the
+  acceptance criterion: every compared case BOTH-PASS, every control
+  REJECTED, no infrastructure failure.
+Evidence: ignored build/dual-backend/ (never a golden,
 never the coverage registry).  Timeouts: compile 60, link 120, run 120,
 native 60/120 (§P2-DIFF-1.9).
 """
@@ -269,6 +275,207 @@ def verdict(expected: list[int], got80: list[int] | None, gotn: list[int] | None
     return "DIVERGENT"
 
 
+# --------------------------------------------------------------------------- §P2-DIFF-2.1 hardened run/case validation
+def assess_run(lane: str, result, expected) -> dict:
+    """Validate ONE lane execution result (the H-A2 fix): the lane must be a
+    well-formed result of run_8080_lane/run_native_lane (or an injected test
+    double of the same shape) with every stage passing, and its complete
+    observation must normalize.  THE NATIVE STATUS LAW (pre-registered in
+    §P2-DIFF-2.1, derived from tools/mir_aot/console_check.c): the driver
+    RETURNS 0 on normal completion and the runtime failure tail exits
+    NONZERO, so a native process status rc != 0 is an INVALID observation no
+    matter what its stdout shows — the PL/I return value (the
+    driver-return=... stderr diagnostic) is a DIFFERENT field and is never
+    the process status.  Returns {"ok": bool, "obs": list|None, "reason":
+    str}; the expected vector is never consulted here — a wrong-but-valid
+    observation is a VERDICT, not a validity failure (assess_case)."""
+    if not isinstance(result, dict):
+        return {"ok": False, "obs": None, "reason": "missing lane result (a run that never happened)"}
+    if not result.get("ok"):
+        return {"ok": False, "obs": None,
+                "reason": "lane blocked at stage %r" % (result.get("stopped"),)}
+    stages = result.get("stages")
+    if not isinstance(stages, list) or not stages:
+        return {"ok": False, "obs": None, "reason": "no stage evidence"}
+    if lane == "8080":
+        if "console" not in result:
+            return {"ok": False, "obs": None, "reason": "no isolated console region"}
+        for st in stages:
+            if not isinstance(st, dict) or st.get("status") != "pass":
+                return {"ok": False, "obs": None,
+                        "reason": "stage %r is not passing" % (st.get("stage") if isinstance(st, dict) else st,)}
+        raw = result["console"]
+    elif lane == "native":
+        if not any(isinstance(st, dict) and st.get("stage") == "exec" for st in stages):
+            return {"ok": False, "obs": None, "reason": "the native lane never reached exec"}
+        if "stdout" not in result or "rc" not in result:
+            return {"ok": False, "obs": None,
+                    "reason": "result is not a native-lane result (no stdout/rc)"}
+        if result["rc"] != 0:
+            return {"ok": False, "obs": None,
+                    "reason": "native process status rc=%r violates the rc == 0 status law" % (result["rc"],)}
+        raw = result["stdout"]
+    else:
+        return {"ok": False, "obs": None, "reason": "unknown lane %r" % (lane,)}
+    try:
+        obs = normalize_vector(raw)
+    except ValueError as e:
+        return {"ok": False, "obs": None, "reason": "unnormalizable observation: %s" % e}
+    return {"ok": True, "obs": obs, "reason": ""}
+
+
+def assess_case(cid: str, case: dict, expected, lane_8080, lane_native, stamp: str = "") -> dict:
+    """Validate BOTH executions of EACH lane (the H-A1 fix): a verdict comes
+    from verdict() ONLY when every lane produced exactly two complete, valid
+    observations and the two observations of a lane are the SAME normalized
+    vector; a missing/non-pairing second observation, a lane that never
+    reached exec, a native rc != 0 or a non-deterministic pair is an
+    INFRASTRUCTURE FAILURE — never a silent pass, never a behavioural
+    verdict.  All raw/normalized/determinism fields keep their §P2-DIFF-1.6
+    meanings; infrastructure_failure and semantic_divergence are ADDITIVE
+    (§P2-DIFF-2.1 rule 4)."""
+    lane_runs = {"8080": [], "native": []}
+    for it in (1, 2):
+        lane_runs["8080"].append(lane_8080(case, it, stamp))
+        lane_runs["native"].append(lane_native(case, it, stamp))
+    rec = {"case": cid, "fixture": case["fixture"], "entry": case["entry"],
+           "expected": list(expected), "lane": lane_runs, "notes": case.get("note", "")}
+    a80 = [assess_run("8080", r, expected) for r in lane_runs["8080"]]
+    an = [assess_run("native", r, expected) for r in lane_runs["native"]]
+    rec["assess_8080"] = a80
+    rec["assess_native"] = an
+    v80 = [a["obs"] for a in a80 if a["ok"]]
+    vn = [a["obs"] for a in an if a["ok"]]
+    rec["normalized_8080"] = v80
+    rec["normalized_native"] = vn
+    rec["raw_8080"] = [r["console"].decode("latin-1", "replace")
+                       for r, a in zip(lane_runs["8080"], a80) if a["ok"]]
+    rec["raw_native"] = [r["stdout"].decode("latin-1", "replace")
+                         for r, a in zip(lane_runs["native"], an) if a["ok"]]
+    if len(v80) == 2:
+        rec["determinism_8080"] = (v80[0] == v80[1],
+                                   lane_runs["8080"][0]["console"] == lane_runs["8080"][1]["console"])
+    if len(vn) == 2:
+        rec["determinism_native"] = (vn[0] == vn[1],
+                                     lane_runs["native"][0]["stdout"] == lane_runs["native"][1]["stdout"])
+    infra = []
+    for i, a in enumerate(a80):
+        if not a["ok"]:
+            infra.append("8080 run %d: %s" % (i + 1, a["reason"]))
+    for i, a in enumerate(an):
+        if not a["ok"]:
+            infra.append("native run %d: %s" % (i + 1, a["reason"]))
+    if len(v80) != 2:
+        infra.append("8080: only %d of 2 required observations completed" % len(v80))
+    if len(vn) != 2:
+        infra.append("native: only %d of 2 required observations completed" % len(vn))
+    if not infra and rec["determinism_8080"][0] is False:
+        infra.append("8080: the two fresh executions are NOT deterministic")
+    if not infra and rec["determinism_native"][0] is False:
+        infra.append("native: the two fresh executions are NOT deterministic")
+    if infra:
+        rec["infrastructure_failure"] = infra
+        rec["verdict"] = "BLOCKED"   # an infrastructure failure is NEVER a behavioural verdict
+    else:
+        rec["infrastructure_failure"] = []
+        rec["verdict"] = verdict(list(expected), v80[0], vn[0])
+    rec["semantic_divergence"] = (rec["verdict"] != "BOTH-PASS"
+                                  and not rec["infrastructure_failure"])
+    # The suite reads v.get("record", v); a NON-CIRCULAR self-copy keeps the
+    # report json-serializable (the committed P2-DIFF-1 lesson: never let the
+    # report carry a cycle or raw bytes the default= cannot render).
+    rec["record"] = {k: v for k, v in rec.items() if k != "record"}
+    return rec
+
+
+def run_cases(ids, cases, lane_fns=None, strict=False, stamp=None) -> dict:
+    """The runner entry point used by BOTH the CLI and the adversarial suite
+    (the lane_fns injection seam, §P2-DIFF-2.1): build the complete report
+    and return it; the exit decision is exit_code(report, strict)."""
+    return build_report(ids, cases, lane_fns=lane_fns, strict=strict, stamp=stamp)
+
+
+def exit_code(report: dict, strict: bool = False) -> int:
+    """The adjudicated exit-code law (§P2-DIFF-2.1, H-A3): DEFAULT mode keeps
+    the EXISTING meaning — 0 iff the run produced no `failures` entry (no
+    BLOCKED case, no vacuous control).  STRICT (gate) mode additionally exits
+    non-zero for ANY result outside the acceptance criterion: every compared
+    case BOTH-PASS, every control REJECTED, no infrastructure failure."""
+    if report["failures"]:
+        return 1
+    if strict:
+        if report["infrastructure_failure"]:
+            return 1
+        for rec in report["cases"].values():
+            if rec.get("verdict") != "BOTH-PASS":
+                return 1
+        for c in report["controls"]:
+            if c["accepted"]:
+                return 1
+    return 0
+
+
+def build_report(ids, cases, lane_fns=None, strict=False, stamp=None) -> dict:
+    """The machine-readable report (§P2-DIFF-2 schema 2).  The lane functions
+    are the INJECTION SEAM: the real run_8080_lane/run_native_lane are the
+    defaults; the adversarial suite injects doubles (NO subprocess ever runs
+    in the suite).  `strict` is recorded in the report; the exit decision is
+    exit_code(report, strict)."""
+    if lane_fns is None:
+        lane_fns = {"8080": run_8080_lane, "native": run_native_lane}
+    if stamp is None:
+        stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+    report = {"schema": "pli80-dual-backend/2", "preregistration": "41fca33e + §P2-DIFF-2.9",
+              "stamp": stamp, "strict": strict,
+              "head": subprocess.run(["git", "-C", ROOT, "rev-parse", "HEAD"],
+                                     capture_output=True, text=True).stdout.strip(),
+              "cases": {}, "controls": [], "failures": [],
+              "infrastructure_failure": [], "semantic_divergence": []}
+    for cid in ids:
+        case = cases[cid]
+        # strict source validation BEFORE anything executes (brief §4/§7); only
+        # for real cases with a committed fixture — the suite injects doubles.
+        if case["fixture"] != "injected/double.pli":
+            with open(os.path.join(ROOT, case["fixture"]), "rb") as f:
+                raw = f.read()
+            if hashlib.sha256(raw).hexdigest() != case["sha256"]:
+                report["failures"].append("%s: SOURCE sha256 mismatch BEFORE any execution" % cid)
+                report["cases"][cid] = {"verdict": "BLOCKED", "why": "source-hash-mismatch",
+                                        "infrastructure_failure": ["source-hash-mismatch"]}
+                report["infrastructure_failure"].append(cid)
+                continue
+        rec = assess_case(cid, case, case["expected"],
+                          lane_fns["8080"], lane_fns["native"], stamp=stamp)
+        report["cases"][cid] = rec
+        if rec["verdict"] == "BLOCKED":
+            why = rec.get("infrastructure_failure") or rec.get("why")
+            report["failures"].append("%s: BLOCKED (%s)" % (cid, why))
+            report["infrastructure_failure"].append(cid)
+        elif rec["verdict"] != "BOTH-PASS":
+            # a completed measurement that disagrees: RETAINED, reported,
+            # NOT a runner failure in the default mode (§P2-DIFF-2.1 rules 1/2)
+            report["semantic_divergence"].append(cid)
+    # comparator controls against the REAL observations (disposable expectations
+    # only; sources and executables untouched) — the §P2-DIFF-1.10 law is unchanged
+    observed = {}
+    for cid, rec in report["cases"].items():
+        if rec.get("normalized_8080") and rec.get("normalized_native"):
+            if rec["normalized_8080"] == rec["normalized_native"]:
+                observed[cid] = rec["normalized_8080"][0]
+            else:   # divergent lanes: the two lanes get their OWN control set
+                observed[cid] = rec["normalized_8080"][0]
+                observed[cid + "-native"] = rec["normalized_native"][0]
+    ctrls = comparator_controls(observed)
+    report["controls"] = ctrls
+    for c in ctrls:
+        if c["accepted"]:
+            report["failures"].append("CONTROL %s %s: the comparator ACCEPTED the corrupted "
+                                      "expectation %r against the real observation — the "
+                                      "comparator is VACUOUS" % (c["control"], c["case"],
+                                                                 c["corrupted"]))
+    return report
+
+
 # --------------------------------------------------------------------------- §P2-DIFF-1.10 comparator controls
 def comparator_controls(observed: dict) -> list[dict]:
     """Three DISPOSABLE corrupted expectations against the REAL, UNMODIFIED
@@ -321,98 +528,17 @@ def main() -> int:
     ap.add_argument("--case", action="append", choices=sorted(CASES),
                     help="run only this case (repeatable)")
     ap.add_argument("--json", action="store_true", help="emit the machine-readable summary")
+    ap.add_argument("--strict", action="store_true",
+                    help="GATE mode (§P2-DIFF-2.1): exit non-zero for ANY result outside "
+                         "every case BOTH-PASS, every control REJECTED, no infrastructure "
+                         "failure; the report itself is unchanged (everything is retained)")
     args = ap.parse_args()
     ids = args.case or sorted(CASES)
 
     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     os.makedirs(EVIDENCE, exist_ok=True)
-    report = {"schema": "pli80-dual-backend/1", "preregistration": "ddff0717",
-              "stamp": stamp, "head": subprocess.run(
-                  ["git", "-C", ROOT, "rev-parse", "HEAD"],
-                  capture_output=True, text=True).stdout.strip(),
-              "cases": {}, "controls": [], "failures": []}
-    checks = 0
-
-    for cid in ids:
-        case = CASES[cid]
-        # strict source validation BEFORE anything executes (brief §4/§7)
-        with open(os.path.join(ROOT, case["fixture"]), "rb") as f:
-            raw = f.read()
-        if hashlib.sha256(raw).hexdigest() != case["sha256"]:
-            report["failures"].append("%s: SOURCE sha256 mismatch BEFORE any execution" % cid)
-            report["cases"][cid] = {"verdict": "BLOCKED", "why": "source-hash-mismatch"}
-            continue
-
-        lane_runs = {"8080": [], "native": []}
-        for it in (1, 2):
-            lane_runs["8080"].append(run_8080_lane(case, it, stamp))
-            lane_runs["native"].append(run_native_lane(case, it, stamp))
-
-        rec = {"case": cid, "fixture": case["fixture"], "entry": case["entry"],
-               "expected": case["expected"], "lane": lane_runs, "notes": case["note"]}
-        # observations and determinism
-        v80, vn = [], []
-        for r in lane_runs["8080"]:
-            if not r.get("ok"):
-                rec["8080_blocked"] = r.get("stopped")
-                continue
-            try:
-                v80.append(normalize_vector(r["console"]))
-            except ValueError as e:
-                rec["8080_blocked"] = "unverifiable-region: %s" % e
-        for r in lane_runs["native"]:
-            if not r.get("ok"):
-                rec["native_blocked"] = r.get("stopped")
-                continue
-            try:
-                vn.append(normalize_vector(r["stdout"]))
-            except ValueError as e:
-                rec["native_blocked"] = "unverifiable-stdout: %s" % e
-        rec["normalized_8080"] = v80
-        rec["normalized_native"] = vn
-        rec["raw_8080"] = [r["console"].decode("latin-1", "replace")
-                           for r in lane_runs["8080"] if r.get("ok")]
-        rec["raw_native"] = [r["stdout"].decode("latin-1", "replace")
-                             for r in lane_runs["native"] if r.get("ok")]
-        if len(v80) == 2:
-            rec["determinism_8080"] = (v80[0] == v80[1],
-                                       lane_runs["8080"][0]["console"] == lane_runs["8080"][1]["console"])
-        if len(vn) == 2:
-            rec["determinism_native"] = (vn[0] == vn[1],
-                                         lane_runs["native"][0]["stdout"] == lane_runs["native"][1]["stdout"])
-        rec["verdict"] = verdict(case["expected"], v80[0] if v80 else None,
-                                 vn[0] if vn else None)
-        report["cases"][cid] = rec
-        checks += 1
-
-    # the comparator attacks — against the REAL observations (disposable
-    # expectations only; sources and executables untouched)
-    observed = {}
-    for cid, rec in report["cases"].items():
-        if rec.get("normalized_8080") and rec.get("normalized_native"):
-            if rec["normalized_8080"] == rec["normalized_native"]:
-                observed[cid] = rec["normalized_8080"][0]
-            else:   # divergent lanes: the two lanes get their OWN control set
-                observed[cid] = rec["normalized_8080"][0]
-                observed[cid + "-native"] = rec["normalized_native"][0]
-    ctrls = comparator_controls(observed)
-    report["controls"] = ctrls
-    for c in ctrls:
-        checks += 1
-        if c["accepted"]:
-            report["failures"].append("CONTROL %s %s: the comparator ACCEPTED the corrupted "
-                                      "expectation %r against the real observation — the "
-                                      "comparator is VACUOUS" % (c["control"], c["case"],
-                                                                 c["corrupted"]))
-
-    # verdict reporting (the campaign objective: agreement/disagreement, not a
-    # green count — verdicts are REPORTED, only BLOCKED cases and control
-    # failures are runner errors; a wrong answer is a result, not a crash)
-    for cid, rec in report["cases"].items():
-        if rec.get("verdict") == "BLOCKED":
-            report["failures"].append("%s: BLOCKED (%s)" % (
-                cid, rec.get("8080_blocked") or rec.get("native_blocked")
-                or rec.get("why")))
+    report = build_report(ids, CASES, strict=args.strict, stamp=stamp)
+    checks = len(report["cases"]) + len(report["controls"])
 
     # Lane evidence is held in memory as raw BYTES (the observation itself); the JSON report
     # renders them latin-1 (byte-for-byte, lossless in both directions).  The untouched raw
@@ -429,28 +555,30 @@ def main() -> int:
     if args.json:
         print(json.dumps(report, indent=1, default=_json_default))
     else:
-        print("E2E-54/P2-DIFF-1 dual-backend report  (pre-registration ddff0717, stamp %s)" % stamp)
+        print("E2E-54/P2-DIFF dual-backend report  (schema %s, stamp %s, mode %s)"
+              % (report["schema"], stamp, "STRICT" if args.strict else "default"))
         print("HEAD %s" % report["head"])
         for cid, rec in report["cases"].items():
             print("  %s: %s" % (cid, rec.get("verdict")))
-            if rec.get("verdict") in ("BLOCKED",):
-                print("      why: %s" % (rec.get("8080_blocked") or rec.get("native_blocked")
-                                         or rec.get("why")))
+            if rec.get("verdict") == "BLOCKED":
+                print("      why: %s" % (rec.get("infrastructure_failure") or rec.get("why")))
                 continue
             print("      expected: %r" % rec["expected"])
             print("      8080    : %r raw=%r" % (rec.get("normalized_8080"), rec.get("raw_8080")))
             print("      native  : %r raw=%r" % (rec.get("normalized_native"), rec.get("raw_native")))
             print("      determinism (normalized, raw): 8080=%s native=%s" % (
                 rec.get("determinism_8080"), rec.get("determinism_native")))
-        print("  comparator controls (%d, all must be REJECTED):" % len(ctrls))
-        for c in ctrls:
+        print("  semantic divergence (retained, NOT failures): %s" % (report["semantic_divergence"] or "none"))
+        print("  infrastructure failures (case ids): %s" % (report["infrastructure_failure"] or "none"))
+        print("  comparator controls (%d, all must be REJECTED):" % len(report["controls"]))
+        for c in report["controls"]:
             print("    %-12s %-10s corrupted=%-14r accepted=%s  -> %s" % (
                 c["control"], c["case"], c["corrupted"], c["accepted"],
                 "REJECTED (good)" if not c["accepted"] else "ACCEPTED (VACUOUS — FAIL)"))
         print("  measured checks: %d" % checks)
         print("  failures: %s" % (report["failures"] or "none"))
 
-    return 0 if not report["failures"] else 1
+    return exit_code(report, strict=args.strict)
 
 
 if __name__ == "__main__":

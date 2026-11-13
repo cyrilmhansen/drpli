@@ -6461,3 +6461,14 @@ hardened checks INCLUDING T4; (4) the four existing differential cases, the froz
 (§P2-DIFF-2.6), and Stage A is committed independently before Stage B. Standing constraints
 unchanged: ZERO oracle (`PLI.COM` never runs); no compiler/golden/claims/pin change; no push;
 `handoff.config.json` never staged; explicit paths; rc DIRECT.
+
+**D — found during Stage A(b) implementation: the T9a block of the suite carried the SAME
+fixture defect as A.** `f80_div` injected `lane80("1\n2\n")` — the EXPECTED vector — against
+`lane_native("9\n9\n")`, so under the §P2-DIFF-1.7 verdict law the configuration is
+`8080-ONLY`, never the `DIVERGENT` the check (and the pre-registered T9 row) asserts. This is
+a fixture defect, not a runner defect: the hardened runner measured it correctly (the first
+post-fix suite run reported `FAIL T9a … [8080-ONLY]`). The injection is corrected to a truly
+divergent fixture — BOTH lanes wrong AND different from each other (`[1,3]` vs `[9,9]`);
+the check label, the asserted verdict and the retention law are unchanged. The original
+injection and its error stay in the protocol history at `06a7fdbf`; no verdict classification
+was weakened.
