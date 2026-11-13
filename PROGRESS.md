@@ -48,7 +48,61 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-2 — **STAGE B CLOSED AND COMMITTED (db3fda9c sources+pins, 52c5bf68 runner); D06/D07 BOTH-PASS; THE CLOSE (RESULTS + dashboard) AND STAGE C REMAIN**)
+## Next action (E2E-54/P2-DIFF-2 — **CLOSE IN FLIGHT: the RESULTS §P2-DIFF-2 draft is WRITTEN UNCOMMITTED; the dashboard row, the arch §7-11 correction and STAGE C remain**) — CHECKPOINT 2026-11-13 late
+
+**HEAD `d341fa82` (Stage B durables) + ONE uncommitted tracked file: `spec/lab-evidence/e2e54/RESULTS.md`**
+(`git status --porcelain` = that file + the operator `handoff.config.json` (never staged) + pre-existing
+scratch; `dune build` rc 0). Session 01a1d725 (renewal 2/12 of chain 01a1d648 — the LAST renewal this
+chain may use; close with `handoff_finalize`). ZERO oracle; ledger 203/C380; no compiler byte.
+
+**DONE FIRST-HAND (accepted).**
+1. Recovery + `dune build` rc 0.
+2. **The predecessor's open finding was RE-MEASURED and FALSIFIED: the runner's `MIR2O-FUNC-COUNT`
+   check is NOT vacuous — it is a real, non-vacuous assertion.** `mir2o` writes
+   `mir2o: wrote 4488 bytes (3 function(s))` to **stderr** (stdout is 0 bytes — see the runner's own
+   `build/dual-backend/native/DIF01/20261113T224643Z-it1/mir2o.{stdout,stderr}`); the check reads
+   `o.stderr`. Proven THREE ways with disposable copies of the runner (D06 `nfuncs` 2 → rc 1 named
+   `MIR2O-FUNC-COUNT` block; 4 → rc 1; the path-only positive control 3 → rc 0 `BOTH-PASS`);
+   logs `build/e54p2diff2/fcctl-{mut2,mut4,pos}.log`; the copies were deleted (`git status
+   --porcelain tools/` EMPTY). **The copy MUST live in `tools/`** — `ROOT =
+   dirname(dirname(__file__))` + `import functional_runner`, so a `/tmp` copy dies with
+   `ModuleNotFoundError`. A positive control is mandatory.
+3. **`spec/lab-evidence/e2e54/RESULTS.md` `## §P2-DIFF-2` DRAFTED (UNCOMMITTED)** — subsections
+   .1 (Stage A: the H-A1/A2/A3 pre-fix measurements at `06a7fdbf`, the A/B/C/D amendments, the
+   hardening, the 29/29 acceptance), .2 (the six-case table, D06/D07 BOTH-PASS), .3 (the raw
+   evidence: D06 61 B / D07 81 B regions, `.COM`/`.REL`/`mir2o`/cosmo sizes+shas, the linked
+   segments, the tool identities), .4 (the source-defect-before-run record), .5 (the three subset
+   laws), .6 (**the non-vacuity table above**), .7 (**EXPLICITLY OPEN — no Stage-C result
+   claimed**), .8 (the frozen panel), .9 (reproduction), .10 (limitations), .11 (the commit chain,
+   marked DRAFT/not-yet-committed).
+
+**NEXT VERBATIM (the remaining close, then Stage C).**
+(1) **Finish the close**: (a) PLAN `### P2-DIFF-2.8` dashboard row → CLOSED + the §P2-DIFF-2.7
+    work-order Stage-B CLOSED note; (b) `docs/architecture/backend-boundary.md` **§7-11 correction
+    per §P2-DIFF-2.5** (the parser+bind are the shared semantic foundations; `pli80c` NEVER builds
+    `Hir.program`; the historical 8080 backend does NOT consume the HIR — the current §7-11 text
+    says the two lanes "share the parser, the binder and the HIR", which is FALSE) and a NEW §7-12
+    for P2-DIFF-2; (c) commit the close (explicit paths: RESULTS + PLAN + arch).
+(2) **STAGE C** (§P2-DIFF-2.4): the audit is DONE read-only and the seam is **separable** —
+    `window`/`in_window`/`show_iv`/`decimal_int` are pure and used ONLY in `mir_backend.ml`; the
+    `Add`/`Sub`/`Mul`/`Neg` endpoint algebra is pure; the `Some/Some` hull is pure.
+    **MEASURED constraint:** `join_env` CANNOT move as-is (two `Map.Make(Int)` instances are
+    DISTINCT types — verified with `ocamlopt`); extract only `iv_hull`, keep the `merge` in
+    `mir_backend`. PROPOSED: `ocaml/hir/mir_numeric.ml` (no `Hir` dependency), the `pli80_hir`
+    dune `(modules …)` list gains `mir_numeric`, an `ocaml/hir/mirnumtest.ml` executable (the
+    `semtest` precedent) driven by a NEW `tools/mir_numeric_test.py` (**do NOT add checks to
+    `hir_test.py` — the 220-ok count is a frozen panel constant**). Then the equivalence panel
+    (the whole frozen §P2-DIFF-2.6 panel must stay byte-identical; `pli80c.exe` sha
+    `172595d5…aca281`). If the extraction is NOT safely separable → STOP and report (no cosmetic
+    alternative).
+(3) Durables + `/handoff finalize`.
+
+Standing: ZERO oracle; no compiler/golden/claims/pin change; no push; `handoff.config.json` NEVER
+staged; explicit paths; rc DIRECT; LC_ALL=C; never batch build with tests; scratch `build/*` never
+committed; the disposable `tools/_fcctl_*.py` copies NEVER survive a command; NEVER hand-edit a
+managed block; timeouts 60/120/900.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-2 — **STAGE B CLOSED AND COMMITTED (db3fda9c, 52c5bf68); THE CLOSE AND STAGE C REMAIN**)
 
 **HEAD `52c5bf68`.** Session 01a1d70b (fresh successor of chain 01a1d648). ZERO oracle; ledger
 203/C380; no compiler byte; tree clean except the operator config + the managed blocks + scratch.

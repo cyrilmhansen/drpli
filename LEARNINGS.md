@@ -13620,3 +13620,88 @@ whose files have different mtimes; re-measure into a fresh one.**
   green; fixing it changes the evidence semantics of a passing suite) — recorded as a PROPOSED
   follow-up for the close: read the count from stdout (or the combined output), and keep the
   `nfuncs` field as a real assertion.
+
+## E2E-54/P2-DIFF-2 close hop (session 01a1d725, renewal 2/12 of chain 01a1d648; 2026-11-13; ZERO oracle; ledger 203/C380)
+
+Start HEAD `d341fa82` (Stage B durables). `dune build` rc 0; `git status` clean except the operator
+`handoff.config.json` (never staged) + pre-existing untracked scratch. **This hop's first act was a
+re-measurement of the previous hop's open finding, and it FALSIFIED it.**
+
+- **FALSIFIED (the previous hop's "VACUOUS" finding — my own predecessor's, recorded in the hop
+  above and in `d341fa82`): the `MIR2O-FUNC-COUNT` check is NOT vacuous; it is a REAL, NON-VACUOUS
+  assertion.** Direct measurement (`mir2o -f hir/dif-expected/DIF01.mir /tmp/m2o_check.o` with the
+  two streams split): **stdout EMPTY, stderr `mir2o: wrote 4488 bytes (3 function(s))`** — the
+  runner checks `o.stderr` and the check is therefore on the RIGHT stream. The same split is
+  already visible in the runner's own committed evidence:
+  `build/dual-backend/native/DIF01/20261113T224643Z-it1/mir2o.stdout` is **0 bytes** and
+  `mir2o.stderr` is the count line. The predecessor's "measured directly" was an **un-split
+  terminal display**: when both streams go to the same tty, the stderr line APPEARS in the stdout
+  region of the transcript, so the attribution was invented from the display, not from the streams.
+  **LAW (method, general): a stream claim is measured with the streams SPLIT (`1>f 2>g`), never
+  with a merged display; a merged terminal is not evidence about which stream produced a line.**
+- **NON-VACUITY PROVEN, three ways (the disposable-copy method; ZERO repo byte).** Copies of the
+  committed runner (the `tools/` dir is REQUIRED for the copy — `ROOT = dirname(dirname(__file__))`
+  and `import functional_runner`, so a `/tmp` copy fails with `ModuleNotFoundError`; the copy is
+  `tools/_fcctl_<name>.py`, deleted immediately after, and `git status --porcelain tools/` is
+  EMPTY afterwards):
+  | configuration | rc | measured |
+  |---|---|---|
+  | D06 `nfuncs` 3 → **2** | 1 | `D06: BLOCKED`, `infrastructure_failure: ['D06']`, `failures: ["native run 1: lane blocked at stage 'MIR2O-FUNC-COUNT'", "native run 2: …", 'native: only 0 of 2 required observations completed']` (`build/e54p2diff2/fcctl-mut2.log`) |
+  | D06 `nfuncs` 3 → **4** | 1 | same named block (`fcctl-mut4.log`) |
+  | D06 `nfuncs` **3** (path-only positive control) | **0** | `BOTH-PASS`, 5 checks (`fcctl-pos.log`) |
+  The positive control is mandatory: without it the two "wrong" runs could be an environment
+  failure rather than a caught assertion. Bonus: this is the first LIVE-path exercise of the Stage-A
+  `infrastructure_failure` law — both executions blocked, and the block is NAMED, not inferred.
+- **The correction is recorded, NOT silently repaired.** The previous hop's `PROPOSED follow-up`
+  ("read the count from stdout") would have BROKEN a working check; the hop's text and the
+  `d341fa82`/`52c5bf68` commit messages are history, and this section is the traceable correction
+  (PROTOCOL §2: the earlier finding stands as a falsified record with its evidence).
+
+**LANDED THIS HOP (uncommitted draft, the close in flight).**
+- `spec/lab-evidence/e2e54/RESULTS.md` **`## §P2-DIFF-2`** appended (the whole §P2-DIFF-2.1 … .11:
+  the Stage-A defect table with the `06a7fdbf` pre-fix measurements, the A/B/C/D amendments, the
+  hardening, the six-case verdict table, the raw-vs-normalized evidence, the tool/artifact
+  identities, the source-defect-before-run record, the three subset laws, the non-vacuity table,
+  the frozen panel, the reproduction, the limitations, the commit chain). **The §P2-DIFF-2.7
+  Stage-C section is explicitly OPEN — no result is claimed there** (see below).
+- Evidence re-verified first-hand this hop: the six-case run (report
+  `build/dual-backend/report-20261113T224643Z.json`, `strict: false`) — D06 raw 8080 region **61
+  bytes** `20·5 36333030 20·6 31353030 …` (the first field 9 wide, the rest 10, one `CR LF`) vs
+  native 28 bytes; D07 raw 8080 **81** bytes vs native 16; `.COM` 7936 B `c00b0220…` / 7040 B
+  `b8b32355…`; `.REL` 1152 B `28275298…` / 384 B `442e13bf…`; linked CODE/DATA/COMMON
+  `1BF0/0202/00E6` and `1870/01D5/00E6`; `mir2o` 4488 B (3) / 2360 B (2) `82d89e3a…` / `30531584…`;
+  cosmo tiny 240224 / 235968 B; native `driver-return` 120 / 9 (EXCLUDED); the native `.mir` of
+  both runs is byte-identical to the committed pins (`ca313ff3…`, `cdcb84fe…`) — the
+  `MIR-PIN-CONSISTENCY` check is live in every execution.
+- **`git log --oneline` discipline:** the campaign's own commit messages are the primary source for
+  the close's commit chain; the pre-registration `41fca33e` also carries the durables (it is not a
+  PLAN-only commit).
+
+**STAGE C AUDIT (read-only so far; PROPOSED, not decided).**
+- Every §P2-DIFF-2.4 candidate is **pure and used ONLY inside `mir_backend.ml`**: `window`
+  (:120, 32 mentions), `in_window` (:124, 5), `show_iv` (:126, 13), `decimal_int` (:131, 3), the
+  `Add`/`Sub`/`Mul` endpoint algebra (:647–:653 — the ONLY arithmetic on interval endpoints in
+  `lower`), the `Neg` flip (:668), the `Some/Some` hull arm of `join_env` (:684).
+- **PROPOSED module shape:** `window`, `in_window`, `show_iv`, `decimal_int`, `iv_add`, `iv_sub`,
+  `iv_mul`, `iv_neg`, `iv_hull` — with **NO `Hir` dependency at all** (the pre-registration allows
+  "Hir … or nothing at all"); the operator dispatch stays in `lower`, `prove`/`win` stay in
+  `mir_backend` (they own the emission context, the line attribution and the diagnostic text).
+- **MEASURED obstacle (a real constraint, not a blocker):** `Mir_numeric` cannot own a
+  `Map.Make`-style generative module shared with `mir_backend` — two independent
+  `Map.Make (Int)` instances are **DISTINCT types** (`ocamlopt` error: `int M1.M.t` is not
+  `int M2.M.t`; verified first-hand in /tmp). So the pre-registered `join_env` CANNOT move as-is;
+  only the `Some/Some` hull EXPRESSION moves (`iv_hull`) and the `merge` stays in `mir_backend`.
+  This is a documented deviation from §P2-DIFF-2.4's candidate list, not a failure of separability.
+- **Test wiring (PROPOSED):** a NEW `tools/mir_numeric_test.py` (the frozen `hir_test` 220 ok count
+  is a PANEL CONSTANT that must stay UNMOVED — adding checks to `hir_test.py` would break the
+  `cmp`-identical log law, so the new suite is a separate additive tool), driven by an
+  `ocaml/hir/mirnumtest.exe` executable following the `semtest` precedent (independent
+  hand-derived vectors + exhaustive small-range over-approximation and tightness laws +
+  `--corrupt-*` modes that must fail LOUDLY), and the dune `(modules …)` list of the `pli80_hir`
+  library must gain `mir_numeric` (a build change, authorized by the brief).
+
+**Standing:** ZERO oracle; ledger 203/C380; no compiler/golden/claims/pin byte; no push;
+`handoff.config.json` never staged; explicit paths; rc DIRECT; `LC_ALL=C`; never batch build with
+tests; the disposable `tools/_fcctl_*.py` copies NEVER survive a command; **this session cannot
+`handoff_renew` a third time (the chain cap is 12 and renewal 2/12 is used — use
+`handoff_finalize` to close).**

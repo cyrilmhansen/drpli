@@ -1916,3 +1916,251 @@ LEARNINGS + durables).
 **STOP — the campaign ends here.** No new functionality is authorized by this slice: extending
 the differential to more programs, to non-numeric output, to `GET`/FILE/`PUT EDIT`, or to any
 return-value comparison needs a NEW operator brief.
+
+---
+
+## §P2-DIFF-2 — Differential-runner hardening, two integrated PL/I programs, and the `Mir_numeric` audit — CLOSED 2026-11-13 (Stages A+B; sessions 01a1d53d→01a1d70b→this successor)
+
+Pre-registered as PLAN **§P2-DIFF-2** (PROTOCOL #1 gate: committed `41fca33e` **BEFORE any runner,
+test or fixture byte**). §P2-DIFF-1 above is **CLOSED and immutable**; this section never edits it.
+**Character: integration + harness-validity + maintainability — NOT compiler development and NOT a
+DR oracle campaign.** Zero compiler source, zero MIR/ABI, zero golden, zero pin and zero claims byte
+moved: `git diff --exit-code -- ocaml/` rc **0** and `git diff --exit-code -- hir/` rc **0** at the
+close; the historical compiler is the kept fingerprint `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`
+from a fresh build dir; `spec/CLAIMS.md` stays **203 headers ending C380** (nothing here observes
+DR, so nothing here is a claim).
+
+**ORACLE BOUNDARY (per brief §3, stated in every report):** the DR compiler oracle `PLI.COM` was
+**NEVER executed — ZERO oracle**. The 8080 lane runs the historical Digital Research `LINK-80` 1.31
++ `PLILIB.IRL` under `cpmsim` — the *linker and runtime*, not the *compiler*: the object code on
+that lane is produced by **my `pli80c`**. The agreement below is agreement between MY two backends.
+
+### P2-DIFF-2.1 Stage A — the three runner defects were REAL, and the fix is measured
+
+The defects were stated as hypotheses with falsifiers (§P2-DIFF-2.1 H-A1/H-A2/H-A3) and the
+adversarial suite `tools/test_dual_backend.py` was committed **before the fix and run against the
+unmodified runner** (`06a7fdbf`, brief §3/A4): measured **rc 1**, 11 checks, **4 FAILED + 3
+hardened-API symbol groups missing** — verbatim in `build/e54p2diff2/stageA-pretest.log`:
+
+| attack | target | pre-fix measurement (verbatim FAIL, `06a7fdbf`) |
+|---|---|---|
+| T1, T6a | H-A1 (verdict reads only the FIRST observation of each lane) | FAILED — a differing/missing second run was invisible |
+| T5 | H-A2 (native lane returns `ok:True` with an untested process `rc`) | FAILED — matching stdout with a non-zero `rc` was accepted |
+| T9a | H-A3 (docstring vs in-code comment vs implementation disagree about the exit code) | FAILED — no field separated infrastructure from semantics |
+| T2, T3, T7a–c, T8a–e | the comparator's own laws | already held (11 checks, 7 PASS at `06a7fdbf`) |
+
+**The STOP-and-attribute detour (the operator's ten-step chronology).** A fresh independent review
+found THREE methodological contradictions in the campaign's OWN pre-registered artifacts; all three
+were operator-approved and committed to the PLAN **before any runner or test byte** (`e789de65`,
+§P2-DIFF-2.9): **(A)** the T7c fixture injected the *expected* vector on the 8080 lane, so that
+configuration is `8080-ONLY` under the §P2-DIFF-1.7 verdict law and could never be
+`BOTH-FAIL-SAME` — the fixture was corrected, not the law; **(B)** DIF02's pre-registered
+`d = |i-5|` is mathematically incompatible with its own predicted vector (it yields a `0`, and the
+`scale` would print `1`) — the operator amended the definition to `i ≤ 4 → d = 5-i`, `i > 4 →
+d = i-4`, `scale = 2d+1`, which reproduces the **unchanged** `[9, 7, 5, 3, 3, 5, 7, 9]`; **(C)** the
+T4 attack was pre-registered but never implemented — it is now. A **fourth** finding of the same
+class (D, the T9a fixture) was MEASURED during the first hardened run: the hardened runner assessed
+it correctly as `8080-ONLY` rather than `DIVERGENT`, so again the fixture was amended and the law
+was not (§P2-DIFF-2.9-D). The original texts are quoted, never overwritten.
+
+**The hardening (`55e43285`, the Stage A commit, ONE tracked file).** `tools/dual_backend_test.py`
+gained `assess_run` (one lane: stage law + the **pre-registered native status law `rc == 0`** +
+complete normalization; a wrong-but-valid observation is a VERDICT, never a validity failure),
+`assess_case` (BOTH executions of EACH lane must be complete, valid and deterministic; a
+non-deterministic or incomplete pair is an `infrastructure_failure`, never a silent pass),
+`run_cases(… lane_fns=…)` (the injection seam the suite drives — the suite launches **no
+subprocess**), `build_report` and `exit_code(report, strict)`; the `--strict` **gate** mode was
+added; `infrastructure_failure` and `semantic_divergence` are ADDITIVE and no existing field was
+redefined (the default mode's exit code keeps its §P2-DIFF-1 meaning). The `record` self-reference
+must stay a NON-CIRCULAR copy or `json.dump` raises.
+
+**Acceptance (each own rc, `LC_ALL=C`).** Suite `tools/test_dual_backend.py` **29/29 rc 0**, run
+twice; the four historical cases **rc 0 in BOTH modes**, 4/4 `BOTH-PASS`, determinism
+`(True, True)` on every lane, 14/14 controls REJECTED, 18 checks, and the evidence **byte-identical
+to the baseline's** — the hardening changed no measurement, only what the runner is willing to
+accept.
+
+### P2-DIFF-2.2 Stage B — the two INTEGRATED programs, six-case verdict table
+
+Both sources are ORIGINAL (not enlarged copies of any fixture), written inside the MEASURED
+capability intersection (§P2-DIFF-2.2), SHA-verified and **committed (`db3fda9c`) before any
+differential execution** (the independence law §P2-DIFF-2.3). The runner's `CASES` table gained
+D06/D07 additively (`52c5bf68`), carrying the pre-registered vectors verbatim.
+
+| ID | source (sha-verified before any execution) | entry | nfuncs | independent expectation (hand-derived in §P2-DIFF-2.3, BEFORE the source existed) | 8080 lane | native lane | verdict |
+|---|---|---|---|---|---|---|---|
+| D06 | `hir/dif-fixtures/DIF01.pli` `011dc4e7…` (1249 B) | `tariff` | 3 | `[6300, 1500, 3000, 1800, 400, 120]` | ✓ ×2 | ✓ ×2 | **BOTH-PASS** |
+| D07 | `hir/dif-fixtures/DIF02.pli` `15ce8bcd…` (521 B) | `steps` | 2 | `[9, 7, 5, 3, 3, 5, 7, 9]` (amended definition, unchanged vector) | ✓ ×2 | ✓ ×2 | **BOTH-PASS** |
+
+**The full six-case run, both modes, one command each:** `python3 tools/dual_backend_test.py`
+**rc 0** and `… --strict` **rc 0** (logs `build/e54p2diff2/stageB-runner-{default,strict}.log`,
+reports `build/dual-backend/report-20261113T224643Z.json` / `-225000Z`) — **6/6 `BOTH-PASS`**,
+`determinism (normalized, raw)` = `(True, True)` on **all twelve lane executions** (6 cases × 2
+lanes × 2 runs), **22/22 comparator controls REJECTED**, **28 measured checks**, no
+`infrastructure_failure`, no `semantic_divergence`. H-B1..H-B5 all HOLD.
+
+### P2-DIFF-2.3 Raw evidence, kept SEPARATELY from the normalized vectors (the §P2-DIFF-1.5/.6 law)
+
+| ID | 8080 region (verbatim) | native stdout (verbatim) | 8080 region bytes | native bytes |
+|---|---|---|---|---|
+| D06 | `     6300      1500      3000      1800       400       120\r\n` | `6300\n1500\n3000\n1800\n400\n120\n` | 61 | 28 |
+| D07 | `        9         7         5         3         3         5         7         9\r\n` | `9\n7\n5\n3\n3\n5\n7\n9\n` | 81 | 16 |
+
+The raw forms legitimately differ (right-justified CP/M fields — the first 9 wide, the rest 10 —
+with one final `CR LF`, vs plain decimal lines) and raw cross-lane byte equality was NEVER required
+or claimed; the only cross-lane observable is the ordered signed-decimal vector. `driver-return`
+(native stderr: `120` for D06, `9` for D07) is lane-specific and EXCLUDED from the comparison —
+the agreement says nothing about return values.
+
+**Tool and artifact identities (measured, this run).** Compiler `pli80c.exe` `172595d5…aca281`
+(the kept fingerprint, unchanged); `mir2o` `5f2e7aa7…`; `cosmo_link.sh` `8de9eae6…`;
+`pli_console.c` `fc2dd85e…`; `console_check.c` `8c8efa13…`; `functional_runner.py` `115f159f…`;
+`oracle/linkrun.py` `198b83b6…`; runner `tools/dual_backend_test.py` at `52c5bf68`; suite
+`tools/test_dual_backend.py` at `2dd43db0`.
+
+| case | `.REL` | `.COM` (LINK-80 1.31 + PLILIB, `parse_undefined` EMPTY) | linked CODE/DATA/COMMON | `mir2o` object | cosmo `tiny` ELF |
+|---|---|---|---|---|---|
+| D06 | 1152 B `282752989d83f8e3…` | 7936 B `c00b022084fcdcb3…` | `1BF0/0202/00E6` | 4488 B `82d89e3aabd2d709…` (3 functions) | 240224 B |
+| D07 | 384 B `442e13bfe3098eb7…` | 7040 B `b8b323551bab4425…` | `1870/01D5/00E6` | 2360 B `30531584b1ffe33a…` (2 functions) | 235968 B |
+
+The native `.mir` of both runs is byte-identical to the committed pins `hir/dif-expected/DIF01.mir`
+`ca313ff3…` (3974 B) and `DIF02.mir` `cdcb84fe…` (1404 B) — the runner's `MIR-PIN-CONSISTENCY`
+check is a live assertion in every execution.
+
+### P2-DIFF-2.4 The source defect caught BEFORE the run (the independence law earning its keep)
+
+The first DIF01 draft computed the second bill as `u = 6 - 1` (u = 5), i.e. `a = 6000`,
+`b = 6300` — the vector `[6300, 6300, 3000, …]`, contradicting the pre-registered
+`report(2, 1) = 1*1200 + 300 = 1500`. Hand-tracing the source arithmetic against the pre-registered
+vector, **before any differential execution**, identified the SOURCE as the wrong party; the
+expectation was NOT re-derived from any output. The fix `u = 6 - 1` → `u = 2 - 1` is a single MIR
+line (`mov t15, 6` → `mov t15, 2`, verified by `diff` of the two measured outputs), and the
+pre-registered vector `[6300, 1500, 3000, 1800, 400, 120]` stands unchanged — the run then
+confirmed it. (Evidence: `build/e54p2diff2/stageB/` mixes pre-/post-fix evidence, `stageB2/` is the
+clean re-measurement of the committed sources.)
+
+### P2-DIFF-2.5 Three measured subset laws (they shaped the sources; §P2-DIFF-2.10)
+
+1. `pli80c` **refuses** a literal+literal `fixed bin` ADD (`1 + 0`, `600 + 300`): the proven
+   `n + 0` value-actual idiom works only when `n` is a variable; literal MINUS literal *does* fold
+   (the `u = 2 - 1`, `u = 11 - 1 - 8` steps). The DIF01 design was restructured around a variable
+   `u`/`c` — the expected vectors were untouched.
+2. The entry's `dcl`s are **not visible** to a subsidiary in the MIR backend: every subsidiary
+   assignment target needs its own `dcl`, else `HIR-E18: assignment to sym(k) which was never
+   declared in this body`.
+3. A by-reference actual of a `Call_s` **inside a loop body** must be re-initialized INSIDE the
+   body — the loop-exit drop law leaves the body environment without it.
+
+### P2-DIFF-2.6 Non-vacuity of the runner's own assertions (the close-hop measurement)
+
+Beyond the 22 comparator controls, the close hop attacked the runner's `MIR2O-FUNC-COUNT`
+assertion with disposable copies of the runner (the committed file untouched, removed after the
+control):
+
+| configuration | result |
+|---|---|
+| D06 `nfuncs` 3 → **2** (wrong) | **rc 1**, D06 `BLOCKED`, `infrastructure_failure: ['D06']`, `failures: ["native run 1: lane blocked at stage 'MIR2O-FUNC-COUNT'", "native run 2: …", 'native: only 0 of 2 required observations completed']` (`build/e54p2diff2/fcctl-mut2.log`) |
+| D06 `nfuncs` 3 → **4** (wrong) | **rc 1**, same named block (`fcctl-mut4.log`) |
+| D06 `nfuncs` **3** (path-only positive control) | **rc 0**, `BOTH-PASS`, 5 checks (`fcctl-pos.log`) |
+
+So the check is **NON-VACUOUS** and it is a real assertion, and the hardened `infrastructure_failure`
+law is exercised on the LIVE path (both executions blocked, not just the first). **This falsifies
+the previous hop's finding that the check was VACUOUS** (it claimed mir2o prints the count on
+stdout while the check reads stderr). Direct measurement: `mir2o -f` writes the line to **stderr**
+(`mir2o: wrote 4488 bytes (3 function(s))`), stdout is empty — visible in the runner's own retained
+evidence (`build/dual-backend/native/DIF01/20261113T224643Z-it1/mir2o.stdout` is 0 B,
+`mir2o.stderr` is the count line). The earlier claim was a misreading of an un-split terminal
+display; the correction is recorded in LEARNINGS with its evidence. No repo byte was involved.
+
+### P2-DIFF-2.7 Stage C — the `Mir_numeric` extraction: **NOT YET PERFORMED (this section is OPEN)**
+
+The §P2-DIFF-2.4 audit is IN PROGRESS and NO result is claimed here: the extraction, the STOP
+condition and the module's tests are all UNMEASURED, so this section stays EMPTY of findings and
+the dashboard row stays "open" until the audit is closed. The read-only audit so far (code reading
+only, ZERO repo byte): the four §P2-DIFF-2.4 candidates `window` (:120), `in_window` (:124),
+`show_iv` (:126) and `decimal_int` (:131) are top-level and PURE (no `Hir`/`Target`/emission
+reference), and every one of their 32/5/13/3 call sites is inside `mir_backend.ml` alone
+(`grep -n "\bwindow\b|\bin_window\b|\bshow_iv\b|\bdecimal_int\b" ocaml/hir/*.ml ocaml/bin/*.ml` —
+the only hits are the definitions and the mir_backend uses); the `Add`/`Sub`/`Mul`/`Neg` algebra is
+a pure function of the two operand intervals and is the ONLY place `lower` performs arithmetic on
+endpoints; the `Some/Some` hull arm of the local `join_env` is a pure `min`/`max` pair.
+**Measured obstacle (not a blocker):** `Mir_numeric` and `mir_backend` cannot BOTH own a
+`Map.Make`-style generative module — two `Map.Make (Int)` instances are DISTINCT types (verified
+first-hand with `ocamlopt`), so the pre-registered `join_env` CANNOT move as-is; only its
+`Some/Some` hull EXPRESSION can be extracted (`iv_hull`) and the `merge` stays in `mir_backend`.
+This is a PROPOSED design, not a decision.
+
+### P2-DIFF-2.8 Full frozen regression panel (each command its OWN measured rc; no repository byte moved)
+
+| command | rc | measured | evidence |
+|---|---|---|---|
+| `tools/e2e_gate.py` | 0 | **1328/1328** byte-exact, **190/190** negatives, **9/9** divergences, coverage **149 rows 0/0**, census **16/0/25/0**, prose **5** | `stageB-reg-gate.log` `cmp`-IDENTICAL to `base-gate.log` |
+| `tools/hir_test.py` | 0 | **220 ok** | `cmp`-IDENTICAL to `base-hir.log` (and to the m3b `e54p1m3b-hirtest-reg.log`) |
+| `tools/mir_aot_test.py` | 0 | **32** | `cmp`-IDENTICAL to the baseline |
+| `tools/mir_aot_cosmo_test.py` | 0 | **25** | `cmp`-IDENTICAL |
+| `tools/mir_aot_console_test.py` | 0 | **43** | `cmp`-IDENTICAL |
+| `tools/mir_aot_debug_test.py` | 0 | **23** (D-C1/C2/C3 LOUD) | `cmp`-IDENTICAL |
+| `tools/mir_aot_cf_test.py` | 0 | **83** (C-M2a/C-M2b/W3 LOUD) | `cmp`-IDENTICAL |
+| `tools/mir_aot_call_test.py` | 0 | **86** (C-M3a/b/c LOUD) | `cmp`-IDENTICAL |
+| `tools/test_dual_backend.py` | 0 | **29/29** (the NEW suite; 11 at `06a7fdbf`, 29 after T4 + the amended fixtures) | `stageB-suite.log` |
+| `tools/dual_backend_test.py` | 0 | **6/6 BOTH-PASS**, 22 controls, 28 checks (also rc 0 under `--strict`) | `stageB-runner-{default,strict}.log` |
+| `tools/test_functional_runner.py` | 0 | **211/211** | `stageB-functional.log` (sole diff vs the baseline: the ephemeral `/tmp` evidence dir name) |
+| `git diff --exit-code -- hir/` | 0 | ALL PINS UNMOVED | — |
+| `git diff --exit-code -- ocaml/` | 0 | ZERO compiler byte | — |
+| fresh `dune build --build-dir _build-e54p2diff2b` | 0 | ZERO `Error`, warning history **122** `File "` headers, `pli80c.exe` sha `172595d5…aca281` | `reg-build.log` |
+| `grep -cE '^## C' spec/CLAIMS.md` | 0 | **203** headers ending **C380** | — |
+
+MEASURED PRE-EXISTING and NOT fixed (recorded, never silently repaired):
+`tools/test_functional_dashboard.py` **rc 1**, sole verbatim FAIL `integration: unmapped COVERAGE
+rows are listed, not dropped` — the stale hardcoded `**26**` check, documented since E2E-52/P1 and
+unchanged by this campaign.
+
+### P2-DIFF-2.9 Reproduction
+
+```bash
+eval "$(opam env)" && cd ocaml && dune build          # rc 0; pli80c.exe 172595d5…aca281
+cd /home/john/projects/sushiworks/pli80               # REPO ROOT (cwd law)
+timeout 900 python3 tools/test_dual_backend.py        # rc 0; 29/29 hostile checks, NO subprocess
+timeout 900 python3 tools/dual_backend_test.py        # rc 0; 6/6 BOTH-PASS; 22 controls REJECTED; 28 checks
+timeout 900 python3 tools/dual_backend_test.py --strict
+timeout 900 python3 tools/dual_backend_test.py --case D06
+# the frozen panel (each its own rc): e2e_gate.py, hir_test.py, mir_aot_test.py,
+# mir_aot_cosmo_test.py, mir_aot_console_test.py, mir_aot_debug_test.py,
+# mir_aot_cf_test.py, mir_aot_call_test.py, test_functional_runner.py
+```
+
+### P2-DIFF-2.10 Limitations and deviations (the honest boundary)
+
+1. **Two programs, one observable class.** The differential is still the numeric console vector;
+   nothing here establishes equivalence on expressions outside the intersection, storage layout,
+   `PUT EDIT`, `FILE`, `GET`, character data, or any program that refuses on either side. The
+   programs are *integrated* (nested `IF`/`ELSE` rule selection, `+`/`-`/`*`, a void `Call_s` with
+   BOTH a by-reference home and a by-value copy, three value `Call_e` results, a counted `DO WHILE`
+   with callee-modified aliasing and per-iteration output), but they are two data points, not a
+   corpus.
+2. **The expectation was falsified by the SOURCE, not by the machine.** The DIF01 defect (§P2-DIFF-2.4)
+   was caught by hand-tracing; the run never had a chance to falsify it. The pre-registered vectors
+   are therefore the ones that were written before the sources existed, unchanged.
+3. **`nfuncs` is a genuine assertion, `driver-return` is not an observable.** The func-count check
+   is non-vacuous (§P2-DIFF-2.6); the return value is excluded from the comparison (§P2-DIFF-1.5 law).
+4. **The four methodological contradictions (A/B/C/D) were all in the campaign's OWN fixtures and
+   pre-registration**, not in the compiler or the runner. The original texts are preserved in
+   §P2-DIFF-2.9 and in the git history at `06a7fdbf`/`41fca33e`.
+5. **No Stage-A test failed to distinguish old from new behaviour** (STOP condition (i) never
+   fired): all of T1/T5/T6a/T9a failed at `06a7fdbf` and pass at `55e43285`.
+
+### P2-DIFF-2.11 Commits (explicit paths, hop order)
+
+pre-registration `41fca33e` (PLAN §P2-DIFF-2 + durables, BEFORE any runner/test/fixture byte) →
+Stage A(a) `06a7fdbf` (`tools/test_dual_backend.py`, run against the UNMODIFIED runner: rc 1, 4
+FAIL + 3 missing groups, demonstrated) → durables `181b0850` → **STOP-and-attribute
+`e789de65`** (PLAN §P2-DIFF-2.9 amendments A/B/C, PLAN only) → suite amendments `2dd43db0` (T7c
+corrected, T4 added) → **Stage A(b) `55e43285`** (the hardened runner + finding D + the full frozen
+panel; Stage A committed independently) → durables `40df4c82` + managed-block refresh `62de5663` →
+Stage B durables `82dde2ac` → **Stage B `db3fda9c`** (the two sources + the two `.mir` pins + PLAN
+§P2-DIFF-2.10, committed BEFORE any differential execution) → **`52c5bf68`** (the runner's D06/D07
+`CASES` entries; the six-case run) → durables `d341fa82` → **the close of Stages A+B (a draft, NOT yet committed)**: RESULTS
+`## §P2-DIFF-2` (this section). **STILL OWED:** the PLAN `### P2-DIFF-2.8` dashboard CLOSED row and
+the §P2-DIFF-2.7 Stage-B CLOSED note; the `docs/architecture/backend-boundary.md` §7-11 correction
+per §P2-DIFF-2.5; and **STAGE C** itself (the §P2-DIFF-2.4 audit/extraction, §P2-DIFF-2.7 above).
+This section is DRAFT until the close commit exists.
