@@ -5746,3 +5746,351 @@ ending C380; `handoff.config.json` never staged; no push.
 | slice | status | notes |
 |---|---|---|
 | P1-m3 | **CLOSED 2026-11-13** (hops 1–18 + close session; m3a `2be30a9c`, m3b `1394f074`, m3c `5d8d2a4a`, runner `eb1031a9` rc 0 **86 measured checks**) | native procedure calls GREEN end-to-end: HOME-PASS ABI (callee formals via `i64:(v<sid>)`, `A_reference` → caller entry-hoisted `alloca h<sid>,8` home with visible aliasing, `A_value` → per-slot `hv<k>` cells), callee-first post-order assembly with the entry LAST and ONE `export`, monotone post-call widening to `W(declared)`, `Call_e` only as whole-RHS/whole-`Return` with `W(ret-p)` and NO interprocedural narrowing; 13 positives EXECUTED byte-exactly on BOTH glibc and cosmo-tiny legs ×2 fresh, 8 negatives pinned by named refusal and LAYER; C-M3a/C-M3b/C-M3c all observed failing LOUDLY inside the committed runner; four operator amendments (A/B/C/D) each committed to the PLAN before the byte it authorized, two negative pairs retired with named provenance (the only artifacts that moved); FULL FROZEN regression ALL HIT (gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5, hir 220, mir_aot 32, cosmo 25, console 43, debug 23, CF 83, DWARF pins UNMOVED, fresh build hist 122 sha==`172595d5…`, ledger 203/C380, T2 clean); RESULTS §P1-m3 + arch §7-10; **STOP — no next phase authorized without the OPERATOR** |
+
+## §P2-DIFF-1 — Pre-registration: differential behavioral validation of the 8080 and native MIR backends (committed BEFORE any pilot fixture, manifest or runner byte)
+
+**Operator brief:** E2E-54/P2-DIFF-1, authorized 2026-11-13 (the brief text is NOT stored in the
+repository; the original §1–§10 are reproduced VERBATIM in `LEARNINGS.md` § "E2E-54/P2-DIFF-1
+pre-registration hop"; the 2026-11-13 OPERATOR REFINEMENT of the pilot — approved after the
+operator's independent inspection of the committed fixtures — is recorded in §P2-DIFF-1.2 below
+and is the binding pilot list). This section is the PROTOCOL #1 pre-registration: every
+expectation below is derived from the PL/I SOURCE TEXT by hand, BEFORE any pilot execution; NO
+expectation is read back from any compiler's generated code or runtime output.
+
+**This is an integration and behavioral-validation campaign, NOT a compiler-development campaign.**
+No compiler source, no MIR/ABI, no golden, no claims-ledger byte is modified. The original Digital
+Research `PLI.COM` compiler is NEVER executed (ZERO oracle; the ledger stays 203 headers ending
+C380). The historical LINK-80, PLILIB.IRL and the CP/M simulator ARE authorized and are the
+execution substrate of the historical lane; they are NOT the DR compiler oracle and every report
+must say so.
+
+### P2-DIFF-1.0 Scope, objective and the two lanes
+
+Objective: a reproducible and falsifiable demonstration of ACTUAL cross-backend behavioral
+agreement or disagreement on a precisely defined common observable — the complete ordered
+program-console output of one and the same PL/I source program, executed by two real toolchains:
+
+* **8080 lane (historical execution substrate):** `pli80c.exe -d <fixture> → .REL` → historical
+  `LINK-80` 1.31 + `PLILIB.IRL` → `.COM` → `cpmsim` under the documented CP/M prompt protocol.
+* **Native lane:** `pli80mir.exe --export <entry> <fixture> → .mir` (pinned bytes) →
+  `build/p1m0-deps/mir2o -f` → genuine `ET_REL` x86-64 object → pinned Cosmopolitan `tiny` static
+  link with `tools/mir_aot/pli_console.c` + `tools/mir_aot/console_check.c` → native ELF execution.
+
+Both lanes execute the SAME committed source bytes (SAME-SOURCE, §P2-DIFF-1.2). No new PL/I
+fixtures are authorized; the four sources below are reused byte-for-byte as committed.
+
+### P2-DIFF-1.1 Measured facts on which this pre-registration rests (all first-hand, prior hops)
+
+1. FROZEN baseline (baseline hop, 2026-11-13, each command its OWN rc): gate 1328/1328 — 190/190 —
+   9/9 — coverage 149 rows 0/0 — census 16/0/25/0 — prose 5; hir 220; mir_aot 32; cosmo 25;
+   console 43; debug 23; CF 83; call 86; ledger 203/C380; compiler sha
+   `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281`.
+2. 8080-COMPILE feasibility sweep (baseline hop): every pilot source compiles with `pli80c -d`
+   rc 0 — CF06 256 B (code 54/data 2), CALL04 256 B (97/16), CALL06B 384 B (94/12), CALL07 384 B
+   (117/16). **This is COMPILE-stage evidence only. LINK and RUN on CP/M are MEASURED ONLY for
+   CALL06B** (recon probe: `pli80c -d` → LINK 1.31, `parse_undefined` EMPTY on the FULL segment,
+   CODE 1834 / DATA 01CF / COMMON 00E6 → `CALL06B.COM` → cpmsim run, console region
+   `        2         7^M` before the `D>` prompt). **CF06, CALL04 and CALL07 have NO committed
+   LINK-80 or CP/M execution witness — their historical executability is a hypothesis of this
+   pilot, not a claim.**
+3. Native lane: all four sources carry committed `.mir` pins consumed by the GREEN runners
+   (`hir/mir-cf-expected/CF06.mir`, `hir/mir-call-expected/CALL04.mir`, `CALL06B.mir`,
+   `CALL07.mir`); the native console bytes were pre-registered in §P1-m2.5 and §P1-m3.6 (as
+   amended) and executed ×2 there: CF06 `0\n1\n2\n`, CALL04 `51\n`, CALL06B `2\n7\n`, CALL07
+   `1\n2\n3\n`.
+4. CP/M toolchain availability verified first-hand (pre-registration hop): `oracle/linkrun.py`
+   imports, `SIM` = `/home/john/pli/cpm/z80pack/cpmsim/cpmsim` EXISTS, all four DR tools
+   (`LINK.COM LIB.COM RMAC.COM PLILIB.IRL`) in `artefacts/`, both boot seeds present.
+5. 8080 console format law (README §6 + [C352]): FIXED numeric `PUT LIST` items print in a
+   10-position right-justified field; items of ONE statement are separated by one blank; separate
+   `put list(...)` statements do NOT line-terminate; the exit chain appends EXACTLY ONE final
+   newline. Native console: `pli_console_put_i64` prints plain decimal, `pli_console_put_nl` closes
+   every PUT statement (one item per line); the `driver-return=<v>` diagnostic goes to the
+   driver's **stderr** — stdout is the program's own output alone.
+6. Input-channel asymmetry (baseline hop): the two lanes' `get` channels differ (plain stdin vs
+   PLILIB `?SYSIN` with a one-`^Z` script). **Every pilot case is GET-free** — no input stream
+   exists on either lane, so no channel difference can enter the comparison.
+
+### P2-DIFF-1.2 Feasibility classification and the pilot history (including the operator refinement)
+
+The brief's three classifications: **SAME-SOURCE** (identical source bytes on both lanes),
+**SHARED-CORE** (two wrappers around an identical core, compared by construction),
+**NOT-COMPARABLE** (no demonstrated common observable). Never merged into one undifferentiated
+"parity PASS".
+
+The ORIGINAL proposal (5 cases, pre-refinement): D01 M02, D02 CF06, D03 CALL02, D04 CALL06B,
+D05 CALL07. The OPERATOR REFINEMENT (2026-11-13, APPROVED) changes two entries:
+
+* **D01 = M02 (`hir/mir-fixtures/M02.pli`) is EXCLUDED from the executable comparison** —
+  NOT-COMPARABLE: it performs no PL/I console output; it returns 45. The native driver's
+  `driver-return` observation is NOT directly comparable to the CP/M emulator's process status
+  (the CP/M exit convention is not a PL/I return value — see §P2-DIFF-1.3). It is recorded as a
+  feasibility case with NO demonstrated common observable, NOT as a failed compiler test.
+* **D03 = CALL02 is REPLACED by CALL04** — CALL02 (`call side(4 + x); put list(x);`) prints the
+  caller's own `x = 2`, assigned BEFORE the call; the callee `side` performs no output, so the
+  printed `2` is weak evidence that the callee ever executes (a no-op callee would print the same
+  vector). CALL04 has a transitive `chain → mid → leaf` call chain whose `51` is printed by the
+  DEEPEST procedure — it cannot appear unless both subsidiary calls execute — stronger behavioral
+  discrimination.
+
+The four EXECUTED pilots (all SAME-SOURCE, all existing committed fixtures, all reused
+byte-for-byte WITHOUT editing, all GET-free):
+
+| ID | Committed fixture | SHA-256 (measured 2026-11-13, this session) | Native entry (`--export`) | 8080 entry | Independent expected PL/I console vector |
+|---|---|---|---|---|---|
+| D02 | `hir/mir-cf-fixtures/CF06.pli` | `bb2ba55e8e27dca1fde994a564f790c0b3fd1b5a82c9483a578c04fe3440da2f` | `count` | LINK-80 main procedure | `[0, 1, 2]` |
+| D03 | `hir/mir-call-fixtures/CALL04.pli` | `72c418e4d21b80cf2e7a20eee41c6846a3f27532be3c6b8b971d13bb716e8906` | `chain` | LINK-80 main procedure | `[51]` |
+| D04 | `hir/mir-call-fixtures/CALL06B.pli` | `f0e915dd51f49c644448a291919658f1e055878f485c7654cbb50f61b8503cf8` | `diffal` | LINK-80 main procedure | `[2, 7]` |
+| D05 | `hir/mir-call-fixtures/CALL07.pli` | `0b2d3bdc2f9d54907fd7bb975b4fef2ade95b16f027a374652e83f5b2650977f` | `thrice` | LINK-80 main procedure | `[1, 2, 3]` |
+
+**SAME-SOURCE is a REQUIREMENT, not a label: the runner verifies the sha256 of the file it feeds
+to BOTH lanes against this table BEFORE any execution; any mismatch is a SOURCE-stage failure
+(BLOCKED), never a comparison.** The four sources are the SAME BYTES on both lanes — the only
+difference is the INVOCATION (native `--export <entry>` selects the entry symbol; the 8080 lane
+lets LINK-80 treat the outermost procedure as the COM program). This is a difference of invocation,
+not of source bytes.
+
+### P2-DIFF-1.3 Independence and limitation of the two entry mechanisms
+
+* **Native:** the MIR backend requires the entry to be a zero-argument
+  `PROCEDURE ... RETURNS(FIXED BIN(p,0))` whose body ends with `RETURN(expr)`; `--export` must
+  fold-match the head procedure name. The `console_check` driver calls `pli80_<entry>`, prints
+  the program's own PUT bytes to **stdout**, and reports the returned value to **stderr** as
+  `driver-return=<v>`.
+* **8080:** the historical LINK-80 (with PLILIB.IRL) selects the outermost procedure as the
+  program's MAIN entry; the program's exit chain (PLILIB `?STOPX`) returns CP/M's process
+  status — which is NOT the PL/I return value of the entry procedure.
+* **THE LIMITATION (binding):** the two entry mechanisms are independent — the native driver does
+  not go through CP/M, LINK-80 or PLILIB, and the 8080 lane never uses `--export`. They are
+  therefore legitimate for the COMMON observable (the program-console output), but the pilot
+  claims NOTHING about the return values: on the 8080 lane the entry's PL/I return value is
+  NEVER observed (no CP/M equivalent of `driver-return` exists and the process status is not a
+  PL/I value). `driver-return` is lane-specific native evidence and is EXCLUDED from the
+  differential comparison. **Agreement on the console vector does NOT prove unobserved return
+  values, call mechanisms, or full PL/I semantic equivalence** — the D01 exclusion exists
+  precisely because the only proposed common observable there was a return value.
+
+### P2-DIFF-1.4 Independently derived expected sequences (hand-derived from the source text HERE, BEFORE any pilot run)
+
+All four sources are `fixed bin(15)`; no `get` statement; the only console events are the
+numbered `put list` statements below, in statement order.
+
+**D02 — CF06, entry `count`.** `i = 0;` then `do while (i < 3)`: `put list(i)` (→ 0), `i = i + 1`;
+next guard `1 < 3` true: output 1, increment; next guard `2 < 3` true: output 2, increment; next
+guard `3 < 3` FALSE: loop ends. The function returns 3, but the return value is NOT part of the
+common observation. **Expected console sequence: 0, 1, 2.**
+
+**D03 — CALL04, entry `chain`.** `x = 51;` then `call mid(x + 0)`: the value 51 is passed to
+`mid`; `mid` sets `t = m + 0` = 51 and calls `leaf(t + 0)`; `leaf` executes `put list(d)` — **the
+only PUT in the program, printed by the DEEPEST procedure** — giving 51. The caller then sets
+`x = x + 40` = 91 and returns 91; the caller's subsequent change is NOT observed on the console
+(return value excluded, §P2-DIFF-1.3). **Expected console sequence: 51.**
+
+**D04 — CALL06B, entry `diffal`.** `x = 2;` then `call alias(x, x + 0)`: the first actual is a
+bare name → by-reference (the SAME variable cell); the second is an expression → the computed
+value 2. In `alias`: `a = 7` writes THROUGH the alias to the caller's `x`; `put list(b)` prints
+the value-parameter `b`, which still holds 2 — **output 2**. After the call, the caller executes
+`put list(x)` — `x` is now 7 — **output 7**. The return value (7) is not observed. **Expected
+console sequence: 2, 7.**
+
+**D05 — CALL07, entry `thrice`.** `z = pick3(1, 2, 3)`: `pick3` executes `put list(a)` → 1,
+`put list(b)` → 2, then `t = c` and `return (t)` = 3; the caller assigns `z = 3` and executes
+`put list(z)` → 3. **Expected console sequence: 1, 2, 3.**
+
+These expectations come from direct source-level reasoning ONLY — never from either compiler's
+generated code or runtime output.
+
+### P2-DIFF-1.5 The console observation boundary (per lane) — raw evidence kept SEPARATELY
+
+* **8080 lane:** the program-output region is the span established by the FS-01 anchor law
+  (already implemented in `tools/functional_runner.py::_run_lane_b`): from the program-name
+  echo `\r\r\n` to the first terminator (`D>` prompt / `I/O ran` / end of transcript),
+  WITHOUT consuming a preceding newline; a region whose terminator is NOT preceded by a newline
+  is an ambiguous cut → UNKNOWN/FAIL, never a guess. Boot banner, echoes, prompts and the
+  `I/O ran` line are OUTSIDE the region; ALL of them (the full raw transcript) are preserved
+  as separate evidence and never compared. The region itself is preserved as raw bytes
+  (`<case>.console.bin`) AND as the raw full transcript — the raw bytes are never overwritten by
+  the normalized form.
+* **Native lane:** the program-output region is the process **stdout** alone, captured in a
+  fresh process; stderr (`driver-return=<v>`) and the exit status are recorded as SEPARATE
+  lane-specific evidence and are NOT part of the common observation. Raw stdout bytes preserved
+  separately from the normalized vector.
+* **Both:** no other source of "output" exists. The observation is the COMPLETE ordered integer
+  sequence within the isolated program-output region — never numeric substrings extracted from
+  the whole emulator transcript (brief §5: arbitrary numeric substrings of the whole transcript
+  would match the boot banner, the LINK dimensions, or the `I/O ran` milliseconds).
+
+### P2-DIFF-1.6 The comparator / normalization law (strict; order, multiplicity, completeness preserved)
+
+The normalized observation is the **ordered signed-decimal integer vector**
+`[v1, v2, …]` of the region's integer tokens. Extraction is admitted only when ALL of:
+
+1. **Region proof:** the boundary is the §P2-DIFF-1.5 cut (8080) or the process stdout (native);
+   nothing outside the region is read.
+2. **Every integer recognized:** every token in the region parses as a signed decimal integer
+   (8080 fields are 10-position right-justified; the native form is plain decimal per line);
+   the token count is reported explicitly.
+3. **Nothing silently discarded:** after removing whitespace (space, CR, LF, TAB) the region
+   must be EMPTY — any other byte is a failure (or an explicit unclassified result), never a
+   silent accept.
+4. **Order and multiplicity preserved:** the vector is the token sequence in order; duplicates
+   and repeats are kept as-is. No sorting, no deduplication.
+5. **Completeness — a missing result is a FAILURE, not an empty success:** an empty region, or
+   a vector shorter than the expected sequence, is a comparison FAIL.
+
+Raw formatting differences are NEVER erased: the raw bytes (8080 console region; native stdout)
+are retained independently of the normalized vector and are reported in the evidence. The
+`collapse-spaces-v1` law of the historical gate is NOT used here; the comparator is the integer
+vector, and it is the ONLY thing compared across lanes. (The 8080 and native raw byte forms
+legitimately differ — 10-position fields vs plain lines — so raw byte equality across lanes is
+NOT required and NOT claimed; the raw bytes are preserved per lane for audit.)
+
+### P2-DIFF-1.7 The three-way comparison and the seven verdict classes
+
+Comparison law: **each lane is compared with the independent expectation FIRST, then the two
+lanes are compared with each other.** Verdicts (per case):
+
+| Class | Meaning |
+|---|---|
+| `BOTH-PASS` | 8080 observed == expectation AND native observed == expectation |
+| `8080-ONLY` | 8080 == expectation; native != expectation (both executed) |
+| `NATIVE-ONLY` | native == expectation; 8080 != expectation (both executed) |
+| `BOTH-FAIL-SAME` | both lanes executed, both produced the SAME observation that != expectation |
+| `DIVERGENT` | both lanes executed, both != expectation, and the two lanes differ from each other |
+| `BLOCKED` | a stage failed BEFORE any behavioral comparison could be made: compiler refusal, link undefined-symbol, crash/timeout, missing artifact, unverifiable boundary, source-hash mismatch |
+| `NOT-COMPARABLE` | the case has no demonstrated common observable (e.g. D01 M02: return value only) |
+
+Two never-count-as-success laws (binding): (a) a matching pair of INCORRECT outputs is
+`BOTH-FAIL-SAME`, never `BOTH-PASS` (equivalence of agreement is not equivalence of correctness);
+(b) a failed compiler, unresolved linker symbol, crash, timeout or absent artifact is NEVER
+reported as a successful runtime comparison — it is `BLOCKED` (infrastructure failure), kept
+strictly distinct from behavioral disagreement.
+
+### P2-DIFF-1.8 Fresh-process repetition, per-stage return codes, failure classification, raw evidence
+
+* Every successfully comparable case runs **at least TWICE per lane in fresh execution contexts**
+  (fresh process for the native lane; fresh isolated CP/M workspace for the 8080 lane). Determinism
+  is recorded for the NORMALIZED observation and the RAW program output SEPARATELY.
+* Every stage (COMPILE / LINK / RUN / NATIVE-MIR / NATIVE-MIR2O / NATIVE-LINK / NATIVE-EXEC) has
+  its OWN recorded return code and witness; the pty driver's own timeout is a distinct witness
+  from the guest's; the historical exit-code law of `oracle/run.py` (0 done / 1 timeout / 2
+  sim-died) is used to classify (NEVER collapsed).
+* Every failure is classified: `source` (hash mismatch), `compiler` (refusal of the committed
+  source), `linker` (undefined symbols), `emulator`/`host` (sim-died, launch failure, timeout),
+  `behavior` (an executed comparison that disagrees).
+* Every run keeps: the FULL raw transcript (8080) / raw stdout+stderr+rc (native), the isolated
+  program-output region, the normalized vector, and the per-stage evidence — all under an IGNORED
+  scratch root, never overwriting goldens or prior evidence.
+
+### P2-DIFF-1.9 The differential runner — `tools/dual_backend_test.py` (written only after ≥1 case has been executed comparably on both lanes)
+
+Reuse law: the runner REUSES the existing machinery — `tools/functional_runner.py`'s stage
+safety/workspace machinery and `oracle/linkrun.py` (`new_run`, `session`, `parse_undefined`,
+`TOOLS`, the FS-01 anchor cut) for the 8080 lane; `tools/mir_aot_call_test.py`'s pinned
+`mir2o`/cosmo-tiny recipes (with `pli_console.c` + `console_check.c`, `chmod +x` law) for the
+native lane. It does NOT create a new CP/M framework, does NOT re-implement LINK-80 handling,
+and does NOT duplicate the Cosmopolitan build recipe. Requirements: strict source-hash validation
+against the §P2-DIFF-1.2 table; executed stages only (never simulated); explicit timeouts
+(compile 60, link 120, run 120, native 60–120); isolated scratch artifacts; raw output and
+transcript retention; deterministic normalized observations; per-stage return-code evidence;
+selectable case execution (`--case D02` etc.); a human-readable report AND a machine-readable
+summary; the full seven-class verdict taxonomy; correct infrastructure-vs-behavior distinction.
+If a manifest is needed it is a SEPARATE file under `spec/` — never part of the historical
+golden or coverage registries.
+
+### P2-DIFF-1.10 Comparator falsification controls (non-vacuity)
+
+Using DISPOSABLE reference copies ONLY (the committed sources and executables are never touched):
+
+* **C-DF1 (change one expected integer):** corrupt one expected vector entry by hand; the
+  comparator MUST reject the (otherwise correct) observed vector against it.
+* **C-DF2 (delete one mandatory output item):** remove one required item from the expected
+  vector; the comparator MUST reject the complete observed vector against it.
+* **C-DF3 (permute two mandatory items whose values differ):** swap two items of DIFFERENT
+  values in the expected vector; the comparator MUST reject the ordered observed vector against
+  it.
+
+Each corruption is a comparator-SENSITIVITY test: the corrupted expectation must FAIL against the
+REAL, unmodified observation — the rejection must come from the comparator, not from a syntactically
+invalid input (a test that fails only because its corrupted input is syntactically invalid is NOT
+sufficient evidence of sensitivity).
+
+### P2-DIFF-1.11 Known risks (recorded BEFORE the run)
+
+* **Terminal framing:** the CP/M pty transcript carries echo/CR artifacts (`\r\r\n`); a stale
+  `D>` echo can satisfy a `##WAIT` and abort the program before it printed anything (prompt-sync
+  law: send CR, wait for the FRESH prompt, then invoke — already implemented in the functional
+  runner; reused verbatim).
+* **CP/M output formatting:** the 10-position field / no-line-terminator / single-final-newline
+  law ([C352], README §6) means raw bytes legitimately differ across lanes; the comparator must
+  NOT compare raw bytes across lanes.
+* **Linker undefined symbols:** LINK-80 writes a `.COM` even with UNRESOLVED symbols ([C137]);
+  the FULL transcript segment must be parsed with `parse_undefined`, never a truncated slice.
+* **Unproven historical LINK/RUN for three of the four cases:** only CALL06B has a committed
+  link+run witness. CF06/CALL04/CALL07 link/run are UNMEASURED; if a case fails at LINK or RUN
+  it is `BLOCKED` for that case and the campaign still reports the other three — a compile
+  success is NOT claimed to be executable.
+* **Unobserved PL/I return values:** not part of any verdict; never inferred.
+* **Emulator timing:** the sim runs with unlimited CPU speed; the run timeout is bounded
+  (120 s) and a timeout is a distinct witness class, never a "pass".
+
+### P2-DIFF-1.12 Predicted outcomes and falsifiers (per case; the observable sequence is predicted, NOT an exact byte layout)
+
+* **D02 (CF06):** predict BOTH-PASS — normalized vector `[0,1,2]` on BOTH lanes; 8080 raw output
+  one line (10-position fields, exact raw layout UNMEASURED); native stdout `0\n1\n2\n`.
+  Falsifier: any vector other than `[0,1,2]` on either lane — e.g. `[0,1,2,3]` (a fourth PUT
+  after the loop), `[1,2,3]` (off-by-one), `[0,1]` (missing iteration), a hang (loop never
+  terminates), an empty region, or a LINK/RUN failure (BLOCKED).
+* **D03 (CALL04):** predict BOTH-PASS — `[51]` on both lanes; native stdout `51\n`. Falsifier:
+  `[]` (the deepest `leaf` did not execute — callee failure), `[51,91]` or `[91]` (the caller's
+  later change leaked into the console — impossible under the source, so such a witness means
+  a boundary or codegen defect), `[51]` printed twice (duplication), or a LINK/RUN failure.
+* **D04 (CALL06B):** predict BOTH-PASS — `[2,7]` on both lanes; native stdout `2\n7\n`; the
+  8080 raw region is ALREADY MEASURED as `        2         7\r\n` (recon probe). Falsifier:
+  `[7,7]` (aliasing lost — the known signature of the C-M3b control), `[2,2]` (the by-ref store
+  lost), `[2]` (caller PUT missing), an order swap, or a LINK/RUN failure.
+* **D05 (CALL07):** predict BOTH-PASS — `[1,2,3]` on both lanes; native stdout `1\n2\n3\n`.
+  Falsifier: `[1,2]` (the returned value NOT used by the caller), `[1,2,3,3]` (an extra PUT),
+  a wrong third value (return-path corruption), or a LINK/RUN failure.
+
+A falsified prediction is STOP-and-attribute (PROTOCOL #1): recorded, NOT silently repaired.
+
+### P2-DIFF-1.13 Frozen regression panel (after the pilot + runner; each command its OWN measured rc — no count is hardcoded as a success criterion)
+
+`tools/e2e_gate.py` (expect 1328/1328 — 190/190 — 9/9 — coverage 149 rows 0/0 — census 16/0/25/0
+— prose 5); `tools/hir_test.py` (220); `tools/mir_aot_test.py` (32); `tools/mir_aot_cosmo_test.py`
+(25); `tools/mir_aot_console_test.py` (43); `tools/mir_aot_debug_test.py` (23); `tools/mir_aot_cf_test.py`
+(83); `tools/mir_aot_call_test.py` (86); all existing MIR/CF pins UNMOVED (byte-compare);
+`spec/CLAIMS.md` 203 headers ending C380; the historical compiler SHA-256
+`172595d5…aca281` from a fresh build dir. NO `--runtime` / `--link-run` extended gate modes in
+this campaign.
+
+### P2-DIFF-1.14 Work order, complexity stop, FORBIDDEN routes
+
+1. **This pre-registration commit** (ONE explicit path, `spec/lab-evidence/e2e54/PLAN.md`) —
+   BEFORE any fixture, manifest or runner byte.
+2. Pilot measured-first: each of the four cases, both lanes, fresh contexts, ≥2 executions per
+   lane per case; raw + normalized + per-stage evidence kept separately.
+3. After ≥1 case has actually been executed comparably on BOTH lanes, write
+   `tools/dual_backend_test.py` (this PLAN §P2-DIFF-1.9 is its written-to-PLAN-before-run spec);
+   run it; run the three comparator falsification controls INSIDE the runner.
+4. Full frozen regression panel (§P2-DIFF-1.13), each command its own rc.
+5. RESULTS `## §P2-DIFF-1` (complete, with the four-case verdict table, source and tool
+   identities, repetition and falsification evidence, limitations); a concise additive
+   `docs/architecture/backend-boundary.md` note IF justified; durables (HANDOFF/PROGRESS/
+   LEARNINGS) and the verified checkpoint; then STOP.
+
+**Complexity stop:** if any pilot case fails at COMPILE on the 8080 lane (contradicting the
+measured sweep), or the pilot cannot be executed on a lane with a BOUNDED harness fix, STOP and
+report — do not extend the campaign into new functionality.
+**FORBIDDEN routes (binding):** no compiler source change; no MIR/ABI/golden/pin/claims change;
+no new PL/I fixture; no execution of the original DR `PLI.COM`; no `git add -A`/`reset`/`clean`;
+never stage `handoff.config.json`; no push; no modification of the historical golden/coverage
+registries; no claim that console agreement proves return-value or call-mechanism equivalence;
+no extended gate modes.
+
+### P2-DIFF-1.15 Dashboard row (CLOSED/OPEN row added at close)
+
+| slice | status | notes |
+|---|---|---|
+| P2-DIFF-1 | OPEN (pre-registered 2026-11-13) | four SAME-SOURCE differential cases (D02 CF06 `count`, D03 CALL04 `chain`, D04 CALL06B `diffal`, D05 CALL07 `thrice`); ordered signed-decimal vector comparator; seven verdict classes; D01 M02 recorded NOT-COMPARABLE (feasibility only) |
