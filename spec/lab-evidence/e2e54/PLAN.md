@@ -6385,7 +6385,7 @@ renewal.
 
 | slice | status | notes |
 |---|---|---|
-| P2-DIFF-2 | (open at close) | — |
+| P2-DIFF-2 | **Stages A+B CLOSED 2026-11-13** (pre-registration `41fca33e` BEFORE any runner/test/fixture byte; Stage A(a) `06a7fdbf` — the suite RUN against the UNMODIFIED runner, measured rc **1**, 4 FAIL + 3 missing groups; STOP-and-attribute amendments `e789de65` (PLAN §P2-DIFF-2.9 A/B/C) then `2dd43db0` (T7c fixed, T4 implemented); Stage A(b) `55e43285` — the hardened runner, suite **29/29** rc 0, the four historical cases **rc 0** in BOTH modes, 14/14 controls REJECTED, Stage A committed independently; Stage B `db3fda9c` (the two sources + the two `.mir` pins + this §P2-DIFF-2.10, committed BEFORE any differential execution) then `52c5bf68` (the runner's D06/D07 entries)) | the three runner defects H-A1/H-A2/H-A3 were **REAL** and the fix is **measured**: the hardened runner validates BOTH executions of EACH lane, enforces the pre-registered native status law `rc == 0`, and separates `infrastructure_failure` from `semantic_divergence` (ADDITIVE fields, no existing field redefined). **Two integrated programs, six-case run rc 0 in BOTH modes: 6/6 `BOTH-PASS`, determinism `(True,True)` on all twelve lane executions, 22/22 controls REJECTED, 28 checks**; D06 `tariff` `[6300,1500,3000,1800,400,120]` and D07 `steps` `[9,7,5,3,3,5,7,9]` — the PRE-REGISTERED vectors, unchanged (the DIF01 source defect was caught by hand-tracing BEFORE the run, §P2-DIFF-2.4 of RESULTS). The full frozen panel §P2-DIFF-2.6 hit with every log `cmp`-IDENTICAL to the campaign baseline; compiler `172595d5…aca281`; ledger 203/C380; `git diff --exit-code -- ocaml/` and `-- hir/` both rc 0. **NOT a DR oracle comparison**: the linker/runtime are Digital Research's, the COMPILER is mine, `PLI.COM` never ran. **STAGE C** — the audit is read-only and the seam is separable; the extraction is **OPEN** and is committed separately (see §P2-DIFF-2.11) |
 
 ### P2-DIFF-2.9 Amendments A/B/C — STOP-and-attribute (operator-approved 2026-11-13, committed BEFORE any runner or test byte is amended; PROTOCOL #1)
 
@@ -6533,3 +6533,21 @@ pre-registered sequences exactly.
 **D06/D07 are the runner's two new CASES entries** (additive, `tools/dual_backend_test.py`); the
 `nfuncs` values above are the measured ones.  The verdict law, the controls and the exit-code
 policy are unchanged from §P2-DIFF-2.1.
+
+**Stage B CLOSED (2026-11-13, the close hop).** The two sources and their pins are committed
+(`db3fda9c`); the runner's D06/D07 entries are committed (`52c5bf68`); the full six-case run
+measured **rc 0 in BOTH the default and the `--strict` modes — 6/6 `BOTH-PASS`**, determinism
+`(True, True)` on all twelve lane executions, **22/22 controls REJECTED**, 28 measured checks, no
+`infrastructure_failure`, no `semantic_divergence` — H-B1..H-B5 all HOLD, no STOP condition fired.
+The complete evidence is `spec/lab-evidence/e2e54/RESULTS.md` §P2-DIFF-2.2/.3/.4; the frozen panel
+§P2-DIFF-2.6 is reproduced in §P2-DIFF-2.8 there. **STAGE C remains open** (§P2-DIFF-2.4, the
+`Mir_numeric` extraction) and is committed separately from the close.
+
+### P2-DIFF-2.11 Stage C — the `Mir_numeric` extraction (status row; the finding is in RESULTS §P2-DIFF-2.7)
+
+The pre-registered §P2-DIFF-2.4 audit is COMPLETE (read-only, zero repo byte at the audit stage)
+and the seam IS separable under the measured constraint recorded in RESULTS §P2-DIFF-2.7: the
+`Some/Some` hull of `join_env` moves as `iv_hull`, the `Map`-based `merge` stays in `mir_backend`.
+The extraction, its independent test tool and the equivalence panel are ONE separate commit set
+(§P2-DIFF-2.7-4); the STOP condition (§P2-DIFF-2.7-iii) binds if the equivalence panel moves any
+byte.

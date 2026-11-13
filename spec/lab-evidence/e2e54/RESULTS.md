@@ -2160,7 +2160,11 @@ panel; Stage A committed independently) → durables `40df4c82` + managed-block 
 Stage B durables `82dde2ac` → **Stage B `db3fda9c`** (the two sources + the two `.mir` pins + PLAN
 §P2-DIFF-2.10, committed BEFORE any differential execution) → **`52c5bf68`** (the runner's D06/D07
 `CASES` entries; the six-case run) → durables `d341fa82` → **the close of Stages A+B (a draft, NOT yet committed)**: RESULTS
-`## §P2-DIFF-2` (this section). **STILL OWED:** the PLAN `### P2-DIFF-2.8` dashboard CLOSED row and
-the §P2-DIFF-2.7 Stage-B CLOSED note; the `docs/architecture/backend-boundary.md` §7-11 correction
-per §P2-DIFF-2.5; and **STAGE C** itself (the §P2-DIFF-2.4 audit/extraction, §P2-DIFF-2.7 above).
-This section is DRAFT until the close commit exists.
+`## §P2-DIFF-2` (this section). **CLOSED — Stages A+B** by this commit: the PLAN `### P2-DIFF-2.8`
+dashboard CLOSED row + the §P2-DIFF-2.10 Stage-B CLOSED note + the §P2-DIFF-2.11 Stage-C status
+row, the `docs/architecture/backend-boundary.md` **§7-11 correction** (the lanes share the parser
+and the binder, NOT the HIR — `pli80c` never builds a `Hir.program`) and the new **§7-12**.
+**STILL OWED:** **STAGE C** itself — the §P2-DIFF-2.4 `Mir_numeric` extraction and its equivalence
+panel, one separate commit set (RESULTS §P2-DIFF-2.7 stays OPEN until then). This section is the
+record of Stages A+B; the Stage-C close hop appends the final commit hash and the §P2-DIFF-2.7
+finding.

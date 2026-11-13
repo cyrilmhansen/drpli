@@ -569,11 +569,24 @@ against the real observations.
 Two architectural facts this slice establishes, and both are worth keeping in mind for any later
 work on the boundary:
 
-1. **The boundary is only where the target ABI starts.** The two lanes share the parser, the
+1. **The boundary is only where the target ABI starts** — *AMENDED 2026-11-13 at the P2-DIFF-2
+   close (PLAN §P2-DIFF-2.5): the sentence below, as originally published, is FALSE and is kept
+   here only as the quoted original.* The two lanes share the parser, the
    binder and the HIR, and they differ in nothing that is observable through the *program's own*
    console output; the divergence is entirely in the 8080 instruction/`REL`-record/`?STOPX`
    chain versus the `mir2o`/`i64`/C-driver chain. The differential is therefore a real
    **end-to-end** check of the shared front end + HIR, not of the backends' internals.
+   **The corrected statement (verified against the code and §0 of this document):** the two
+   lanes share the **parser and the binder** — `Pli80.Parser.parse_source` and the
+   `Bind`-driven semantic layer — but they do **not** share the HIR. The 8080 production
+   pipeline is `bin/pli80c.ml` → `Parser.parse_source` → `Pli80.Codegen.rows_of` (which calls
+   `Bind.bind_program`/`Bind.bind_rows`) → `Codegen.emit_program` → `Rel80.encode`; `pli80c`
+   **never constructs a `Hir.program`** — `grep -rn "Hir_build|Hir\.program"` over
+   `ocaml/lib` + `ocaml/bin` is EMPTY. The native pipeline is `ocaml/hir/pli80mir.ml` →
+   `Parser.parse_source` → `Pli80_hir.Hir_build.build` → `Mir_backend` (the HIR is consumed by
+   the **native** MIR backend only). The agreement therefore exercises the shared
+   lexer/parser/bind layer and the two *different* lowering paths, and the divergence begins at
+   the lowering, not at the ABI.
 2. **The two entry mechanisms are independent and that sets the limit of the claim.** The native
    lane needs a `--export`-fold-matching zero-argument value-returning entry and a C driver that
    prints the result to **stderr**; the 8080 lane takes the outermost procedure as `MAIN` and its
@@ -587,3 +600,45 @@ This is NOT a DR oracle comparison: the historical LINK-80/PLILIB are the linker
 the object code on that lane is produced by the reproduction compiler, and `PLI.COM` was never
 executed. The evidence is integration evidence — `spec/lab-evidence/e2e54/RESULTS.md` §P2-DIFF-1;
 the ledger stays **203 headers ending C380**.
+
+## 7-12 E2E-54/P2-DIFF-2 — Hardened differential runner, integrated programs, and the `Mir_numeric` audit (Stages A+B CLOSED 2026-11-13; Stage C tracked separately)
+
+Two PL/I programs that are **integrated** rather than single-feature — nested `IF`/`ELSE` rule
+selection with `+`/`-`/`*`, a void `Call_s` carrying BOTH a by-reference home and a by-value copy,
+three `Call_e` results, a counted `DO WHILE` with callee-modified aliasing and per-iteration
+output — now run on BOTH backends from the SAME committed bytes (`hir/dif-fixtures/DIF01.pli`,
+`DIF02.pli`; pins `hir/dif-expected/*.mir`) and agree with hand-derived expectations written
+**before the sources existed**. The runner `tools/dual_backend_test.py` is the artifact of record:
+it validates BOTH executions of EACH lane, enforces the pre-registered native process-status law
+`rc == 0` (the PL/I return value is a different field and is EXCLUDED from the comparison), and
+classifies `infrastructure_failure` separately from `semantic_divergence` — the two things a
+verdict must never conflate. The adversarial suite `tools/test_dual_backend.py` (29 checks, no
+subprocess, lane functions injected) exists to prove the runner is not vacuous: the three
+pre-registered defects were demonstrated by running the suite against the UNMODIFIED runner first
+(rc 1, 4 FAIL + 3 missing API groups), and 22/22 comparator controls plus the `MIR2O-FUNC-COUNT`
+mutation controls (both executions blocked, the block NAMED) reject on the live path.
+
+Three things this slice adds to the boundary picture:
+
+1. **The shared layer is the parser + binder, not the HIR** — see the §7-11 amendment above. The
+   differential therefore validates the shared front end against the two *different* lowerings;
+   it says nothing about a shared IR, because there is none.
+2. **The numeric domain is the real capability boundary.** The measured intersection that binds
+   any program written for this lane pair is: literals ≤ 32767 typed `bin(15)`; a multiplication
+   needs at least one tight-interval operand (a `var*var` with both sides wide REFUSES);
+   `pli80c` refuses literal+literal `fixed bin` ADD while literal MINUS literal folds; a `Call_e`
+   result widens to `W(15)` and must be re-copied before multiplication; every body-written
+   variable is dropped at a loop exit (output must be INSIDE the loop); a bare-name or literal
+   actual is BY REFERENCE. These are the same ±(2^(p-1)-1) window laws the native backend
+   implements — the interval algebra that enforces them is the subject of the Stage-C extraction
+   (RESULTS §P2-DIFF-2.7).
+3. **The 8080 console field law is the only cross-lane observable.** The CP/M region is
+   right-justified (first field 9 wide, the rest 10, one `CR LF` at the end); the native lane
+   prints plain decimal lines. The comparator normalizes to an ordered signed-decimal vector and
+   keeps the raw bytes, the transcript and the extracted region separately — cross-lane raw byte
+   equality is never required or claimed.
+
+Zero oracle throughout: `PLI.COM` never ran; the 8080 lane's COMPILER is this reproduction, the
+LINK-80/PLILIB are Digital Research's linker and runtime. No compiler, golden, pin or claims byte
+moved — the historical compiler stays `172595d5…aca281` and the ledger stays **203 headers ending
+C380**. Panel: RESULTS §P2-DIFF-2.
