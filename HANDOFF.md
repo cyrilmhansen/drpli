@@ -7,7 +7,25 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-20-e54p2diff4-stageC-inflight (2026-11-14, session 01a1d9ca renewal 3/12 of chain 01a1d97c;
+21-e54p2diff4-stageC-closed (2026-11-14, session 01a1d9db renewal 4/12 of chain 01a1d97c;
+ZERO oracle; ledger 203/C380; start HEAD 3bdeca1f, now 001822bb + the durables): **STAGE C IS
+CLOSED AND COMMITTED.** The driver's real-fixture measurement is WIRED — `mirsumtest` rc 0
+**MIR-SUM OK 116 checks** (55+42+19): the owed numbers are now MEASURED on the real
+Hir_build-built fixtures — DIF05 actuals [3,3]/[12,12]/[30,30], specialized [3,20]/[12,20]/
+[20,30]; DIF06 ONE site (line 7), FOUR trips, hull [1,4], specialized [1,12]; both real
+min-callees' context-independent summaries the FULL [-16383,16383]; the actual ⊆ specialized ⊆
+declared cross-checks pass; the concrete walk gives the campaign vectors (bill 1500/6000/10000,
+entry 10000; v 700/…/2800, entry 5). The three corrupt-spec modes each rc 1, ZERO stdout,
+29/29/14 pinned lines (the old three tables byte-identical); the tool is **14 checks rc 0**
+(LIVE_OK 55→116, the three NEW spec tables hand-derived, verified byte-exact). FALSIFIED the
+predecessor's helper drafts: run_callee's If arm must CONTINUE with the rest (the real
+Return is top-level AFTER the If); exec must thread the env and treat Put as a no-op.
+NEXT: the frozen panel §P2-DIFF-4.8 (each own rc, logs build/e54p2diff4/, cmp vs the base-*
+logs; mir_return_summary now 14, all others unchanged); then Stage D (measured-first pins,
+D10/D11, EXPORTS 43→45 disclosed) and the close. Recovery: PROGRESS live heading →
+LEARNINGS § "Stage-C real-fixture hop" → PLAN §P2-DIFF-4.8.
+
+SUPERSEDED-BY-ABOVE: 20-e54p2diff4-stageC-inflight (2026-11-14, session 01a1d9ca renewal 3/12 of chain 01a1d97c;
 ZERO oracle; ledger 203/C380; start HEAD ff50cdbe, now 32efdff6): STAGE C IS OPEN IN THE DRIVER.
 THE CALL-SITE FAMILY IS COMMITTED AND MEASURED: build rc 0, mirsumtest rc 0 MIR-SUM OK 97 checks
 (55+42; the new names/values are the PROGRESS live heading). The old corrupt modes are untouched
@@ -2555,22 +2573,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 844
-checkpoint-id: g844-846deb7a29f3
-checkpoint-kind: auto
+checkpoint-generation: 848
+checkpoint-id: g848-772043e7b602
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~2956, session 01a1d9ca-f090-700a-9d27-3c0509f5e83f)
-checkpointed: 2026-11-14T11:38:37.655Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~2641, session 01a1d9db-421d-700a-9d27-3c092f506746)
+checkpointed: 2026-11-14T11:58:04.500Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a222d0ca13c506001b4fb59ee08dfcd2d3b55c854f57bf8ec307796202464274
-source-handoff: 59993715ad101144f7ce5ec272e3233bac7e36f33fbfe26f2dd536eb2bb08f6c
-source-learnings: 77510023318f041719204801f95b899731fedf3cc013ad466ebda517647b6d10
+source-progress: 2e1567e3190ecb84fc648b340bc0bf2fcda185747640d76a11d3c34d8922f76f
+source-handoff: 97ce4d4fa06e4c20c2e026be9d010eda38801844c9151ba50797ecd77bb1b1cd
+source-learnings: 7c7f2a7109f9178e0e163e1795fba543b39b53c704d360a2ecc0aaef705fba64
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d9db-421d-700a-9d27-3c092f506746
+readiness-at: 2026-11-14T11:58:04.666Z
+readiness-checkpoint: g848-772043e7b602
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -3900,7 +3921,7 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-4 STAGE B IS CLOSED AND COMMITTED (2d78f47b) + durables ea7701d3. The lower_call_e integration landed (arg_cells/arg_ivals — the first draft's op_ names were FALSIFIED by the frozen F8 pattern \bop_[a-zA-Z_]+). The WHOLE frozen panel is green with every log cmp-IDENTICAL to build/e54p2diff4/base-*.log; DIF05/DIF06 native refusals are GONE (rc 0, ZERO stderr, .mir produced); DIF03/DIF04 pins byte-identical; mirsumtest 55 rc 0. DISCLOSED OVERSTATEMENT (mine, in 2d78f47b): the specialized intervals [3,20]/[12,20]/[20,30]/[1,12] were quoted as measured but are the PRE-REGISTERED EXPECTATION — rc 0 proves only W(15) containment; the Stage-C driver OWES those exact endpoints on the real fixtures through Hir_build against the independent concrete reference. NEXT: Stage C (§P2-DIFF-4.7) — extend ocaml/hir/mirsumtest.ml IN PLACE with the call-site positives + hostiles, then the DISCLOSED tool changes to tools/mir_return_summary_test.py (LIVE_OK 55->new, the --corrupt-* tables, NEW corrupt names only), mirsumtest from the REPO ROOT, each own rc. Then Stage D (measured-first pins, D10/D11, both lanes, both modes) and the close. ZERO oracle; ledger 203/C380; config never staged; no push; explicit paths; rc DIRECT; never batch build+tests; no new ocaml/hir/*.ml file (F8 count 15); after any scripted durable write grep -c $'\x08' must be 0.
+E2E-54/P2-DIFF-4 STAGE C CLOSED AND COMMITTED (001822bb): mirsumtest 116 checks rc 0 (all owed numbers measured: DIF05 [3,3]/[12,12]/[30,30] and [3,20]/[12,20]/[20,30]; DIF06 4 trips, [1,4] and [1,12]; both ctx full-window); tool 14 checks rc 0 (LIVE_OK 116, three new spec tables). NEXT: the frozen panel §P2-DIFF-4.8 (each own rc, logs build/e54p2diff4/, cmp vs base-*; mir_return_summary now 14, all others unchanged), then Stage D (measured-first pins, D10/D11, EXPORTS 43→45 disclosed) and the close. Zero oracle; ledger 203/C380; config never staged; no push; explicit paths; rc DIRECT; never batch; no new ocaml/hir/*.ml; mirsumtest from REPO ROOT.
 <!-- guard:end checkpoint -->
 19-e54p2diff4-stageB-closed (2026-11-14, session 01a1d9b2 renewal 2/12 of chain 01a1d97c;
 ZERO oracle; ledger 203/C380; start HEAD `2b1c84f6`, now `2d78f47b` + this checkpoint): **STAGE B

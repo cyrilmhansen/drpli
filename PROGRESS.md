@@ -48,59 +48,54 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-4 — **STAGE C IN FLIGHT: THE DRIVER'S SYNTHETIC/Hostile/PIVOT FAMILIES ARE COMMITTED AND MEASURED (97 CHECKS, RC 0); THE REAL-FIXTURE MEASUREMENT AND THE TOOL UPDATE REMAIN**) — session 01a1d9ca renewal 3/12 of chain 01a1d97c, 2026-11-14
+## Next action (E2E-54/P2-DIFF-4 — **STAGE C CLOSED AND COMMITTED (001822bb); THE FROZEN PANEL §P2-DIFF-4.8 IS THE NEXT ACT**) — session 01a1d9db renewal 4/12 of chain 01a1d97c, 2026-11-14
 
-**MEASURED THIS HOP (accepted, own rc):** `ocaml/hir/mirsumtest.ml` extended IN PLACE with the
-call-site family: `f_actuals` (the §P2-DIFF-4.7 synthetics + hostiles + the H3 pivots), the NEW
-`corrupt_spec` modes `--corrupt-spec-widen/-narrow/-unknown` (the old three modes are keyed to
-the OLD path only; the new family is untouched by the old modes and vice versa — the old
-corrupt-table stderr stays byte-identical), the three new `mode` constructors, the dispatch, the
-new usage line, and the `f_actuals` call in `live()`. The helpers are HIR-ONLY (no module call):
-`wiv`/`wlim` (the driver's own re-derivation of `W(p) = ±(2^(p-1)-1)`), `eval_pt`,
-`run_callee` (the If arm runs the chosen arm and the arm carries the final `Return` — the
-arm's value is the callee value), `exec` (the caller walk records the call site's ACTUAL
-point intervals), `find_calls` (the `cs` record: the `cs_line`/`cs_callee` fields are NOT yet
-read — the real-fixture check is the ONE remaining Stage-C work). `dune build` rc 0 (the
-Warning 69 unused-fields are the proof the real check is not yet wired); `mirsumtest` rc 0 —
-**`MIR-SUM OK 97 checks`** (55 + 42 new: 26 synthetics + 3 ctx + 13 hostiles + 3 + 2… the
-count is the live 97, NOT a hand-number).
+**MEASURED THIS HOP (accepted, every command its own rc, direct):** the driver's real-fixture
+measurement is WIRED and GREEN: `dune build` rc 0; `mirsumtest` rc 0 — **MIR-SUM OK 116 checks**
+(55 old + 42 synthetic + 19 real-fixture). THE NUMBERS `2d78f47b` OWED, now MEASURED on the real
+Hir_build-built fixtures: DIF05 actuals **[3,3]/[12,12]/[30,30]** (3 sites, lines 6/10/14),
+specialized **[3,20]/[12,20]/[20,30]** (the hull of BOTH arms — the analysis never decides the
+condition); the concrete walk gives cat = 3,12,20 and the campaign vector bill =
+**1500,6000,10000** (last cells 20/10000, entry return 10000). DIF06: structurally **ONE** site
+(line 7), the walk records **FOUR trips** i=1..4, hull **[1,4]**, specialized **Known [1,12]**,
+concrete cl=4, v=**2800**, entry return 5. BOTH real callees' context-independent summaries are
+the **FULL [-16383,16383]**. Cross-checks actual ⊆ specialized ⊆ declared pass
+(`spec-real-dif05-subset`/-dif06-subset); the corrupt modes: spec-widen/-narrow each rc 1 with
+**29** pinned lines (25 synthetic + the 4 new real lines APPENDED), spec-unknown rc 1 with **14**;
+the old three modes' stderr byte-identical. **TOOL:** `tools/mir_return_summary_test.py` LIVE_OK
+55→116 (disclosed), the three NEW `--corrupt-spec-*` tables hand-derived and verified
+byte-exact against the live run; **the tool is rc 0 with 14 checks** (was 11). The hir count
+stays 15 (no new file); live() re-ordered (the call-site family LAST) so the old tables'
+failure lines stay byte-identical.
 
-**THE NEW CHECKS (names, all hand-derived literals):** `spec-identity-point/-range`,
-`spec-min-cap-point/-above-cap/-across-cap/-nonpoint`, `spec-distinct-1/2/3` (the point
-`[3,20]/[12,20]/[20,30]` the commit owed), `spec-full-window-identity/-min` (the no-change
-law; the min full-window is the FULL `[-16383,16383]`, the plan §4.4 note's context-independent
-`[1,20]` is CONFIRMED-FALSE), `spec-loop-iv` `[1,4]→[1,12]`, `spec-two-formals-1/2/-ranges`
-(the order law), `spec-boundary-*`, `spec-formal-written` (the overwrite-not-merge),
-`spec-esc-point`/`-esc-point-163`/`-esc2-point` (the H3(i) asymmetry), `spec-ctx-esc/-esc2/-min`
-(the context-independent entry), hostiles `spec-outside-window/-window-16/-empty-interval/
--missing-actual/-extra-actual/-arity-mismatch/-permuted-order/-unknown-formal/
--nonformal-storage/-unsupported-body/-effect-body/-entry-pid/-missing-pid/-void-proc`.
+**FALSIFIED (this hop, the predecessor's helper drafts):** (1) `run_callee`'s If arm "carries the
+final Return" — FALSE on the real fixtures: the callee's `Return` is a TOP-LEVEL statement AFTER
+the If; the arm now runs and the walk CONTINUES with the rest. (2) `exec` did not thread the
+environment through loops (increments lost, nontermination) and fell to `None` on `Put` — fixed:
+env threaded, `Put` a no-op, `(v, env, acc)` returned. (3) my own harness error: `2>&1 | tee`
+reports tee's rc, never the driver's (the rc-DIRECT law again).
 
-**REMAINING STAGE-C WORK (exact):** (1) the REAL-FIXTURE measurement — the numbers the
-`2d78f47b` commit OWES: parse `hir/dif-fixtures/DIF05.pli` and `DIF06.pli` through the
-`Hir_build` path (the `f_real` builder), `exec` the entry with `find_calls`/the driver's
-recorded actuals, and verify the recorded actuals equal the hand-derived `[3,3]/[12,12]/[30,30]`
-(DIF05 `billing`) and `[1,4]` (DIF06 `batch`, the loop trip count must also be checked `=4`),
-then the `summary_of_actuals` calls on the REAL callee pids and the `params` list read from the
-program's `Hir.proc` — the expected `Known` summaries are the hand-derived `[3,20]`, `[12,20]`,
-`[20,30]`, `[1,12]`; the cross-check: `in_window` (the actual's point) and the summary
-(subset of the full window) and the context-independent `summary_of` for the two real
-callees is the FULL `[-16383,16383]` (the `Known` of the min over the full window) — the
-`[3,20]`/`[12,20]`/`[20,30]`/`[1,12]` are the specialized ones. (2) the tool
-`tools/mir_return_summary_test.py`: `LIVE_OK` 55→97 (the live count is now 97), and the THREE
-NEW `--corrupt-spec-*` tables: the pinned `MIRSUM-FAIL` lines are the same format as the old
-`--corrupt-*` tables; derive them by hand from the 42 new names (the old ones are
-`Known`/`Unknown` pairs), and RUN the three modes to confirm they fail loudly; the old three
-tables are byte-identical (verified — the new family never calls the old `corrupt_apply`).
-(3) THEN the frozen panel §P2-DIFF-4.8 (each own rc, logs `build/e54p2diff4/`, every log
-`cmp`-identical to the `base-*` baseline), then Stage D.
+**COSMETIC DEFECT DISCLOSED (commit 001822bb message):** a self-correcting artifact in the
+message ("[3,3]/[12,12]/[12,30]... no: exactly [3,3]/[12,12]/[30,30]") — the CHECKS and this
+heading are authoritative: the measured DIF05 actuals are [3,3]/[12,12]/[30,30].
 
-**STANDING (all binding, unchanged):** ZERO oracle; `handoff.config.json` NEVER staged; no
-push; explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
-`mirsumtest` from the REPO ROOT; NO new `ocaml/hir/*.ml` file (the F8 count stays 15); the
-driver stays F8-clean (the `\bop_[a-zA-Z_]+` pattern is why the Stage-B names became
-`arg_cells`/`arg_ivals`; new names are safe); after any scripted durable write `grep -c $'\x08'`
-MUST be 0; NEVER hand-edit a managed block.
+**NEXT (the only act before Stage D): the FROZEN PANEL §P2-DIFF-4.8** — each command its OWN rc,
+logs `build/e54p2diff4/`, every log `cmp`-identical to the `base-*` baseline: gate
+1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5; hir 220; mir_aot 32; cosmo 25;
+console 43; debug 23; CF 83; call 86; suite 29/29; runner 8/8 BOTH modes; functional 211;
+mir_numeric 43; mir_return_summary **14** (the disclosed move from 11); DIF03/DIF04 pins
+byte-identical; fresh `dune build --build-dir _build-e54p2diff4c` rc 0, `pli80c.exe` sha
+`172595d5…aca281`; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0; ledger 203/C380.
+**THEN Stage D** (measured-first pins DIF05/DIF06.mir, D10/D11 in the runner — the committed SHAs,
+the MEASURED nfuncs from mir2o stderr, both lanes ×2, both modes; mir_numeric EXPORTS +2 = the
+disclosed 43→45) and the CLOSE (RESULTS §P2-DIFF-4, the PLAN dashboard row, arch `## 7-15` — the
+7-14 gap is a DOCUMENTATION GAP, not renumbered).
+
+**STANDING (all binding, unchanged):** ZERO oracle; `handoff.config.json` NEVER staged; no push;
+explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+`mirsumtest` from the REPO ROOT; NO new `ocaml/hir/*.ml` file (F8 count 15); the driver stays
+F8-clean; after any scripted durable write `grep -c $'\x08'` MUST be 0; NEVER hand-edit a managed
+block. Recovery: this heading → LEARNINGS § "Stage-C real-fixture hop" → PLAN §P2-DIFF-4.8.
 
 SUPERSEDED-BY-ABOVE (the record below stands as history): ## Next action (E2E-54/P2-DIFF-4 — **STAGE B CLOSED AND COMMITTED (`2d78f47b`); THE WHOLE FROZEN PANEL IS GREEN; STAGE C IS NEXT**) — session 01a1d9b2 renewal 2/12 of chain 01a1d97c, 2026-11-14
 
@@ -5709,17 +5704,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 844
-checkpoint-id: g844-846deb7a29f3
-checkpoint-kind: auto
+checkpoint-generation: 848
+checkpoint-id: g848-772043e7b602
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T11:38:37.655Z
+checkpointed: 2026-11-14T11:58:04.500Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a222d0ca13c506001b4fb59ee08dfcd2d3b55c854f57bf8ec307796202464274
-source-handoff: 59993715ad101144f7ce5ec272e3233bac7e36f33fbfe26f2dd536eb2bb08f6c
-source-learnings: 77510023318f041719204801f95b899731fedf3cc013ad466ebda517647b6d10
+source-progress: 2e1567e3190ecb84fc648b340bc0bf2fcda185747640d76a11d3c34d8922f76f
+source-handoff: 97ce4d4fa06e4c20c2e026be9d010eda38801844c9151ba50797ecd77bb1b1cd
+source-learnings: 7c7f2a7109f9178e0e163e1795fba543b39b53c704d360a2ecc0aaef705fba64
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -7043,6 +7038,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1d9db-421d-700a-9d27-3c092f506746
+readiness-at: 2026-11-14T11:58:04.666Z
+readiness-checkpoint: g848-772043e7b602
 <!-- guard:end checkpoint -->
 
 ## Blockers

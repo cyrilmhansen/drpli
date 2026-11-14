@@ -14336,3 +14336,41 @@ story; if the module is wrong, the fix is small and the driver must stay green.
 **Uncommitted (KEEP, never revert):** all four files above. The successor commits NOTHING until
 the driver is green, then the frozen panel, then `tools/mir_return_summary_test.py` (the F8
 `ocaml/hir/*.ml` count moves 13→15 — the ONE disclosed exception), then Stage D (D08/D09).
+
+## E2E-54/P2-DIFF-4 Stage-C real-fixture hop (2026-11-14, session 01a1d9db, renewal 4/12)
+
+**ACCEPTED (measured, commit 001822bb):** the driver's real-fixture measurement is wired:
+`mirsumtest` rc 0 **116 checks** (55+42+19). The `2d78f47b`-owed numbers are now MEASURED on
+the real Hir_build-built fixtures: DIF05 actuals [3,3]/[12,12]/[30,30] (3 sites at lines
+6/10/14), specialized Known [3,20]/[12,20]/[20,30] (the hull of BOTH arms — the analysis
+never decides the condition); the concrete walk gives the campaign vector bill = 1500/6000/10000
+(entry 10000). DIF06: ONE structural site (line 7), FOUR trips i=1..4, hull [1,4], specialized
+[1,12], cl=4, v=2800, entry 5. BOTH real callees' context-independent summaries are the FULL
+[-16383,16383]; the cross-checks actual ⊆ specialized ⊆ declared pass. The corrupt modes:
+spec-widen/-narrow each rc 1 with 29 pinned lines, spec-unknown rc 1 with 14; the old three
+modes' stderr byte-identical. The tool: LIVE_OK 55→116, three NEW hand-derived spec tables,
+the tool **14 checks rc 0** (was 11; the +3 is the new modes). No new hir file; the count
+stays 15.
+
+**FALSIFIED (the predecessor's helper drafts — the module is untouched):** (1) `run_callee`'s
+If arm "carries the final Return" — FALSE on the real fixtures: the callee's `Return` is a
+TOP-LEVEL statement AFTER the If; the arm runs, then the walk CONTINUES with the rest.
+(2) `exec` did NOT thread the environment through loops (increments lost, nontermination) and
+fell to `None` on `Put` — fixed: env threaded, `Put` a no-op, `(v, env, acc)` returned.
+(3) the hull fold left the accumulator unused (reset to (1,1) per site — vacuous).
+
+**METHOD (mine, accepted):** the rc-DIRECT law bit AGAIN — `2>&1 | tee` reports tee's rc;
+the driver's modes are measured only via `>/dev/null 2>/tmp/…` with the rc DIRECT.
+
+**LAW (accepted, the ordering):** live() re-ordered so the call-site family runs LAST — the
+old corrupt tables' failure lines stay byte-identical (the old modes are keyed to the old
+path only); the new family's failures are APPENDED. The driver's own walk checks (struct/
+trips/actuals/cats/bill/cl/v/entry/subset) are NOT on the corrupt path — the reference is
+never perturbed.
+
+**DISCLOSED (cosmetic):** the commit message of 001822bb contains a self-correcting artifact
+("[12,30]… no:"); the checks and this heading are authoritative: the actuals are
+[3,3]/[12,12]/[30,30].
+
+**NEXT (the frozen panel §P2-DIFF-4.8, then Stage D):** the panel commands with the ONE
+disclosed change (mir_return_summary 11→14); then Stage D.
