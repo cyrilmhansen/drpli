@@ -344,11 +344,12 @@ let run_callee env (ss : Hir.stmt list) : int =
               | Some v -> go ((sid, v) :: List.filter (fun (k, _) -> k <> sid) env) rest
               | None -> failwith "run_callee: unsupported value")
          | Hir.If { cond; then_; else_ } ->
-             (* the arm of the analyzed bodies carries the final Return: the
-                chosen arm runs and yields the value; the statements after the
-                arm are unreachable on this concrete path. *)
+             (* MEASURED on the real fixtures (the DIF03/DIF04/DIF05/DIF06
+                callee layout): the Return is a TOP-LEVEL statement AFTER the
+                If, not inside the arm — the chosen arm runs, then the walk
+                CONTINUES with the statements after the If. *)
              (match eval_pt env cond with
-              | Some c -> go env (if c <> 0 then then_ else else_)
+              | Some c -> go env ((if c <> 0 then then_ else else_) @ rest)
               | None -> failwith "run_callee: unsupported condition")
          | Hir.Return (Some e) ->
              (match eval_pt env e with
@@ -363,16 +364,19 @@ let run_callee env (ss : Hir.stmt list) : int =
    recorded in acc, the final Return (Some e) yields the value. The loop has a
    hard iteration cap; the callers' exact trip counts are checked separately.
    The driver never trusts the module's env here: the recorded actuals are
-   concrete values from the driver's own walk. *)
+   concrete values from the driver's own walk. The WALKED ENVIRONMENT is
+   returned with the value (the loop threads it: without it the increments
+   inside the body would be lost and the walk would never terminate). *)
 let exec ~cap (procs : Hir.proc list) (env0 : (int * int) list)
     (ss : Hir.stmt list) (acc : (int * int * (int * int) list) list) :
-    (int * (int * int * (int * int) list) list) option =
+    (int * (int * int) list
+     * (int * int * (int * int) list) list) option =
   let find_proc pid =
     List.find_opt (fun (p : Hir.proc) -> p.Hir.pid = pid) procs
   in
   let rec go env ss acc =
     match ss with
-    | [] -> Some (0, acc)
+    | [] -> Some (0, env, acc)
     | s :: rest ->
         (match s.Hir.st with
          | Hir.Declare _ -> go env rest acc
@@ -422,7 +426,10 @@ let exec ~cap (procs : Hir.proc list) (env0 : (int * int) list)
              (match eval_pt env cond with
               | Some c ->
                   (match go env (if c <> 0 then then_ else else_) acc with
-                   | Some (rv, acc') -> go env rest acc'
+                   | Some (rv, env', acc') ->
+                       (* the arm's writes are visible after the If *)
+                       ignore rv;
+                       go env' rest acc'
                    | None -> None)
               | None -> None)
          | Hir.While { cond; body } ->
@@ -433,17 +440,22 @@ let exec ~cap (procs : Hir.proc list) (env0 : (int * int) list)
                  | Some 0 -> go env rest acc
                  | Some _ ->
                      (match go env body acc with
-                      | Some (_, acc') -> it (n + 1) env acc'
+                      | Some (_, env', acc') -> it (n + 1) env' acc'
                       | None -> None)
                  | None -> None
              in
              it 0 env acc
+         | Hir.Put _ ->
+             (* the real fixtures' put list(...) statements: the walk never
+                inspects the output — the recorded call sites and the final
+                value are the only evidence. *)
+             go env rest acc
          | Hir.Return (Some e) ->
              (match eval_pt env e with
-              | Some v -> Some (v, acc)
+              | Some v -> Some (v, env, acc)
               | None -> None)
          | _ ->
-             (* Put / Get / Call_s / Stop: the drivers never use them. *)
+             (* Get / Call_s / Stop: the drivers never use them. *)
              None)
   in
   go env0 ss acc
@@ -1014,44 +1026,54 @@ let f_boundary () =
        ])
     1 (R.Known (-16383, 16383))
 
+(* --------------------------------------------------------------------------- *)
+(* The real fixtures (the committed DIF03–DIF06) through the REAL Hir_build     *)
+(* path: the builders are shared by the context-independent family (f_real)     *)
+(* and the call-site family (f_real_spec). The expectations are the same        *)
+(* hand-derived literals; the module is consulted only at the check points.     *)
+(* --------------------------------------------------------------------------- *)
+
+let read_src f =
+  let text = In_channel.with_open_bin f In_channel.input_all in
+  match String.index_opt text '\026' with
+  | Some i -> String.sub text 0 i
+  | None -> text
+
+let find_pid name procs =
+  match
+    List.find_opt (fun (p : Hir.proc) -> p.Hir.name = Some name) procs
+  with
+  | Some p -> Some p.Hir.pid
+  | None -> None
+
+let find_proc_by_name name procs =
+  List.find_opt (fun (p : Hir.proc) -> p.Hir.name = Some name) procs
+
+let build_hir f =
+  let text =
+    try Some (read_src f) with _ -> None
+  in
+  match text with
+  | None ->
+      check ("real-source exists: " ^ quote f) false;
+      None
+  | Some text ->
+      (try
+         let blk = Pli80.Parser.parse_source text in
+         let profile = Pli80_hir.Target.dr_pli80_v1_4 in
+         (match Pli80_hir.Hir_build.build blk profile with
+          | Ok p -> Some p
+          | Error _ ->
+              check ("real-source builds: " ^ quote f) false;
+              None)
+       with
+       | _ ->
+           check ("real-source parses: " ^ quote f) false;
+           None)
+
 let f_real () =
-  let read_src f =
-    let text = In_channel.with_open_bin f In_channel.input_all in
-    match String.index_opt text '\026' with
-    | Some i -> String.sub text 0 i
-    | None -> text
-  in
-  let find_pid name procs =
-    match
-      List.find_opt (fun (p : Hir.proc) -> p.Hir.name = Some name) procs
-    with
-    | Some p -> Some p.Hir.pid
-    | None -> None
-  in
-  let build f =
-    let text =
-      try Some (read_src f) with _ -> None
-    in
-    match text with
-    | None ->
-        check ("real-source exists: " ^ quote f) false;
-        None
-    | Some text ->
-        (try
-           let blk = Pli80.Parser.parse_source text in
-           let profile = Pli80_hir.Target.dr_pli80_v1_4 in
-           (match Pli80_hir.Hir_build.build blk profile with
-            | Ok p -> Some p
-            | Error _ ->
-                check ("real-source builds: " ^ quote f) false;
-                None)
-         with
-         | _ ->
-             check ("real-source parses: " ^ quote f) false;
-             None)
-  in
   let check_real f name want =
-    match build f with
+    match build_hir f with
     | None -> ()
     | Some p ->
         (match find_pid name p.Hir.procs with
@@ -1075,9 +1097,142 @@ let f_real () =
   check_real "hir/dif-fixtures/DIF03.pli" "classify" (R.Known (1, 3));
   check_real "hir/dif-fixtures/DIF04.pli" "stepclass" (R.Known (1, 3))
 
+(* --------------------------------------------------------------------------- *)
+(* The REAL-FIXTURE call-site measurement (E2E-54/P2-DIFF-4 §P2-DIFF-4.7, the   *)
+(* numbers the 2d78f47b commit OWES). The entry is executed by the driver's     *)
+(* OWN concrete walk (exec — the INDEPENDENT reference, never the module); the  *)
+(* call sites are the driver's own structural find_calls; the module is         *)
+(* consulted ONLY at the summary calls (the corrupt-controlled path). EVERY     *)
+(* expectation below is a hand-derived literal: the §P2-DIFF-4.4 campaign       *)
+(* vectors (DIF05 puts [1500,6000,10000] — the last cell is 10000; DIF06 puts   *)
+(* [700,1400,2100,2800] — the last cell is 2800, the loop exits at i = 5) and   *)
+(* the specialized summaries from the §P2-DIFF-3 subset law BY HAND: the        *)
+(* interval analysis does NOT decide the condition, so the result is the hull   *)
+(* of BOTH arms — [3,3] |-> hull(20,3) = [3,20]; [12,12] |-> [12,20];           *)
+(* [30,30] |-> hull(20,30) = [20,30]; [1,4] |-> [1,12]; the                     *)
+(* context-independent summary of both min-shaped callees is the FULL           *)
+(* W(15) = [-16383,16383] (the spec-ctx-min law). *)
+(* --------------------------------------------------------------------------- *)
+
+let f_real_spec () =
+  (* the driver's OWN re-derivation of W(15) (wiv/wlim above) — the
+     cross-check's containment, never a module call. *)
+  let w15 = wiv 15 in
+  let in_w15 (a, b) =
+    let (lo, hi) = w15 in
+    a >= lo && b <= hi
+  in
+  let ctx_sum p pid =
+    match R.summaries ~maxp:15 p [ pid ] with
+    | [ (_, s) ] -> s
+    | _ -> R.Unknown
+  in
+  let real_spec f entry_name callee_name =
+    match build_hir f with
+    | None -> None
+    | Some p ->
+        (match
+           (find_proc_by_name entry_name p.Hir.procs,
+            find_proc_by_name callee_name p.Hir.procs)
+         with
+         | Some entry, Some callee -> Some (p, entry, callee)
+         | _ ->
+             check ("spec-real-procs: " ^ quote f) false;
+             None)
+  in
+  (* DIF05: entry billing, callee capped_units (the min(x,20) shape). *)
+  (match real_spec "hir/dif-fixtures/DIF05.pli" "billing" "capped_units" with
+   | None -> ()
+   | Some (p, entry, callee) ->
+       let cp = callee.Hir.pid in
+       let calls = find_calls p.Hir.procs in
+       check "spec-real-dif05-struct"
+         (List.length calls = 3
+          && List.for_all (fun (c : cs) -> c.cs_callee = cp &&
+                                           List.length c.cs_actuals = 1) calls
+          && List.map (fun (c : cs) -> c.cs_line) calls = [ 6; 10; 14 ]);
+       (match exec ~cap:50 p.Hir.procs [] entry.Hir.body [] with
+        | None -> check "spec-real-dif05-exec" false
+        | Some (v, env, recd) ->
+            let ivs = List.map (fun (_, _, a) -> a) (List.rev recd) in
+            check "spec-real-dif05-actuals"
+              (ivs = [ [(3, 3)]; [(12, 12)]; [(30, 30)] ]);
+            (* the CONCRETE call results: the driver's walk returns the
+               ACTUAL values (the module's hull would be wider — the
+               condition is never decided). *)
+            check "spec-real-dif05-cats" (List.assoc_opt 1 env = Some 20);
+            check "spec-real-dif05-bill" (List.assoc_opt 2 env = Some 10000);
+            check "spec-real-dif05-entry" (v = 10000);
+            expect_actuals "spec-real-dif05-sum1" p cp callee.Hir.params
+              [ (3, 3) ] (R.Known (3, 20));
+            expect_actuals "spec-real-dif05-sum2" p cp callee.Hir.params
+              [ (12, 12) ] (R.Known (12, 20));
+            expect_actuals "spec-real-dif05-sum3" p cp callee.Hir.params
+              [ (30, 30) ] (R.Known (20, 30));
+            let ctx = ctx_sum p cp in
+            check "spec-real-dif05-ctx" (ctx = R.Known (-16383, 16383));
+            (* the cross-checks (the invariant actual ⊆ specialized ⊆
+               declared): every recorded actual is a non-empty point inside
+               the driver's own W(15), and the specialized summary is a
+               subset of the context-independent (full-window) one. *)
+            check "spec-real-dif05-subset"
+              (List.for_all
+                 (fun ivs ->
+                   List.for_all (fun (a, b) -> a <= b && in_w15 (a, b)) ivs)
+                 ivs
+               && List.for_all
+                    (fun (a, b) ->
+                      match ctx with
+                      | R.Known (c, d) -> a >= c && b <= d
+                      | R.Unknown -> false)
+                    [ (3, 20); (12, 20); (20, 30) ])
+       ));
+  (* DIF06: entry batch, callee limited_step (the min(x,12) shape); the
+     loop-IV actual [1,4] is the HULL of the four recorded trips. *)
+  (match real_spec "hir/dif-fixtures/DIF06.pli" "batch" "limited_step" with
+   | None -> ()
+   | Some (p, entry, callee) ->
+       let cp = callee.Hir.pid in
+       let calls = find_calls p.Hir.procs in
+       check "spec-real-dif06-struct"
+         (List.length calls = 1
+          && List.for_all (fun (c : cs) -> c.cs_callee = cp &&
+                                           List.length c.cs_actuals = 1) calls
+          && List.map (fun (c : cs) -> c.cs_line) calls = [ 7 ]);
+       (match exec ~cap:50 p.Hir.procs [] entry.Hir.body [] with
+        | None -> check "spec-real-dif06-exec" false
+        | Some (v, env, recd) ->
+            let recd = List.rev recd in
+            let ivs = List.map (fun (_, _, a) -> a) recd in
+            check "spec-real-dif06-trips"
+              (ivs = [ [(1, 1)]; [(2, 2)]; [(3, 3)]; [(4, 4)] ]);
+            let hull =
+              List.fold_left
+                (fun (a, b) ivs ->
+                  List.fold_left
+                    (fun (x, y) (u, w) -> (min x u, max y w))
+                    (a, b) ivs)
+                (1, 1) ivs
+            in
+            check "spec-real-dif06-hull" (hull = (1, 4));
+            check "spec-real-dif06-cl" (List.assoc_opt 1 env = Some 4);
+            check "spec-real-dif06-v" (List.assoc_opt 2 env = Some 2800);
+            check "spec-real-dif06-entry" (v = 5);
+            expect_actuals "spec-real-dif06-sum" p cp callee.Hir.params
+              [ hull ] (R.Known (1, 12));
+            let ctx = ctx_sum p cp in
+            check "spec-real-dif06-ctx" (ctx = R.Known (-16383, 16383));
+            check "spec-real-dif06-subset"
+              (in_w15 hull
+               && match ctx with
+                  | R.Known (c, d) ->
+                      let (a, b) = (1, 12) in
+                      a >= c && b <= d && c = -16383 && d = 16383
+                  | R.Unknown -> false)
+       ))
+
 let live () =
   f_constant ();
-  f_actuals ();
   f_join ();
   f_nonexhaustive ();
   f_effectful ();
@@ -1088,7 +1243,13 @@ let live () =
   f_precision ();
   f_purity ();
   f_boundary ();
-  f_real ()
+  f_real ();
+  (* the Stage-C call-site family LAST: its corrupt modes (the §P2-DIFF-4.7
+     non-vacuity controls) must keep the OLD corrupt tables' failure lines
+     byte-identical — the old modes are keyed to the old path only, and the
+     new family's failures are appended at the END of the failure list. *)
+  f_actuals ();
+  f_real_spec ()
 
 type mode =
   | Live
