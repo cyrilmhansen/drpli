@@ -2430,22 +2430,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 829
-checkpoint-id: g829-0d752ce0d6b5
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4997, session 01a1d935-de65-7264-a23a-8e87c06da658)
-checkpointed: 2026-11-14T09:06:46.233Z
+checkpoint-generation: 830
+checkpoint-id: g830-a31821f0458c
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1571, session 01a1d935-de65-7264-a23a-8e87c06da658)
+checkpointed: 2026-11-14T09:07:53.312Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 73f83c8b5cd831df8023e8c5a56753c49618f9e0e2817741e72cf6bb4faf7f0e
-source-handoff: 48793d6aa06f27caec4b4e038ca03fffa7bbdb13695d9152fd20a5e46e12c68d
+source-handoff: b9722966a299c3cde962fe37df05868c08ae6b0d0882917daa2c7f47453ba5dc
 source-learnings: d3bbe6ee8520cba9253c9e57a0faedcb531be20279ae0e1e6b1a16d02d273e5f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d935-de65-7264-a23a-8e87c06da658
+readiness-at: 2026-11-14T09:07:53.452Z
+readiness-checkpoint: g830-a31821f0458c
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -3775,5 +3778,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-3 Stage B: mir_return_summary.ml + mir_backend integration + dune + mirsumtest.ml are COMMITTED-NOT-YET — all UNCOMMITTED on top of 60cd88cf, build green. mirsumtest runs but 13 positive cases return Unknown — suspect the driver's own synthetic tables (missing s_declare for the target, nonsense zero-precision-result test) AND the module; fix driver tables first, then re-run. The module is well-typed (build green). Next: make mirsumtest green, then the frozen panel, then tools/mir_return_summary_test.py, then Stage D (D08/D09). Never commit handoff.config.json; never run the oracle; no push; explicit paths.
+E2E-54/P2-DIFF-3 Stage C is COMPLETE: the tool (11 checks, rc 0) and the full frozen panel are committed. The Stage-B M-alias F8 defect was caught by the panel and fixed. The durables are committed (HEAD 770b2e55). NEXT: Stage D (D08/D09 in the runner + the close).
 <!-- guard:end checkpoint -->
