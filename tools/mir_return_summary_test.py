@@ -105,13 +105,17 @@ def run(argv: list[str], timeout: int = 120) -> subprocess.CompletedProcess:
 # Y1 — the module, judged by mirsumtest.exe
 # --------------------------------------------------------------------------
 
-# The live output is the FROZEN check count of the pre-registered driver
-# (116 after the E2E-54/P2-DIFF-4 Stage-C call-site family: 55 context-
-# independent + 42 synthetic call-site + 19 real-fixture checks). The
-# count is a frozen constant because the vectors, the reference
-# formulation and the six corrupt modes are all fixed in
-# ocaml/hir/mirsumtest.ml.
-LIVE_OK = b"MIR-SUM OK 116 checks\n"
+# The live output is the FROZEN check count of the driver as closed by
+# E2E-54/P2-DIFF-5 Stage C: 172 = 55 context-independent + 42 synthetic
+# call-site + 19 DIF05/DIF06 real-fixture + 32 §P2-DIFF-5.8 refinement +
+# 20 DIF07/DIF08 + 4 f_real (§5.6-8 amendment: the DIF07/DIF08 ctx and
+# hostile cross-checks).  The count moved 116 -> 172 as DISCLOSED in the
+# §5.8 work order; it is frozen at the new value because the vectors, the
+# reference formulation and the SEVEN corrupt modes are all fixed in
+# ocaml/hir/mirsumtest.ml (the §5.6 list plus amendment 17 re-pinned the
+# four pre-existing spec tables; --corrupt-refine-arm is the new §5.8
+# non-vacuity control).
+LIVE_OK = b"MIR-SUM OK 172 checks\n"
 
 # The three corrupt controls, with the EXACT stderr bytes each must produce.
 # Every line is `MIRSUM-FAIL: <name> got <got> expected <want>`.  The
@@ -145,7 +149,7 @@ CORRUPT: dict[str, list[str]] = {
         "MIRSUM-FAIL: overwrite-after-join: got Known [4,5], expected Known [4,4]",
         "MIRSUM-FAIL: literal-16383: got Known [16383,16384], expected Known [16383,16383]",
         "MIRSUM-FAIL: identity-full-window: got Known [-16383,16384], expected Known [-16383,16383]",
-        "MIRSUM-FAIL: classifier-narrow-precision: got Known [1,4], expected Known [1,3]",
+        "MIRSUM-FAIL: classifier-narrow-precision: got Known [1,2], expected Known [1,1]",
         "MIRSUM-FAIL: boundary-neg-16383: got Known [-16383,16384], expected Known [-16383,16383]",
         "MIRSUM-FAIL: boundary-neg-op: got Known [-16383,-16382], expected Known [-16383,-16383]",
         "MIRSUM-FAIL: boundary-tight: got Known [-16383,16384], expected Known [-16383,16383]",
@@ -159,7 +163,7 @@ CORRUPT: dict[str, list[str]] = {
         "MIRSUM-FAIL: overwrite-after-join: got Known [4,3], expected Known [4,4]",
         "MIRSUM-FAIL: literal-16383: got Known [16383,16382], expected Known [16383,16383]",
         "MIRSUM-FAIL: identity-full-window: got Known [-16383,16382], expected Known [-16383,16383]",
-        "MIRSUM-FAIL: classifier-narrow-precision: got Known [1,2], expected Known [1,3]",
+        "MIRSUM-FAIL: classifier-narrow-precision: got Known [1,0], expected Known [1,1]",
         "MIRSUM-FAIL: boundary-neg-16383: got Known [-16383,16382], expected Known [-16383,16383]",
         "MIRSUM-FAIL: boundary-neg-op: got Known [-16383,-16384], expected Known [-16383,-16383]",
         "MIRSUM-FAIL: boundary-tight: got Known [-16383,16382], expected Known [-16383,16383]",
@@ -204,15 +208,15 @@ CORRUPT: dict[str, list[str]] = {
         "MIRSUM-FAIL: spec-identity-point: got Known [5,6], expected Known [5,5]",
         "MIRSUM-FAIL: spec-identity-range: got Known [5,10], expected Known [5,9]",
         "MIRSUM-FAIL: spec-min-cap-point: got Known [20,21], expected Known [20,20]",
-        "MIRSUM-FAIL: spec-min-above-cap: got Known [20,26], expected Known [20,25]",
-        "MIRSUM-FAIL: spec-min-across-cap: got Known [3,31], expected Known [3,30]",
-        "MIRSUM-FAIL: spec-min-nonpoint: got Known [10,21], expected Known [10,20]",
-        "MIRSUM-FAIL: spec-distinct-1: got Known [3,21], expected Known [3,20]",
-        "MIRSUM-FAIL: spec-distinct-2: got Known [12,21], expected Known [12,20]",
-        "MIRSUM-FAIL: spec-distinct-3: got Known [20,31], expected Known [20,30]",
+        "MIRSUM-FAIL: spec-min-above-cap: got Known [20,21], expected Known [20,20]",
+        "MIRSUM-FAIL: spec-min-across-cap: got Known [3,21], expected Known [3,20]",
+        "MIRSUM-FAIL: spec-min-nonpoint: got Known [10,16], expected Known [10,15]",
+        "MIRSUM-FAIL: spec-distinct-1: got Known [3,4], expected Known [3,3]",
+        "MIRSUM-FAIL: spec-distinct-2: got Known [12,13], expected Known [12,12]",
+        "MIRSUM-FAIL: spec-distinct-3: got Known [20,21], expected Known [20,20]",
         "MIRSUM-FAIL: spec-full-window-identity: got Known [-16383,16384], expected Known [-16383,16383]",
-        "MIRSUM-FAIL: spec-full-window-min: got Known [-16383,16384], expected Known [-16383,16383]",
-        "MIRSUM-FAIL: spec-loop-iv: got Known [1,13], expected Known [1,12]",
+        "MIRSUM-FAIL: spec-full-window-min: got Known [-16383,21], expected Known [-16383,20]",
+        "MIRSUM-FAIL: spec-loop-iv: got Known [1,5], expected Known [1,4]",
         "MIRSUM-FAIL: spec-two-formals-1: got Known [9,10], expected Known [9,9]",
         "MIRSUM-FAIL: spec-two-formals-2: got Known [-9,-8], expected Known [-9,-9]",
         "MIRSUM-FAIL: spec-two-formals-ranges: got Known [-6,4], expected Known [-6,3]",
@@ -221,29 +225,36 @@ CORRUPT: dict[str, list[str]] = {
         "MIRSUM-FAIL: spec-boundary-min-12: got Known [12,13], expected Known [12,12]",
         "MIRSUM-FAIL: spec-boundary-min-20: got Known [20,21], expected Known [20,20]",
         "MIRSUM-FAIL: spec-boundary-12: got Known [12,13], expected Known [12,12]",
-        "MIRSUM-FAIL: spec-boundary-min-13: got Known [12,14], expected Known [12,13]",
+        "MIRSUM-FAIL: spec-boundary-min-13: got Known [12,13], expected Known [12,12]",
         "MIRSUM-FAIL: spec-formal-written: got Known [7,8], expected Known [7,7]",
         "MIRSUM-FAIL: spec-esc-point: got Known [300,301], expected Known [300,300]",
         "MIRSUM-FAIL: spec-esc-point-163: got Known [16300,16301], expected Known [16300,16300]",
         "MIRSUM-FAIL: spec-esc2-point: got Known [1,2], expected Known [1,1]",
-        "MIRSUM-FAIL: spec-real-dif05-sum1: got Known [3,21], expected Known [3,20]",
-        "MIRSUM-FAIL: spec-real-dif05-sum2: got Known [12,21], expected Known [12,20]",
-        "MIRSUM-FAIL: spec-real-dif05-sum3: got Known [20,31], expected Known [20,30]",
-        "MIRSUM-FAIL: spec-real-dif06-sum: got Known [1,13], expected Known [1,12]",
+        "MIRSUM-FAIL: spec-real-dif05-sum1: got Known [3,4], expected Known [3,3]",
+        "MIRSUM-FAIL: spec-real-dif05-sum2: got Known [12,13], expected Known [12,12]",
+        "MIRSUM-FAIL: spec-real-dif05-sum3: got Known [20,21], expected Known [20,20]",
+        "MIRSUM-FAIL: spec-real-dif06-sum: got Known [1,5], expected Known [1,4]",
+        "MIRSUM-FAIL: spec-real-dif07-sum1: got Known [3,4], expected Known [3,3]",
+        "MIRSUM-FAIL: spec-real-dif07-sum2: got Known [7,8], expected Known [7,7]",
+        "MIRSUM-FAIL: spec-real-dif07-sum3: got Known [12,13], expected Known [12,12]",
+        "MIRSUM-FAIL: spec-real-dif07-subset",
+        "MIRSUM-FAIL: spec-real-dif08-sum: got Known [1,5], expected Known [1,4]",
+        "MIRSUM-FAIL: spec-real-dif08-sum-atcap: got Known [1,13], expected Known [1,12]",
+        "MIRSUM-FAIL: spec-real-dif08-sum-above: got Known [12,13], expected Known [12,12]",
     ],
     "--corrupt-spec-narrow": [
         "MIRSUM-FAIL: spec-identity-point: got Known [5,4], expected Known [5,5]",
         "MIRSUM-FAIL: spec-identity-range: got Known [5,8], expected Known [5,9]",
         "MIRSUM-FAIL: spec-min-cap-point: got Known [20,19], expected Known [20,20]",
-        "MIRSUM-FAIL: spec-min-above-cap: got Known [20,24], expected Known [20,25]",
-        "MIRSUM-FAIL: spec-min-across-cap: got Known [3,29], expected Known [3,30]",
-        "MIRSUM-FAIL: spec-min-nonpoint: got Known [10,19], expected Known [10,20]",
-        "MIRSUM-FAIL: spec-distinct-1: got Known [3,19], expected Known [3,20]",
-        "MIRSUM-FAIL: spec-distinct-2: got Known [12,19], expected Known [12,20]",
-        "MIRSUM-FAIL: spec-distinct-3: got Known [20,29], expected Known [20,30]",
+        "MIRSUM-FAIL: spec-min-above-cap: got Known [20,19], expected Known [20,20]",
+        "MIRSUM-FAIL: spec-min-across-cap: got Known [3,19], expected Known [3,20]",
+        "MIRSUM-FAIL: spec-min-nonpoint: got Known [10,14], expected Known [10,15]",
+        "MIRSUM-FAIL: spec-distinct-1: got Known [3,2], expected Known [3,3]",
+        "MIRSUM-FAIL: spec-distinct-2: got Known [12,11], expected Known [12,12]",
+        "MIRSUM-FAIL: spec-distinct-3: got Known [20,19], expected Known [20,20]",
         "MIRSUM-FAIL: spec-full-window-identity: got Known [-16383,16382], expected Known [-16383,16383]",
-        "MIRSUM-FAIL: spec-full-window-min: got Known [-16383,16382], expected Known [-16383,16383]",
-        "MIRSUM-FAIL: spec-loop-iv: got Known [1,11], expected Known [1,12]",
+        "MIRSUM-FAIL: spec-full-window-min: got Known [-16383,19], expected Known [-16383,20]",
+        "MIRSUM-FAIL: spec-loop-iv: got Known [1,3], expected Known [1,4]",
         "MIRSUM-FAIL: spec-two-formals-1: got Known [9,8], expected Known [9,9]",
         "MIRSUM-FAIL: spec-two-formals-2: got Known [-9,-10], expected Known [-9,-9]",
         "MIRSUM-FAIL: spec-two-formals-ranges: got Known [-6,2], expected Known [-6,3]",
@@ -252,15 +263,22 @@ CORRUPT: dict[str, list[str]] = {
         "MIRSUM-FAIL: spec-boundary-min-12: got Known [12,11], expected Known [12,12]",
         "MIRSUM-FAIL: spec-boundary-min-20: got Known [20,19], expected Known [20,20]",
         "MIRSUM-FAIL: spec-boundary-12: got Known [12,11], expected Known [12,12]",
-        "MIRSUM-FAIL: spec-boundary-min-13: got Known [12,12], expected Known [12,13]",
+        "MIRSUM-FAIL: spec-boundary-min-13: got Known [12,11], expected Known [12,12]",
         "MIRSUM-FAIL: spec-formal-written: got Known [7,6], expected Known [7,7]",
         "MIRSUM-FAIL: spec-esc-point: got Known [300,299], expected Known [300,300]",
         "MIRSUM-FAIL: spec-esc-point-163: got Known [16300,16299], expected Known [16300,16300]",
         "MIRSUM-FAIL: spec-esc2-point: got Known [1,0], expected Known [1,1]",
-        "MIRSUM-FAIL: spec-real-dif05-sum1: got Known [3,19], expected Known [3,20]",
-        "MIRSUM-FAIL: spec-real-dif05-sum2: got Known [12,19], expected Known [12,20]",
-        "MIRSUM-FAIL: spec-real-dif05-sum3: got Known [20,29], expected Known [20,30]",
-        "MIRSUM-FAIL: spec-real-dif06-sum: got Known [1,11], expected Known [1,12]",
+        "MIRSUM-FAIL: spec-real-dif05-sum1: got Known [3,2], expected Known [3,3]",
+        "MIRSUM-FAIL: spec-real-dif05-sum2: got Known [12,11], expected Known [12,12]",
+        "MIRSUM-FAIL: spec-real-dif05-sum3: got Known [20,19], expected Known [20,20]",
+        "MIRSUM-FAIL: spec-real-dif06-sum: got Known [1,3], expected Known [1,4]",
+        "MIRSUM-FAIL: spec-real-dif07-sum1: got Known [3,2], expected Known [3,3]",
+        "MIRSUM-FAIL: spec-real-dif07-sum2: got Known [7,6], expected Known [7,7]",
+        "MIRSUM-FAIL: spec-real-dif07-sum3: got Known [12,11], expected Known [12,12]",
+        "MIRSUM-FAIL: spec-real-dif07-subset",
+        "MIRSUM-FAIL: spec-real-dif08-sum: got Known [1,3], expected Known [1,4]",
+        "MIRSUM-FAIL: spec-real-dif08-sum-atcap: got Known [1,11], expected Known [1,12]",
+        "MIRSUM-FAIL: spec-real-dif08-sum-above: got Known [12,11], expected Known [12,12]",
     ],
     "--corrupt-spec-unknown": [
         "MIRSUM-FAIL: spec-outside-window: got Known [1,2], expected Unknown",
@@ -277,6 +295,40 @@ CORRUPT: dict[str, list[str]] = {
         "MIRSUM-FAIL: spec-entry-pid: got Known [1,2], expected Unknown",
         "MIRSUM-FAIL: spec-missing-pid: got Known [1,2], expected Unknown",
         "MIRSUM-FAIL: spec-void-proc: got Known [1,2], expected Unknown",
+    ],
+    "--corrupt-refine-arm": [
+        "MIRSUM-FAIL: refine-lt-below: got Known [19,21], expected Known [20,20]",
+        "MIRSUM-FAIL: refine-lt-above: got Known [29,31], expected Known [30,30]",
+        "MIRSUM-FAIL: refine-lt-across: got Known [19,21], expected Known [20,20]",
+        "MIRSUM-FAIL: refine-le-at-cap: got Known [19,21], expected Known [20,20]",
+        "MIRSUM-FAIL: refine-le-above: got Known [20,22], expected Known [21,21]",
+        "MIRSUM-FAIL: refine-ge-below: got Known [18,20], expected Known [19,19]",
+        "MIRSUM-FAIL: refine-ge-across: got Known [18,21], expected Known [19,20]",
+        "MIRSUM-FAIL: refine-gt-across: got Known [2,21], expected Known [3,20]",
+        "MIRSUM-FAIL: refine-eq-point: got Known [0,21], expected Known [1,20]",
+        "MIRSUM-FAIL: refine-eq-across: got Known [0,26], expected Known [1,25]",
+        "MIRSUM-FAIL: refine-eq-then-excluded: got Known [18,20], expected Known [19,19]",
+        "MIRSUM-FAIL: refine-eq-else-only: got Known [20,22], expected Known [21,21]",
+        "MIRSUM-FAIL: refine-ne-point: got Known [0,21], expected Known [1,20]",
+        "MIRSUM-FAIL: refine-ne-range: got Known [0,26], expected Known [1,25]",
+        "MIRSUM-FAIL: refine-varopvar-conservative: got Known [0,3], expected Known [1,2]",
+        "MIRSUM-FAIL: refine-reread-else: got Known [7,9], expected Known [8,8]",
+        "MIRSUM-FAIL: refine-reread-then: got Known [49,51], expected Known [50,50]",
+        "MIRSUM-FAIL: refine-reread-across: got Known [23,46], expected Known [24,45]",
+        "MIRSUM-FAIL: refine-noelse-feasible: got Known [1,10], expected Known [2,9]",
+        "MIRSUM-FAIL: refine-noelse-then-infeasible: got Known [1,3], expected Known [2,2]",
+        "MIRSUM-FAIL: refine-noelse-across: got Known [1,10], expected Known [2,9]",
+        "MIRSUM-FAIL: refine-fullwindow-lt: got Known [19,16384], expected Known [20,16383]",
+        "MIRSUM-FAIL: refine-fullwindow-eq: got Known [-16384,16384], expected Known [-16383,16383]",
+        "MIRSUM-FAIL: refine-hostile-nondefinite-var: got Known [0,0], expected Unknown",
+        "MIRSUM-FAIL: refine-hostile-nondecimal-const: got Known [0,0], expected Unknown",
+        "MIRSUM-FAIL: refine-hostile-const-left: got Known [0,3], expected Known [1,2]",
+        "MIRSUM-FAIL: refine-hostile-var-op-var: got Known [0,3], expected Known [1,2]",
+        "MIRSUM-FAIL: refine-hostile-composite-cond: got Known [0,0], expected Unknown",
+        "MIRSUM-FAIL: refine-hostile-empty-actual: got Known [0,0], expected Unknown",
+        "MIRSUM-FAIL: refine-h3-small-actual: got Known [2999,3001], expected Known [3000,3000]",
+        "MIRSUM-FAIL: refine-h3-large-actual: got Known [16382,16384], expected Known [16383,16383]",
+        "MIRSUM-FAIL: refine-h3-across-unknown: got Known [0,0], expected Unknown",
     ],
 }
 
@@ -638,8 +690,8 @@ def main() -> int:
         print(f"\nMIR-RETURN-SUMMARY PANEL: {len(FAILURES)} FAILURE(S)")
         return 1
     print(f"\nMIR-RETURN-SUMMARY PANEL PASSED: {CHECKS} checks — the module is "
-          f"judged by mirsumtest (116 checks, the frozen count) and by six "
-          f"corrupt controls (three old, three call-site) whose exact stderr "
+          f"judged by mirsumtest (172 checks, the frozen count) and by seven "
+          f"corrupt controls (three old, three call-site, one refinement-arm) whose exact stderr "
           f"bytes are pinned; the DIF03 "
           f"and DIF04 integrations are rc 0 with the summary; the "
           f"{n_pins} pre-Stage-D committed .mir pins are byte-equal "

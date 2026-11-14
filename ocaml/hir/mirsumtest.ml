@@ -520,9 +520,33 @@ let corrupt_spec_apply s =
   | Some `Spec_unknown, R.Unknown -> R.Known (1, 2)
   | _ -> s
 
+(* E2E-54/P2-DIFF-5 §P2-DIFF-5.8 NON-VACUITY: the refinement family has its OWN
+   control. `--corrupt-refine-arm' perturbs the INFERRED REFINED-ARM result only
+   — a Known interval is widened at BOTH endpoints (the arm exclusion is what a
+   one-sided perturbation cannot see: an EXCLUDED arm makes the summary the
+   surviving arm's own interval, so both endpoints are load-bearing), and an
+   Unknown is forced to a Known so the §5.8 hostiles fail loudly too. It NEVER
+   touches the driver's concrete reference (exec/run_callee), never the supplied
+   actuals and never a comparison guard (the Stage-C method law). *)
+let corrupt_refine = ref None
+
+let corrupt_refine_apply s =
+  match (!corrupt_refine, s) with
+  | Some `Refine_arm, R.Known (a, b) -> R.Known (a - 1, b + 1)
+  | Some `Refine_arm, R.Unknown -> R.Known (0, 0)
+  | _ -> s
+
 (* The call-site entry point under test (the §P2-DIFF-4.6-1 API). *)
 let summary_of_actuals prog pid params actuals =
   corrupt_spec_apply (R.summary_of_actuals ~maxp:15 prog pid ~params ~actuals)
+
+(* The SAME entry point on the refinement family's own corrupt path. *)
+let refine_actuals name prog pid params actuals want =
+  let got =
+    corrupt_refine_apply (R.summary_of_actuals ~maxp:15 prog pid ~params ~actuals)
+  in
+  check (name ^ ": got " ^ show_sum got ^ ", expected " ^ show_sum want)
+    (got = want)
 
 let expect_actuals name prog pid params actuals want =
   let got = summary_of_actuals prog pid params actuals in
@@ -540,6 +564,17 @@ let min_body cap =
     s_if (e_rel Gt (e_var 10) (e_const (string_of_int cap)))
       [ s_assign 11 (e_const (string_of_int cap)) ]
       [ s_assign 11 (e_var 10) ];
+    s_ret (Some (e_var 11));
+  ]
+
+(* The §5.8 orientation-law body: `if x <op> <v> then <then_> else <else_>;
+   return (c)` — the min shape with a CHOSEN relational operator (the
+   Stage-C refinement family). *)
+let cmp_body op v then_ else_ =
+  [
+    s_declare 10;
+    s_declare 11;
+    s_if (e_rel op (e_var 10) (e_const v)) then_ else_;
     s_ret (Some (e_var 11));
   ]
 
@@ -731,6 +766,363 @@ let f_actuals () =
   expect_actuals "spec-void-proc" (prog [ proc ~name:"entry" ~is_main:true 0 0
     [ s_ret (Some (e_const "0")) ]; proc ~params:[ 10 ] ~ret:None 1 1 [ s_declare 10 ] ]
     [ sym 10 "x" 1 bin15 Hir.Formal ]) 1 [ 10 ] [ (3, 3) ] R.Unknown
+
+(* --------------------------------------------------------------------------- *)
+(* The E2E-54/P2-DIFF-5 §P2-DIFF-5.8 BRANCH-REFINEMENT family (Stage C).        *)
+(* EVERY expectation below is a hand-derived literal, written from the §5.2      *)
+(* subset law BEFORE any Stage-C run; the arm-by-arm derivation and the          *)
+(* CONCRETE value (the driver's own point evaluation, never the module) are in   *)
+(* the comment above each check. The positives go through the CORRUPT-WRAPPED    *)
+(* call-site entry point, so every refined-arm value is on the non-vacuity path  *)
+(* (§5.8: "a control that passes is not a control"); the context-independent     *)
+(* pivots use the direct, uncorrupted `R.summaries` call, exactly as the         *)
+(* existing `spec-ctx-*` law does.                                              *)
+(* --------------------------------------------------------------------------- *)
+
+(* The orientation-law body: `if x <op> 20 then c = 20 else c = x; return (c)` —
+   the min shape with a CHOSEN relational operator (the §5.8 orientation law). *)
+let cmp_min op =
+  cmp_body op "20" [ s_assign 11 (e_const "20") ] [ s_assign 11 (e_var 10) ]
+
+(* `if x = 20 then c = <c> else c = x; return (c)` — the Eq then-side is the
+   POINT, the Eq ELSE side is UNREFINED (§5.2-5: the complement of a point is
+   not an interval, so the existing env is kept). *)
+let cmp_eq c = cmp_body Hir.Eq "20" [ s_assign 11 (e_const c) ] [ s_assign 11 (e_var 10) ]
+
+(* `if x <> 20 then c = 1 else c = x; return (c)` — Ne refines NOTHING on
+   either side (§5.2); the conservative hull is kept VERBATIM. *)
+let cmp_ne =
+  cmp_body Hir.Ne "20" [ s_assign 11 (e_const "1") ] [ s_assign 11 (e_var 10) ]
+
+(* `if x > 20 then c = 20 else c = 5; return (c + x)` — the EXCLUDED arm and the
+   variable RE-READ after the join (§5.8): the surviving arm's env, including the
+   REFINED condition variable, is what the return expression sees. *)
+let p_reread () =
+  p_simple1
+    [
+      s_declare 10;
+      s_declare 11;
+      s_if
+        (e_rel Hir.Gt (e_var 10) (e_const "20"))
+        [ s_assign 11 (e_const "20") ]
+        [ s_assign 11 (e_const "5") ];
+      s_ret (Some (e_bin Hir.Add (e_var 11) (e_var 10)));
+    ]
+
+(* `c = 2; if x > 20 then c = 9` (NO else) — the missing-ELSE law (§5.2): the
+   THEN arm is refined, the false path is the CURRENT env, and the two are
+   joined by the existing drop-not-inherit join. *)
+let p_noelse () =
+  p_simple1
+    [
+      s_declare 10;
+      s_declare 11;
+      s_assign 11 (e_const "2");
+      s_if
+        (e_rel Hir.Gt (e_var 10) (e_const "20"))
+        [ s_assign 11 (e_const "9") ]
+        [];
+      s_ret (Some (e_var 11));
+    ]
+
+(* `Var op Var` with TWO definite formals: outside the §5.2 subset (the right
+   operand is not a Const), so the conservative hull is kept VERBATIM. *)
+let p_varopvar () =
+  prog
+    [
+      proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+      proc ~params:[ 10; 12 ] 1 1
+        [
+          s_declare 10;
+          s_declare 12;
+          s_declare 11;
+          s_if
+            (e_rel Hir.Gt (e_var 10) (e_var 12))
+            [ s_assign 11 (e_const "1") ]
+            [ s_assign 11 (e_const "2") ];
+          s_ret (Some (e_var 11));
+        ];
+    ]
+    [
+      sym 10 "x" 1 bin15 Hir.Formal;
+      sym 12 "y" 1 bin15 Hir.Formal;
+      sym 11 "c" 1 bin15 Hir.Auto;
+    ]
+
+(* HOSTILE: the condition's Var is NOT DEFINITE in the env (§5.2-1). sid 14 is
+   declared in the procedure's own scope — so the Declare itself is accepted and
+   the sid joins `declared` — but it is never assigned, so it has no env entry.
+   The refinement does not apply, and because the value grammar cannot prove the
+   operand either, the whole If is outside the subset: the SAME Unknown the
+   pre-change code produced. *)
+let p_nondefinite () =
+  prog
+    [
+      proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+      proc ~params:[ 10 ] 1 1
+        [
+          s_declare 10;
+          s_declare 11;
+          s_declare 14;
+          s_assign 11 (e_const "5");
+          s_if
+            (e_rel Hir.Gt (e_var 14) (e_const "20"))
+            [ s_assign 11 (e_const "6") ]
+            [ s_assign 11 (e_const "7") ];
+          s_ret (Some (e_var 11));
+        ];
+    ]
+    [
+      sym 10 "x" 1 bin15 Hir.Formal;
+      sym 11 "c" 1 bin15 Hir.Auto;
+      sym 14 "u" 1 bin15 Hir.Auto;
+    ]
+
+(* The H3 pivot body: `if x > 20 then c = 16383 else c = x * 1000; return (c)`.
+   Over the FULL declared window the ELSE arm is unsafe (x * 1000 reaches
+   [-16383000,20000], outside W(15)), so the callee's own proof FAILS — the
+   refinement must never weaken that (H3). A small actual, however, excludes the
+   THEN arm and a big one excludes the ELSE arm, so the SPECIALIZED summary is
+   Known while the context-independent one stays Unknown (the legal §P2-DIFF-4
+   asymmetry, now reached through a refined arm). *)
+let p_h3 () =
+  p_simple1
+    [
+      s_declare 10;
+      s_declare 11;
+      s_if
+        (e_rel Hir.Gt (e_var 10) (e_const "20"))
+        [ s_assign 11 (e_const "16383") ]
+        [ s_assign 11 (e_bin Hir.Mul (e_var 10) (e_const "1000")) ];
+      s_ret (Some (e_var 11));
+    ]
+
+let f_refine () =
+  (* ---- POSITIVES: the §5.2 orientation law on the min shape. ---- *)
+  (* Lt (x < 20): then [lo,min(hi,19)]; else [max(lo,20),hi].
+     (3,3): then [3,3] feasible, else [20,3] EMPTY -> the else arm is excluded;
+     the surviving arm assigns c = 20 -> [20,20]. Concrete: 3 < 20 -> c = 20. *)
+  refine_actuals "refine-lt-below" (p_simple1 (cmp_min Hir.Lt)) 1 [ 10 ]
+    [ (3, 3) ] (R.Known (20, 20));
+  (* (30,30): then [30,19] EMPTY -> the THEN arm is excluded; else [30,30] ->
+     c = x -> [30,30]. Concrete: 30 < 20 is false -> c = 30. *)
+  refine_actuals "refine-lt-above" (p_simple1 (cmp_min Hir.Lt)) 1 [ 10 ]
+    [ (30, 30) ] (R.Known (30, 30));
+  (* (19,20): BOTH arms feasible — then [19,19] (c = 20), else [20,20] (c = x)
+     -> the hull is the POINT [20,20]. Concrete: 19 -> 20, 20 -> 20. *)
+  refine_actuals "refine-lt-across" (p_simple1 (cmp_min Hir.Lt)) 1 [ 10 ]
+    [ (19, 20) ] (R.Known (20, 20));
+  (* Le (x <= 20): then [lo,min(hi,20)]; else [max(lo,21),hi].
+     (20,20): then [20,20]; else [21,20] EMPTY -> c = 20 -> [20,20]. *)
+  refine_actuals "refine-le-at-cap" (p_simple1 (cmp_min Hir.Le)) 1 [ 10 ]
+    [ (20, 20) ] (R.Known (20, 20));
+  (* (21,21): then [21,20] EMPTY -> excluded; else [21,21] -> c = x -> [21,21].
+     Concrete: 21 <= 20 is false -> c = 21. *)
+  refine_actuals "refine-le-above" (p_simple1 (cmp_min Hir.Le)) 1 [ 10 ]
+    [ (21, 21) ] (R.Known (21, 21));
+  (* Ge (x >= 20): then [max(lo,20),hi]; else [lo,min(hi,19)].
+     (19,19): then [20,19] EMPTY -> excluded; else [19,19] -> c = x -> [19,19]. *)
+  refine_actuals "refine-ge-below" (p_simple1 (cmp_min Hir.Ge)) 1 [ 10 ]
+    [ (19, 19) ] (R.Known (19, 19));
+  (* (19,25): then [20,25] (c = 20 -> [20,20]); else [19,19] (c = x -> [19,19]);
+     the join is [19,20]. Concrete over the points: 19 -> 19, 20..25 -> 20. *)
+  refine_actuals "refine-ge-across" (p_simple1 (cmp_min Hir.Ge)) 1 [ 10 ]
+    [ (19, 25) ] (R.Known (19, 20));
+  (* Gt (x > 20) at the NON-POINT actual [3,30]: then [21,30] -> c = 20;
+     else [3,20] -> c = x; the hull is [3,20] — the §5.6-5 computation with the
+     orientation flipped. Concrete: 3 -> 3, 20 -> 20, 21 -> 20, 30 -> 20. *)
+  refine_actuals "refine-gt-across" (p_simple1 (cmp_min Hir.Gt)) 1 [ 10 ]
+    [ (3, 30) ] (R.Known (3, 20));
+  (* ---- Eq: the then-side is the POINT, the ELSE side stays UNREFINED. ---- *)
+  (* (20,20): then [20,20] -> c = 1; else UNREFINED x = [20,20] -> c = x;
+     the join is [1,20]. Concrete: the point 20 takes the THEN arm -> 1, and the
+     summary is deliberately WIDER than the concrete value (the else keeps the
+     whole entry): the unrefined-else law is visible in the literal. *)
+  refine_actuals "refine-eq-point" (p_simple1 (cmp_eq "1")) 1 [ 10 ]
+    [ (20, 20) ] (R.Known (1, 20));
+  (* (19,25): then [20,20] -> c = 1; else unrefined [19,25] -> c = x -> [19,25];
+     the join is [1,25]. Concrete envelope over the points: 19 -> 19, 20 -> 1,
+     25 -> 25, i.e. EXACTLY [1,25] (tight). *)
+  refine_actuals "refine-eq-across" (p_simple1 (cmp_eq "1")) 1 [ 10 ]
+    [ (19, 25) ] (R.Known (1, 25));
+  (* (19,19): then [max(19,20),min(19,20)] = [20,19] EMPTY -> the THEN arm is
+     EXCLUDED; the unrefined else keeps x = [19,19] -> c = x -> [19,19]. WITHOUT
+     the Eq then-side refinement the join would be the hull [1,19], so this
+     literal is the discriminating witness of the then-side law. Concrete: 19. *)
+  refine_actuals "refine-eq-then-excluded" (p_simple1 (cmp_eq "1")) 1 [ 10 ]
+    [ (19, 19) ] (R.Known (19, 19));
+  (* (21,21): then [21,20] EMPTY -> excluded; else x = [21,21] -> c = 21. *)
+  refine_actuals "refine-eq-else-only" (p_simple1 (cmp_eq "1")) 1 [ 10 ]
+    [ (21, 21) ] (R.Known (21, 21));
+  (* ---- Ne and Var op Var: the conservative hull is kept VERBATIM. ---- *)
+  (* Ne refines NOTHING (§5.2): at (20,20) the arms are walked with the whole
+     entry -> hull(c=1, c=x=20) = [1,20]. Had the THEN arm been refined to the
+     EMPTY complement, the answer would be [20,20]. Concrete: 20<>20 false -> 20. *)
+  refine_actuals "refine-ne-point" (p_simple1 cmp_ne) 1 [ 10 ] [ (20, 20) ]
+    (R.Known (1, 20));
+  refine_actuals "refine-ne-range" (p_simple1 cmp_ne) 1 [ 10 ] [ (19, 25) ]
+    (R.Known (1, 25));
+  (* Var op Var (two definite formals): refine does not apply -> the two-arm
+     hull [1,2] VERBATIM at (5,5),(3,3) (concrete: 5>3 -> c = 1). *)
+  refine_actuals "refine-varopvar-conservative" (p_varopvar ()) 1 [ 10; 12 ]
+    [ (5, 5); (3, 3) ] (R.Known (1, 2));
+  (* ---- the EXCLUDED arm with the variable RE-READ after the join. ---- *)
+  (* (3,3): the THEN arm is EMPTY ([21,3]) -> excluded; the ELSE arm is
+     c = 5 with x REFINED to [3,3] -> c + x = [8,8]. Concrete: 5 + 3 = 8. *)
+  refine_actuals "refine-reread-else" (p_reread ()) 1 [ 10 ] [ (3, 3) ]
+    (R.Known (8, 8));
+  (* (30,30): the ELSE arm is EMPTY ([30,20]) -> excluded; the THEN arm is
+     c = 20 with x = [30,30] -> [50,50]. Concrete: 20 + 30 = 50. *)
+  refine_actuals "refine-reread-then" (p_reread ()) 1 [ 10 ] [ (30, 30) ]
+    (R.Known (50, 50));
+  (* (19,25): BOTH arms feasible — then c = [20,20], x = [21,25]; else c = [5,5],
+     x = [19,20] -> the join is c = [5,20], x = [19,25] -> c + x = [24,45].
+     Concrete envelope: 19 -> 24, 20 -> 25, 21 -> 41, 25 -> 45. *)
+  refine_actuals "refine-reread-across" (p_reread ()) 1 [ 10 ] [ (19, 25) ]
+    (R.Known (24, 45));
+  (* ---- the MISSING ELSE: the then arm refined, the false path the identity. *)
+  (* (25,25): then [21,25] feasible -> c = 9; the false path is the CURRENT env
+     (c = [2,2]); the drop-not-inherit join is [2,9]. Concrete: 25 -> 9. *)
+  refine_actuals "refine-noelse-feasible" (p_noelse ()) 1 [ 10 ] [ (25, 25) ]
+    (R.Known (2, 9));
+  (* (19,19): the THEN arm is EMPTY ([21,19]) and there is no ELSE -> the whole
+     If is a NO-OP (§5.2/§5.3-b): the env is the current one, c = [2,2].
+     Concrete: 19 > 20 is false, c keeps 2. Pre-refinement this was [2,9]. *)
+  refine_actuals "refine-noelse-then-infeasible" (p_noelse ()) 1 [ 10 ]
+    [ (19, 19) ] (R.Known (2, 2));
+  (* (19,25): the then arm is feasible, so the identity false path still joins:
+     [2,9] — the missing-ELSE law is unchanged by the refinement. *)
+  refine_actuals "refine-noelse-across" (p_noelse ()) 1 [ 10 ] [ (19, 25) ]
+    (R.Known (2, 9));
+  (* ---- the FULL-WINDOW seed: the §5.6-7 no-change law at the full window. ----
+     Lt at W(15): then [-16383,19] -> c = 20; else [20,16383] -> c = x ->
+     the hull is [20,16383]; the concrete envelope over the window is the SAME
+     (x < 20 -> 20, x >= 20 -> x, max 16383, min 20). *)
+  refine_actuals "refine-fullwindow-lt" (p_simple1 (cmp_min Hir.Lt)) 1 [ 10 ]
+    [ wiv 15 ] (R.Known (20, 16383));
+  (* Eq at W(15): then [20,20] -> c = 1; the else is UNREFINED over the whole
+     window -> c = x = [-16383,16383]; the hull is the whole window — the
+     refinement changes NOTHING at the full seed (the §5.3-d no-weakening law). *)
+  refine_actuals "refine-fullwindow-eq" (p_simple1 (cmp_eq "1")) 1 [ 10 ]
+    [ wiv 15 ] (R.Known (-16383, 16383));
+  (* ---- the monotonicity invariant (§5.1 H1): a narrower actual NEVER yields a
+     wider summary than the full-window seed, and the refined min summaries form
+     the chain [3,3] subset [3,20] subset [-16383,20]. *)
+  let sub (a, b) (c, d) = c <= a && b <= d in
+  let known = function R.Known iv -> Some iv | R.Unknown -> None in
+  let rsum pp pa =
+    corrupt_refine_apply (R.summary_of_actuals ~maxp:15 pp 1 ~params:[ 10 ] ~actuals:pa)
+  in
+  check "refine-monotone-chain"
+    (match
+       ( known (rsum (p_min 20) [ (3, 3) ]),
+         known (rsum (p_min 20) [ (3, 30) ]),
+         known (rsum (p_min 20) [ wiv 15 ]) )
+     with
+     | Some a, Some b, Some c -> sub a b && sub b c
+     | _ -> false);
+  (* and the same chain for the Gt-oriented reread body: [3,3] -> [8,8];
+     [3,30] -> the join c = [5,20] and x = [3,30] -> [8,50]; [-100,100] ->
+     c = [5,20] and x = [-100,100] -> [-95,120]. (The FULL window is NOT in
+     this chain: there c + x reaches [-16378,16403], outside W(15), so the
+     summary is Unknown — the window obligation is applied to the JOINED, i.e.
+     already-refined, envs, never to a hull the refinement would widen.) *)
+  check "refine-monotone-reread"
+    (match
+       ( known (rsum (p_reread ()) [ (3, 3) ]),
+         known (rsum (p_reread ()) [ (3, 30) ]),
+         known (rsum (p_reread ()) [ (-100, 100) ]) )
+     with
+     | Some a, Some b, Some c -> sub a b && sub b c
+     | _ -> false);
+  (* ---- HOSTILES (§5.8: each yields the SAME result as the current code). ----
+     A non-definite Var in the condition: no refinement, no admission. *)
+  refine_actuals "refine-hostile-nondefinite-var" (p_nondefinite ()) 1 [ 10 ]
+    [ (3, 3) ] R.Unknown;
+  (* A Const that is not a canonical decimal literal ("007" — the decimal_int
+     domain): the condition is not provable at all -> the pre-change Unknown. *)
+  refine_actuals "refine-hostile-nondecimal-const"
+    (p_simple1
+       (cmp_body Hir.Gt "007" [ s_assign 11 (e_const "1") ]
+          [ s_assign 11 (e_const "2") ]))
+    1 [ 10 ] [ (3, 3) ] R.Unknown;
+  (* A Const LEFT operand (`20 > x`): outside the §5.2 subset, so the hull is
+     kept VERBATIM — [1,2] at the point (3,3), where a (forbidden) refinement of
+     the reversed comparison would have produced [1,1]. Concrete: 20>3 -> 1. *)
+  refine_actuals "refine-hostile-const-left"
+    (p_simple1
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if
+           (e_rel Hir.Gt (e_const "20") (e_var 10))
+           [ s_assign 11 (e_const "1") ]
+           [ s_assign 11 (e_const "2") ];
+         s_ret (Some (e_var 11));
+       ])
+    1 [ 10 ] [ (3, 3) ] (R.Known (1, 2));
+  (* `Var op Var` where BOTH sides are the same definite Var (`x > x`): the right
+     operand is not a Const -> no refinement -> the conservative [1,2] (concrete:
+     3>3 is false -> 2). *)
+  refine_actuals "refine-hostile-var-op-var"
+    (p_simple1
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if
+           (e_rel Hir.Gt (e_var 10) (e_var 10))
+           [ s_assign 11 (e_const "1") ]
+           [ s_assign 11 (e_const "2") ];
+         s_ret (Some (e_var 11));
+       ])
+    1 [ 10 ] [ (3, 3) ] (R.Known (1, 2));
+  (* A COMPOSITE condition ((x > 20) + (x < 30) carried as a Condty value): not a
+     relational Bin, so cond_ok refuses it exactly as before -> Unknown. *)
+  refine_actuals "refine-hostile-composite-cond"
+    (p_simple1
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if
+           (e_bin ~ty:Hir.Condty Hir.Add
+              (e_rel Hir.Gt (e_var 10) (e_const "20"))
+              (e_rel Hir.Lt (e_var 10) (e_const "30")))
+           [ s_assign 11 (e_const "1") ]
+           [ s_assign 11 (e_const "2") ];
+         s_ret (Some (e_var 11));
+       ])
+    1 [ 10 ] [ (3, 3) ] R.Unknown;
+  (* An EMPTY ACTUAL interval is the §P2-DIFF-4 SEED obligation, never an arm
+     exclusion: Unknown (the arm-exclusion law must not be reached). *)
+  refine_actuals "refine-hostile-empty-actual" (p_min 20) 1 [ 10 ] [ (20, 19) ]
+    R.Unknown;
+  (* ---- the H3 pivot. ---- *)
+  (* Over the FULL declared window the callee is UNSAFE (the else arm's
+     x * 1000 escapes W(15)) — the refinement changes NOTHING: Unknown. *)
+  let h3ctx =
+    match R.summaries ~maxp:15 (p_h3 ()) [ 1 ] with
+    | [ (_, s) ] -> s
+    | _ -> R.Unknown
+  in
+  check ("refine-h3-fullwindow: got " ^ show_sum h3ctx ^ ", expected Unknown")
+    (h3ctx = R.Unknown);
+  (* A small actual EXCLUDES the unsafe THEN... (3,3): the then arm [21,3] is
+     EMPTY -> excluded; the surviving else arm is x = [3,3] -> c = 3000,
+     inside W(15) -> Known (3000,3000). Concrete: 3000. This is the legal
+     asymmetry (the specialized proof is not the callee's own proof); the
+     BACKEND still lowers the callee over W(p) and still refuses it — the
+     DIF07/DIF08 native lanes and the 190/190 negative panel are the witnesses. *)
+  refine_actuals "refine-h3-small-actual" (p_h3 ()) 1 [ 10 ] [ (3, 3) ]
+    (R.Known (3000, 3000));
+  (* (25,25): the ELSE arm [25,20] is EMPTY -> excluded; the then arm is the
+     window-proved POINT 16383 -> Known (16383,16383). Concrete: 16383. *)
+  refine_actuals "refine-h3-large-actual" (p_h3 ()) 1 [ 10 ] [ (25, 25) ]
+    (R.Known (16383, 16383));
+  (* (19,25): BOTH arms feasible -> the hull of the point 16383 (then) and of
+     [19,20] * 1000 = [19000,20000] — which ESCAPES W(15) -> Unknown (the window
+     obligation is applied to the REFINED interval, not to the old hull). *)
+  refine_actuals "refine-h3-across-unknown" (p_h3 ()) 1 [ 10 ] [ (19, 25) ]
+    R.Unknown
 
 (* the corruption modes apply to the INFERRED value only, never to the
    reference or the expectation (the Stage-C method law). *)
@@ -1095,7 +1487,13 @@ let f_real () =
         )
   in
   check_real "hir/dif-fixtures/DIF03.pli" "classify" (R.Known (1, 3));
-  check_real "hir/dif-fixtures/DIF04.pli" "stepclass" (R.Known (1, 3))
+  check_real "hir/dif-fixtures/DIF04.pli" "stepclass" (R.Known (1, 3));
+  (* the §P2-DIFF-5 REAL fixtures: the min-shaped callees. Their CONTEXT-
+     independent summaries are the §5.6-7 no-change law at the full seed
+     (the always-feasible arm clips the hull), and the concrete envelope over
+     the whole window is the independent witness (ref_range_pp). *)
+  check_real "hir/dif-fixtures/DIF07.pli" "capped" (R.Known (-16383, 20));
+  check_real "hir/dif-fixtures/DIF08.pli" "limited" (R.Known (-16383, 12))
 
 (* --------------------------------------------------------------------------- *)
 (* The REAL-FIXTURE call-site measurement (E2E-54/P2-DIFF-4 §P2-DIFF-4.7, the   *)
@@ -1230,6 +1628,114 @@ let f_real_spec () =
                       let (a, b) = (1, 4) in
                       a >= c && b <= d && c = -16383 && d = 12
                   | R.Unknown -> false)
+       ));
+  (* ---- E2E-54/P2-DIFF-5 §P2-DIFF-5.8: the two REAL refinement fixtures. ----
+     DIF07 (entry `scaling`, callee `capped` = min(x,20)) has THREE call sites
+     with the POINT actuals 3, 7, 12 — every one of them BELOW the cap, so the
+     `c = 20` arm is provably infeasible, is EXCLUDED, and the summary is the
+     actual POINT itself (the branch-insensitive hull would have been [a,20]).
+     The hand-derived campaign vector is [3000,7000,12000] (each min(q,20) * 1000)
+     and the entry returns the LAST bill, 12000. *)
+  (match real_spec "hir/dif-fixtures/DIF07.pli" "scaling" "capped" with
+   | None -> ()
+   | Some (p, entry, callee) ->
+       let cp = callee.Hir.pid in
+       let calls = find_calls p.Hir.procs in
+       check "spec-real-dif07-struct"
+         (List.length calls = 3
+          && List.for_all (fun (c : cs) -> c.cs_callee = cp &&
+                                           List.length c.cs_actuals = 1) calls
+          && List.map (fun (c : cs) -> c.cs_line) calls = [ 6; 10; 14 ]);
+       (match exec ~cap:50 p.Hir.procs [] entry.Hir.body [] with
+        | None -> check "spec-real-dif07-exec" false
+        | Some (v, _env, recd) ->
+            let ivs = List.map (fun (_, _, a) -> a) (List.rev recd) in
+            check "spec-real-dif07-actuals"
+              (ivs = [ [(3, 3)]; [(7, 7)]; [(12, 12)] ]);
+            check "spec-real-dif07-entry" (v = 12000);
+            expect_actuals "spec-real-dif07-sum1" p cp callee.Hir.params
+              [ (3, 3) ] (R.Known (3, 3));
+            expect_actuals "spec-real-dif07-sum2" p cp callee.Hir.params
+              [ (7, 7) ] (R.Known (7, 7));
+            expect_actuals "spec-real-dif07-sum3" p cp callee.Hir.params
+              [ (12, 12) ] (R.Known (12, 12));
+            let ctx = ctx_sum p cp in
+            check "spec-real-dif07-ctx" (ctx = R.Known (-16383, 20));
+            (* the core invariant on the REAL fixture: actual ⊆ specialized ⊆
+               context-independent ⊆ W(15), plus the refinement witness that
+               every below-cap POINT actual specializes to ITSELF. *)
+            check "spec-real-dif07-subset"
+              (List.for_all
+                 (fun ivs ->
+                   List.for_all (fun (a, b) -> a <= b && in_w15 (a, b)) ivs)
+                 ivs
+               && List.for_all
+                    (fun (a, b) ->
+                      match ctx with
+                      | R.Known (c, d) -> a >= c && b <= d
+                      | R.Unknown -> false)
+                    [ (3, 3); (7, 7); (12, 12) ]
+               && List.for_all
+                    (fun (a, b) ->
+                      match
+                        summary_of_actuals p cp callee.Hir.params [ (a, b) ]
+                      with
+                      | R.Known (x, y) -> x = a && y = b
+                      | R.Unknown -> false)
+                    [ (3, 3); (7, 7); (12, 12) ])
+       ));
+  (* DIF08 (entry `batched`, callee `limited` = min(x,12)) has ONE call site
+     inside the loop; the four trips carry the actuals 1..4, so the hull is the
+     NON-POINT [1,4] — still below the cap, so the `c = 12` arm is EXCLUDED and
+     the summary is [1,4] (the hull would have been [1,12]). The campaign vector
+     is [1500,3000,4500,6000] and the entry returns the loop IV, 5. *)
+  (match real_spec "hir/dif-fixtures/DIF08.pli" "batched" "limited" with
+   | None -> ()
+   | Some (p, entry, callee) ->
+       let cp = callee.Hir.pid in
+       let calls = find_calls p.Hir.procs in
+       check "spec-real-dif08-struct"
+         (List.length calls = 1
+          && List.for_all (fun (c : cs) -> c.cs_callee = cp &&
+                                           List.length c.cs_actuals = 1) calls
+          && List.map (fun (c : cs) -> c.cs_line) calls = [ 7 ]);
+       (match exec ~cap:50 p.Hir.procs [] entry.Hir.body [] with
+        | None -> check "spec-real-dif08-exec" false
+        | Some (v, _env, recd) ->
+            let recd = List.rev recd in
+            let ivs = List.map (fun (_, _, a) -> a) recd in
+            check "spec-real-dif08-trips"
+              (ivs = [ [(1, 1)]; [(2, 2)]; [(3, 3)]; [(4, 4)] ]);
+            let hull =
+              List.fold_left
+                (fun (a, b) ivs ->
+                  List.fold_left
+                    (fun (x, y) (u, w) -> (min x u, max y w))
+                    (a, b) ivs)
+                (1, 1) ivs
+            in
+            check "spec-real-dif08-hull" (hull = (1, 4));
+            check "spec-real-dif08-entry" (v = 5);
+            expect_actuals "spec-real-dif08-sum" p cp callee.Hir.params
+              [ hull ] (R.Known (1, 4));
+            (* the boundary of the REAL fixture: at the actual [1,12] the THEN arm
+               needs x > 12, which is EMPTY, so the ELSE arm (c = x) is the only
+               feasible one and the summary is the whole [1,12]. *)
+            expect_actuals "spec-real-dif08-sum-atcap" p cp callee.Hir.params
+              [ (1, 12) ] (R.Known (1, 12));
+            (* the first actual ABOVE the cap: the ELSE arm is EMPTY, so the
+               `c = 12' arm alone survives and the summary collapses to the cap. *)
+            expect_actuals "spec-real-dif08-sum-above" p cp callee.Hir.params
+              [ (13, 13) ] (R.Known (12, 12));
+            let ctx = ctx_sum p cp in
+            check "spec-real-dif08-ctx" (ctx = R.Known (-16383, 12));
+            check "spec-real-dif08-subset"
+              (in_w15 hull
+               && match ctx with
+                  | R.Known (c, d) ->
+                      let (a, b) = (1, 4) in
+                      a >= c && b <= d && c = -16383 && d = 12
+                  | R.Unknown -> false)
        ))
 
 let live () =
@@ -1250,6 +1756,11 @@ let live () =
      byte-identical — the old modes are keyed to the old path only, and the
      new family's failures are appended at the END of the failure list. *)
   f_actuals ();
+  (* the Stage-C §5.8 refinement family (E2E-54/P2-DIFF-5): the orientation law,
+     the Eq-else-UNREFINED law, the Ne/Var-op-Var conservative law, the missing-
+     ELSE law, the excluded-arm + re-read law, the full-window no-change law, the
+     §5.8 hostiles and the H3 pivot — all on the CORRUPT-WRAPPED call-site path. *)
+  f_refine ();
   f_real_spec ()
 
 type mode =
@@ -1260,6 +1771,7 @@ type mode =
   | Corrupt_spec_widen
   | Corrupt_spec_narrow
   | Corrupt_spec_unknown
+  | Corrupt_refine_arm
   | Usage_error
 
 let () =
@@ -1285,12 +1797,16 @@ let () =
     | [ "--corrupt-spec-unknown" ] ->
         corrupt_spec := Some `Spec_unknown;
         Corrupt_spec_unknown
+    | [ "--corrupt-refine-arm" ] ->
+        corrupt_refine := Some `Refine_arm;
+        Corrupt_refine_arm
     | _ -> Usage_error
   in
   if mode = Usage_error then begin
     prerr_endline
       ("usage: mirsumtest [--corrupt-widen|--corrupt-narrow|--corrupt-unknown"
-       ^ "|--corrupt-spec-widen|--corrupt-spec-narrow|--corrupt-spec-unknown]");
+       ^ "|--corrupt-spec-widen|--corrupt-spec-narrow|--corrupt-spec-unknown"
+       ^ "|--corrupt-refine-arm]");
     exit 2
   end;
   live ();
