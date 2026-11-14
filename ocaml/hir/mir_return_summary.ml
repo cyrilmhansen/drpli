@@ -229,6 +229,35 @@ let rec stmts maxp (prog : Hir.program) (pp : Hir.proc)
                    | Some (_, ee) -> stmts maxp prog pp d (join et ee) rest))
        | _ -> None)
 
+(* The ONE shared body evaluator (E2E-54/P2-DIFF-4 §P2-DIFF-4.6-1: the
+   anti-duplication law — ZERO duplicated statement/expression traversal).
+   It walks the body, demands the final top-level Return (Some e) and proves
+   the returned interval inside W(q); the formal seeds are the ONLY input
+   that differs between the two entry points below. *)
+let eval_body maxp (prog : Hir.program) (pp : Hir.proc) (env0 : (int * (int * int)) list)
+    (q : int) : summary =
+  match List.rev pp.Hir.body with
+  | [] -> Unknown
+  | last :: front ->
+      (* the body WITHOUT its final statement, in ORDER — the
+         walk is a left-to-right induction over the statements. *)
+      (match last.Hir.st with
+       | Hir.Return (Some e) ->
+           (match stmts maxp prog pp [] env0 (List.rev front) with
+            | None -> Unknown
+            | Some (declared, env) ->
+                (match lower_e maxp declared env e with
+                 | Some iv ->
+                     if
+                       Mir_numeric.in_window
+                         (Mir_numeric.window q)
+                         iv
+                     then
+                       Known iv
+                     else Unknown
+                 | None -> Unknown))
+       | _ -> Unknown)
+
 (* The summary of ONE procedure. The backend's env0 law seeds every formal
    with EXACTLY W(p); the last statement must be the top-level Return (Some
    e); the proven interval must sit inside W(q). *)
@@ -255,28 +284,66 @@ let summary_of maxp (prog : Hir.program) (pid : int) : summary =
             in
             (match seed_formals [] pp.Hir.params with
              | None -> Unknown
-             | Some env0 ->
-                 (match List.rev pp.Hir.body with
-                  | [] -> Unknown
-                  | last :: front ->
-                      (* the body WITHOUT its final statement, in ORDER — the
-                         walk is a left-to-right induction over the statements. *)
-                      (match last.Hir.st with
-                       | Hir.Return (Some e) ->
-                           (match stmts maxp prog pp [] env0 (List.rev front) with
-                            | None -> Unknown
-                            | Some (declared, env) ->
-                                (match lower_e maxp declared env e with
-                                 | Some iv ->
-                                     if
-                                       Mir_numeric.in_window
-                                         (Mir_numeric.window q)
-                                         iv
-                                     then
-                                       Known iv
-                                     else Unknown
-                                 | None -> Unknown))
-                       | _ -> Unknown)))
+             | Some env0 -> eval_body maxp prog pp env0 q)
+        | _ -> Unknown)
+
+(* E2E-54/P2-DIFF-4 §P2-DIFF-4.2: the CALL-SITE SPECIALIZATION of the same
+   analysis. The formal seeds are the PROVEN intervals of the actuals at ONE
+   call site instead of the full declared windows. The callee subset is the
+   §P2-DIFF-3 subset VERBATIM plus EXACTLY these call-site obligations — ANY
+   violation is Unknown, NEVER a refusal, NEVER an exception: the analysis is
+   pure and the caller falls back to the context-independent summary.
+     1. params is the callee's OWN formal list, in the callee's ORDER (list
+        equality — this also excludes every permuted argument order);
+     2. the actuals list has the SAME length as the formals (the arity
+        obligation — the backend refuses the mismatch first, defensively);
+     3. every supplied interval is a NON-EMPTY closed interval (lo <= hi);
+     4. every formal's symbol exists, has storage Formal, passes the bin_p
+        precision law, and its supplied interval is CONTAINED in the
+        declared window W(p) of that formal's precision (never a widened or
+        foreign window);
+     5. the actuals carry NO caller storage: the analysis receives only the
+        interval of the value that was COPIED into the value cell, so no
+        caller mutable state can ever be inferred (the soundness argument
+        §P2-DIFF-4.3(d) is about the CLOSED callee). *)
+let summary_of_actuals ~maxp (prog : Hir.program) (pid : int)
+    ~(params : int list) ~(actuals : (int * int) list) : summary =
+  if pid = 0 then Unknown
+  else
+    match find_proc prog pid with
+    | None -> Unknown
+    | Some pp -> (
+        match pp.Hir.ret with
+        | Some (Hir.Fixed_bin (q, 0)) when q >= 1 && q <= maxp ->
+            if params <> pp.Hir.params then Unknown
+            else if List.length actuals <> List.length params then Unknown
+            else
+              let rec seed acc = function
+                | [], [] -> Some acc
+                | sid :: prest, iv :: arest ->
+                    let (lo, hi) = iv in
+                    if lo > hi then None
+                    else
+                      (match find_sym prog sid with
+                       | Some s ->
+                           if s.Hir.sstorage <> Hir.Formal then None
+                           else
+                             (match bin_p_of maxp s.Hir.sty with
+                              | Some p ->
+                                  if
+                                    Mir_numeric.in_window
+                                      (Mir_numeric.window p)
+                                      iv
+                                  then
+                                    seed ((sid, iv) :: acc) (prest, arest)
+                                  else None
+                              | None -> None)
+                       | None -> None)
+                | _ -> None
+              in
+              (match seed [] (params, actuals) with
+               | None -> Unknown
+               | Some env0 -> eval_body maxp prog pp env0 q)
         | _ -> Unknown)
 
 (* The summary list over the queried pids, sorted ascending by pid and
