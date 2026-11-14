@@ -7234,6 +7234,25 @@ never moves), the DIF05/DIF06 `.mir` pins (1887 B `3f9080f2…`, 1182 B `be63ee8
 runner's output vectors (DIF05/DIF06 still PASS — the narrower summaries only widen what
 the backend may ADMIT), every 8080 golden, every negative pin, and the ledger.
 
+**AMENDMENT (pre-execution, Stage B, 2026-11-14, session 01a1db62): the §5.6 list was
+incomplete — one additional check moves, and it is the SAME law.**
+`classifier-narrow-precision` (`p_classify ~xty:Fixed_bin(2,0)`, the nested classifier
+`if x > 5 then (if x > 50 then c = 3 else c = 2) else c = 1`): the §5.6 hand-verification
+of the classifier family only checked the FULL-WINDOW seed, where both arms are feasible
+and `[1,3]` is unchanged. The narrow-precision variant seeds the formal with
+`W(2) = [-3,3]` — and `x > 5` is INFEASIBLE over `[-3,3]` (the clip is `[6,3]`, empty),
+so the outer `then` arm is excluded and the result is the single arm `c = 1` ⇒
+**`[1,1]`**. This is the refinement working as pre-registered (the §5.2 subset law, the
+§5.3 soundness argument); the concrete reference (the driver's independent evaluator)
+agrees: `x ∈ [-3,3]` always takes the outer `else`. The MEASURED Stage-B failure
+list is EXACTLY the §5.6 list plus this one item: `spec-min-above-cap`, `spec-min-across-
+cap`, `spec-min-nonpoint`, `spec-distinct-1/2/3`, `spec-full-window-min`, `spec-loop-iv`,
+`spec-boundary-min-13`, `spec-ctx-min`, `spec-real-dif05-sum1/2/3`, `spec-real-dif05-ctx`,
+`spec-real-dif05-subset`, `spec-real-dif06-sum`, `spec-real-dif06-ctx`,
+`spec-real-dif06-subset` (19 checks) — the values as printed are the §5.6 predictions.
+17. `classifier-narrow-precision`: `[1,3]` ⇒ **`[1,1]`** (the `W(2)` seed excludes the
+    outer `then` arm; the inner `x > 50` is never reached).
+
 ### P2-DIFF-5.7 The OCaml architectural boundaries (the PERMITTED edits, complete list)
 
 1. `ocaml/hir/mir_return_summary.ml` — the `If` arm of `stmts`, IN PLACE, plus the pure
