@@ -48,7 +48,7 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-2 — **STAGE C IS DONE AND MEASURED; THE ONLY REMAINING WORK IS THE DOC CLOSE COMMIT + THE DURABLES**) — CHECKPOINT 2026-11-13 late
+## Next action (E2E-54/P2-DIFF-2 — **THE CAMPAIGN IS COMPLETE: Stages A, B and C ARE CLOSED AND COMMITTED; THE ONLY ACT LEFT IS THE MANAGED-BLOCK REFRESH + FINALIZE, THEN STOP**) — CHECKPOINT 2026-11-13 late
 
 **HEAD `97c0fa29`** (the new additive panel tool) on top of `f1f3c1ab` (the extraction) and
 `11c7e191` (the Stages A+B close). Session 01a1d748 (renewal 4/12 of chain 01a1d648; renewal gate
@@ -89,23 +89,25 @@ it). ZERO oracle; ledger 203/C380.
    8080 `bin15_fits` literal-IMMEDIATE ceiling (`codegen.ml:1459`) — a different quantity. The DIF
    programs (literals 1..6300) and the panel are unaffected: a documentation correction only.
 
-**NEXT VERBATIM (the ONLY unfinished work — the doc close).**
-(1) `git status --porcelain` shows the doc close UNCOMMITTED: `spec/lab-evidence/e2e54/RESULTS.md`
-(§P2-DIFF-2.7 now carries the FULL Stage-C finding, the §P2-DIFF-2.8 panel rows for hir + the new
-tool, the §P2-DIFF-2.11 commit chain "STAGE C CLOSED", the section heading now A+B+C) and
-`spec/lab-evidence/e2e54/PLAN.md` (the §P2-DIFF-2.2 CORRECTION block, §P2-DIFF-2.11 rewritten
-CLOSED, the §P2-DIFF-2.8 dashboard row STAGE C CLOSED). **`docs/architecture/backend-boundary.md`
-§7-12 is NOT yet edited** — it still asserts `literals ≤ 32767` (line 627) and has no Stage-C
-paragraph: append the Stage-C paragraph (the movement, the nine exports, the import-NOTHING law,
-the generative-`Map` deviation, the equivalence proof, the disclosed one-line F8 diff, the
-NOT-fixed `decimal_int ""` defect) and correct that 32767 clause to the `±16383` intersection.
-(2) Verify with `grep -n "32767" docs/architecture/backend-boundary.md` that only the corrected
-form (or a quoted original) survives. (3) ONE explicit-path commit for the close (RESULTS + PLAN +
-arch), message naming `f1f3c1ab`/`97c0fa29` and the measured panel. (4) Re-run ONLY `python3
-tools/mir_numeric_test.py` (rc 0, 41) after the doc commit — no code byte changes, so the panel
-cannot move; if anything else is re-run, every log must stay `cmp`-identical. (5) Durables + the
-managed-block refresh (`handoff_renew` if authorized, else `handoff_finalize`) + STOP: the campaign
-ENDS at the Stage-C close; every further phase needs a NEW operator brief.
+**THE DOC CLOSE AND THE DURABLES ARE COMMITTED.** The doc close is **`b7f6b4a4`** (three explicit
+paths — RESULTS §P2-DIFF-2.7 with the full Stage-C finding, §P2-DIFF-2.8 with the two honest panel
+rows, §P2-DIFF-2.11 STAGE C CLOSED; PLAN §P2-DIFF-2.11 rewritten CLOSED + the §P2-DIFF-2.2
+CORRECTION block + the §P2-DIFF-2.8 dashboard row; arch §7-12 correction + the new §7-13). The
+durables are **`2555c7e3`**. POST-CLOSE RE-VERIFICATION MEASURED: `python3
+tools/mir_numeric_test.py` rc **0**, 41 checks (`build/e54p2diff2/stageC-mir_numeric-final.log`);
+`git diff --exit-code -- hir/ ocaml/` rc **0** — no code or pin byte moved by the close.
+
+**NEXT VERBATIM (the only remaining act).**
+(1) The managed-block refresh: `/handoff` then `/handoff ready`; then `handoff_renew` if the gate
+authorizes it (4/12 of the chain cap is used, so renewal is available) — otherwise
+`handoff_finalize`. (2) **STOP.** The campaign is CLOSED: interprocedural narrowing,
+non-numeric observables, `GET`/`PUT EDIT`/`FILE`, the `decimal_int ""` fix, the stale
+`tools/test_functional_dashboard.py` `**26**` check, and any oracle work ALL need a NEW operator
+brief. Recovery for any successor: `git rev-parse HEAD` (expect `2555c7e3` or later) +
+`git status --porcelain` (only `handoff.config.json` may be dirty, never staged) +
+`/handoff verify`, then RESULTS §P2-DIFF-2.7 + §P2-DIFF-2.8, PLAN §P2-DIFF-2.11 and the
+§P2-DIFF-2.2 CORRECTION, then LEARNINGS §§ "E2E-54/P2-DIFF-2 Stage-C panel hop" and the
+"close + Stage-C hop" section.
 
 **Standing:** ZERO oracle (`PLI.COM` never ran); no golden/claims/pin byte; `handoff.config.json`
 NEVER staged; no push; explicit paths; rc DIRECT; `LC_ALL=C`; never batch build with tests;
