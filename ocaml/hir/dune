@@ -1,6 +1,6 @@
 (library
  (name pli80_hir)
- (modules diagnostic hir target semantic_env hir_build backend mir_numeric mir_backend sha256)
+ (modules diagnostic hir target semantic_env hir_build backend mir_numeric mir_return_summary mir_backend sha256)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
 
@@ -29,5 +29,15 @@
 (executable
  (name mirnumtest)
  (modules mirnumtest)
+ (libraries pli80_hir)
+ (flags (:standard -warn-error -a)))
+
+; E2E-54/P2-DIFF-3 Stage B: the independent test driver for the pure
+; Mir_return_summary analysis (the mirnumtest precedent — a small executable
+; in the same library, driven by tools/mir_return_summary_test.py, NOT by
+; tools/hir_test.py whose 220-ok count is a frozen panel constant).
+(executable
+ (name mirsumtest)
+ (modules mirsumtest)
  (libraries pli80_hir)
  (flags (:standard -warn-error -a)))

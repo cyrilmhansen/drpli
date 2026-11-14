@@ -360,6 +360,17 @@ let compile ~(profile : Target.profile) ~(export : string)
         "MIR backend: a multi-procedure program with the debug sidecar (-g) is \
            outside the native subset (the §P1-mD.3 map format is single-function; \
            multi-procedure debugging is a later milestone)";
+    (* E2E-54/P2-DIFF-3 §P2-DIFF-3 (Stage B): the ONE return-summary analysis
+       call. It runs AFTER the validation scans (folded_of, the -g law) and
+       BEFORE the per-procedure lowering loop, and it reorders NOTHING: the
+       discovery order, the entry-first lowering, the callee-first emission and
+       the pinned order of every emitted byte are exactly as they were. The
+       analysis is pure — no emission, no diagnostics, no refusal — a summary
+       of Unknown means "the full declared window, as today". *)
+    let summaries =
+      Mir_return_summary.summaries ~maxp prog
+        (List.map (fun (pid, _) -> pid) (Int_map.bindings !reached))
+    in
     (* the reached set drives EVERYTHING below: lowering runs in DFS DISCOVERY
        order (entry first; hop-6 LOCKED decision, recorded with the pins), the
        func items assemble in DFS POST-ORDER (callees first, entry LAST and the
@@ -807,7 +818,20 @@ let compile ~(profile : Target.profile) ~(export : string)
       else
         emit ~line "call pc%d, pli80_%s, %s, %s" cpid ckey rr
           (String.concat ", " operand_regs);
-      (rr, window cq)
+      (* E2E-54/P2-DIFF-3 §P2-DIFF-3: the caller's interval for the result is
+         the callee's FULL declared window W(q) — the exact pre-existing
+         behaviour — UNLESS the sound summary analysis proves a smaller one AND
+         that interval sits inside the declared window (the defensive
+         re-check of the actual_return_values <= inferred <= declared_window
+         invariant). The summary is analysis-only: no instruction emitted
+         above depends on it, so the emission bytes are unchanged. *)
+      let full = window cq in
+      let iv =
+        match List.assoc_opt cpid summaries with
+        | Some (Mir_return_summary.Known s) when in_window full s -> s
+        | _ -> full
+      in
+      (rr, iv)
     in
     (* Early/nested RETURN stays outside the subset (§P1-m2.2): the ONE final
        top-level RETURN(expr) law is unchanged. A structural scan refuses it BY

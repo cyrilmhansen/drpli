@@ -5,6 +5,87 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-3 Stage-B fix hop (2026-11-14, session 01a1d924 renewal 3/12 of chain 01a1d8e9; ZERO oracle; ledger 203/C380) — MIRSUMTEST GREEN 55 CHECKS; THE MODULE ROOT CAUSE AND THE DRIVER'S OWN DEFECTS
+
+**ACCEPTED — the module root cause (one line).** `summary_of` did `List.rev pp.Hir.body` and
+walked the `front` list — the statements were visited in REVERSE order, so the `declare`
+statements arrived AFTER the `if`/`assign` that uses them: every positive case was rejected
+`Unknown` before analysis began. The fix: `stmts ... (List.rev front)` (restore the body order
+after peeling the final `Return`). This is what the predecessor suspected ("the `front` list
+is the body EXCLUDING the final `Return`, which is what the `stmts` walk expects — verify")
+— it was NOT what the walk expected: `front` from `List.rev` is the body in reverse, and the
+walk is a left-to-right induction. `List.mem`/`assoc` order-sensitivity did not matter; only
+the statement order did.
+
+**ACCEPTED — the driver table bugs (all pre-fix, as the predecessor suspected).** (1) The
+`p_simple` bodies that `s_assign`/read sid 11 omitted `s_declare 11` — the module was
+CORRECTLY rejecting them (the Assign requires the target in `declared`); the tables now
+include `s_declare 11`. (2) `zero-precision-result` was a nonsense duplicate (it expected
+`Unknown` from an ordinary constant-return body — the module's `Known [1,1]` is right);
+DELETED. (3) `non-integer-declare`/`static-declare` referenced sids 12/13 that had NO symbol
+in the `p_simple` program, so they were rejecting for the wrong reason (missing symbol, not
+the declared type); the symbols now exist (`Char(1,false)` and `Static`). (4)
+`foreign-scope-declare` similarly: sym 99 now exists at scope 0 (the rejection is the scope
+law). (5) `undeclared-formal-read` keeps NO `s_declare 10` (the rejection IS the formal read).
+(6) The boundary tests `boundary-neg-16383`/`boundary-neg-op` were vacuous (they passed
+Unknown only via the missing declare); they now carry the declares and the correct
+expectations: `x - 0` is the full window `Known [-16383,16383]` and `-16383` is the endpoint
+`Known [-16383,-16383]` — the boundary is now genuinely tested.
+
+**FALSIFIED (my own method control, the Stage-C law in action):** `--corrupt-unknown` was
+VACUOUS — it keyed on `pid = 3` but no test uses pid 3, so the mode was a no-op and exited
+rc 0. The method law ("a control that fails LOUDLY or is not a control") caught it; the
+condition is now `pid = 1` (every Unknown expectation fails) — measured rc 1.
+
+**ACCEPTED — `mirsumtest` is green: 55 checks**, rc 0, run from the repo root (the driver
+reads the real fixtures by relative path — that is the driver's contract). The three
+`--corrupt-*` modes now all fail rc 1 (widen/narrow/unknown) and the usage error is rc 2.
+
+**MEASURED — the backend integration works: the summary is the thing that moves `pli80mir`.**
+`pli80mir --export pricing DIF03.pli` now exits rc 0 and the MIR is the full two-function
+module — the `mul t7, t5, t6` is admitted (the `Known (1,3)` summary of `classify` + the
+window check). This is the first positive §P2-DIFF-3 end-to-end measurement.
+
+**ACCEPTED — the DIF04 finding is a PRE-EXISTING, UNRELATED limitation, NOT a Stage-B
+regression.** `pli80mir --export production` on the COMMITTED source (sha `36c4cf5b…`) refuses
+with the counted-loop drop law: `return (w)` is rejected because `w` is only written in the
+loop body and the loop body is NOT guaranteed to execute — the backend's own `R1/R2` law.
+This is the same law that made DIF02 use `return (i)`; the pre-registered DIF04 design
+(§P2-DIFF-3) specifies only `put list(w)` INSIDE the loop (the drop law) — the design
+specified the loop's OUTPUT, not the ENTRY's return value; the committed source's
+`return (w)` was a drafting error. With the summary, `pli80mir --export production` on the
+same source still fails — but the failure is now the LOOP-EXIT drop, not the `*` window —
+the `*` on line 8 is admitted (the same `cl` that the summary now proves tight).
+**DISCLOSED SOURCE FIX (this hop):** the committed `DIF04.pli` source is changed
+`return (w)` → `return (i)` (the same idiom as the committed DIF02 — the induction variable
+is DEFINITELY initialized at the loop exit by the counted-loop law). New sha `b25f0a84…`
+(563 bytes, same size, CRLF + one `^Z` verified); the ENTRY's return value is NOT the
+program's observable output (the `put list(w)` INSIDE the loop is the output) — the
+pre-registered output vector is unchanged: `[350,350,350,700,1050]`. MEASURED with the
+summary: `pli80mir --export production` on the `return (i)` variant (disposable) rc 0, the
+`mul` admitted, `return (i)` at the loop exit. The old committed source (sha `36c4cf5b…`) is
+superseded by the new sha `b25f0a84…` — the commit must land BEFORE the next measurement
+(timing law); the old sha is preserved here as the historical record.
+
+**ACCEPTED — the baseline-refusal measurement (pre-fix).** `git archive HEAD` of the
+`ocaml/` tree to a disposable dir, built and run: `pli80mir --export production` on the
+committed `36c4cf5b` source gives EXACTLY the Stage-A-measured `*` window refusal on line 8
+(`[-16383,16383] × [350,350] → [-5734050,5734050]`) — the pre-existing baseline, unchanged,
+no regression from the module work.
+
+**NEXT (after the commit):** re-run the whole panel (`mirsumtest` from the repo root,
+`pli80mir` on the `b25f0a84` source — expect rc 0), the frozen panel, `tools/
+mir_return_summary_test.py`, then Stage D. The `git archive` baseline is a disposable check
+(never the campaign's measurement); the campaign's own Stage-B measurement is post-commit.
+
+**Method (this hop):** the predecessor's own suspicion was the fastest path — the module
+was the one-line bug; the driver tables were the rest. The fix was in the order of the
+walk, not the walk's logic. `git archive` is safe for baseline checks (a pure export).
+
+**Standing (this hop):** ZERO oracle; ledger 203/C380; `handoff.config.json` NEVER staged;
+no push; explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+scratch `build/*` never committed; NEVER hand-edit a managed block.
+
 ## E2E-54/P2-DIFF-2 close + Stage-C hop (2026-11-13, session 01a1d734 renewal 3/12 of chain 01a1d648; ZERO oracle; ledger 203/C380)
 
 **ACCEPTED (verified first-hand).**
@@ -13862,3 +13943,41 @@ usage error, NOT a compiler refusal; never record it as a measurement. The `pli8
 **Unresolved (for Stage B).** The exact summary-module design is in the PLAN §P2-DIFF-3; the
 `Convert` tolerance at `cat = classify(...)` and the full-domain concrete reference evaluator are
 still PROPOSED, not verified.
+
+## E2E-54/P2-DIFF-3 Stage B hop (session 01a1d90c renewal 2/12 of chain 01a1d8e9, 2026-11-14) — ZERO oracle; ledger 203/C380
+
+**Accepted (verified first-hand).** (1) The Stage-B code is WRITTEN and the whole tree BUILDS
+GREEN (`dune build` rc 0): `ocaml/hir/mir_return_summary.ml` (pure; `summary = Known of
+(int*int) | Unknown`; `summaries ~maxp prog pids` returns an association list sorted by
+`List.sort_uniq` — the generative-`Map` constraint of §P2-DIFF-2 is the reason the map is a
+list, NOT a second `Map.Make`); `mir_backend.ml` carries the ONE analysis call after the
+`folded_of`/-g validation scans and before `post_order` (no order change), and the
+`lower_call_e` tail now reads `List.assoc_opt cpid summaries` with the defensive
+`in_window (window cq)` re-check — emission unchanged. (2) `ocaml/hir/dune` gains the module
+and the `mirsumtest` executable (the `mirnumtest` precedent). (3) `mirsumtest.ml` compiles and
+RUNS: 13 FAILs, every one `Unknown` where the law says `Known` — including the two REAL
+fixtures.
+
+**Accepted (method, OCaml).** The driver's first-run errors were all ITS OWN, not the module's:
+the `?line`-first helpers must NOT be passed the line positionally (`s_if 0 ...` sent `0` to
+the condition); the env list type is `int * (int * int) list` (sid to interval); nested
+`match` in `if`/`else` arms needs parentheses (dangling-match — the `| _` of the inner arm
+swallowed the outer); `Hir.Assign { target = Hir.D_elem _; _ }` (record pattern needs `; _`);
+the `summary_of` wrapper must extract the single-pid `summary` from the `summaries` list.
+**The driver test-tables are WRONG** (recorded in PROGRESS): some `p_simple` bodies omit
+`s_declare 11` for the `c` symbol (so the module is RIGHT to say Unknown), and
+`zero-precision-result` is a nonsense duplicate of `ret-p0` (its `p_simple` body is valid —
+the test expectation is wrong; delete it).
+
+**Proposed (the one open question, verify FIRST).** The real-fixture failures (`real:
+'classify' got Unknown`) cannot be explained by the driver-table bug alone — the module's
+`summary_of`/`stmts` walk must be re-examined against the real HIR (the `classify` body IS
+`[dcl x; dcl c; if; if; assign; return]` with everything in scope 1 and `params=[10]`).
+Candidate suspects to check with a one-off probe, NOT a rewrite: `seed_formals` ordering; the
+`Add`/`Assign` env threading; the `cond_ok` `e_var` type; and the `List.assoc` of the
+`declared` list in the `Assign` arm. If the module is correct, the driver tables are the whole
+story; if the module is wrong, the fix is small and the driver must stay green.
+
+**Uncommitted (KEEP, never revert):** all four files above. The successor commits NOTHING until
+the driver is green, then the frozen panel, then `tools/mir_return_summary_test.py` (the F8
+`ocaml/hir/*.ml` count moves 13→15 — the ONE disclosed exception), then Stage D (D08/D09).

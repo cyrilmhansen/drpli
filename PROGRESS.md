@@ -48,7 +48,89 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-3 — **STAGE A CLOSED AND COMMITTED (`3928f130`); THE BASELINE REFUSAL IS MEASURED EXACTLY AS PRE-REGISTERED; STAGE B (the `mir_return_summary` module) IS NEXT**) — session 01a1d8f8 renewal 1/12 of chain 01a1d8e9, 2026-11-14
+## Next action (E2E-54/P2-DIFF-3 — **STAGE B DRIVER GREEN + MODULE ROOT CAUSE FIXED; THE DIF04 SOURCE FIX IS THE COMMIT OWED NOW; THEN THE FROZEN PANEL, THEN THE PANEL TOOL, THEN STAGE D**) — session 01a1d924 renewal 3/12 of chain 01a1d8e9, 2026-11-14
+
+**STATE (accepted, this hop).** The module root cause was the one-line `List.rev` bug in
+`summary_of` (the `front` list was walked in reverse — declares arrived after the uses);
+fixed to `stmts ... (List.rev front)`. The driver table bugs (missing `s_declare 11`, the
+nonsense `zero-precision-result`, the absent sym 12/13/99, the vacuous `boundary-neg-*` and
+`undeclared-formal-read` expectations, and the `--corrupt-unknown` control keyed on the
+nonexistent pid 3) were all fixed. `mirsumtest` is now **GREEN: 55 checks, rc 0**, and all
+three `--corrupt-*` modes fail LOUDLY rc 1. The backend integration was measured: the
+summary now admits `pli80mir --export pricing` on the committed DIF03 (rc 0, the `mul` is
+admitted), while the committed `36c4cf5b` DIF04 is still refused by the counted-loop drop
+law at the loop exit — NOT the `*` window (the `*` on line 8 is now admitted). The pre-existing
+`git archive` baseline (disposable) confirms the old `36c4cf5b` source is refused at the
+`*` exactly as Stage A measured, unchanged by the module work.
+
+**DISCLOSED SOURCE FIX (this hop, the commit owed):** the committed `DIF04.pli` source
+`return (w)` → `return (i)` — the loop's output is `put list(w)` INSIDE the loop (the
+pre-registered design, §P2-DIFF-3); the `w` is written ONLY in the loop body, so the
+`return (w)` at the loop exit hits the counted-loop drop law (same as DIF02's `return (i)`
+idiom). The `return (i)` is the IV, DEFINITELY initialized at the loop exit by the
+counted-loop law. New sha `b25f0a84…` (563 bytes, CRLF + one `^Z` verified), the old
+`36c4cf5b…` superseded — the commit must land BEFORE the next measurement (timing law);
+the output vector is unchanged: `[350,350,350,700,1050]`.
+
+**NEXT VERBATIM (Stage B close, then the rest):** (1) the commit (all uncommitted
+files: `mir_return_summary.ml` + `mir_backend.ml` + `dune` + `mirsumtest.ml` + the
+`b25f0a84` DIF04 source + the durables). (2) `pli80mir --export production` on the NEW
+`b25f0a84` source — expect rc 0 (the summary admits the `*` on line 8 and `return (i)`
+compiles). (3) `pli80mir` on the new DIF03 (rc 0 already) and `mirsumtest` re-run (the
+f_real `stepclass` test is the same). (4) the frozen panel (the `mirsumtest` check is
+additive, not the `220`/`mir`/`cf`/`call` frozen). (5) `tools/mir_return_summary_test.py`
+(NEVER `hir_test.py` — the F8 count moves 13→14, the one disclosed exception). (6) Stage D
+(D08/D09 + `--strict` + the full frozen panel + `mir_numeric` + `pli80c` sha + ledger).
+
+**Standing:** ZERO oracle; ledger 203/C380; `handoff.config.json` NEVER staged; no push;
+explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+scratch `build/*` never committed; NEVER hand-edit a managed block; the module is the one
+`List.rev` fix; the driver is 55 checks; the three `--corrupt-*` modes are the controls.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-3 — **STAGE B IN FLIGHT: module + driver + integration WRITTEN, UNCOMMITTED, NOT YET BUILD-GREEN; the build is the next single step**) — session 01a1d90c renewal 2/12 of chain 01a1d8e9, 2026-11-14
+
+**STATE (accepted, this hop).** Stage A CLOSED at `3928f130` (see the superseded heading below — the
+baseline facts, the `<=`-to-`>` deviation, the HIR-E19 refusals, the CLI law). Stage B edits are
+APPLIED UNCOMMITTED (KEEP, never revert):
+1. NEW `ocaml/hir/mir_return_summary.ml` — `type summary = Known of (int*int) | Unknown`;
+   `summaries : maxp:int -> Hir.program -> int list -> (int*summary) list` (assoc list, sorted
+   `sort_uniq` — the generative-`Map` constraint); `bin_p_of`/`find_sym`/`find_proc`/`add_env`/
+   `join`/`lower_e`/`cond_ok`/`stmts`/`summary_of`; pure, no refusal, no `open`, no Target.
+2. `ocaml/hir/mir_backend.ml`: ONE `let summaries = Mir_return_summary.summaries ~maxp prog
+   (List.map fst (Int_map.bindings !reached))` call after the `-g` validation scan, before
+   `post_order`; `lower_call_e` tail becomes `let full = window cq in ... match
+   List.assoc_opt cpid summaries with Some (Mir_return_summary.Known s) when in_window full s ->
+   (rr, s) | _ -> (rr, full)` (the `emit` call unchanged).
+3. `ocaml/hir/dune`: library `(modules ...)` gains `mir_return_summary`; new executable
+   `mirsumtest` (the `mirnumtest` precedent).
+4. NEW `ocaml/hir/mirsumtest.ml` — hand-written expectations (12 families: constant, join,
+   non-exhaustive, effectful (7 cases), unsupported (8), escape, declarations, shapes, precision,
+   purity, boundary, real fixtures via the parser), INDEPENDENT concrete interpreter
+   (`ev_e`/`ev_stmts`/`ref_range_pp`) over the FULL domain `[-16383,16383]` for the two real
+   classifiers; corrupt controls `--corrupt-widen` (Known (1,3)→(1,4)) / `--corrupt-narrow`
+   (→(1,2)) / `--corrupt-unknown` (pid 3's Unknown→Known (1,2)) — perturb the INFERRED side only,
+   never the reference or the guard; output `MIR-SUM OK <n> checks` / `MIRSUM-FAIL` lines.
+
+**BUILD STATUS (accepted): `dune build` GREEN; driver runs with 13 known FAILS (RC=1) — the
+module is NOT yet proven; `p_simple`/`classify` tests pass `Unknown` where the law says
+`Known`. The driver test-tables are ALSO buggy (some `p_simple` bodies lack `s_declare 11` for
+the `c` symbol; `zero-precision-result` is a nonsense duplicate of `ret-p0` — delete it; the
+`p_simple` `e_var` tests need the `dcl` of the target). NEXT: fix the DRIVER table first, then
+re-run `mirsumtest` and investigate whether the module itself is correct — a quick probe: run
+`mirsumtest` and look for the first failing family. The `dune build` is green, so the module is
+well-typed; the summary is `Unknown` on every positive case — suspect a subtle condition in
+`summary_of` (e.g. the `seed_formals` list is reversed; the `declared` list in the `Assign` is
+`fst`/`snd`-swapped; the `stmts` `return` value uses the wrong `env` — the `front` list is the
+body EXCLUDING the final `Return`, which is what the `stmts` walk expects — verify). After
+`mirsumtest` is green, run the frozen panel, then `tools/mir_return_summary_test.py`, then
+Stage D (D08/D09).
+
+**Proposed (unverified, carried from the predecessor hop):** the `Convert` tolerance at
+`cat = classify(...)`; the full-domain reference evaluator IS the driver's `ev_stmts`.
+
+Standing: ZERO oracle; `handoff.config.json` NEVER staged; no push; explicit paths; rc DIRECT;
+`eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; scratch `build/*` never committed;
+NEVER hand-edit a managed block. (SUPERSEDED: this heading's Stage-A facts are below.)
 
 **The campaign is OPEN.** Binding contract: PLAN §P2-DIFF-3 (pre-registration `92d1887b`).
 
@@ -5182,17 +5264,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 821
-checkpoint-id: g821-a474c3511254
-checkpoint-kind: auto
+checkpoint-generation: 825
+checkpoint-id: g825-4a22d7823d0d
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T07:53:31.383Z
+checkpointed: 2026-11-14T08:20:27.679Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0d990233066afc41809694779fcd5b80a4bb14c25431c44eacdb7ab7d5f027a8
-source-handoff: 0d8ba1649e53d606d886572812a55e54839f16026a2ae5edf28e2e2d62b0af9b
-source-learnings: 21758d464ce83cb0910850052026d9c86104276138edd7866b1ea6616bf31d6e
+source-progress: f0c28a2bb5230a5435648b70cac093251ac8328d5e7a0022eb273c262187936a
+source-handoff: 48793d6aa06f27caec4b4e038ca03fffa7bbdb13695d9152fd20a5e46e12c68d
+source-learnings: d6976df9d4e8bf80dc0c2c115da0ac58929570f754f5ef46f02bf8721751783f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6516,9 +6598,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d8f8-0ff1-7264-a23a-8e7a7e0725d8
-readiness-at: 2026-11-14T07:53:50.754Z
-readiness-checkpoint: g821-a474c3511254
+readiness-by: session:01a1d90c-c68a-7264-a23a-8e7fe66cb60f
+readiness-at: 2026-11-14T08:20:27.863Z
+readiness-checkpoint: g825-4a22d7823d0d
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -1,0 +1,685 @@
+(* hir/mirsumtest.ml — independent test driver for the pure Mir_return_summary
+   analysis (E2E-54/P2-DIFF-3 §P2-DIFF-3, Stage B; the mirnumtest precedent).
+
+   WHAT IT PROVES.  Mir_return_summary is ANALYSIS-ONLY: it may add a smaller
+   return interval, never a refusal.  The driver judges the module against
+   (1) hand-derived expectation literals for the whole §P2-DIFF-3 subset —
+   every expected summary is a literal in this file, written from the subset
+   law BEFORE any run of the module on it; (2) an INDEPENDENT concrete
+   reference: a hand-written interpreter over the same HIR that evaluates the
+   real fixture programs (the committed DIF03/DIF04 classifiers) on EVERY
+   point of the declared formal window [-16383,16383] and returns the exact
+   envelope of the observed values — the summary must contain that envelope
+   (soundness) and the hand-derived expectation must equal it (the
+   pre-registered tightness); (3) the corruption controls (the §P2-DIFF-3
+   falsifiers): the inferred interval is perturbed while the reference and
+   the hand-written expectations stay untouched, and the check must fail
+   LOUDLY.
+
+   Output contract (mirrors mirnumtest/semtest):
+     every check holds  -> stdout gets EXACTLY one line
+        MIR-SUM OK <n> checks                rc 0
+     any check fails    -> `MIRSUM-FAIL ...' lines on stderr, rc 1, ZERO stdout
+
+   Corruption controls (non-vacuity; the perturbation hits the INFERRED value
+   only — never the reference, never the guard, per the Stage-C method law):
+     --corrupt-widen   the classifier's Known (1,3) is widened to (1,4)
+     --corrupt-narrow  the classifier's Known (1,3) is narrowed to (1,2)
+     --corrupt-unknown every pid-1 Unknown is forced to Known (1,2)
+                       (every Unknown case fails LOUDLY)
+   There is no mode that passes the live checks; every corrupt mode is a
+   separate process. *)
+
+module M = Pli80_hir.Mir_return_summary
+
+open Pli80_hir
+
+let fails = ref ([] : string list)
+let nchecks = ref 0
+
+let check name (cond : bool) =
+  incr nchecks;
+  if not cond then fails := name :: !fails
+
+let show (a, b) = "[" ^ string_of_int a ^ "," ^ string_of_int b ^ "]"
+
+let show_sum = function
+  | M.Known iv -> "Known " ^ show iv
+  | M.Unknown -> "Unknown"
+
+let quote s = "'" ^ s ^ "'"
+
+(* --------------------------------------------------------------------------- *)
+(* HIR constructors (the synthetic programs)                                    *)
+(* --------------------------------------------------------------------------- *)
+
+let bin15 = Hir.Fixed_bin (15, 0)
+
+let binq q = Hir.Fixed_bin (q, 0)
+
+let e_const ?(ty = bin15) ?(ef = Hir.Pure) ?(line = 0) text =
+  {
+    Hir.ex = Hir.Const { text };
+    ex_ty = ty;
+    ex_line = line;
+    ex_ef = ef;
+  }
+
+let e_var ?(ty = bin15) ?(ef = Hir.Pure) ?(line = 0) sid =
+  {
+    Hir.ex = Hir.Var { sid; addressable = false };
+    ex_ty = ty;
+    ex_line = line;
+    ex_ef = ef;
+  }
+
+let e_bin ?(ty = bin15) ?(ef = Hir.Pure) ?(line = 0) op left right =
+  {
+    Hir.ex = Hir.Bin { op; left; right; typing = "test" };
+    ex_ty = ty;
+    ex_line = line;
+    ex_ef = ef;
+  }
+
+let e_rel ?(ef = Hir.Pure) ?(line = 0) op left right =
+  {
+    Hir.ex = Hir.Bin { op; left; right; typing = "test" };
+    ex_ty = Hir.Condty;
+    ex_line = line;
+    ex_ef = ef;
+  }
+
+let e_convert ?(line = 0) from to_ty e =
+  {
+    Hir.ex = Hir.Convert { from; to_ty; e; reason = "test" };
+    ex_ty = to_ty;
+    ex_line = line;
+    ex_ef = Hir.Pure;
+  }
+
+let e_call ?(line = 0) ?(ef = Hir.Pure) pid args =
+  {
+    Hir.ex = Hir.Call_e { pid; args };
+    ex_ty = bin15;
+    ex_line = line;
+    ex_ef = ef;
+  }
+
+let e_elem ?(line = 0) base subs =
+  {
+    Hir.ex = Hir.Elem_read { base; subs };
+    ex_ty = bin15;
+    ex_line = line;
+    ex_ef = Hir.Pure;
+  }
+
+let st ?(line = 0) k = { Hir.st = k; st_line = line }
+
+let s_declare ?(line = 0) sid = st ~line (Hir.Declare sid)
+
+let s_assign ?(line = 0) sid value =
+  st ~line (Hir.Assign { target = Hir.D_var { sid }; value })
+
+let s_assign_elem ?(line = 0) base subs value =
+  st ~line (Hir.Assign { target = Hir.D_elem { base; subs }; value })
+
+let s_if ?(line = 0) cond then_ else_ =
+  st ~line (Hir.If { cond; then_; else_ })
+
+let s_while ?(line = 0) cond body = st ~line (Hir.While { cond; body })
+
+let s_call_s ?(line = 0) pid args = st ~line (Hir.Call_s { pid; args })
+
+let s_ret ?(line = 0) e = st ~line (Hir.Return e)
+
+let s_put ?(line = 0) e = st ~line (Hir.Put (Hir.P_value e))
+
+let s_get ?(line = 0) sid = st ~line (Hir.Get (Hir.D_var { sid }))
+
+let s_stop ?(line = 0) () = st ~line Hir.Stop
+
+let a_value e =
+  { Hir.af = Hir.A_value e; ac_ty = bin15; ac_ef = Hir.Pure; ac_line = 0 }
+
+let sym sid name scope sty sstorage =
+  {
+    Hir.sid;
+    skey = name;
+    sorig = name;
+    scope;
+    sty;
+    sstorage;
+    sline = 0;
+  }
+
+let proc ?(name = "p") ?(is_main = false) ?(ret = Some bin15) ?(params = [])
+    pid scope body =
+  {
+    Hir.pid;
+    name = Some name;
+    is_main;
+    scope;
+    params;
+    ret;
+    body;
+  }
+
+let prog procs syms =
+  { Hir.profile_name = "test"; scopes = []; syms; procs }
+
+(* the classic classifier body: if x > 5 then (if x > 50 then c = 3 else c = 2)
+   else c = 1; return c — with the REAL sid layout of the DIF03 dump. *)
+let classify_body xsym csym =
+  let open Hir in
+  [
+    s_declare xsym;
+    s_declare csym;
+    s_if
+      
+      (e_rel Gt (e_var xsym) (e_const "5"))
+      [
+        s_if
+          
+          (e_rel Gt (e_var xsym) (e_const "50"))
+          [ s_assign csym (e_const "3") ]
+          [ s_assign csym (e_const "2") ];
+      ]
+      [ s_assign csym (e_const "1") ];
+    s_ret (Some (e_var csym));
+  ]
+
+(* --------------------------------------------------------------------------- *)
+(* the INDEPENDENT reference: a concrete interpreter over the same HIR           *)
+(* (hand-written here, NOT the module; the module does not evaluate programs)   *)
+(* --------------------------------------------------------------------------- *)
+
+type ev =
+  | Done of (int * int) list
+      (** the statements ran to their end; the carried environment is the result *)
+  | Ret of int
+  | Stuck
+
+let rec ev_e env (e : Hir.expr) : int option =
+  match e.Hir.ex with
+  | Hir.Const { text } -> int_of_string_opt text
+  | Hir.Var { sid; _ } -> List.assoc_opt sid env
+  | Hir.Bin { op; left; right; _ } -> (
+      match (ev_e env left, ev_e env right) with
+      | Some x, Some y ->
+          Some
+            (match op with
+             | Hir.Add -> x + y
+             | Hir.Sub -> x - y
+             | Hir.Mul -> x * y
+             | Hir.Eq -> if x = y then 1 else 0
+             | Hir.Ne -> if x <> y then 1 else 0
+             | Hir.Lt -> if x < y then 1 else 0
+             | Hir.Le -> if x <= y then 1 else 0
+             | Hir.Gt -> if x > y then 1 else 0
+             | Hir.Ge -> if x >= y then 1 else 0)
+      | _ -> None)
+  | Hir.Neg { e = inner } -> (
+      match ev_e env inner with Some x -> Some (-x) | None -> None)
+  | Hir.Convert { e = inner; _ } -> ev_e env inner
+  | _ -> None
+
+let rec ev_stmts env (ss : Hir.stmt list) : ev =
+  match ss with
+  | [] -> Done env
+  | s :: rest ->
+      (match s.Hir.st with
+       | Hir.Declare _ -> ev_stmts env rest
+       | Hir.Assign { target = Hir.D_var { sid }; value } ->
+           (match ev_e env value with
+            | Some v ->
+                let env' =
+                  (sid, v) :: List.filter (fun (k, _) -> k <> sid) env
+                in
+                ev_stmts env' rest
+            | None -> Stuck)
+       | Hir.Assign { target = Hir.D_elem _; _ } -> Stuck
+       | Hir.If { cond; then_; else_ } ->
+           (match ev_e env cond with
+            | Some c ->
+                let arm = if c <> 0 then then_ else else_ in
+                (match ev_stmts env arm with
+                 | Done env' -> ev_stmts env' rest
+                 | Ret v -> Ret v
+                 | Stuck -> Stuck)
+            | None -> Stuck)
+       | Hir.Return (Some e) ->
+           (match ev_e env e with Some v -> Ret v | None -> Stuck)
+       | _ -> Stuck)
+
+let run_proc (pp : Hir.proc) (x : int) : int option =
+  match pp.Hir.params with
+  | [sid] ->
+      (match ev_stmts [ (sid, x) ] pp.Hir.body with
+       | Ret v -> Some v
+       | _ -> None)
+  | _ -> None
+
+(* the exact envelope of the observed values over the FULL declared window;
+   the -16383/16383 literals are hand-derived (W(15)) — no module call. *)
+let ref_range_pp (pp : Hir.proc) : (int * int) option =
+  let lo = -16383 in
+  let hi = 16383 in
+  let rec scan x acc =
+    if x > hi then acc
+    else
+      match run_proc pp x with
+      | Some v ->
+          scan (x + 1)
+            (match acc with None -> Some (v, v) | Some (a, b) -> Some (min a v, max b v))
+      | None -> scan (x + 1) acc
+  in
+  scan lo None
+
+(* --------------------------------------------------------------------------- *)
+(* the live families — every expectation a hand-written literal                 *)
+(* --------------------------------------------------------------------------- *)
+
+(* the corruption modes apply to the INFERRED value only, never to the
+   reference or the expectation (the Stage-C method law). *)
+let corrupt = ref None
+
+let corrupt_apply pid s =
+  match (!corrupt, s) with
+  | Some `Widen, M.Known (a, b) when pid = 1 -> M.Known (a, b + 1)
+  | Some `Narrow, M.Known (a, b) when pid = 1 -> M.Known (a, b - 1)
+  | Some `Unknown, M.Unknown when pid = 1 -> M.Known (1, 2)
+  | _ -> s
+
+let summary_of prog pid =
+  corrupt_apply pid
+    (match M.summaries ~maxp:15 prog [ pid ] with
+     | [ (_, s) ] -> s
+     | _ -> M.Unknown)
+
+let expect name prog pid want =
+  let got = summary_of prog pid in
+  check (name ^ ": got " ^ show_sum got ^ ", expected " ^ show_sum want)
+    (got = want)
+
+let syms_x_c ?(xty = bin15) ?(cty = bin15) xsym csym =
+  [
+    sym xsym "x" 1 xty Hir.Formal;
+    sym csym "c" 1 cty Hir.Auto;
+  ]
+
+let p_classify ?(xsym = 10) ?(csym = 11) ?(ret = Some bin15) ?(params = [ xsym ])
+    ?(xty = bin15) () =
+  prog
+    [
+      proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+      proc ~params ~ret 1 1 (classify_body xsym csym);
+    ]
+    (syms_x_c ~xty xsym csym)
+
+let p_simple body =
+  prog
+    [
+      proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+      proc ~params:[ 10 ] 1 1 body;
+    ]
+    [
+      sym 10 "x" 1 bin15 Hir.Formal;
+      sym 11 "c" 1 bin15 Hir.Auto;
+      sym 12 "q" 1 (Hir.Char (1, false)) Hir.Auto;
+      sym 13 "s" 1 bin15 Hir.Static;
+    ]
+
+let p_classify_with_callers () =
+  prog
+    [
+      proc ~name:"entry" ~is_main:true 0 0
+        [
+          s_assign 20 (e_call 1 [ a_value (e_const "1") ]);
+          s_assign 21 (e_call 1 [ a_value (e_const "2") ]);
+          s_ret (Some (e_var 20));
+        ];
+      proc ~params:[ 10 ] 1 1 (classify_body 10 11);
+    ]
+    (sym 20 "n" 0 bin15 Hir.Auto
+    :: sym 21 "m" 0 bin15 Hir.Auto
+    :: syms_x_c 10 11)
+
+let f_constant () =
+  expect "const-direct" (p_simple [ s_declare 10; s_ret (Some (e_const "7")) ]) 1
+    (M.Known (7, 7));
+  expect "const-local"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "5"); s_ret (Some (e_var 11)) ]) 1
+    (M.Known (5, 5));
+  expect "classifier" (p_classify ()) 1 (M.Known (1, 3))
+
+let f_join () =
+  expect "two-arm-hull"
+    (p_simple
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if (e_rel Hir.Gt (e_var 10) (e_const "5"))
+           [ s_assign 11 (e_const "1") ]
+           [ s_assign 11 (e_const "2") ];
+         s_ret (Some (e_var 11));
+       ])
+    1 (M.Known (1, 2));
+  expect "missing-else-identity"
+    (p_simple
+       [
+         s_declare 10;
+         s_declare 11;
+         s_assign 11 (e_const "2");
+         s_if (e_rel Hir.Gt (e_var 10) (e_const "5"))
+           [ s_assign 11 (e_const "1") ] [];
+         s_ret (Some (e_var 11));
+       ])
+    1 (M.Known (1, 2));
+  expect "overwrite-after-join"
+    (p_simple
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if (e_rel Hir.Gt (e_var 10) (e_const "5"))
+           [ s_assign 11 (e_const "1") ]
+           [ s_assign 11 (e_const "2") ];
+         s_assign 11 (e_const "4");
+         s_ret (Some (e_var 11));
+       ])
+    1 (M.Known (4, 4))
+
+let f_nonexhaustive () =
+  (* the c = 1 arm only: c is not definite on the ELSE path — the join drops
+     it (the backend's own drop-not-inherit law), so the read of c is a
+     definite-initialization violation. *)
+  expect "non-exhaustive-assign"
+    (p_simple
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if (e_rel Hir.Gt (e_var 10) (e_const "5"))
+           [ s_assign 11 (e_const "1") ] [];
+         s_ret (Some (e_var 11));
+       ])
+    1 M.Unknown
+
+let f_effectful () =
+  expect "effect-put"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_put (e_const "1"); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "effect-call-s"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_call_s 0 [ a_value (e_const "1") ]; s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "effect-get"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_get 10; s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "effect-stop"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_stop (); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "effect-while"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_while (e_rel Hir.Lt (e_var 11) (e_const "1")) [ s_assign 11 (e_const "1") ]; s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "early-return"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)); s_ret (Some (e_const "1")) ])
+    1 M.Unknown;
+  expect "return-not-last"
+    (p_simple [ s_declare 10; s_ret (Some (e_const "1")); s_assign 11 (e_const "2") ]) 1
+    M.Unknown;
+  expect "bare-return"
+    (p_simple [ s_declare 10; s_assign 11 (e_const "2"); s_ret None ]) 1 M.Unknown
+
+let f_unsupported () =
+  expect "unsupported-convert"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_convert bin15 (Hir.Fixed_bin (12, 0)) (e_const "4")); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "unsupported-relational-value"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_rel Hir.Gt (e_var 10) (e_const "5")); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "unsupported-call-e"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_call 1 [ a_value (e_const "1") ]); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "unsupported-return-call"
+    (p_simple [ s_declare 10; s_ret (Some (e_call 1 [ a_value (e_const "1") ])) ]) 1
+    M.Unknown;
+  expect "unsupported-elem-read"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_elem 11 [ e_const "0" ]); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "unsupported-elem-assign"
+    (p_simple [ s_declare 10; s_declare 11; s_assign_elem 11 [ e_const "0" ] (e_const "2"); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "unsupported-unknown-ef"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const ~ef:Hir.Unknown_ef "4"); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "unsupported-condition-call"
+    (p_simple
+       [
+         s_declare 10;
+         s_declare 11;
+         s_assign 11 (e_const "1");
+         s_if (e_rel Hir.Gt (e_call 1 [ a_value (e_const "1") ]) (e_const "0"))
+           [ s_assign 11 (e_const "2") ]
+           [ s_assign 11 (e_const "3") ];
+         s_ret (Some (e_var 11));
+       ])
+    1 M.Unknown
+
+let f_escape () =
+  expect "escape-full-window"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_bin Hir.Mul (e_var 10) (e_const "100")); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "escape-add-1"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_bin Hir.Add (e_var 10) (e_const "1")); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "literal-16383"
+    (p_simple [ s_declare 10; s_ret (Some (e_const "16383")) ]) 1 (M.Known (16383, 16383));
+  expect "literal-16384"
+    (p_simple [ s_declare 10; s_ret (Some (e_const "16384")) ]) 1 M.Unknown;
+  expect "identity-full-window"
+    (p_simple [ s_declare 10; s_ret (Some (e_var 10)) ]) 1 (M.Known (-16383, 16383))
+
+let f_declarations () =
+  expect "undeclared-formal-read"
+    (p_simple [ s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 10)) ])
+    1 M.Unknown;
+  expect "undeclared-read"
+    (p_simple [ s_declare 10; s_ret (Some (e_var 11)) ]) 1 M.Unknown;
+  expect "double-declare"
+    (p_simple [ s_declare 10; s_declare 10; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "foreign-scope-declare"
+    (prog
+       [
+         proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+         proc ~params:[ 10 ] 1 1
+           [ s_declare 10; s_declare 99; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ];
+       ]
+       [ sym 99 "z" 0 bin15 Hir.Auto; sym 10 "x" 1 bin15 Hir.Formal; sym 11 "c" 1 bin15 Hir.Auto ])
+    1 M.Unknown;
+  expect "non-integer-declare"
+    (p_simple [ s_declare 10; s_declare 12; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ])
+    1 M.Unknown;
+  expect "static-declare"
+    (p_simple [ s_declare 10; s_declare 13; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ])
+    1 M.Unknown
+
+let f_shapes () =
+  expect "entry-unknown" (p_simple [ s_declare 10; s_ret (Some (e_const "1")) ]) 0
+    M.Unknown;
+  expect "missing-pid" (p_simple [ s_declare 10; s_ret (Some (e_const "1")) ]) 7
+    M.Unknown;
+  expect "void-proc"
+    (prog
+       [
+         proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+         proc ~params:[ 10 ] ~ret:None 1 1 [ s_declare 10 ];
+       ]
+       [ sym 10 "x" 1 bin15 Hir.Formal ])
+    1 M.Unknown;
+  expect "non-bin-result"
+    (prog
+       [
+         proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+         proc ~ret:(Some (Hir.Char (1, false))) 1 1 [ s_ret (Some (e_const "1")) ];
+       ]
+       [])
+    1 M.Unknown;
+  expect "empty-body"
+    (prog
+       [
+         proc ~name:"entry" ~is_main:true 0 0 [ s_ret (Some (e_const "0")) ];
+         proc 1 1 [];
+       ]
+       [])
+    1 M.Unknown
+
+let f_precision () =
+  expect "ret-p0" (p_classify ~ret:(Some (binq 0)) ()) 1 M.Unknown;
+  expect "ret-p16" (p_classify ~ret:(Some (binq 16)) ()) 1 M.Unknown;
+  expect "formal-p0" (p_classify ~xty:(binq 0) ()) 1 M.Unknown;
+  expect "formal-p16" (p_classify ~xty:(binq 16) ()) 1 M.Unknown;
+  expect "formal-non-bin"
+    (p_classify ~xty:(Hir.Char (1, false)) ()) 1 M.Unknown;
+  (* a classifier with a smaller declared window: the summary still holds
+     inside the window. *)
+  expect "classifier-narrow-precision"
+    (p_classify ~xty:(Hir.Fixed_bin (2, 0)) ())
+    1 (M.Known (1, 3))
+
+let f_purity () =
+  let p = p_classify () in
+  let s = M.summaries ~maxp:15 p [ 1; 1 ] in
+  check "two-callers-single-entry" (s = [ (1, M.Known (1, 3)) ]);
+  let s = M.summaries ~maxp:15 (p_classify_with_callers ()) [ 1; 1; 0 ] in
+  check "two-callers-one-summary" (s = [ (0, M.Unknown); (1, M.Known (1, 3)) ]);
+  check "deterministic"
+    (M.summaries ~maxp:15 p [ 3; 1; 2 ] = [ (1, M.Known (1, 3)); (2, M.Unknown); (3, M.Unknown) ])
+
+let f_boundary () =
+  expect "boundary-neg-16383"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_bin Hir.Sub (e_var 10) (e_const "0")); s_ret (Some (e_var 11)) ])
+    1 (M.Known (-16383, 16383));
+  expect "boundary-neg-op"
+    (p_simple [ s_declare 10; s_declare 11; s_assign 11 (Hir.({ ex = Hir.Neg { e = e_const "16383" }; ex_ty = bin15; ex_line = 0; ex_ef = Hir.Pure })); s_ret (Some (e_var 11)) ])
+    1 (M.Known (-16383, -16383));
+  expect "boundary-tight"
+    (p_simple
+       [
+         s_declare 10;
+         s_declare 11;
+         s_if (e_rel Hir.Gt (e_var 10) (e_const "0"))
+           [ s_assign 11 (e_const "16383") ]
+           [ s_assign 11 (e_bin Hir.Sub (e_const "0") (e_const "16383")) ];
+         s_ret (Some (e_var 11));
+       ])
+    1 (M.Known (-16383, 16383))
+
+let f_real () =
+  let read_src f =
+    let text = In_channel.with_open_bin f In_channel.input_all in
+    match String.index_opt text '\026' with
+    | Some i -> String.sub text 0 i
+    | None -> text
+  in
+  let find_pid name procs =
+    match
+      List.find_opt (fun (p : Hir.proc) -> p.Hir.name = Some name) procs
+    with
+    | Some p -> Some p.Hir.pid
+    | None -> None
+  in
+  let build f =
+    let text =
+      try Some (read_src f) with _ -> None
+    in
+    match text with
+    | None ->
+        check ("real-source exists: " ^ quote f) false;
+        None
+    | Some text ->
+        (try
+           let blk = Pli80.Parser.parse_source text in
+           let profile = Pli80_hir.Target.dr_pli80_v1_4 in
+           (match Pli80_hir.Hir_build.build blk profile with
+            | Ok p -> Some p
+            | Error _ ->
+                check ("real-source builds: " ^ quote f) false;
+                None)
+         with
+         | _ ->
+             check ("real-source parses: " ^ quote f) false;
+             None)
+  in
+  let check_real f name want =
+    match build f with
+    | None -> ()
+    | Some p ->
+        (match find_pid name p.Hir.procs with
+         | None ->
+             check ("real-proc exists: " ^ quote name) false
+         | Some pid ->
+             let s = M.summaries ~maxp:15 p [ pid ] in
+             check ("real: " ^ quote name ^ " got " ^ show_sum (snd (List.hd s)) ^ " expected " ^ show_sum want)
+               (s = [ (pid, want) ]);
+             (match (want, List.find (fun (x : Hir.proc) -> x.Hir.pid = pid) p.Hir.procs) with
+              | M.Known (lo, hi), pp ->
+                  (match ref_range_pp pp with
+                   | Some (a, b) ->
+                       check ("real-ref: " ^ quote name ^ " envelope " ^ show (a, b))
+                         (a = lo && b = hi)
+                   | None ->
+                       check ("real-ref: " ^ quote name ^ " ran to a value") false)
+              | _ -> ())
+        )
+  in
+  check_real "hir/dif-fixtures/DIF03.pli" "classify" (M.Known (1, 3));
+  check_real "hir/dif-fixtures/DIF04.pli" "stepclass" (M.Known (1, 3))
+
+let live () =
+  f_constant ();
+  f_join ();
+  f_nonexhaustive ();
+  f_effectful ();
+  f_unsupported ();
+  f_escape ();
+  f_declarations ();
+  f_shapes ();
+  f_precision ();
+  f_purity ();
+  f_boundary ();
+  f_real ()
+
+type mode =
+  | Live
+  | Corrupt_widen
+  | Corrupt_narrow
+  | Corrupt_unknown
+  | Usage_error
+
+let () =
+  let args = List.tl (Array.to_list Sys.argv) in
+  let mode =
+    match args with
+    | [] -> Live
+    | [ "--corrupt-widen" ] ->
+        corrupt := Some `Widen;
+        Corrupt_widen
+    | [ "--corrupt-narrow" ] ->
+        corrupt := Some `Narrow;
+        Corrupt_narrow
+    | [ "--corrupt-unknown" ] ->
+        corrupt := Some `Unknown;
+        Corrupt_unknown
+    | _ -> Usage_error
+  in
+  if mode = Usage_error then begin
+    prerr_endline
+      "usage: mirsumtest [--corrupt-widen|--corrupt-narrow|--corrupt-unknown]";
+    exit 2
+  end;
+  live ();
+  if !fails <> [] then begin
+    List.iter (fun m -> prerr_endline ("MIRSUM-FAIL: " ^ m)) (List.rev !fails);
+    exit 1
+  end;
+  Printf.printf "MIR-SUM OK %d checks\n" !nchecks;
+  exit 0

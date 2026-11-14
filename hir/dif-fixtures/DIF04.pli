@@ -9,7 +9,7 @@ production: procedure returns(fixed bin(15));
       put list(w);
       i = i + 1;
    end;
-   return (w);
+   return (i);
    stepclass: procedure(s) returns(fixed bin(15));
       dcl s fixed bin(15);
       dcl c fixed bin(15);
