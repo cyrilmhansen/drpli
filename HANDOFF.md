@@ -2608,22 +2608,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 851
-checkpoint-id: g851-452e3744f039
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4978, session 01a1d9f0-b397-700a-9d27-3c0c6fa6a746)
-checkpointed: 2026-11-14T12:50:30.631Z
+checkpoint-generation: 852
+checkpoint-id: g852-54fe9fceab22
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1547, session 01a1d9f0-b397-700a-9d27-3c0c6fa6a746)
+checkpointed: 2026-11-14T12:51:27.685Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2b5925a46ed36d0372d9de1863b682bd54e6d4fdd59df4d410575d3e2f0e1c32
-source-handoff: 592840c39b0c353c9e03303e7ae2c8c7fde771017075ee0d714c72af28d32afa
-source-learnings: a76690408a3f2e2821d7a731e39c50e701d2401911ee75345c7fc71e00529e73
+source-progress: e0fd808334a044e5a1ab008a99e20882fa7d291dfe8503de8e70cda24865182a
+source-handoff: 5da7fb0608d11981dd79023a9352d3a66916b868cbfa3a9d4fa246293341c0b5
+source-learnings: 786ce1a1679a875981f1502370a24ff3efe2eaf45f56764c6033b8bba6dc558c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d9f0-b397-700a-9d27-3c0c6fa6a746
+readiness-at: 2026-11-14T12:51:27.896Z
+readiness-checkpoint: g852-54fe9fceab22
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-54/P2-DIFF-4 CLOSED at e65c9c31 (RESULTS §P2-DIFF-4, PLAN §P2-DIFF-4.12, arch §7-15, durables). The runner is 10/10 BOTH-PASS in both modes; the panel is twice-green (after Stage C and after Stage D); all disclosed counts (45/14) are measured; ledger 203/C380; ZERO oracle. STOP — any extension needs a NEW operator brief.)
 
 ### Unfinished operations
 - (none recorded)
@@ -3953,7 +3956,7 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-4 STAGE C CLOSED AND COMMITTED (001822bb): mirsumtest 116 checks rc 0 (all owed numbers measured: DIF05 [3,3]/[12,12]/[30,30] and [3,20]/[12,20]/[20,30]; DIF06 4 trips, [1,4] and [1,12]; both ctx full-window); tool 14 checks rc 0 (LIVE_OK 116, three new spec tables). NEXT: the frozen panel §P2-DIFF-4.8 (each own rc, logs build/e54p2diff4/, cmp vs base-*; mir_return_summary now 14, all others unchanged), then Stage D (measured-first pins, D10/D11, EXPORTS 43→45 disclosed) and the close. Zero oracle; ledger 203/C380; config never staged; no push; explicit paths; rc DIRECT; never batch; no new ocaml/hir/*.ml; mirsumtest from REPO ROOT.
+E2E-54/P2-DIFF-4 CLOSED at e65c9c31 (RESULTS §P2-DIFF-4, PLAN §P2-DIFF-4.12, arch §7-15, durables). The runner is 10/10 BOTH-PASS in both modes; the panel is twice-green (after Stage C and after Stage D); all disclosed counts (45/14) are measured; ledger 203/C380; ZERO oracle. STOP — any extension needs a NEW operator brief.
 <!-- guard:end checkpoint -->
 19-e54p2diff4-stageB-closed (2026-11-14, session 01a1d9b2 renewal 2/12 of chain 01a1d97c;
 ZERO oracle; ledger 203/C380; start HEAD `2b1c84f6`, now `2d78f47b` + this checkpoint): **STAGE B
