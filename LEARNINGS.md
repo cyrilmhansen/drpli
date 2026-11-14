@@ -5,6 +5,33 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 Stage-D hop (2026-11-14, session 01a1d9f0 renewal 5/12; ZERO oracle; ledger 203/C380; HEAD `42dc3086`) — THE TWO SPECIALIZED PROGRAMS ARE DIFFERENTIAL CASES; THE RUNNER IS 10/10 BOTH-PASS IN BOTH MODES
+
+**ACCEPTED (measured, own rc, logs `build/e54p2diff4/stageD-*.log`).** The measured-first pins
+`DIF05.mir` (1887 B, `3f9080f2…e0b1`) and `DIF06.mir` (1182 B, `be63ee89…2623a`) were produced by
+`pli80mir --export billing|batch` on the committed `c6257034` fixtures (fixture SHAs re-verified
+`1e09787f…`/`eebace68…`, 633/502 B), x2 fresh, deterministic, stdout == -o, ZERO stderr; each
+reviewed line-by-line twice against the DIF03/DIF04 pins — structurally identical, every
+difference the expected one (names, min-shape arms, the actuals 3/12/30, the scales 500/700, the
+loop bound 5). `nfuncs` MEASURED from mir2o's own stderr: `2 function(s)` for both. D10/D11
+registered in the runner with the PRE-REGISTERED vectors; the runner is **10/10 BOTH-PASS in
+BOTH modes** (rc 0, 47 checks, 37/37 comparator controls REJECTED) — the campaign's core
+differential evidence: `capped_units`'s context-independent summary is the full window (the old
+backend refused HIR-E19), and the per-call-site specialization [3,20]/[12,20]/[20,30] and
+[1,12] admits the `mul` on both lanes with identical console output. The disclosed
+`mir_numeric` EXPORTS +2 moved the count **43→45** (36 pins, all byte-equal x2, the existing
+34 UNMOVED); `mir_return_summary_test` stayed 14 — its Y3 set deliberately EXCLUDES the
+summary-enabled pins (documented rationale in the tool: new pins are outputs of the enabled
+compiler, judged by mir_numeric X2 and the runner instead).
+
+**METHOD (accepted).** The runner's `checks` and `controls` counts are per-case and DYNAMIC
+(8→10 cases: 37→47 checks, 29→37 controls) — unlike the frozen panel constants, they are not
+pinned literals; the verdict law (10/10, all controls REJECTED) is the check.
+
+**METHOD (accepted).** The pin-review discipline that worked: diff each new `.mir` against the
+nearest committed same-shape pin (DIF05 vs DIF03, DIF06 vs DIF04) — a structural diff makes
+every deviation explicit and reviewable, instead of re-reading 1200 bytes by eye.
+
 ## E2E-54/P2-DIFF-4 Stage-C panel hop (2026-11-14, session 01a1d9f0 fresh startup, renewal 5/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; HEAD 2742f87f) — THE FROZEN PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE; STAGE D IS NEXT
 
 **ACCEPTED (measured, every command its OWN rc, logs `build/e54p2diff4/stageC-panel-*.log`).**

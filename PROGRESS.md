@@ -48,7 +48,48 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-4 — **THE FROZEN PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE; STAGE D IS THE NEXT ACT**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
+## Next action (E2E-54/P2-DIFF-4 — **STAGE D LANDED AND COMMITTED (`42dc3086`); THE PANEL RE-RUN + THE CLOSE ARE THE ONLY REMAINING ACTS**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
+
+**MEASURED THIS HOP (accepted, every command its own rc).** (1) The FROZEN PANEL §P2-DIFF-4.8
+with Stage C in place: gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5
+`cmp`-IDENTICAL to `base-gate.log`; hir 220 `cmp`-IDENTICAL; mir_aot 32/cosmo 25/console 43/
+debug 23/CF 83/call 86 ALL `cmp`-IDENTICAL; suite 29/29 `cmp`-IDENTICAL; runner 8/8 BOTH-PASS
+in BOTH modes (only stamp/HEAD differ); functional 211 (only the /tmp path); mir_numeric 43
+`cmp`-IDENTICAL; mir_return_summary **14** (the disclosed 11→14); fresh `_build-e54p2diff4c`
+rc 0 ZERO Error, `pli80c.exe` `172595d5…aca281`; `git diff --exit-code -- hir/` and `-- ocaml/`
+rc 0; ledger 203/C380 by the documented `grep -cE '^## C'` (202 real headers + the wrapped
+`## CLASS;` line at CLAIMS:5080 — the convention). (2) STAGE D: the measured-first pins
+`hir/dif-expected/DIF05.mir` 1887 B `3f9080f2…e0b1` and `DIF06.mir` 1182 B `be63ee89…2623a`
+(x2 fresh, deterministic, stdout == -o, ZERO stderr; reviewed line-by-line twice against the
+DIF03/DIF04 pins — structurally identical, the only diffs the names, the min-shape arms, the
+actuals, the scales, the loop bound); the MEASURED `nfuncs` 2 and 2 from mir2o's own stderr
+(`wrote 2560/2352 bytes (2 function(s))`); D10/D11 in the runner (committed SHAs, the
+pre-registered vectors [1500,6000,10000] / [700,1400,2100,2800]); the disclosed `mir_numeric`
+EXPORTS +2 — count **43→45** (36 pins re-measured byte-equal x2, the existing 34 UNMOVED);
+`mir_return_summary_test` 14 UNCHANGED (its Y3 set deliberately excludes the summary-enabled
+pins — documented). **THE RUNNER IS 10/10 BOTH-PASS IN BOTH MODES (rc 0, 47 checks, 37/37
+controls REJECTED) — the campaign's core differential evidence.** Commit chain this session:
+`2742f87f` (g849 block), `526f3192` (panel durables), `42dc3086` (Stage D).
+
+**NEXT (the only remaining acts).** (1) The FULL PANEL RE-RUN after Stage D (each own rc, logs
+`build/e54p2diff4/stageD-panel-*.log`): gate, hir, mir_aot 32, cosmo 25, console 43, debug 23,
+CF 83, call 86, suite 29/29, functional 211, mir_numeric **45**, mir_return_summary **14**, the
+runner in BOTH modes — everything `cmp`-IDENTICAL to `base-*` except the TWO disclosed counts
+(mir_numeric 45, mir_return_summary 14) and the runner's new 10/10 verdicts; fresh build
+`--build-dir _build-e54p2diff4d` rc 0 sha `172595d5…aca281`; `git diff --exit-code -- hir/` and
+`-- ocaml/` rc 0; ledger 203/C380. (2) The CLOSE: RESULTS `## §P2-DIFF-4` (the stage records,
+the panel, the D10/D11 evidence), the PLAN `### P2-DIFF-4.12` dashboard CLOSED row, the
+additive `docs/architecture/backend-boundary.md` `## 7-15` (the 7-14 gap stays a disclosed
+DOCUMENTATION GAP, not renumbered), the durables, `/handoff finalize`. **THEN STOP —
+§P2-DIFF-4.10: any extension needs a NEW operator brief.**
+
+**STANDING (all binding, unchanged):** ZERO oracle; `handoff.config.json` NEVER staged; no push;
+explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+`mirsumtest` from the REPO ROOT; NO new `ocaml/hir/*.ml` file (F8 count 15); after any scripted
+durable write `grep -c $'\x08'` MUST be 0; NEVER hand-edit a managed block. Recovery: this
+heading → LEARNINGS § "Stage-D hop" → PLAN §P2-DIFF-4.8/4.10.
+
+SUPERSEDED-BY-ABOVE (the record below stands as history): ## Next action (E2E-54/P2-DIFF-4 — **THE FROZEN PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE; STAGE D IS THE NEXT ACT**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
 
 **MEASURED THIS HOP (accepted, every command its own rc, logs `build/e54p2diff4/stageC-panel-*.log`):**
 the FULL frozen panel §P2-DIFF-4.8 ran GREEN on HEAD `2742f87f` (the g849 managed-block commit):
