@@ -7,7 +7,38 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-13-e54p2diff3-stageA-closed (2026-11-14, session 01a1d8f8 renewal 1/12 of chain 01a1d8e9; ZERO
+15-e54p2diff3-stageC-panel-tool (2026-11-14, session 01a1d935 renewal 4/12 of chain 01a1d8e9;
+ZERO oracle; ledger 203/C380; HEAD `0df16c30`): **E2E-54/P2-DIFF-3 STAGE C IS COMMITTED AND
+THE FULL FROZEN PANEL IS GREEN.** The Stage-B `M`-alias defect was caught by the panel (the
+`M` alias is a bare 8080 register mnemonic; the F8 glob covers every `ocaml/hir/*.ml` file;
+the fix is `M`-to-`R` at `e49da02d`). The measured F8 file count is 15, NOT the pre-registered
+14 (the check is dynamic; the baseline is `11`). The additive tool `tools/mir_return_summary_test.py` is
+committed at `c85c0652` (11 checks, non-vacuity measured). **NEXT: Stage D (the
+DIF03/DIF04 as D08/D09 in the runner CASES; the committed SHAs, the measured `nfuncs`, the
+pins; both modes; the full panel), then the CLOSE (RESULTS `P2-DIFF-3`, the PLAN dashboard
+row, the durables, the managed block).** Recovery: PROGRESS live heading, PLAN `P2-DIFF-3`,
+LEARNINGS 2026-11-14 (two sections). Standing: ZERO oracle; `handoff.config.json` NEVER
+staged; no push; explicit paths; rc DIRECT; `eval opam env`; `LC_ALL=C`; never batch
+build+tests; `mirsumtest` runs from the REPO ROOT (its fixture paths are relative); NEVER
+hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: 14-e54p2diff3-stageB-inflight (2026-11-14, session 01a1d90c renewal 2/12 of chain 01a1d8e9; ZERO
+oracle; ledger 203/C380; HEAD 60cd88cf + UNCOMMITTED Stage-B work): **THE STAGE-B CODE IS
+WRITTEN AND THE BUILD IS GREEN; `mirsumtest` RUNS WITH 13 FAILS — ALL `Unknown` WHERE THE LAW
+SAYS `Known` — THE DRIVER TEST-TABLES ARE THE FIRST SUSPECT (some `p_simple` bodies omit
+`s_declare 11`; `zero-precision-result` is a nonsense test), the REAL-FIXTURE FAILURES REMAIN
+UNEXPLAINED and must be root-caused next.** The uncommitted files (KEEP, never revert): the new
+`ocaml/hir/mir_return_summary.ml` (pure, `Known of (int*int) | Unknown`, the assoc-list
+`summaries`), the `mir_backend.ml` ONE analysis call + the `lower_call_e` defensive
+`in_window` re-check, the `ocaml/hir/dune` module+executable, and the `mirsumtest.ml` driver
+(12 families, the independent full-domain reference evaluator, the three `--corrupt-*` modes
+perturbing the INFERRED side only). NEXT: fix the driver tables, re-run `mirsumtest`, then
+investigate the module only if the real fixtures still fail; then the frozen panel, then
+`tools/mir_return_summary_test.py`, then Stage D. Recovery: PROGRESS live heading → PLAN
+§P2-DIFF-3 → LEARNINGS 2026-11-14 (three sections). Standing: ZERO oracle; config never
+staged; no push; explicit paths; rc DIRECT; `eval "$(opam env)"`; never batch build+tests.
+
+SUPERSEDED-BY-ABOVE: 13-e54p2diff3-stageA-closed (2026-11-14, session 01a1d8f8 renewal 1/12 of chain 01a1d8e9; ZERO
 oracle; ledger 203/C380; HEAD `ecfcc966`): **E2E-54/P2-DIFF-3 STAGE A IS CLOSED AND COMMITTED;
 THE BASELINE REFUSAL IS MEASURED EXACTLY AS PRE-REGISTERED; STAGE B IS NEXT.** The sources
 `hir/dif-fixtures/DIF03.pli` (entry `pricing`, 678 B, sha `34ac5efb…95b2e1`) and `DIF04.pli`
@@ -2399,23 +2430,20 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 821
-checkpoint-id: g821-a474c3511254
+checkpoint-generation: 829
+checkpoint-id: g829-0d752ce0d6b5
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4574, session 01a1d8f8-0ff1-7264-a23a-8e7a7e0725d8)
-checkpointed: 2026-11-14T07:53:31.383Z
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4997, session 01a1d935-de65-7264-a23a-8e87c06da658)
+checkpointed: 2026-11-14T09:06:46.233Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0d990233066afc41809694779fcd5b80a4bb14c25431c44eacdb7ab7d5f027a8
-source-handoff: 0d8ba1649e53d606d886572812a55e54839f16026a2ae5edf28e2e2d62b0af9b
-source-learnings: 21758d464ce83cb0910850052026d9c86104276138edd7866b1ea6616bf31d6e
+source-progress: 73f83c8b5cd831df8023e8c5a56753c49618f9e0e2817741e72cf6bb4faf7f0e
+source-handoff: 48793d6aa06f27caec4b4e038ca03fffa7bbdb13695d9152fd20a5e46e12c68d
+source-learnings: d3bbe6ee8520cba9253c9e57a0faedcb531be20279ae0e1e6b1a16d02d273e5f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d8f8-0ff1-7264-a23a-8e7a7e0725d8
-readiness-at: 2026-11-14T07:53:50.754Z
-readiness-checkpoint: g821-a474c3511254
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
@@ -3747,5 +3775,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-3: pre-registration committed (92d1887b); PROGRESS live heading repaired (7a4e35f6 — the truncation was caused by a scripted h[:i]+new instead of h[:i]+new+h[i+len:] and is disclosed in the heading); LEARNINGS recorded (fb8ab249). NEXT: Stage A — write hir/dif-fixtures/DIF03.pli (entry pricing) and DIF04.pli (entry production) per PLAN §P2-DIFF-3; verify encoding (CRLF, one trailing ^Z) and SHA; COMMIT the sources + reference spec BEFORE ANY compilation (timing law); then the OLD-backend baseline: pli80c -d (predicted rc 0) and pli80mir --export (predicted HIR-E19 on the binop '*' with the full window operand) — any OTHER refusal → STOP and attribute. ZERO oracle; handoff.config.json never staged; no push; explicit paths; rc DIRECT; eval "$(opam env)"; never batch build+tests; recovery: PROGRESS live heading → PLAN §P2-DIFF-3 → LEARNINGS 2026-11-14.
+E2E-54/P2-DIFF-3 Stage B: mir_return_summary.ml + mir_backend integration + dune + mirsumtest.ml are COMMITTED-NOT-YET — all UNCOMMITTED on top of 60cd88cf, build green. mirsumtest runs but 13 positive cases return Unknown — suspect the driver's own synthetic tables (missing s_declare for the target, nonsense zero-precision-result test) AND the module; fix driver tables first, then re-run. The module is well-typed (build green). Next: make mirsumtest green, then the frozen panel, then tools/mir_return_summary_test.py, then Stage D (D08/D09). Never commit handoff.config.json; never run the oracle; no push; explicit paths.
 <!-- guard:end checkpoint -->
