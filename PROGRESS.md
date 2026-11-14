@@ -69,6 +69,15 @@ window [-16383,16383] of FIXED BINARY(15,0); overflow behaviour is profile-UNKNO
 assumed (brief §4)`; DIF06 `HIR-E19: line 8: … [700,700] can reach [-11468100,11468100] …`. No
 other refusal fired; the STOP condition did NOT fire on the amended measurement.
 
+**STAGE-B DESIGN hop (this checkpoint, session 01a1d998, HEAD `e8df8701`).** The module and
+driver and the two pinned tools were read VERBATIM; the design is recorded in LEARNINGS §
+"E2E-54/P2-DIFF-4 Stage-B design hop" (shared `eval_body`; `summary_of` keeps its own
+validation path byte-for-byte — no `Formal` check there; `summary_of_actuals` adds the
+§P2-DIFF-4.2 obligations; the backend fallback specialized → context-independent → full;
+the Y6 `emit` word must never appear in the module; the driver's corrupt modes must keep
+the old names byte-identical and add only NEW specialized names). NO implementation byte exists
+yet; the next act is the module edit.
+
 **NEXT VERBATIM (Stage B — §P2-DIFF-4.6, the ONLY permitted edits).**
 1. `ocaml/hir/mir_return_summary.ml` IN PLACE: one new pure entry
    `summary_of_actuals : maxp:int -> Hir.program -> int -> params:int list -> actuals:(int*int) list ->

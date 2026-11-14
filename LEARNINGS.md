@@ -5,6 +5,46 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 Stage-B design hop (2026-11-14, session 01a1d998 renewal 1/12; ZERO oracle; ledger 203/C380; HEAD `e8df8701`) — THE STAGE-A EVIDENCE IS COMMITTED; THE STAGE-B ARCHITECTURE IS DESIGNED FROM THE READ-VERBATIM CODE; NO IMPLEMENTATION BYTE YET
+
+**ACCEPTED (read first-hand, this hop) — the Stage-B design that satisfies every pinned
+constraint.**
+(1) `mir_return_summary.ml`: ONE shared pure evaluator `eval_body ~maxp prog pp ~q ~env0`
+holding the `List.rev`-body / final-`Return (Some e)` / `stmts [] env0` / `lower_e` /
+`in_window (W(q))` chain VERBATIM from today's `summary_of` tail. `summary_of` keeps its OWN
+validation path (the `seed_formals` law: `find_sym` + `bin_p_of` ONLY, NO `Formal`-storage
+check — the §P2-DIFF-3 semantics are byte-for-byte, including the fact that the old code never
+checked the storage). `summary_of_actuals ~maxp prog pid ~params ~actuals` adds the §P2-DIFF-4.2
+call-site obligations (order: `params = pp.Hir.params` list-equality — the same-order law
+implies the permuted-args case; `List.length` equality; non-empty `lo <= hi`; the `Formal`-
+storage check; `bin_p_of`; `in_window (W(p))` containment) and calls the SAME `eval_body`.
+(2) `mir_backend.lower_call_e`: the `List.map2` keeps `emit` exactly as today; the ONE change
+is capturing the previously-discarded `_iv` (line ~803) into the returned list; the 3-level
+fallback is `specialized -> context-independent -> window cq`, the specialized request made
+ONLY when the `lower` of every actual produced a `Some iv` (the module's `lower` returns
+`string * (int*int)` per operand — the exact proven interval of the value COPIED into the
+`hv<k>` cell). (3) NO `emit`-word in the module (the Y6 pattern `emit` matches comments
+too — the file today passes, the new code must never write the word). (4) NO `List`-order
+change, NO `hv` allocation change, NO new `summaries`-call site — the ONLY new module call
+site is inside `lower_call_e`.
+(5) The `lower` in `mir_backend` is the SAME proof the module's `lower_e` does, so the
+backend-captured `iv` is ALREADY window-contained and non-empty — the specialization-obligation
+checks are defensive in the backend path, load-bearing in the driver tests.
+(6) The tool's `--corrupt-*` tables are pinned EXACT stderr lists; a new driver family MUST NOT
+add names that collide with the existing corrupt names (the corruption functions are keyed
+`pid = 1` and the old `MIRSUM-FAIL` lines must not change); the `MIR-SUM OK 55` literal and
+the corrupt tables move as a DISCLOSED consequence of the new driver tests (the brief's
+`LIVE_OK` and corrupt-table disclosure), and the count must stay `55` unless the new driver
+tests genuinely add checks.
+
+**PROPOSED (unverified — the Stage-B implementation):** the `summary_of`/`summary_of_actuals`
+dual entry with the shared `eval_body`; if the FROZEN panel moves (any pin, any count,
+the DIF03/DIF04 acceptance) the design is wrong and the campaign STOPS.
+
+**NEXT VERBATIM:** write the module extension (the ONLY permitted edits of §P2-DIFF-4.6),
+`dune build` own rc, then `lower_call_e`, then `dune build` again, then `mirsumtest` (repo
+root), then the FROZEN PANEL (§P2-DIFF-4.8) with every command its own rc and its own log.
+
 ## E2E-54/P2-DIFF-4 Stage-A hop (2026-11-14, session 01a1d998 renewal 1/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; start HEAD `d4d359ae`) — THE STAGE-A STOP-AND-ATTRIBUTE FIRED ON E18, THE PRE-EXECUTION AMENDMENT LANDED, AND THE AMENDED BASELINE IS MEASURED EXACTLY AS PREDICTED
 
 **ACCEPTED — the measured chronology (every command its own rc, logs
