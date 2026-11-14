@@ -48,7 +48,85 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-3 — **CLOSED AND COMMITTED; NO NEXT ACTION EXISTS — STOP and await the OPERATOR**) — session 01a1d950 renewal 5/12 of chain 01a1d8e9, 2026-11-14
+## Next action (E2E-54/P2-DIFF-4 — **OPEN; BASELINE MEASURED FIRST-HAND; THE §P2-DIFF-4 PRE-REGISTRATION COMMIT IS THE ONE OWED NEXT ACTION**)
+
+**STATE (measured first-hand this session, 2026-11-14, session 01a1d97c, start HEAD
+`c3576ccb` = the brief's verified HEAD; tree clean except the operator's dirty
+`handoff.config.json` — NEVER staged — plus pre-existing untracked scratch).**
+Operator brief E2E-54/P2-DIFF-4 (CALL-SITE INTERVAL SPECIALIZATION) is the active contract.
+P2-DIFF-3 is CLOSED and immutable.
+
+**BASELINE RE-MEASURED (not assumed) — every command its OWN rc, logs `build/e54p2diff4/`:**
+`base-build.log` (fresh `--build-dir _build-e54p2diff4`, rc 0, ZERO `Error`); `pli80c.exe`
+sha256 `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` (also re-verified on
+the default `_build`); gate rc 0 **1328/1328** byte-exact, **190/190** negatives, **9/9**
+divergences, **149 rows 0/0**, census **16/0/25/0**, prose **5**; hir rc 0 **220 ok**; mir_aot
+**32**; cosmo **25**; console **43**; debug **23**; CF **83**; call **86**; suite
+(`test_dual_backend.py`) **29/29**; runner (`dual_backend_test.py`) **8/8 BOTH-PASS rc 0 in
+BOTH default and `--strict`**, 37 checks, 29/29 controls REJECTED; functional **211/211**;
+`mir_numeric_test.py` **43**; `mir_return_summary_test.py` **11**; `git diff --exit-code -- hir/`
+and `-- ocaml/` rc 0; ledger **203** claim headers ending **C380**. ZERO oracle.
+
+**RECOVERY DONE:** AGENTS/PROTOCOL/GOAL/HANDOFF/PROGRESS/LEARNINGS, PLAN §P2-DIFF-3 +
+§P2-DIFF-3.10, RESULTS §P2-DIFF-3, arch §7-13 (NOTE: **no §7-14 exists for P2-DIFF-3** — the
+architecture doc's last section is 7-13; this campaign adds its own), `ocaml/hir/
+{mir_return_summary.ml, mir_numeric.ml, mir_backend.ml, mirsumtest.ml}`,
+`tools/{dual_backend_test.py, mir_return_summary_test.py, mir_numeric_test.py,
+test_dual_backend.py}`, the four DIF fixtures + their SHAs and the DIF03/DIF04 pins.
+
+**THE INTEGRATION POINT (read first-hand, not assumed).**
+`mir_backend.ml` ~370: `summaries = Mir_return_summary.summaries ~maxp prog <reached pids>`
+(ONE call, context-independent). `lower_call_e` ~803: the `List.map2` over
+`args`/`callee.Hir.params` already does `let rv, _iv = lower env x` for every `A_value` actual
+— `_iv` is DISCARDED; the result interval is then `Known s` from the context-independent list
+(guarded by `in_window full s`) else `window cq`. `mir_return_summary.ml` `summary_of` seeds
+formals with `Mir_numeric.window p` via `seed_formals`; the `stmts` walk adds `declared` entries
+as `Declare` arrives, so ANY seed must survive the walk (the walk never re-adds a formal to the
+env — verified by reading the `Declare` arm).
+
+**NEXT VERBATIM (the brief's own chronology — pre-registration FIRST):**
+1. APPEND `§P2-DIFF-4` to `spec/lab-evidence/e2e54/PLAN.md` (the 9 required items: H1/H2
+   hypotheses + falsifiers; the exact specialization subset; the abstract-domain soundness
+   argument incl. the MONOTONICITY lemma that makes `specialized ⊆ context-independent`;
+   DIF05/DIF06 specifications + the independent vectors `[1500,6000,10000]` /
+   `[700,1400,2100,2800]`; the expected pre-change refusals; the positive + hostile test lists;
+   the OCaml boundaries; the regression/byte-preservation panel; the STOP conditions) and COMMIT
+   it by explicit path BEFORE any experimental source, probe or compiler byte. NEVER overwrite
+   §P2-DIFF-1/2/3.
+2. Stage A: write + commit the DIF05/DIF06 application specs, then the exact `.pli` bytes
+   (`hir/dif-fixtures/DIF05.pli`, `DIF06.pli`; CRLF + exactly one `^Z`), record SHA-256, COMMIT,
+   and only THEN measure the old-backend outcome (`pli80c.exe -d` → `.REL`; `pli80mir.exe
+   --export <entry>`). Predicted: 8080 rc 0; native HIR-E19 on the `*` (the CI interval
+   `[1,20]×500 = [500,10000]` fits W(15) but the full-window `[-16383,16383]×500` does not).
+   If the refusal is absent or a different feature blocks → STOP-and-attribute, no fabricated
+   fixture.
+3. Stage B: extend `mir_return_summary.ml` with ONE pure bounded entry
+   (`summary_of_actuals ~maxp prog pid ~params ~actuals`) sharing the SAME `stmts`/`lower_e`
+   evaluator (no second traversal); integrate in `lower_call_e` capturing `(rv, iv)` per actual
+   WITHOUT a second `lower` call; the 3-level fallback spec → context-independent → full window.
+   Callee lowering/ABI/bytes MUST NOT move — no existing pin may change.
+4. Stage C: extend `ocaml/hir/mirsumtest.ml` (the 55 → new count is a DISCLOSED tool change;
+   `tools/mir_return_summary_test.py` pins `LIVE_OK` and must be updated explicitly) + the
+   mandated hostile/non-vacuity controls.
+5. Stage D: D10/D11 in `tools/dual_backend_test.py`, both lanes ×2, both modes, the measured
+   `nfuncs` from mir2o stderr, the measured-first pins, the full panel, the close.
+
+**KNOWN TOOL CONSTRAINTS (measured this session):** (a) `tools/mir_numeric_test.py` `EXPORTS`
+raises `KeyError` on any new pin in `hir/dif-expected/` — the static table must gain the two
+entries (disclosed, per-pin count moves 43 → 45); (b) `mir_return_summary_test.py` `LIVE_OK =
+MIR-SUM OK 55 checks` is a frozen literal that the new driver tests WILL move; (c) both tools'
+`X3`/`Y5` checks require the hir log to differ from `build/e54p2diff2/base-hir.log` in EXACTLY
+the F8 line — so **NO NEW `ocaml/hir/*.ml` FILE MAY BE ADDED** (the F8 count must stay 15); the
+implementation must live in the EXISTING files; (d) `mir_return_summary.ml` must stay clean of
+the Y6 patterns `raise|failwith|print_|prerr_|emit|output|write` and the Y4 names
+`Target|Diagnostic|Backend|Mir_backend|Rel80|Codegen|Parser|Semantic_env|Unix|Hir_build|Mir_return_summary|^\s*open\s`.
+
+**Standing:** ZERO oracle (`PLI.COM` never runs); `handoff.config.json` NEVER staged; no push;
+explicit paths only; no `git add -A`/`reset --hard`/`clean`; rc DIRECT; `eval "$(opam env)"`;
+`LC_ALL=C`; never batch build+tests; `mirsumtest` from the REPO ROOT; scratch `build/*` and
+`ocaml/_build-*` never committed; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-3 — **CLOSED AND COMMITTED; NO NEXT ACTION EXISTS — STOP and await the OPERATOR**) — session 01a1d950 renewal 5/12 of chain 01a1d8e9, 2026-11-14
 
 **STATE (accepted, measured first-hand).** Stage D and the close are DONE. D08/D09 registered in
 `tools/dual_backend_test.py` (committed `58923e75`): committed SHAs `34ac5efb…`/`b25f0a84…`, the

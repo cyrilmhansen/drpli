@@ -5,6 +5,87 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 recovery + baseline hop (2026-11-14, session 01a1d97c fresh startup; ZERO oracle; ledger 203/C380; start HEAD `c3576ccb`) — THE NEW CAMPAIGN IS OPEN; THE FROZEN BASELINE IS RE-MEASURED, NOT ASSUMED
+
+**ACCEPTED — the whole frozen baseline is measured first-hand and every number in the operator
+brief is TRUE TODAY.** Fresh `--build-dir _build-e54p2diff4` rc 0, ZERO `Error`; `pli80c.exe`
+`172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` (identical on `_build` and on
+the fresh dir); gate **1328/1328 – 190/190 – 9/9 – 149 rows 0/0 – census 16/0/25/0 – prose 5**;
+hir **220 ok**; mir_aot **32**; cosmo **25**; console **43**; debug **23**; CF **83**; call **86**;
+hostile suite **29/29**; the dual-backend runner **8/8 BOTH-PASS, rc 0 in BOTH default and
+`--strict`, 37 checks, 29/29 controls REJECTED**; functional **211/211**; `mir_numeric_test`
+**43**; `mir_return_summary_test` **11**; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0;
+ledger **203** headers ending **C380**. Logs: `build/e54p2diff4/base-*.log` + `base-hist-sha.txt`.
+
+**ACCEPTED — the exact integration point, read first-hand.** `lower_call_e` (`mir_backend.ml`
+~745–835) already computes `let rv, _iv = lower env x` for every `A_value` actual inside the
+`List.map2` over `args`/`callee.Hir.params` and DISCARDS `_iv`; the interface already knows
+`ap = fp` (the equal-declared-type refusal) and `cq = bin_p callee.ret`. The result interval is
+`List.assoc_opt cpid summaries` (the CONTEXT-INDEPENDENT list computed ONCE at ~370) guarded by
+`in_window full`, else `full`. So the call-site change is a strict local: capture the interval
+per actual, keep `operand_regs` as the projection, and consult a new analysis entry point.
+
+**ACCEPTED — the shared evaluator already exists, so NO second traversal is needed.**
+`summary_of` = shape checks + `seed_formals` (each formal → `Mir_numeric.window p`) + the
+`stmts` walk + the final `lower_e` on the return expression + the `in_window (W(q))` check.
+A call-site variant is a DIFFERENT `env0` seed and the SAME `stmts`/`lower_e`. MEASURED BY
+READING: the `Declare` arm of `stmts` only ADDS to `declared` and never touches `env`, so a
+seeded formal survives the walk; the `Assign` arm records the target's interval in `env`.
+
+**KEY SOUNDNESS LEMMA (the campaign's whole justification, and it must be PRE-REGISTERED):**
+the `stmts`/`lower_e` evaluator is MONOTONE in the formal seeds — every interval rule
+(`iv_add/iv_sub/iv_mul/iv_neg`, `iv_hull`, the `Var` read, the `add_env` overwrite) is monotone
+in each input endpoint, the `declared` list is env-independent, and the join law is monotone.
+Therefore `specialized ⊆ context-independent` and `specialized ⊆ W(q)` AUTOMATICALLY, and the
+`Known`/`Unknown` outcome of the full-domain path never changes when a seed is narrowed.
+Consequence: the callee's own compilation (lowered once with the FULL `W(p)`) is untouched by
+anything in this campaign — the caller's knowledge of the result is a separate fact.
+
+**ACCEPTED — the three hard tool constraints the baseline reading exposes (they shape the
+implementation before any code is written):**
+1. `mir_numeric_test.py` `EXPORTS` is a STATIC table but `pins()` enumerates pins
+   DYNAMICALLY → any new `hir/dif-expected/*.mir` pin raises `KeyError` (the exact
+   `41 → 43` defect P2-DIFF-3 hit). It must gain the two new entries; the count moves per pin.
+2. `mir_return_summary_test.py` pins `LIVE_OK = b"MIR-SUM OK 55 checks"` as a literal and the
+   three `--corrupt-*` stderr byte-tables; adding driver tests MOVES both — a disclosed, explicit
+   tool edit, not a silent pin refresh.
+3. `X3`/`Y5` require the hir log to differ from `build/e54p2diff2/base-hir.log` in EXACTLY the
+   F8 line and the count to equal `len(glob("ocaml/hir/*.ml")) = 15`. **Adding ANY new
+   `ocaml/hir/*.ml` file (e.g. a separate `mir_call_site.ml`) would break BOTH tools** — the
+   implementation MUST extend the existing `mir_return_summary.ml`/`mirsumtest.ml`. This is a
+   MEASURED constraint, not a style preference.
+4. `mir_return_summary.ml` code must stay clean of `raise|failwith|print_|prerr_|emit|output|
+   write` and of `Target|Diagnostic|Backend|Mir_backend|Rel80|Codegen|Parser|Semantic_env|Unix|
+   Hir_build|Mir_return_summary|open` — the new API must not name the backend or the
+   effect kind by a forbidden name.
+
+**ACCEPTED — the architecture doc's last section is `## 7-13` (P2-DIFF-2 Stage C). There is NO
+`7-14` for P2-DIFF-3.** The brief asks to read `docs/architecture/backend-boundary.md` and later
+to update it; the new section will be `## 7-15` (or `7-14` if the P2-DIFF-3 gap is filled first —
+that omission is a documentation gap to be recorded, not silently patched).
+
+**ACCEPTED — the expected pre-change refusals are derivable by hand, and the pre-registered
+vectors are independent of both compilers.** DIF05 `capped_units(x) = min(x,20)`: call-site
+intervals `[3,3]→[3,20]`, `[12,12]→[12,20]`, `[30,30]→[20,30]` (branch-INSENSITIVE join, the
+brief's own numbers); each `×500` fits `W(15)`; the context-independent `[1,20]×500 = [500,10000]`
+ALSO fits, so the refusal must come from the FULL declared window `[-16383,16383]×500 =
+[±8191500]` — HIR-E19. DIF06 `limited_step(x) = min(x,12)` with the loop IV `[1,4]` (the counted
+`do while (i < 5)` body-refine law `iv0, t0-1` — READ at `mir_backend.ml` ~1358): `[1,12]×700 =
+[700,8400]` fits; full window `±16383×700` does not. Both programs must be refused by the
+`*` and NOT by the callee (the callee body is provable over the full window — `x*500`/`x*700`
+never appear inside the callee).
+
+**PROPOSED (unverified, to be MEASURED before any implementation):** the `min` idiom is
+`if x > 20 then c = 20; else c = x;` — the `<=`/`>=` forms are MEASURED 8080 refusals
+(E2E-3b subset is `<`, `>`, `=`, `^=`; CF04/05/08 are the evidence), so the `>`-oriented
+form is the only one in the intersection; the `n + 0` value-actual idiom is required because a
+bare name is by-reference.
+
+**Standing:** ZERO oracle; `handoff.config.json` NEVER staged (it is dirty — the operator's own
+`maxRenewals 8→12`, `workingContextWindow 95000→145000`); no push; explicit paths; rc DIRECT;
+`eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; `mirsumtest` from the REPO ROOT;
+NEVER hand-edit a managed block.
+
 ## E2E-54/P2-DIFF-3 Stage D + close hop (2026-11-14, session 01a1d950 renewal 5/12 of chain 01a1d8e9; ZERO oracle; ledger 203/C380)
 
 **ACCEPTED — the two programs that HIR-E19 refused on the native lane at the Stage-A baseline now
