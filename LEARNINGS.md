@@ -13805,3 +13805,30 @@ them (the same conflation the predecessor found in the `W(15)` vector). `32767` 
 ONLY as the 8080 literal-immediate ceiling (`codegen.ml:1459 bin15_fits`). This bound the
 DIF01/DIF02 programs all along (their literals are 1..6300) and the finding is a DOCUMENTATION
 correction, not a behaviour change: the two programs, the pins and the panel are unaffected.
+
+## E2E-54/P2-DIFF-3 session 01a1d8e9 (2026-11-14) — pre-registration + the first code audit
+
+**Accepted (verified first-hand).** (1) The exact mechanism of the current imprecision:
+`lower_call_e` returns `(rr, window cq)` with `cq` the callee's declared result precision —
+the full `W(q)`; the caller's interval for the result is therefore the declared window, and
+`cat * 1200` on `[-16383,16383]` escapes `W(15)` ⇒ `HIR-E19`. (2) The summary CANNOT change any
+emitted instruction — the interval only feeds the caller's env proofs, so the existing `.mir`
+pins are structurally safe (to be re-confirmed by the panel). (3) `CALLN9` (`f(...) + 5`)
+refuses by SHAPE inside `lower` (a `Call_e` is only admitted as whole-RHS/whole-Return), not
+by window — unaffected by any summary. (4) Value calls pass ONLY `A_value` (the HOME-PASS
+`hv<k>` cells); a by-ref actual at a value call is refused `E18` — the callee's result depends
+on its own formals+locals only (the per-procedure closure that makes the H1 summary sound).
+(5) `declare` refuses foreign-scope symbols — the entry's `dcl`s are NOT visible to a
+subsidiary (the measured P2-DIFF-2 subset law); the analysis must mirror this. (6) The
+backend's `env0` seeds each formal with exactly `window (bin_p type)` — the abstract-input
+law the analysis must use verbatim. (7) The pre-registration is committed at `92d1887b`
+(PROTOCOL #1) BEFORE any source or code byte.
+
+**Proposed (unverified).** The historical `pli80c` acceptance of DIF03/DIF04 (predicted, not
+run); the concrete reference-evaluator over the full `[-16383,16383]` domain; the exact
+`mirsumtest`/`tools` test layout (the `mirnumtest`/`mir_numeric_test` precedent).
+
+**Method note (carried from the previous close, re-confirmed by reading):** the pre-registration
+was written to the file via `cat >>` after an exact-match `edit` failed on a whitespace
+mismatch — the append is the SAFE primitive for the end of a large ledger; the timing law of
+the brief (commit sources BEFORE ANY compilation) is recorded as the binding Stage-A order.
