@@ -7,7 +7,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-12-e54p2diff3-open (2026-11-14, session 01a1d8e9 renewal 1/12; ZERO oracle; ledger 203/C380;
+13-e54p2diff3-stageA-closed (2026-11-14, session 01a1d8f8 renewal 1/12 of chain 01a1d8e9; ZERO
+oracle; ledger 203/C380; HEAD `ecfcc966`): **E2E-54/P2-DIFF-3 STAGE A IS CLOSED AND COMMITTED;
+THE BASELINE REFUSAL IS MEASURED EXACTLY AS PRE-REGISTERED; STAGE B IS NEXT.** The sources
+`hir/dif-fixtures/DIF03.pli` (entry `pricing`, 678 B, sha `34ac5efb…95b2e1`) and `DIF04.pli`
+(entry `production`, 563 B, sha `36c4cf5b…ca16e5`) are committed at `3928f130` — BEFORE any
+compilation of those bytes (timing law). The disclosed source-level deviation: the
+pre-registered classifier uses `<=`, which is a MEASURED 8080 refusal (the `E2E-3b` subset has
+only `<`, `>`, `=`, `^=`; CF04/05/08 are the evidence), so the sources use the semantically
+identical `>`-oriented nested IF — the classification, the entry names, the `n + 0` value-actual
+idiom, the per-subsidiary `dcl` and the PUT INSIDE the loop are unchanged, and the two
+expectation vectors are the pre-registered ones. MEASURED: `pli80c -d` rc **0** for both (PRICING
+`CODE=239 DATA=22 ITEMS=260 -> 640 bytes`; PRODUCTION `CODE=149 DATA=14 ITEMS=165 -> 384`);
+`pli80mir --export` rc **2** for both, ZERO stdout, NO `.mir`, the diagnostic EXACTLY the
+pre-registered `HIR-E19` on the `binop '*'` with the full window operand (DIF03 line 7
+`[-16383,16383] and [1200,1200] can reach [-19659600,19659600]`; DIF04 line 8 `[350,350]` /
+`[-5734050,5734050]`) — no other refusal, the STOP condition did NOT fire. Harness law: the CLI
+is `pli80c [-d] IN.PLI OUT.REL` — a one-arg call is a usage error (rc 2), never a compiler
+measurement. NEXT: the pure `ocaml/hir/mir_return_summary.ml` + `mir_backend` integration +
+`mirsumtest` + `tools/mir_return_summary_test.py` (PLAN §P2-DIFF-3, the ONLY permitted edits).
+
+SUPERSEDED-BY-ABOVE: 12-e54p2diff3-open (2026-11-14, session 01a1d8e9 renewal 1/12; ZERO oracle; ledger 203/C380;
 HEAD `7a4e35f6`+): **E2E-54/P2-DIFF-3 IS OPEN — the PRE-REGISTRATION is committed (`92d1887b`);
 STAGE A IS NEXT.** The only active next action is the PROGRESS live heading: write
 `hir/dif-fixtures/DIF03.pli` (entry `pricing`, classifier returning 1/2/3 by nested IF/ELSE,
@@ -2379,25 +2399,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 818
-checkpoint-id: g818-90416b644592
-checkpoint-kind: manual
+checkpoint-generation: 821
+checkpoint-id: g821-a474c3511254
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-12362, session 01a1d8e9-5626-7264-a23a-8e770e9500c1)
-checkpointed: 2026-11-14T07:30:41.323Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4574, session 01a1d8f8-0ff1-7264-a23a-8e7a7e0725d8)
+checkpointed: 2026-11-14T07:53:31.383Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e33c2d9cd8285ee8a7ec1c59de27458a4baf50b7b5068c4cbb1bebb3463596ff
-source-handoff: 02fe1d0a4febd2f8e09f9aeb38060ad2900703a4adcda24a6ae773d89926069d
-source-learnings: 1bbce5aff19384a260cc829e94cc180cef2d80f3a65a8c37e86914758a62a2ad
+source-progress: 0d990233066afc41809694779fcd5b80a4bb14c25431c44eacdb7ab7d5f027a8
+source-handoff: 0d8ba1649e53d606d886572812a55e54839f16026a2ae5edf28e2e2d62b0af9b
+source-learnings: 21758d464ce83cb0910850052026d9c86104276138edd7866b1ea6616bf31d6e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d8e9-5626-7264-a23a-8e770e9500c1
-readiness-at: 2026-11-14T07:30:41.468Z
-readiness-checkpoint: g818-90416b644592
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
