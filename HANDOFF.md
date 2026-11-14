@@ -2544,25 +2544,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 839
-checkpoint-id: g839-1ede2db4e14b
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-24349, session 01a1d998-27a1-700a-9d27-3bfdc91aea01)
-checkpointed: 2026-11-14T10:54:48.229Z
+checkpoint-generation: 841
+checkpoint-id: g841-30db0a16278e
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6193, session 01a1d9b2-11fa-700a-9d27-3c00e97a0076)
+checkpointed: 2026-11-14T11:21:18.942Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: be3de01b5c58f8dbcb42aae69abed1252def6278224807178f192acee38944f3
-source-handoff: e9efed03eaf541aa5ffc60453c2d5eab08cc25bffdc3de2b93e3e0626004b760
-source-learnings: 93ff9e087d8c8c9897e6436ce9c0670b9417c0c45cb17e9a8efb2f80627af467
+source-progress: a98782d47ff76ea27b9b2f1425a0194e80800bb7c4ac212da09a30b195893b43
+source-handoff: 59993715ad101144f7ce5ec272e3233bac7e36f33fbfe26f2dd536eb2bb08f6c
+source-learnings: 77510023318f041719204801f95b899731fedf3cc013ad466ebda517647b6d10
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d998-27a1-700a-9d27-3bfdc91aea01
-readiness-at: 2026-11-14T10:54:48.289Z
-readiness-checkpoint: g839-1ede2db4e14b
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -3892,5 +3889,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-4 Stage B IN FLIGHT. Module extension COMMITTED build-green at d1885505 (eval_body shared; summary_of unchanged; summary_of_actuals with the §P2-DIFF-4.2 obligations). mir_backend.ml UNMODIFIED. NEXT: the exact lower_call_e integration (verbatim in PROGRESS live heading), then dune build, then the FROZEN PANEL §P2-DIFF-4.8, then Stage-C disclosed tool changes, then mirsumtest, then Stage D. ZERO oracle; ledger 203/C380; config never staged; no push; explicit paths; rc DIRECT; mirsumtest from repo root; never batch build+tests.
+E2E-54/P2-DIFF-4 STAGE B IS CLOSED AND COMMITTED (2d78f47b) + durables ea7701d3. The lower_call_e integration landed (arg_cells/arg_ivals — the first draft's op_ names were FALSIFIED by the frozen F8 pattern \bop_[a-zA-Z_]+). The WHOLE frozen panel is green with every log cmp-IDENTICAL to build/e54p2diff4/base-*.log; DIF05/DIF06 native refusals are GONE (rc 0, ZERO stderr, .mir produced); DIF03/DIF04 pins byte-identical; mirsumtest 55 rc 0. DISCLOSED OVERSTATEMENT (mine, in 2d78f47b): the specialized intervals [3,20]/[12,20]/[20,30]/[1,12] were quoted as measured but are the PRE-REGISTERED EXPECTATION — rc 0 proves only W(15) containment; the Stage-C driver OWES those exact endpoints on the real fixtures through Hir_build against the independent concrete reference. NEXT: Stage C (§P2-DIFF-4.7) — extend ocaml/hir/mirsumtest.ml IN PLACE with the call-site positives + hostiles, then the DISCLOSED tool changes to tools/mir_return_summary_test.py (LIVE_OK 55->new, the --corrupt-* tables, NEW corrupt names only), mirsumtest from the REPO ROOT, each own rc. Then Stage D (measured-first pins, D10/D11, both lanes, both modes) and the close. ZERO oracle; ledger 203/C380; config never staged; no push; explicit paths; rc DIRECT; never batch build+tests; no new ocaml/hir/*.ml file (F8 count 15); after any scripted durable write grep -c $'\x08' must be 0.
 <!-- guard:end checkpoint -->
