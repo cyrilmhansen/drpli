@@ -7,7 +7,36 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-18-e54p2diff4-stageB-inflight (2026-11-14, session 01a1d998 renewal 1/12 of chain 01a1d97c;
+19-e54p2diff4-stageB-closed (2026-11-14, session 01a1d9b2 renewal 2/12 of chain 01a1d97c;
+ZERO oracle; ledger 203/C380; start HEAD `2b1c84f6`, now `2d78f47b` + this checkpoint): **STAGE B
+IS CLOSED AND COMMITTED; THE WHOLE FROZEN PANEL IS GREEN; STAGE C IS THE NEXT ACT.** The
+`lower_call_e` integration landed at `2d78f47b` (ONE explicit path): the `List.map2` returns
+`(cell, iv)` per actual (the previously discarded `_iv` KEPT), `arg_cells`/`arg_ivals`
+projections, the three-level `specialized -> context-independent -> window cq` fallback with the
+existing `in_window full` guard on both `Known` levels, everything else unchanged. **FALSIFIED
+first-draft name defect:** `op_cells`/`op_ivals` violate the FROZEN F8 pattern
+`\bop_[a-zA-Z_]+` (opcode constants) in `ocaml/hir/*.ml` — 4 FAILs rc 1; the semantics-free
+rename fixed it. **MEASURED:** build rc 0; gate 1328/1328-190/190-9/9-149 rows 0/0-census
+16/0/25/0-prose 5 `cmp`-IDENTICAL to base; hir 220 `cmp`-IDENTICAL; mir_aot 32/cosmo 25/console
+43/debug 23/CF 83/call 86 ALL `cmp`-IDENTICAL; suite 29/29; runner 8/8 BOTH-PASS in BOTH modes
+(only stamp/HEAD differ); functional 211; mir_numeric 43 (34 pins re-measured byte-equal x2
+fresh); mir_return_summary 11; mirsumtest 55. **THE CORE EVIDENCE:** `pli80mir --export billing
+DIF05` and `--export batch DIF06` are now **rc 0, ZERO stderr, the `.mir` produced** — the
+Stage-A `HIR-E19` refusals are gone; the DIF03/DIF04 pins are byte-IDENTICAL. **DISCLOSED
+OVERSTATEMENT (mine, `2d78f47b`):** the commit message quoted the specialized intervals
+`[3,20]`/`[12,20]`/`[20,30]`/`[1,12]` as measured; they are the PRE-REGISTERED EXPECTATION —
+rc 0 proves only containment in W(15). The Stage-C driver OWES those exact endpoints, measured
+on the real fixtures through `Hir_build` against the independent concrete reference. NEXT: the
+§P2-DIFF-4.7 Stage-C driver extension + the disclosed `mir_return_summary_test.py` tool changes
+(`LIVE_OK` 55 -> new, the `--corrupt-*` tables; NEW corrupt names only, the old ones byte-
+identical), `mirsumtest` from the REPO ROOT, then Stage D (the measured-first pins, D10/D11,
+both lanes, both modes) and the close. Recovery: PROGRESS live heading -> PLAN §P2-DIFF-4.7 +
+.8 -> LEARNINGS § "Stage-B integration hop" + "Stage-B design hop". Standing: ZERO oracle;
+`handoff.config.json` NEVER staged; no push; explicit paths; rc DIRECT; `eval "$(opam env)"`;
+`LC_ALL=C`; never batch build+tests; no new `ocaml/hir/*.ml` file; after any scripted durable
+write `grep -c $'\x08'` must be 0; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: 18-e54p2diff4-stageB-inflight (2026-11-14, session 01a1d998 renewal 1/12 of chain 01a1d97c;
 ZERO oracle; ledger 203/C380; start HEAD `d4d359ae`, now `d1885505` + this checkpoint): **STAGE
 A IS CLOSED AND COMMITTED (amended); THE STAGE-B MODULE IS COMMITTED AND BUILD-GREEN; THE
 `lower_call_e` INTEGRATION IS THE ONE REMAINING STAGE-B ACT.** STAGE A (accepted, measured):
@@ -2515,25 +2544,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 838
-checkpoint-id: g838-5efe6a7b4859
+checkpoint-generation: 839
+checkpoint-id: g839-1ede2db4e14b
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-9475, session 01a1d998-27a1-700a-9d27-3bfdc91aea01)
-checkpointed: 2026-11-14T10:45:12.210Z
+status: checkpoint (guard level 4, remaining ~-24349, session 01a1d998-27a1-700a-9d27-3bfdc91aea01)
+checkpointed: 2026-11-14T10:54:48.229Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: be3de01b5c58f8dbcb42aae69abed1252def6278224807178f192acee38944f3
-source-handoff: 2ff65a73da009a1e85af3fd6fb584b028a73e6b35db806bc370a7c9168cdaf62
-source-learnings: 0df076bcd8fd879ab77a7e70c6569e49ebca725a342df470a0152572f6fa3e11
+source-handoff: e9efed03eaf541aa5ffc60453c2d5eab08cc25bffdc3de2b93e3e0626004b760
+source-learnings: 93ff9e087d8c8c9897e6436ce9c0670b9417c0c45cb17e9a8efb2f80627af467
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1d998-27a1-700a-9d27-3bfdc91aea01
-readiness-at: 2026-11-14T10:45:12.354Z
-readiness-checkpoint: g838-5efe6a7b4859
+readiness-at: 2026-11-14T10:54:48.289Z
+readiness-checkpoint: g839-1ede2db4e14b
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)

@@ -48,6 +48,78 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
+## Next action (E2E-54/P2-DIFF-4 — **STAGE B CLOSED AND COMMITTED (`2d78f47b`); THE WHOLE FROZEN PANEL IS GREEN; STAGE C IS NEXT**) — session 01a1d9b2 renewal 2/12 of chain 01a1d97c, 2026-11-14
+
+**STAGE B IS DONE AND COMMITTED** (`2d78f47b`, ONE explicit path `ocaml/hir/mir_backend.ml`).
+The `lower_call_e` `List.map2` now returns `(cell, iv)` per actual (the ONE existing
+`lower env x`; the previously discarded `_iv` is KEPT); `arg_cells`/`arg_ivals` are the two
+projections; the `String.concat` uses `arg_cells`; the `if operand_regs = []` test, the `hv`
+allocation, `emit`, `r_n`, `res_regs` and `pc_uses` are UNCHANGED; the fallback is the
+three-level chain `specialized -> (existing List.assoc_opt cpid summaries) -> window cq`, each
+`Known` guarded by the existing `in_window full` defensive re-check, the specialized request
+being `Mir_return_summary.summary_of_actuals ~maxp prog cpid ~params:callee.Hir.params
+~actuals:arg_ivals`; the `summaries` call site is UNCHANGED.
+
+**FALSIFIED (my own first draft, caught by the FROZEN panel before the commit):** the names
+`op_cells`/`op_ivals` are ILLEGAL in `ocaml/hir/*.ml` — the F8 purity pattern
+`\bop_[a-zA-Z_]+` (the opcode-constant pattern) matched and produced 4 FAILs / rc 1; the pure
+rename to `arg_cells`/`arg_ivals` restored rc 0. The panel caught a real defect exactly as
+designed; no code semantics changed.
+
+**MEASURED (every command its own rc; logs `build/e54p2diff4/stageB-*.log`):** `dune build`
+rc 0; gate rc 0 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5 and the log
+`cmp`-IDENTICAL to `base-gate.log`; hir rc 0 220 ok, `cmp`-IDENTICAL to `base-hir_test.log`;
+mir_aot 32, cosmo 25, console 43, debug 23, CF 83, call 86 ALL `cmp`-IDENTICAL to the baseline
+logs; suite 29/29 `cmp`-IDENTICAL; the runner 8/8 BOTH-PASS in BOTH modes (only the stamp and
+HEAD lines differ); functional 211; mir_numeric 43 — the 34 committed `.mir` pins re-measured
+byte-equal x2 fresh processes (the behavioural-equivalence proof that NO emission moved);
+mir_return_summary 11; `mirsumtest` 55 checks rc 0.
+
+**THE STAGE-B MEASUREMENT (the campaign's core evidence).** `pli80mir --export billing
+hir/dif-fixtures/DIF05.pli` and `pli80mir --export batch hir/dif-fixtures/DIF06.pli` are now
+**rc 0, ZERO stderr, the `.mir` produced** (the pre-registered `HIR-E19` refusals are GONE); the
+`mul t7, t5, t6` / `mul t9, t7, t8` are admitted. The DIF03/DIF04 pins are byte-IDENTICAL (their
+`classify`/`stepclass` call sites are unchanged; their summaries are the context-independent
+ones).
+
+**NOT YET MEASURED (a DISCLOSED OVERSTATEMENT in my own commit message `2d78f47b`):** the
+specific specialized intervals `[3,20]`, `[12,20]`, `[20,30]`, `[1,12]` were quoted as if
+measured; they are the PRE-REGISTERED EXPECTATION. An rc 0 admission proves only that the
+interval sits inside W(15) and the `*` is admitted — NOT the exact endpoints. Stage C's driver
+must measure them exactly (the real fixtures through `Hir_build`, specialized at the real call
+sites, cross-checked against the independent concrete reference). PROGRESS/LEARNINGS are
+authoritative over the commit wording.
+
+**NEXT (Stage C — §P2-DIFF-4.7, the ONLY permitted edits).** Extend `ocaml/hir/mirsumtest.ml`
+IN PLACE with the call-site family: POSITIVES (identity at a point and a non-point actual; the
+`min`-shaped body at a point and a non-point with the hull over BOTH arms; the same function
+with DISTINCT actuals giving DISTINCT summaries AND the context-independent summary provably
+equal to the full-window seed; the FULL-WINDOW actual reproducing EXACTLY the old summary (the
+no-change law); the loop-IV `[1,4]` actual; MULTIPLE formals with distinct intervals and
+preserved order; the boundary samples; the two REAL fixtures DIF05/DIF06 specialized at the real
+call sites and compared with the concrete reference — THESE ARE THE NUMBERS THE COMMIT OWES).
+HOSTILES (each must be `Unknown`, never a refusal): an actual outside W(p); an empty interval;
+a missing/extra actual; an arity mismatch; a permuted order; a non-`Formal` storage; the
+unsupported/effectful bodies; a formal modified locally. Then the DISCLOSED tool changes:
+`tools/mir_return_summary_test.py` `LIVE_OK` 55 -> the new count and the three `--corrupt-*`
+stderr tables (add NEW corrupt names, keep the old ones byte-identical); `mirsumtest` from the
+REPO ROOT; each own rc. (`tools/mir_numeric_test.py` EXPORTS +2 moves only when the DIF05/DIF06
+PINS land, i.e. Stage D.)
+
+**THEN (Stage D + the close).** The measured-first pins `hir/dif-expected/DIF05.mir`,
+`DIF06.mir`; D10/D11 in `tools/dual_backend_test.py` (the committed SHAs, the MEASURED `nfuncs`
+from mir2o stderr); both lanes x2, both modes, the full panel; the close (RESULTS §P2-DIFF-4,
+the PLAN dashboard row, the arch `## 7-15` — the `7-14` gap is recorded as a DOCUMENTATION GAP,
+not renumbered), the durables.
+
+**STANDING (all binding):** ZERO oracle; `handoff.config.json` NEVER staged; no push; explicit
+paths; no `git add -A`/`reset --hard`/`clean`; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`;
+never batch build+tests; `mirsumtest` from the REPO ROOT; scratch `build/*` and `ocaml/_build-*`
+never committed; NO new `ocaml/hir/*.ml` file (the F8 count is 15); the module stays clean of
+the Y4 names and the Y6 patterns AND of the F8 `op_` pattern; after ANY scripted durable write
+`grep -c $'\x08'` MUST be 0; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE (the record below stands as history): ## Next action (E2E-54/P2-DIFF-4 —
 ## Next action (E2E-54/P2-DIFF-4 — **STAGE A CLOSED AND COMMITTED (amended); THE BASELINE REFUSAL IS MEASURED EXACTLY; STAGE B IS NEXT**) — session 01a1d998 renewal 1/12 of chain 01a1d97c, 2026-11-14
 
 **STAGE A IS DONE, MEASURED AND COMMITTED; the STOP-and-attribute machinery fired exactly once
@@ -5583,17 +5655,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 838
-checkpoint-id: g838-5efe6a7b4859
+checkpoint-generation: 839
+checkpoint-id: g839-1ede2db4e14b
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T10:45:12.210Z
+checkpointed: 2026-11-14T10:54:48.229Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: be3de01b5c58f8dbcb42aae69abed1252def6278224807178f192acee38944f3
-source-handoff: 2ff65a73da009a1e85af3fd6fb584b028a73e6b35db806bc370a7c9168cdaf62
-source-learnings: 0df076bcd8fd879ab77a7e70c6569e49ebca725a342df470a0152572f6fa3e11
+source-handoff: e9efed03eaf541aa5ffc60453c2d5eab08cc25bffdc3de2b93e3e0626004b760
+source-learnings: 93ff9e087d8c8c9897e6436ce9c0670b9417c0c45cb17e9a8efb2f80627af467
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6918,8 +6990,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1d998-27a1-700a-9d27-3bfdc91aea01
-readiness-at: 2026-11-14T10:45:12.354Z
-readiness-checkpoint: g838-5efe6a7b4859
+readiness-at: 2026-11-14T10:54:48.289Z
+readiness-checkpoint: g839-1ede2db4e14b
 <!-- guard:end checkpoint -->
 
 ## Blockers

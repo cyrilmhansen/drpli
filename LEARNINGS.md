@@ -5,6 +5,43 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 Stage-B integration hop (2026-11-14, session 01a1d9b2 renewal 2/12 of chain
+01a1d97c; ZERO oracle; ledger 203/C380; HEAD `2d78f47b`) — THE INTEGRATION IS COMMITTED, THE WHOLE
+FROZEN PANEL IS GREEN, AND ONE WORDING OVERSTATEMENT OF MY OWN IS DISCLOSED
+
+**ACCEPTED — the integration landed exactly as pre-registered (§P2-DIFF-4.6-2)** and the file
+diff is ONLY that: the `List.map2` returns `(cell, iv)`; `arg_cells`/`arg_ivals` projections;
+the `String.concat` on `arg_cells`; the three-level `specialized -> context-independent ->
+window cq` fallback with the existing `in_window full` guard on BOTH `Known` levels; the
+`summaries` call site untouched; no emission, ABI, ordering or register-numbering change.
+
+**FALSIFIED (my own first draft) — the F8 purity pattern is a real constraint on LOCAL names.**
+`op_cells`/`op_ivals` matched `\bop_[a-zA-Z_]+` (the opcode-constant pattern, applied to every
+`ocaml/hir/*.ml` after the comment strip) and produced 4 FAILs / `HIR TEST FAILED` rc 1. The
+rename to `arg_cells`/`arg_ivals` is semantics-free and restored 220 ok. Method law: a new local
+name in `ocaml/hir/` must be checked against the F8 pattern list BEFORE the panel, not after.
+
+**ACCEPTED — the whole frozen panel is green with the integration and every log is
+`cmp`-IDENTICAL to the campaign baseline** (gate 1328/1328-190/190-9/9-149 rows 0/0-census
+16/0/25/0-prose 5; hir 220; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; call 86; suite
+29/29; functional 211; mir_numeric 43 with the 34 pins re-measured byte-equal x2 fresh;
+mir_return_summary 11; mirsumtest 55). The runner is 8/8 BOTH-PASS in BOTH modes with only the
+stamp/HEAD lines moved. The DIF03/DIF04 pins are byte-identical — the context-independent
+summaries are unchanged, exactly as the pre-registration requires.
+
+**THE CORE EVIDENCE (accepted, measured):** the two Stage-A refusals are GONE — `pli80mir
+--export billing DIF05.pli` and `--export batch DIF06.pli` are rc 0, ZERO stderr, the `.mir`
+produced; the `*` with the call result is admitted. H2 is CONFIRMED at the admission level.
+
+**FALSIFIED — my own commit message `2d78f47b` overstates the evidence.** It says the
+specialized summaries are `[3,20]`, `[12,20]`, `[20,30]`, `[1,12]` "exactly as pre-registered";
+that was NOT measured. rc 0 admission proves only containment in W(15). The exact endpoints are
+the Stage-C driver's job (the real fixtures through `Hir_build` + the independent concrete
+reference). Method law: a commit message may quote only what that commit measured; label
+expectations as expectations.
+
+**NEXT (Stage C) verbatim is in the PROGRESS live heading.**
+
 ## E2E-54/P2-DIFF-4 Stage-B design hop (2026-11-14, session 01a1d998 renewal 1/12; ZERO oracle; ledger 203/C380; HEAD `e8df8701`) — THE STAGE-A EVIDENCE IS COMMITTED; THE STAGE-B ARCHITECTURE IS DESIGNED FROM THE READ-VERBATIM CODE; NO IMPLEMENTATION BYTE YET
 
 **ACCEPTED (read first-hand, this hop) — the Stage-B design that satisfies every pinned
