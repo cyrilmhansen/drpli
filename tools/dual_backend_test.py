@@ -61,6 +61,17 @@ and D09 DIF04 `production` [350,350,350,700,1050] (counted do-while 1..5,
 disclosed `return (i)` IV deviation).  The expected vectors are the
 pre-registered §P2-DIFF-3 ones, hand-derived, never from any output.
 
+The two CALL-SITE-SPECIALIZED programs of §P2-DIFF-4 (Stage D, original
+sources committed at c6257034 BEFORE any compilation of those bytes — the
+stronger timing law): D10 DIF05 `billing` [1500,6000,10000] (the min-shaped
+`capped_units` returns 20 or x; its CONTEXT-INDEPENDENT summary is the FULL
+window and the OLD backend refused HIR-E19 on `cat * 500`; the per-call-site
+specialization [3,20]/[12,20]/[20,30] admits the mul) and D11 DIF06 `batch`
+[700,1400,2100,2800] (counted do-while 1..4, `limited_step` returns 12 or x;
+the loop-IV actual [1,4] specializes to [1,12] and admits `cl * 700`, PUT
+INSIDE the loop, `return (i)` is NOT observed).  The expected vectors are
+the pre-registered §P2-DIFF-4 ones, hand-derived, never from any output.
+
 COMPARATOR FALSIFICATION (§P2-DIFF-1.10): after the real observations are
 in hand, the comparator is attacked with THREE DISPOSABLE corrupted
 expectations (change / delete / permute — sources and executables
@@ -213,6 +224,39 @@ CASES = {
                 "cl * 350 (the OLD backend refused HIR-E19); the PUT of w is INSIDE the "
                 "loop (the drop law); the disclosed return (i) — the IV, definitely "
                 "initialized at the loop exit — is NOT observed",
+    },
+    # §P2-DIFF-4 Stage D — the two CALL-SITE-SPECIALIZED programs.  The sources
+    # are the committed Stage-A fixtures (c6257034, the §P2-DIFF-4.11 amended
+    # shape); the pins are the measured-first Stage-D outputs.  Expected vectors
+    # are the pre-registered §P2-DIFF-4 ones (hand-derived, never from output).
+    "D10": {
+        "fixture": "hir/dif-fixtures/DIF05.pli",
+        "sha256": "1e09787fcde6118d30c0b733ae83f422b417a06742b13a9c6fbe1d6f59cf397c",
+        "entry": "billing", "tag": "DIF05",
+        "expected": [1500, 6000, 10000],
+        "pin": "hir/dif-expected/DIF05.mir",
+        "nfuncs": 2,
+        "note": "min-shaped capped_units(x) returns 20 or x (the hull of BOTH arms — "
+                "the analysis never decides the condition); its context-independent "
+                "summary is the FULL window and the OLD backend refused HIR-E19 on "
+                "cat * 500; the per-call-site specialization [3,3]->[3,20], "
+                "[12,12]->[12,20], [30,30]->[20,30] admits the mul; three q = 3/12/30 "
+                "calls with the n + 0 value-actual idiom, PUT of each bill; the "
+                "entry's return (bill) is NOT observed",
+    },
+    "D11": {
+        "fixture": "hir/dif-fixtures/DIF06.pli",
+        "sha256": "eebace68680501724ca4699201b9e3eb3b9800ed6ea4ed5f8da63c65bd4d6e41",
+        "entry": "batch", "tag": "DIF06",
+        "expected": [700, 1400, 2100, 2800],
+        "pin": "hir/dif-expected/DIF06.mir",
+        "nfuncs": 2,
+        "note": "counted do while (i < 5) over i = 1..4; limited_step(x) returns 12 "
+                "or x; the loop-IV actual [1,4] specializes the summary to [1,12] "
+                "(the OLD backend refused HIR-E19 on cl * 700 with the full-window "
+                "operand); the PUT of v is INSIDE the loop (the drop law); the "
+                "return (i) — the IV, definitely initialized at the loop exit — is "
+                "NOT observed",
     },
 }
 

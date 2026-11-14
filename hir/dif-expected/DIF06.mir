@@ -1,0 +1,61 @@
+M0:	module
+pc1:	proto	i64, i64:v3
+p_put:	proto	i64, i64:v
+p_nl:	proto	i64
+p_exit:	proto	i64:c
+	import	pli_console_put_i64, pli_console_put_nl, exit
+pli80_limited_step:	func	i64, i64:v3
+	local	i64:v4, i64:t15, i64:t16, i64:t17, i64:t18, i64:t19
+	mov t15, i64:(v3)
+	mov t16, 12
+	bgt Lthen2, t15, t16
+	jmp Lelse2
+	Lthen2:
+	mov t17, 12
+	mov v4, t17
+	jmp Ljoin2
+	Lelse2:
+	mov t18, i64:(v3)
+	mov v4, t18
+	Ljoin2:
+	mov t19, v4
+	ret t19
+	endfunc
+pli80_batch:	func	i64
+	local	i64:v0, i64:v1, i64:v2, i64:st, i64:hv1, i64:r1, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6, i64:t7, i64:t8, i64:t9, i64:t10, i64:t11, i64:t12, i64:t13, i64:t14
+	alloca hv1, 8
+	mov t1, 1
+	mov v0, t1
+	Lh1:
+	mov t2, v0
+	mov t3, 5
+	bge Lx1, t2, t3
+	mov t4, v0
+	mov t5, 0
+	add t6, t4, t5
+	mov i64:(hv1), t6
+	call pc1, pli80_limited_step, r1, hv1
+	mov v1, r1
+	mov t7, v1
+	mov t8, 700
+	mul t9, t7, t8
+	mov v2, t9
+	mov t10, v2
+	call p_put, pli_console_put_i64, st, t10
+	bne Lfail_0, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_0, st, 0
+	mov t11, v0
+	mov t12, 1
+	add t13, t11, t12
+	mov v0, t13
+	jmp Lh1
+	Lx1:
+	mov t14, v0
+	ret t14
+Lfail_0:
+	call p_exit, exit, st
+	ret st
+	endfunc
+	export pli80_batch
+	endmodule

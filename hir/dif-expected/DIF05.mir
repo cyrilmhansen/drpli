@@ -1,0 +1,87 @@
+M0:	module
+pc1:	proto	i64, i64:v3
+p_put:	proto	i64, i64:v
+p_nl:	proto	i64
+p_exit:	proto	i64:c
+	import	pli_console_put_i64, pli_console_put_nl, exit
+pli80_capped_units:	func	i64, i64:v3
+	local	i64:v4, i64:t26, i64:t27, i64:t28, i64:t29, i64:t30
+	mov t26, i64:(v3)
+	mov t27, 20
+	bgt Lthen1, t26, t27
+	jmp Lelse1
+	Lthen1:
+	mov t28, 20
+	mov v4, t28
+	jmp Ljoin1
+	Lelse1:
+	mov t29, i64:(v3)
+	mov v4, t29
+	Ljoin1:
+	mov t30, v4
+	ret t30
+	endfunc
+pli80_billing:	func	i64
+	local	i64:v0, i64:v1, i64:v2, i64:st, i64:hv1, i64:hv2, i64:hv3, i64:r1, i64:r2, i64:r3, i64:t1, i64:t2, i64:t3, i64:t4, i64:t5, i64:t6, i64:t7, i64:t8, i64:t9, i64:t10, i64:t11, i64:t12, i64:t13, i64:t14, i64:t15, i64:t16, i64:t17, i64:t18, i64:t19, i64:t20, i64:t21, i64:t22, i64:t23, i64:t24, i64:t25
+	alloca hv1, 8
+	alloca hv2, 8
+	alloca hv3, 8
+	mov t1, 3
+	mov v0, t1
+	mov t2, v0
+	mov t3, 0
+	add t4, t2, t3
+	mov i64:(hv1), t4
+	call pc1, pli80_capped_units, r1, hv1
+	mov v1, r1
+	mov t5, v1
+	mov t6, 500
+	mul t7, t5, t6
+	mov v2, t7
+	mov t8, v2
+	call p_put, pli_console_put_i64, st, t8
+	bne Lfail_0, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_0, st, 0
+	mov t9, 12
+	mov v0, t9
+	mov t10, v0
+	mov t11, 0
+	add t12, t10, t11
+	mov i64:(hv2), t12
+	call pc1, pli80_capped_units, r2, hv2
+	mov v1, r2
+	mov t13, v1
+	mov t14, 500
+	mul t15, t13, t14
+	mov v2, t15
+	mov t16, v2
+	call p_put, pli_console_put_i64, st, t16
+	bne Lfail_0, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_0, st, 0
+	mov t17, 30
+	mov v0, t17
+	mov t18, v0
+	mov t19, 0
+	add t20, t18, t19
+	mov i64:(hv3), t20
+	call pc1, pli80_capped_units, r3, hv3
+	mov v1, r3
+	mov t21, v1
+	mov t22, 500
+	mul t23, t21, t22
+	mov v2, t23
+	mov t24, v2
+	call p_put, pli_console_put_i64, st, t24
+	bne Lfail_0, st, 0
+	call p_nl, pli_console_put_nl, st
+	bne Lfail_0, st, 0
+	mov t25, v2
+	ret t25
+Lfail_0:
+	call p_exit, exit, st
+	ret st
+	endfunc
+	export pli80_billing
+	endmodule
