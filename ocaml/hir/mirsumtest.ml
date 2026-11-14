@@ -30,7 +30,7 @@
    There is no mode that passes the live checks; every corrupt mode is a
    separate process. *)
 
-module M = Pli80_hir.Mir_return_summary
+module R = Pli80_hir.Mir_return_summary
 
 open Pli80_hir
 
@@ -44,8 +44,8 @@ let check name (cond : bool) =
 let show (a, b) = "[" ^ string_of_int a ^ "," ^ string_of_int b ^ "]"
 
 let show_sum = function
-  | M.Known iv -> "Known " ^ show iv
-  | M.Unknown -> "Unknown"
+  | R.Known iv -> "Known " ^ show iv
+  | R.Unknown -> "Unknown"
 
 let quote s = "'" ^ s ^ "'"
 
@@ -285,16 +285,16 @@ let corrupt = ref None
 
 let corrupt_apply pid s =
   match (!corrupt, s) with
-  | Some `Widen, M.Known (a, b) when pid = 1 -> M.Known (a, b + 1)
-  | Some `Narrow, M.Known (a, b) when pid = 1 -> M.Known (a, b - 1)
-  | Some `Unknown, M.Unknown when pid = 1 -> M.Known (1, 2)
+  | Some `Widen, R.Known (a, b) when pid = 1 -> R.Known (a, b + 1)
+  | Some `Narrow, R.Known (a, b) when pid = 1 -> R.Known (a, b - 1)
+  | Some `Unknown, R.Unknown when pid = 1 -> R.Known (1, 2)
   | _ -> s
 
 let summary_of prog pid =
   corrupt_apply pid
-    (match M.summaries ~maxp:15 prog [ pid ] with
+    (match R.summaries ~maxp:15 prog [ pid ] with
      | [ (_, s) ] -> s
-     | _ -> M.Unknown)
+     | _ -> R.Unknown)
 
 let expect name prog pid want =
   let got = summary_of prog pid in
@@ -346,11 +346,11 @@ let p_classify_with_callers () =
 
 let f_constant () =
   expect "const-direct" (p_simple [ s_declare 10; s_ret (Some (e_const "7")) ]) 1
-    (M.Known (7, 7));
+    (R.Known (7, 7));
   expect "const-local"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "5"); s_ret (Some (e_var 11)) ]) 1
-    (M.Known (5, 5));
-  expect "classifier" (p_classify ()) 1 (M.Known (1, 3))
+    (R.Known (5, 5));
+  expect "classifier" (p_classify ()) 1 (R.Known (1, 3))
 
 let f_join () =
   expect "two-arm-hull"
@@ -363,7 +363,7 @@ let f_join () =
            [ s_assign 11 (e_const "2") ];
          s_ret (Some (e_var 11));
        ])
-    1 (M.Known (1, 2));
+    1 (R.Known (1, 2));
   expect "missing-else-identity"
     (p_simple
        [
@@ -374,7 +374,7 @@ let f_join () =
            [ s_assign 11 (e_const "1") ] [];
          s_ret (Some (e_var 11));
        ])
-    1 (M.Known (1, 2));
+    1 (R.Known (1, 2));
   expect "overwrite-after-join"
     (p_simple
        [
@@ -386,7 +386,7 @@ let f_join () =
          s_assign 11 (e_const "4");
          s_ret (Some (e_var 11));
        ])
-    1 (M.Known (4, 4))
+    1 (R.Known (4, 4))
 
 let f_nonexhaustive () =
   (* the c = 1 arm only: c is not definite on the ELSE path — the join drops
@@ -401,55 +401,55 @@ let f_nonexhaustive () =
            [ s_assign 11 (e_const "1") ] [];
          s_ret (Some (e_var 11));
        ])
-    1 M.Unknown
+    1 R.Unknown
 
 let f_effectful () =
   expect "effect-put"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_put (e_const "1"); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "effect-call-s"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_call_s 0 [ a_value (e_const "1") ]; s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "effect-get"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_get 10; s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "effect-stop"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_stop (); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "effect-while"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_while (e_rel Hir.Lt (e_var 11) (e_const "1")) [ s_assign 11 (e_const "1") ]; s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "early-return"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)); s_ret (Some (e_const "1")) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "return-not-last"
     (p_simple [ s_declare 10; s_ret (Some (e_const "1")); s_assign 11 (e_const "2") ]) 1
-    M.Unknown;
+    R.Unknown;
   expect "bare-return"
-    (p_simple [ s_declare 10; s_assign 11 (e_const "2"); s_ret None ]) 1 M.Unknown
+    (p_simple [ s_declare 10; s_assign 11 (e_const "2"); s_ret None ]) 1 R.Unknown
 
 let f_unsupported () =
   expect "unsupported-convert"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_convert bin15 (Hir.Fixed_bin (12, 0)) (e_const "4")); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "unsupported-relational-value"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_rel Hir.Gt (e_var 10) (e_const "5")); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "unsupported-call-e"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_call 1 [ a_value (e_const "1") ]); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "unsupported-return-call"
     (p_simple [ s_declare 10; s_ret (Some (e_call 1 [ a_value (e_const "1") ])) ]) 1
-    M.Unknown;
+    R.Unknown;
   expect "unsupported-elem-read"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_elem 11 [ e_const "0" ]); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "unsupported-elem-assign"
     (p_simple [ s_declare 10; s_declare 11; s_assign_elem 11 [ e_const "0" ] (e_const "2"); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "unsupported-unknown-ef"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_const ~ef:Hir.Unknown_ef "4"); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "unsupported-condition-call"
     (p_simple
        [
@@ -461,31 +461,31 @@ let f_unsupported () =
            [ s_assign 11 (e_const "3") ];
          s_ret (Some (e_var 11));
        ])
-    1 M.Unknown
+    1 R.Unknown
 
 let f_escape () =
   expect "escape-full-window"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_bin Hir.Mul (e_var 10) (e_const "100")); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "escape-add-1"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_bin Hir.Add (e_var 10) (e_const "1")); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "literal-16383"
-    (p_simple [ s_declare 10; s_ret (Some (e_const "16383")) ]) 1 (M.Known (16383, 16383));
+    (p_simple [ s_declare 10; s_ret (Some (e_const "16383")) ]) 1 (R.Known (16383, 16383));
   expect "literal-16384"
-    (p_simple [ s_declare 10; s_ret (Some (e_const "16384")) ]) 1 M.Unknown;
+    (p_simple [ s_declare 10; s_ret (Some (e_const "16384")) ]) 1 R.Unknown;
   expect "identity-full-window"
-    (p_simple [ s_declare 10; s_ret (Some (e_var 10)) ]) 1 (M.Known (-16383, 16383))
+    (p_simple [ s_declare 10; s_ret (Some (e_var 10)) ]) 1 (R.Known (-16383, 16383))
 
 let f_declarations () =
   expect "undeclared-formal-read"
     (p_simple [ s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 10)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "undeclared-read"
-    (p_simple [ s_declare 10; s_ret (Some (e_var 11)) ]) 1 M.Unknown;
+    (p_simple [ s_declare 10; s_ret (Some (e_var 11)) ]) 1 R.Unknown;
   expect "double-declare"
     (p_simple [ s_declare 10; s_declare 10; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "foreign-scope-declare"
     (prog
        [
@@ -494,19 +494,19 @@ let f_declarations () =
            [ s_declare 10; s_declare 99; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ];
        ]
        [ sym 99 "z" 0 bin15 Hir.Auto; sym 10 "x" 1 bin15 Hir.Formal; sym 11 "c" 1 bin15 Hir.Auto ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "non-integer-declare"
     (p_simple [ s_declare 10; s_declare 12; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "static-declare"
     (p_simple [ s_declare 10; s_declare 13; s_declare 11; s_assign 11 (e_const "2"); s_ret (Some (e_var 11)) ])
-    1 M.Unknown
+    1 R.Unknown
 
 let f_shapes () =
   expect "entry-unknown" (p_simple [ s_declare 10; s_ret (Some (e_const "1")) ]) 0
-    M.Unknown;
+    R.Unknown;
   expect "missing-pid" (p_simple [ s_declare 10; s_ret (Some (e_const "1")) ]) 7
-    M.Unknown;
+    R.Unknown;
   expect "void-proc"
     (prog
        [
@@ -514,7 +514,7 @@ let f_shapes () =
          proc ~params:[ 10 ] ~ret:None 1 1 [ s_declare 10 ];
        ]
        [ sym 10 "x" 1 bin15 Hir.Formal ])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "non-bin-result"
     (prog
        [
@@ -522,7 +522,7 @@ let f_shapes () =
          proc ~ret:(Some (Hir.Char (1, false))) 1 1 [ s_ret (Some (e_const "1")) ];
        ]
        [])
-    1 M.Unknown;
+    1 R.Unknown;
   expect "empty-body"
     (prog
        [
@@ -530,37 +530,37 @@ let f_shapes () =
          proc 1 1 [];
        ]
        [])
-    1 M.Unknown
+    1 R.Unknown
 
 let f_precision () =
-  expect "ret-p0" (p_classify ~ret:(Some (binq 0)) ()) 1 M.Unknown;
-  expect "ret-p16" (p_classify ~ret:(Some (binq 16)) ()) 1 M.Unknown;
-  expect "formal-p0" (p_classify ~xty:(binq 0) ()) 1 M.Unknown;
-  expect "formal-p16" (p_classify ~xty:(binq 16) ()) 1 M.Unknown;
+  expect "ret-p0" (p_classify ~ret:(Some (binq 0)) ()) 1 R.Unknown;
+  expect "ret-p16" (p_classify ~ret:(Some (binq 16)) ()) 1 R.Unknown;
+  expect "formal-p0" (p_classify ~xty:(binq 0) ()) 1 R.Unknown;
+  expect "formal-p16" (p_classify ~xty:(binq 16) ()) 1 R.Unknown;
   expect "formal-non-bin"
-    (p_classify ~xty:(Hir.Char (1, false)) ()) 1 M.Unknown;
+    (p_classify ~xty:(Hir.Char (1, false)) ()) 1 R.Unknown;
   (* a classifier with a smaller declared window: the summary still holds
      inside the window. *)
   expect "classifier-narrow-precision"
     (p_classify ~xty:(Hir.Fixed_bin (2, 0)) ())
-    1 (M.Known (1, 3))
+    1 (R.Known (1, 3))
 
 let f_purity () =
   let p = p_classify () in
-  let s = M.summaries ~maxp:15 p [ 1; 1 ] in
-  check "two-callers-single-entry" (s = [ (1, M.Known (1, 3)) ]);
-  let s = M.summaries ~maxp:15 (p_classify_with_callers ()) [ 1; 1; 0 ] in
-  check "two-callers-one-summary" (s = [ (0, M.Unknown); (1, M.Known (1, 3)) ]);
+  let s = R.summaries ~maxp:15 p [ 1; 1 ] in
+  check "two-callers-single-entry" (s = [ (1, R.Known (1, 3)) ]);
+  let s = R.summaries ~maxp:15 (p_classify_with_callers ()) [ 1; 1; 0 ] in
+  check "two-callers-one-summary" (s = [ (0, R.Unknown); (1, R.Known (1, 3)) ]);
   check "deterministic"
-    (M.summaries ~maxp:15 p [ 3; 1; 2 ] = [ (1, M.Known (1, 3)); (2, M.Unknown); (3, M.Unknown) ])
+    (R.summaries ~maxp:15 p [ 3; 1; 2 ] = [ (1, R.Known (1, 3)); (2, R.Unknown); (3, R.Unknown) ])
 
 let f_boundary () =
   expect "boundary-neg-16383"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (e_bin Hir.Sub (e_var 10) (e_const "0")); s_ret (Some (e_var 11)) ])
-    1 (M.Known (-16383, 16383));
+    1 (R.Known (-16383, 16383));
   expect "boundary-neg-op"
     (p_simple [ s_declare 10; s_declare 11; s_assign 11 (Hir.({ ex = Hir.Neg { e = e_const "16383" }; ex_ty = bin15; ex_line = 0; ex_ef = Hir.Pure })); s_ret (Some (e_var 11)) ])
-    1 (M.Known (-16383, -16383));
+    1 (R.Known (-16383, -16383));
   expect "boundary-tight"
     (p_simple
        [
@@ -571,7 +571,7 @@ let f_boundary () =
            [ s_assign 11 (e_bin Hir.Sub (e_const "0") (e_const "16383")) ];
          s_ret (Some (e_var 11));
        ])
-    1 (M.Known (-16383, 16383))
+    1 (R.Known (-16383, 16383))
 
 let f_real () =
   let read_src f =
@@ -617,11 +617,11 @@ let f_real () =
          | None ->
              check ("real-proc exists: " ^ quote name) false
          | Some pid ->
-             let s = M.summaries ~maxp:15 p [ pid ] in
+             let s = R.summaries ~maxp:15 p [ pid ] in
              check ("real: " ^ quote name ^ " got " ^ show_sum (snd (List.hd s)) ^ " expected " ^ show_sum want)
                (s = [ (pid, want) ]);
              (match (want, List.find (fun (x : Hir.proc) -> x.Hir.pid = pid) p.Hir.procs) with
-              | M.Known (lo, hi), pp ->
+              | R.Known (lo, hi), pp ->
                   (match ref_range_pp pp with
                    | Some (a, b) ->
                        check ("real-ref: " ^ quote name ^ " envelope " ^ show (a, b))
@@ -631,8 +631,8 @@ let f_real () =
               | _ -> ())
         )
   in
-  check_real "hir/dif-fixtures/DIF03.pli" "classify" (M.Known (1, 3));
-  check_real "hir/dif-fixtures/DIF04.pli" "stepclass" (M.Known (1, 3))
+  check_real "hir/dif-fixtures/DIF03.pli" "classify" (R.Known (1, 3));
+  check_real "hir/dif-fixtures/DIF04.pli" "stepclass" (R.Known (1, 3))
 
 let live () =
   f_constant ();
