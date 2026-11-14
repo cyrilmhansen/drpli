@@ -2247,3 +2247,117 @@ the whole frozen panel §P2-DIFF-2.6 green, every log `cmp`-IDENTICAL to the cam
 (`11 files` → `13 files`) — see §P2-DIFF-2.7 and the §P2-DIFF-2.8 row above. The finding, the
 four driver falsifications, the `32767`-vs-`±16383` correction of the §P2-DIFF-2.2 table and the
 latent `decimal_int ""` defect (found, NOT fixed) are in §P2-DIFF-2.7.
+
+## §P2-DIFF-3 — Sound interprocedural return-value interval summaries: the analysis, the pure module, and two differential programs that needed it — CLOSED 2026-11-14 (Stages A–D; sessions 01a1d8e9→01a1d8f8→01a1d90c→01a1d924→01a1d935→this successor)
+
+Pre-registered as PLAN **§P2-DIFF-3** (PROTOCOL #1: `92d1887b` committed **BEFORE** any source,
+compiler or probe byte — the campaign's own stronger timing law). §P2-DIFF-1/2 are CLOSED and
+immutable. **Character: a real, bounded compiler capability — a new sound analysis inside the
+`ocaml/hir/` MIR path — judged by the frozen panel and by two programs whose native compilation
+was PRE-REGISTERED to refuse before the fix and to pass after it.** **ORACLE BOUNDARY:** the DR
+compiler oracle `PLI.COM` was **NEVER executed — ZERO oracle**; the 8080 lane's linker/runtime are
+Digital Research's, the COMPILER is my reproduction; the agreement below is between my two backends.
+
+### P2-DIFF-3.1 Stage A — the sources and the measured baseline refusal
+
+`hir/dif-fixtures/DIF03.pli` (entry `pricing`, 678 B, sha `34ac5efb…95b2e1`, committed `3928f130`
+BEFORE any compilation) and `DIF04.pli` (entry `production`, 563 B, sha `b25f0a84…68906` after
+the disclosed Stage-B deviation below; the original `36c4cf5b…ca16e5` was superseded at `5c4ac3c6`
+with the traceable record). Encoding verified: CRLF-only, exactly one trailing `^Z`.
+**DISCLOSED deviations (recorded, not fitted):** (a) the pre-registered `<=` classifier is a
+MEASURED 8080 refusal (E2E-3b subset: `<`, `>`, `=`, `^=` only — CF04/05/08 are the evidence), so
+the sources use the semantically identical `>`-oriented nested IF; (b) DIF04's `return (w)` became
+`return (i)` — `w` is written only inside the loop body and the counted-loop drop law drops it at
+the exit, while the IV `i` is definitely initialized there. The classification, the entry names,
+the `n + 0` value-actual idiom, the per-subsidiary `dcl` and the PUT INSIDE the loop are unchanged,
+and BOTH pre-registered expectation vectors stand.
+
+BASELINE (old backend, each own rc, `build/e54p2diff3/stageA/`): `pli80c -d` **rc 0 for BOTH**
+(PRICING `CODE=239 DATA=22 ITEMS=260 -> 640`; PRODUCTION `CODE=149 DATA=14 ITEMS=165 -> 384`);
+`pli80mir --export` **rc 2 for BOTH**, zero stdout, no `.mir`, the diagnostic EXACTLY the
+pre-registered **HIR-E19 on the `binop '*'`** with the full-window operand (DIF03 line 7
+`[-16383,16383] and [1200,1200] can reach [-19659600,19659600]`; DIF04 line 8 `[350,350]` /
+`[-5734050,5734050]`). NO other refusal fired — the STOP condition did not trigger. Harness law:
+a one-argument `pli80c` call is a usage error (rc 2), never a compiler measurement.
+
+### P2-DIFF-3.2 Stage B — the module and the integration (committed `5c4ac3c6`, fix `e49da02d`)
+
+`ocaml/hir/mir_return_summary.ml` (pure; `Known of (int*int) | Unknown`; imports ONLY `Hir` +
+`Mir_numeric` — the single interval implementation; any subset violation ⇒ `Unknown`, NEVER a new
+refusal) + the ONE `lower_call_e` integration (summary iff `Known iv ∧ in_window (window cq) iv`,
+else `window cq`). `mirsumtest` driver: **55 checks, rc 0**, an INDEPENDENT full-domain concrete
+reference evaluator over `[-16383,16383]` for the two classifiers, and three `--corrupt-*` modes
+perturbing ONLY the inferred side, all failing LOUDLY (rc 1, pinned stderr). Root cause of the
+first-run 13 fails: `summary_of` walked `List.rev pp.body` — declares arrived after uses; fixed to
+`stmts ... (List.rev front)`. The frozen panel then caught a SECOND real defect: the driver's
+module alias `M` is a bare 8080 register mnemonic and the F8 purity glob covers `ocaml/hir/*.ml`
+— **72 F8 failures**; pure rename `M → R` (`e49da02d`). The measured F8 file count is **15**
+(baseline `11` + 2 Stage-B files + the pre-existing count), NOT the pre-registered 14 — the
+pre-registered number was a prediction; the measured live count is the law.
+
+### P2-DIFF-3.3 Stage C — the additive panel tool (committed `c85c0652`)
+
+`tools/mir_return_summary_test.py`: **11 checks, rc 0** — the frozen live driver count, the three
+corrupt controls' exact stderr bytes, the rc-2 usage leg, the DIF03/DIF04 integration (rc 0 with
+the summary), the 32-pin behavioural-equivalence proof, the dependency law, the hir panel law.
+Non-vacuity measured: perturbed count, wrong pin, missing baseline, dropped dune module all fail.
+`Y5`/`Y6` are dynamic (the `let summaries ~maxp` source form, not the idealized signature).
+
+### P2-DIFF-3.4 Stage D — the differential verdicts (this session)
+
+D08/D09 registered in `tools/dual_backend_test.py` (additive; committed SHAs; the MEASURED
+`nfuncs` 2 for both — the entry + the classifier, not the pre-registered guess). The measured-first
+pins `hir/dif-expected/DIF03.mir` (2023 B, `d9595d5f…d100`) and `DIF04.mir` (1333 B,
+`f94ee4d9…01db`) are `pli80mir --export` stdout, `×2` fresh, `-o` == stdout, ZERO stderr, and
+byte-identical to the Stage-B evidence; reviewed line-by-line (the `mul` admitted with the summary
+`[1,3]`; the `ret` on the IV in DIF04). **The 8-case run: rc 0 in BOTH modes — 8/8 `BOTH-PASS`,
+the new raw regions D08 `     1200      2400      3600\r\n` / D09 `      350       350       350
+      700      1050\r\n` vs native `1200\n2400\n3600\n` / `350\n350\n350\n700\n1050\n`,
+determinism `(True,True)` on all 16 lane executions, 37 checks, 29/29 controls REJECTED** (the
+D09 `C-DF3` permute is legitimately absent: its first two items are equal, so the control would
+not be a permutation — the existing `exp[0] != exp[1]` guard). THE PRE-REGISTERED HYPOTHESIS IS
+MEASURED: both programs that HIR-E19 refused on the native lane before the summary now compile
+and AGREE with the 8080 lane on the exact pre-registered vectors. `driver-return` (3600 / 6) is
+lane-specific and excluded.
+
+### P2-DIFF-3.5 Frozen panel (each command own rc; logs `build/e54p2diff3/stageD-*.log`)
+
+gate **1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5**, `cmp`-IDENTICAL to the
+Stage-C log; hir **220** (`cmp`-identical, the F8 count stayed 15); mir_aot **32**; cosmo **25**;
+console **43**; debug **23**; CF **83**; call **86** — all six `cmp`-IDENTICAL; suite **29/29**
+identical; runner **8/8** both modes (only the stamp/HEAD differ); functional **211/211** (only the
+/tmp path); **mir_numeric 43** — the disclosed `41 → 43` change: the tool's `EXPORTS` table
+crashed with `KeyError 'DIF03'` on the new committed pins (a REAL defect: the tool enumerates pins
+dynamically but the name table was static); the fix adds the two entry names, and the check count
+is exactly `41 + 2` new pins (the X2 count is per-pin, `len(names)` is reported).
+**mir_return_summary 11** — the Y3 semantics KEPT the 32 pre-Stage-D pins (the new pins are the
+summary's own output, not "existing" pins to preserve); the count is now reported dynamically and
+the stale comment/docstring corrected. Fresh build `_build-e54p2diff3d` rc 0, `pli80c.exe`
+`172595d5…aca281`; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0; ledger 203/C380.
+
+### P2-DIFF-3.6 Limitations and the honest boundary
+
+The summary covers the pre-registered subset only (reached nonrecursive side-effect-free value
+procs, fixed-bin scalars, the last-statement `Return`, `If`-join under the drop law); ANY
+violation ⇒ `Unknown` ⇒ the old full-window behaviour. Soundness is `actual ⊆ inferred ⊆ declared`
+per procedure; no interprocedural narrowing, no constant propagation from actuals, no call-site
+specialization — all FORBIDDEN and unimplemented. The differential proves agreement on the
+CONSOLE VECTOR only, never on return values, call mechanisms or full PL/I equivalence.
+
+### P2-DIFF-3.7 Reproduction
+
+`cd ocaml && eval "$(opam env)" && dune build` (rc 0) → `python3 tools/dual_backend_test.py` and
+`--strict` (rc 0, 8/8) → `python3 tools/mir_return_summary_test.py` (11) → `python3
+tools/mir_numeric_test.py` (43) → the frozen panel of §P2-DIFF-3.5. Evidence: ignored
+`build/e54p2diff3/` (never a golden, never the coverage registry).
+
+### P2-DIFF-3.8 Commits (explicit paths, hop order)
+
+`92d1887b` PRE-REGISTRATION (before any byte) → `c21e0e44`→`7a4e35f6` durables + the PROGRESS
+truncation REPAIR (the additivity law) → `3928f130` **Stage A sources** (BEFORE any compilation) →
+`ecfcc966`/`802525da` Stage-A durables → `60cd88cf` managed block → `5c4ac3c6` **Stage B**
+(module + integration + `mirsumtest` 55 + the disclosed DIF04 fix) → `e7ceea42` → `e49da02d`
+**the `M → R` panel-caught fix** → `c85c0652` **Stage C** (the 11-check tool) → `0df16c30`/
+`7f38e4d9`/`0a18905b`/`770b2e55` → `247c04b4` managed block → `58923e75` **Stage D** (the D08/D09
+entries, the two pins, the two tool updates) → **the close: this RESULTS section + the PLAN
+`### P2-DIFF-3.10` CLOSED row + the durables**.

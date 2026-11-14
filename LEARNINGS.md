@@ -5,6 +5,47 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-3 Stage D + close hop (2026-11-14, session 01a1d950 renewal 5/12 of chain 01a1d8e9; ZERO oracle; ledger 203/C380)
+
+**ACCEPTED — the two programs that HIR-E19 refused on the native lane at the Stage-A baseline now
+BOTH-PASS on both lanes.** D08/D09 registered in `tools/dual_backend_test.py` (committed
+`58923e75`); the 8-case run is rc 0 in BOTH default and `--strict`, 8/8 `BOTH-PASS`, 37 checks,
+29/29 controls REJECTED, determinism `(True,True)` on all 16 lane executions; the pre-registered
+vectors `[1200,2400,3600]` and `[350,350,350,700,1050]` were measured on both lanes. This is the
+campaign's whole point: the return-value summary is a REAL compiler capability that removes a
+real refusal, and the differential proves agreement on the console vector only.
+
+**ACCEPTED — the measured `nfuncs` for both DIF03 and DIF04 is 2, not the pre-registered guess.**
+The entry plus the classifier is the whole module; the pin is `pli80mir --export` stdout, x2 fresh,
+`-o` == stdout, ZERO stderr (the measured pins `d9595d5f…` and `f94ee4d9…`).
+
+**ACCEPTED — `mir_numeric_test.py` had a REAL `KeyError 'DIF03'` defect the moment the new pins
+were committed.** The X2 check enumerates pins DYNAMICALLY but `EXPORTS` (name -> entry) is a
+static table. The fix is additive (two entries); the count moves `41 -> 43` exactly by the two new
+pins (the check is per-pin, `len(names)` is reported). METHOD LAW: a frozen tool with a static
+name table must be re-run the moment any new artifact of the enumerated family lands — the
+frozen panel is what catches this; the same law that caught the Stage-B `M`-alias.
+
+**ACCEPTED — Y3 of `mir_return_summary_test.py` keeps its 32-pin semantics.** The check is "the
+existing pins are UNMOVED by the summary"; the two new pins are the summary's OWN output, not
+"existing" pins, so they stay outside the table (and the comment/docstring now say so). The
+reported count is now the dynamic `n` (it was 32).
+
+**ACCEPTED — the frozen panel with Stage D in place.** gate 1328/1328-190/190-9/9-149 rows 0/0-
+census 16/0/25/0-prose 5 `cmp`-identical to the Stage-C log; hir 220 identical (F8 15 unchanged);
+mir_aot 32 / cosmo 25 / console 43 / debug 23 / CF 83 / call 86 all identical; suite 29/29
+identical; runner 8/8 both modes (only the stamp/HEAD differ); functional 211/211 (only the /tmp
+path); fresh build `_build-e54p2diff3d` sha `172595d5…aca281`; `git diff --exit-code -- hir/`
+and `-- ocaml/` rc 0; ledger 203/C380.
+
+**FALSIFIED — the D09 `C-DF3` permute control is not a control.** The runner's guard is
+`exp[0] != exp[1]`; the D09 vector `[350,350,350,700,1050]` has equal first two items, so
+swapping them is the identity and the control is correctly skipped (the `permute` law needs
+two DIFFERENT items; a control that would be the identity vector is vacuous). NOT a defect —
+the existing guard is right; the log is 29/29 (the 30th slot is absent, not failing).
+
+**CLOSED — the campaign is finished; the close (RESULTS §P2-DIFF-3, PLAN dashboard row, the
+durables) is this session's commit.** Nothing further is authorized without a NEW operator brief.
 ## E2E-54/P2-DIFF-3 Stage-B panel + Stage-C tool hop (2026-11-14, session 01a1d935 renewal 4/12 of chain 01a1d8e9; ZERO oracle; ledger 203/C380) — THE FROZEN PANEL CAUGHT A REAL DEFECT IN THE COMMITTED STAGE B; THE PANEL IS GREEN; THE ADDITIVE TOOL IS COMMITTED
 
 **ACCEPTED — the FROZEN PANEL IS A DEFECT DETECTOR, NOT A CEREMONY; the predecessor's

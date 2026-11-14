@@ -7,7 +7,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-15-e54p2diff3-stageC-panel-tool (2026-11-14, session 01a1d935 renewal 4/12 of chain 01a1d8e9;
+16-e54p2diff3-closed (2026-11-14, session 01a1d950 renewal 5/12 of chain 01a1d8e9; ZERO oracle;
+ledger 203/C380; start HEAD `247c04b4`): **E2E-54/P2-DIFF-3 IS COMPLETE AND CLOSED — NO NEXT
+ACTION EXISTS.** Stage D landed: D08/D09 in `tools/dual_backend_test.py` (`58923e75`), the
+MEASURED `nfuncs` 2 and 2, the measured-first pins `hir/dif-expected/DIF03.mir` `d9595d5f…`
+(2023 B) and `DIF04.mir` `f94ee4d9…` (1333 B); the 8-case run **8/8 BOTH-PASS in BOTH modes**,
+37 checks, 29/29 controls REJECTED, determinism (True,True) everywhere; the pre-registered
+vectors `[1200,2400,3600]`/`[350,350,350,700,1050]` measured on both lanes. The full frozen
+panel green (gate cmp-identical; hir 220; mir 32/cosmo 25/console 43/debug 23/CF 83/call 86;
+suite 29/29; functional 211); the ONE disclosed tool change: mir_numeric `41→43` — the static
+EXPORTS table had a REAL `KeyError 'DIF03'` defect the moment the new pins landed (fixed with
+two entries; the count is per-pin); mir_return_summary 11 with the Y3 32-pin semantics KEPT.
+Fresh build `172595d5…aca281`; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0; ledger
+203/C380. **FALSIFIED (this hop): the D09 `C-DF3` permute control is legitimately absent** —
+the `exp[0] != exp[1]` guard correctly skips a permutation of equal items. Recovery: PROGRESS
+live heading; LEARNINGS § "Stage D + close hop"; RESULTS §P2-DIFF-3; PLAN §P2-DIFF-3.10 CLOSED.
+**NOTHING FURTHER IS AUTHORIZED — every extension needs a NEW operator brief.** Standing: ZERO
+oracle; `handoff.config.json` NEVER staged; no push; explicit paths; rc DIRECT; `eval
+"$(opam env)"`; `LC_ALL=C`; never batch build+tests; `mirsumtest` from the REPO ROOT; NEVER
+hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: 15-e54p2diff3-stageC-panel-tool (2026-11-14, session 01a1d935 renewal 4/12 of chain 01a1d8e9;
 ZERO oracle; ledger 203/C380; HEAD `0df16c30`): **E2E-54/P2-DIFF-3 STAGE C IS COMMITTED AND
 THE FULL FROZEN PANEL IS GREEN.** The Stage-B `M`-alias defect was caught by the panel (the
 `M` alias is a bare 8080 register mnemonic; the F8 glob covers every `ocaml/hir/*.ml` file;
@@ -2430,25 +2450,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 830
-checkpoint-id: g830-a31821f0458c
-checkpoint-kind: manual
+checkpoint-generation: 831
+checkpoint-id: g831-f3b45eb393f6
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-1571, session 01a1d935-de65-7264-a23a-8e87c06da658)
-checkpointed: 2026-11-14T09:07:53.312Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6925, session 01a1d950-8e82-7264-a23a-8e8ac34e728b)
+checkpointed: 2026-11-14T09:36:29.346Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 73f83c8b5cd831df8023e8c5a56753c49618f9e0e2817741e72cf6bb4faf7f0e
-source-handoff: b9722966a299c3cde962fe37df05868c08ae6b0d0882917daa2c7f47453ba5dc
-source-learnings: d3bbe6ee8520cba9253c9e57a0faedcb531be20279ae0e1e6b1a16d02d273e5f
+source-progress: d95cbbf8119d78ebaef2788ff8ef3659fb5b19f12b6b73fb5d5edf81e40b13be
+source-handoff: fa4441f7b326a51b3d882f280e356d97c488b39331a23a3b9c7cc761915e5d77
+source-learnings: aa4422f6087eb723050f0cbe9f9fd00f0c6ab6673a4e044e3c9b617982536d6b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d935-de65-7264-a23a-8e87c06da658
-readiness-at: 2026-11-14T09:07:53.452Z
-readiness-checkpoint: g830-a31821f0458c
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

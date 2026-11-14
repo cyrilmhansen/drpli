@@ -48,7 +48,35 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-3 — **STAGE C TOOL COMMITTED; THE FROZEN PANEL IS COMPLETE; THE FROZEN PANEL IS GREEN; THE NEXT ACTION IS STAGE D (D08/D09) + THE CLOSE**) — session 01a1d935 renewal 4/12 of chain 01a1d8e9, 2026-11-14
+## Next action (E2E-54/P2-DIFF-3 — **CLOSED AND COMMITTED; NO NEXT ACTION EXISTS — STOP and await the OPERATOR**) — session 01a1d950 renewal 5/12 of chain 01a1d8e9, 2026-11-14
+
+**STATE (accepted, measured first-hand).** Stage D and the close are DONE. D08/D09 registered in
+`tools/dual_backend_test.py` (committed `58923e75`): committed SHAs `34ac5efb…`/`b25f0a84…`, the
+MEASURED `nfuncs` 2 and 2, the measured-first pins `hir/dif-expected/DIF03.mir` (2023 B,
+`d9595d5f…`) and `DIF04.mir` (1333 B, `f94ee4d9…`). The 8-case run is **rc 0 in BOTH modes: 8/8
+BOTH-PASS, 37 checks, 29/29 controls REJECTED, determinism (True,True) on all 16 lane
+executions**; the pre-registered vectors `[1200,2400,3600]` and `[350,350,350,700,1050]` were
+measured on BOTH lanes. The full frozen panel: gate `cmp`-identical, hir 220, mir 32, cosmo 25,
+console 43, debug 23, CF 83, call 86, suite 29/29, functional 211 — all identical; mir_numeric
+**41→43** (the disclosed `KeyError 'DIF03'` tool defect — the static EXPORTS table; the fix is
+two entries, the check count is per-pin); mir_return_summary 11 (the Y3 32-pin semantics KEPT,
+the count now dynamic). Fresh build `172595d5…aca281`; `git diff --exit-code -- hir/` and
+`-- ocaml/` rc 0; ledger 203/C380.
+
+**CLOSED.** The close (this commit) = RESULTS `## §P2-DIFF-3` (new), the PLAN `### P2-DIFF-3.10`
+CLOSED row, LEARNINGS § "Stage D + close hop". **NOTHING FURTHER IS AUTHORIZED** — any extension
+(need for interprocedural narrowing, more programs, non-numeric observables, the `<=`/`LINE`
+subset, the `decimal_int ""` defect) needs a NEW operator brief.
+
+**FALSIFIED (this hop):** the D09 `C-DF3` permute control is legitimately absent — the runner's
+existing `exp[0] != exp[1]` guard skips a permutation of equal items (the identity is not a
+control); 29/29 is correct, not a missing check.
+
+Standing: ZERO oracle; `handoff.config.json` NEVER staged; no push; explicit paths; rc DIRECT;
+`eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; scratch `build/*` never committed;
+`mirsumtest` runs from the REPO ROOT; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-3 — **STAGE C TOOL COMMITTED; THE FROZEN PANEL IS COMPLETE; THE FROZEN PANEL IS GREEN; THE NEXT ACTION IS STAGE D (D08/D09) + THE CLOSE**) — session 01a1d935 renewal 4/12 of chain 01a1d8e9, 2026-11-14
 
 **STATE (accepted, this hop).** The frozen panel is COMPLETE AND GREEN. The Stage-B `M` alias
 was a REAL DEFECT (72 F8 failures, the `M` alias is a bare register mnemonic, and the F8 glob
@@ -5317,17 +5345,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 830
-checkpoint-id: g830-a31821f0458c
-checkpoint-kind: manual
+checkpoint-generation: 831
+checkpoint-id: g831-f3b45eb393f6
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-14T09:07:53.312Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-14T09:36:29.346Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 73f83c8b5cd831df8023e8c5a56753c49618f9e0e2817741e72cf6bb4faf7f0e
-source-handoff: b9722966a299c3cde962fe37df05868c08ae6b0d0882917daa2c7f47453ba5dc
-source-learnings: d3bbe6ee8520cba9253c9e57a0faedcb531be20279ae0e1e6b1a16d02d273e5f
+source-progress: d95cbbf8119d78ebaef2788ff8ef3659fb5b19f12b6b73fb5d5edf81e40b13be
+source-handoff: fa4441f7b326a51b3d882f280e356d97c488b39331a23a3b9c7cc761915e5d77
+source-learnings: aa4422f6087eb723050f0cbe9f9fd00f0c6ab6673a4e044e3c9b617982536d6b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6651,9 +6679,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d935-de65-7264-a23a-8e87c06da658
-readiness-at: 2026-11-14T09:07:53.452Z
-readiness-checkpoint: g830-a31821f0458c
 <!-- guard:end checkpoint -->
 
 ## Blockers
