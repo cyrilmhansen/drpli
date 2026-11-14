@@ -161,6 +161,39 @@ let cond_ok maxp declared env (e : Hir.expr) : bool =
       | _ -> false)
   | _ -> false
 
+(* The §P2-DIFF-5.2 BRANCH-CONDITION REFINEMENT (the §5.2 subset, verbatim).
+   The condition is a relational Bin (cond_ok has already accepted it) whose
+   shape is Var op Const with the VAR DEFINITE in the env (an entry exists)
+   and the CONST a decimal literal (the canonical-literal law the value
+   grammar uses). The op is one of {Lt, Le, Gt, Ge, Eq} — Ne, Const op Var,
+   Var op Var, any non-relational or composite condition and a non-definite
+   Var are OUTSIDE the refinement (the caller keeps the existing conservative
+   path verbatim). Returns (sid, then-subset, else-subset) where each subset
+   is the arm's refined interval for the var, or None when the arm is
+   PROVABLY INFEASIBLE (empty subset). The Eq ELSE side is NOT refined (the
+   complement of a point is not an interval — the existing env is kept). *)
+let refine env (cond : Hir.expr) :
+    (int * (int * int) option * (int * int) option) option =
+  match cond.Hir.ex with
+  | Hir.Bin { op; left; right; _ } -> (
+      match (left.Hir.ex, right.Hir.ex) with
+      | (Hir.Var { sid; _ }, Hir.Const { text }) -> (
+          match (List.assoc_opt sid env, Mir_numeric.decimal_int text) with
+          | Some (lo, hi), Some v ->
+              (* the clip is a subset of the OLD entry — the old entry was
+                 window-proved, so the refined interval is window-proved too. *)
+              let clip (a, b) = if a > b then None else Some (a, b) in
+              (match op with
+               | Hir.Lt -> Some (sid, clip (lo, min hi (v - 1)), clip (max lo v, hi))
+               | Hir.Le -> Some (sid, clip (lo, min hi v), clip (max lo (v + 1), hi))
+               | Hir.Gt -> Some (sid, clip (max lo (v + 1), hi), clip (lo, min hi v))
+               | Hir.Ge -> Some (sid, clip (max lo v, hi), clip (lo, min hi (v - 1)))
+               | Hir.Eq -> Some (sid, clip (max lo v, min hi v), Some (lo, hi))
+               | _ -> None)
+          | _ -> None)
+      | _ -> None)
+  | _ -> None
+
 (* The statement walk, mirroring the backend's lower_stmts: Declare, Assign
    (own-scope D_var, the value proved by the value grammar AND against the
    target's declared window), and If (both arms independent, the join is the
@@ -215,18 +248,77 @@ let rec stmts maxp (prog : Hir.program) (pp : Hir.proc)
                        else None))
        | Hir.If { cond; then_; else_ } ->
            if not (cond_ok maxp declared env cond) then None
-           else if else_ = [] then
-             (* the missing ELSE is the identity path (backend law) *)
-             (match stmts maxp prog pp declared env then_ with
-              | None -> None
-              | Some (d, et) -> stmts maxp prog pp d (join et env) rest)
            else
-             (match stmts maxp prog pp declared env then_ with
-              | None -> None
-              | Some (d, et) ->
-                  (match stmts maxp prog pp declared env else_ with
-                   | None -> None
-                   | Some (_, ee) -> stmts maxp prog pp d (join et ee) rest))
+             (match refine env cond with
+              | None ->
+                  (* outside the refinement: the existing conservative path,
+                     verbatim (both arms walked with the unchanged env, the
+                     drop-not-inherit join, the missing ELSE the identity). *)
+                  if else_ = [] then
+                    (* the missing ELSE is the identity path (backend law) *)
+                    (match stmts maxp prog pp declared env then_ with
+                     | None -> None
+                     | Some (d, et) -> stmts maxp prog pp d (join et env) rest)
+                  else
+                    (match stmts maxp prog pp declared env then_ with
+                     | None -> None
+                     | Some (d, et) ->
+                         (match stmts maxp prog pp declared env else_ with
+                          | None -> None
+                          | Some (_, ee) -> stmts maxp prog pp d (join et ee) rest))
+              | Some (sid, rt, re) ->
+                  (* the refinement: the arm env is the condition subset; an
+                     EMPTY subset (rt/re = None) means the arm is PROVABLY
+                     INFEASIBLE and is EXCLUDED from the join — the one-arm
+                     join is that arm's own env. *)
+                  let env_t =
+                    match rt with
+                    | Some iv -> add_env env sid iv
+                    | None -> env
+                  in
+                  let env_e =
+                    match re with
+                    | Some iv -> add_env env sid iv
+                    | None -> env
+                  in
+                  if else_ = [] then
+                    (* the false path stays the identity env (the existing
+                       law); a refined THEN arm is the only walk, and an
+                       INFEASIBLE THEN arm makes the whole if a no-op. *)
+                    if rt = None then stmts maxp prog pp declared env rest
+                    else
+                      (match stmts maxp prog pp declared env_t then_ with
+                       | None -> None
+                       | Some (d, et) -> stmts maxp prog pp d (join et env) rest)
+                  else
+                    match (rt, re) with
+                    | Some _, Some _ ->
+                        (* both arms feasible: the existing join, the refined
+                           envs. *)
+                        (match stmts maxp prog pp declared env_t then_ with
+                         | None -> None
+                         | Some (d, et) ->
+                             (match stmts maxp prog pp declared env_e else_ with
+                              | None -> None
+                              | Some (_, ee) -> stmts maxp prog pp d (join et ee) rest))
+                    | Some _, None ->
+                        (* the ELSE arm is infeasible: the THEN arm is the
+                           only reachable path. *)
+                        (match stmts maxp prog pp declared env_t then_ with
+                         | None -> None
+                         | Some (d, et) -> stmts maxp prog pp d et rest)
+                    | None, Some _ ->
+                        (* the THEN arm is infeasible: the ELSE arm is the
+                           only reachable path. *)
+                        (match stmts maxp prog pp declared env_e else_ with
+                         | None -> None
+                         | Some (d, ee) -> stmts maxp prog pp d ee rest)
+                    | None, None ->
+                        (* both arms infeasible: the whole condition is
+                           impossible — the walk is unreachable from here on
+                           (vacuously sound); the env is kept so the
+                           continuation is the same. *)
+                        stmts maxp prog pp declared env rest)
        | _ -> None)
 
 (* The ONE shared body evaluator (E2E-54/P2-DIFF-4 §P2-DIFF-4.6-1: the
