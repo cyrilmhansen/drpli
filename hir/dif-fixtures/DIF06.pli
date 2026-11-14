@@ -1,9 +1,11 @@
 batch: procedure returns(fixed bin(15));
    dcl i fixed bin(15);
+   dcl cl fixed bin(15);
    dcl v fixed bin(15);
    i = 1;
    do while (i < 5);
-      v = limited_step(i + 0) * 700;
+      cl = limited_step(i + 0);
+      v = cl * 700;
       put list(v);
       i = i + 1;
    end;
