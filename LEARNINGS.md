@@ -23,7 +23,7 @@ is capturing the previously-discarded `_iv` (line ~803) into the returned list; 
 fallback is `specialized -> context-independent -> window cq`, the specialized request made
 ONLY when the `lower` of every actual produced a `Some iv` (the module's `lower` returns
 `string * (int*int)` per operand — the exact proven interval of the value COPIED into the
-`hv<k>` cell). (3) NO `emit`-word in the module (the Y6 pattern `emit` matches comments
+`hv<k>` cell). (3) NO `emit`-word in the module (the Y6 pattern `\bemit\b` matches comments
 too — the file today passes, the new code must never write the word). (4) NO `List`-order
 change, NO `hv` allocation change, NO new `summaries`-call site — the ONLY new module call
 site is inside `lower_call_e`.

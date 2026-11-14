@@ -7,7 +7,42 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-17-e54p2diff4-prereg-committed (2026-11-14, session 01a1d97c fresh startup; ZERO oracle; ledger
+18-e54p2diff4-stageB-inflight (2026-11-14, session 01a1d998 renewal 1/12 of chain 01a1d97c;
+ZERO oracle; ledger 203/C380; start HEAD `d4d359ae`, now `d1885505` + this checkpoint): **STAGE
+A IS CLOSED AND COMMITTED (amended); THE STAGE-B MODULE IS COMMITTED AND BUILD-GREEN; THE
+`lower_call_e` INTEGRATION IS THE ONE REMAINING STAGE-B ACT.** STAGE A (accepted, measured):
+`d276743b`→`61bcfcc5` (PLAN **§P2-DIFF-4.11** — the STOP-and-attribute on the FIRST sources:
+`bill = capped_units(q + 0) * 500` nests the `Call_e` in the `*`, the measured m3c law
+(`mir_backend.ml` ~737) admits a `Call_e` ONLY as the whole RHS of a `D_var` Assign or the whole
+final `Return` — the native lane refused `HIR-E18` (not the predicted `HIR-E19`); the amendment
+moves the call to a whole-RHS `cat = capped_units(q + 0);` / `bill = cat * 500;` — the exact
+DIF03/DIF04 shapes, vectors UNCHANGED)→`c6257034` (REPLACEMENT sources: DIF05 633 B
+`1e09787f…cf397c`, DIF06 502 B `ebace686…4d6e41`; committed before any compiler run)→`d1885505`
+(the **MODULE extension** in `ocaml/hir/mir_return_summary.ml`, build-green, hir file count 15,
+Y4/Y6-clean: ONE shared `eval_body`; `summary_of` kept in its own validation path — no
+`Formal` check, semantics byte-for-byte; `summary_of_actuals ~maxp prog pid ~params ~actuals`
+with the §P2-DIFF-4.2 obligations — order-equality, length, non-empty, `Formal` storage,
+`bin_p`, `in_window W(p)`; any violation `Unknown`, never a refusal). **`ocaml/hir/mir_backend.ml`
+IS UNMODIFIED.** NEXT (verbatim, PROGRESS live heading): the `lower_call_e` integration —
+`let rv, iv = lower env x` (the `_iv` at ~803 is now KEPT), `operand_regs`→`(cell, iv)` pairs,
+`op_cells`/`op_ivals` for the existing `String.concat` and the NEW `summary_of_actuals` call;
+the fallback `specialized → (existing `List.assoc_opt cpid summaries`) → full` each `Known`
+guarded by `in_window full` (the existing defensive re-check); SAME `hv`/`emit`/`r_n`/`res_regs`/
+`pc_uses`, NOTHING else. Then `dune build` (own rc); then the FROZEN PANEL §P2-DIFF-4.8 (each
+own rc, logs `build/e54p2diff4/`; D08/D09/DIF03/DIF04 pins byte-identical, their `classify`/
+`stepclass` are the context-independent ones — `capped_units`/`limited_step` are NOT in the
+panel); the disclosed Stage-C tool changes (`mir_numeric` EXPORTS +2; `mir_return_summary`
+`LIVE_OK` 55→new and the corrupt tables move); `mirsumtest` from the repo root; `git diff
+--exit-code -- hir/` and `-- ocaml/` rc 0 only AFTER the backend edit. Recovery: PROGRESS live
+heading → PLAN §P2-DIFF-4 + §4.11 → LEARNINGS § "Stage-B design hop" + "Stage-B partial" +
+"Stage-A hop" + "recovery + baseline hop". **DURABLE-EDIT HAZARD (fixed, mine):** a bash
+heredoc with `\b`/`\x` escapes silently writes a backspace/control byte into the file; after
+any scripted durable write `grep -c $'\x08'` must be 0. Standing: ZERO oracle; `handoff.config.json`
+NEVER staged (dirty with the operator's own `maxRenewals`/`workingContextWindow`); no push;
+explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; scratch
+`build/*` never committed; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: 17-e54p2diff4-prereg-committed (2026-11-14, session 01a1d97c fresh startup; ZERO oracle; ledger
 203/C380; start HEAD `c3576ccb`, now `b259cf4c`): **E2E-54/P2-DIFF-4 IS OPEN; THE PRE-REGISTRATION
 IS COMMITTED; STAGE A IS NEXT.** Landed: `10a1ac66` baseline+recovery durables, `b259cf4c` the
 **§P2-DIFF-4 PRE-REGISTRATION** appended to `spec/lab-evidence/e2e54/PLAN.md` (now 6947 lines)
@@ -2480,22 +2515,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 837
-checkpoint-id: g837-e05a549ea54f
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4334, session 01a1d998-27a1-700a-9d27-3bfdc91aea01)
-checkpointed: 2026-11-14T10:42:20.064Z
+checkpoint-generation: 838
+checkpoint-id: g838-5efe6a7b4859
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-9475, session 01a1d998-27a1-700a-9d27-3bfdc91aea01)
+checkpointed: 2026-11-14T10:45:12.210Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 46e36e9127ad03b3663a0ee1d3c212719cd5b97ccba8a04e2a062e9baba2e363
+source-progress: be3de01b5c58f8dbcb42aae69abed1252def6278224807178f192acee38944f3
 source-handoff: 2ff65a73da009a1e85af3fd6fb584b028a73e6b35db806bc370a7c9168cdaf62
-source-learnings: ab532f336651c1c32bbe8da55d5e2d51eeeb8ae0c74f30a19bacdbbe944bda6e
+source-learnings: 0df076bcd8fd879ab77a7e70c6569e49ebca725a342df470a0152572f6fa3e11
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d998-27a1-700a-9d27-3bfdc91aea01
+readiness-at: 2026-11-14T10:45:12.354Z
+readiness-checkpoint: g838-5efe6a7b4859
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -3825,5 +3863,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-4 open. Pre-registration committed (b259cf4c), durables committed (10a1ac66 then this). Baseline re-measured first-hand (gate 1328/1328-190/190-9/9-149-16/0/25/0-prose 5; hir 220; mir 32/cosmo 25/console 43/debug 23/CF 83/call 86; suite 29/29; runner 8/8 BOTH-PASS both modes; functional 211; mir_numeric 43; mir_return_summary 11; hist 172595d5…aca281; ledger 203/C380). NEXT = Stage A: write hir/dif-fixtures/DIF05.pli (entry billing, capped_units min(x,20), expected [1500,6000,10000]) and DIF06.pli (entry batch, limited_step min(x,12), do while (i<5) over 1..4, expected [700,1400,2100,2800]) — commit the source bytes BEFORE compiling them — then measure the old backend (pli80c -d rc 0; pli80mir --export rc 2 HIR-E19 on the '*' with the full-window operand ±8191500 / ±11468100). Absent/different refusal ⇒ STOP-and-attribute. Binding: NO new ocaml/hir/*.ml file (X3/Y5 pin the count to 15); extend summary_of to share ONE evaluator via summary_of_actuals; mir_numeric_test EXPORTS must gain the two pin names (43→45 disclosed); mir_return_summary_test LIVE_OK=55 and the corrupt tables move (disclosed). ZERO oracle; handoff.config.json NEVER staged; no push; explicit paths; mirsumtest from repo root.
+E2E-54/P2-DIFF-4 Stage B IN FLIGHT. Module extension COMMITTED build-green at d1885505 (eval_body shared; summary_of unchanged; summary_of_actuals with the §P2-DIFF-4.2 obligations). mir_backend.ml UNMODIFIED. NEXT: the exact lower_call_e integration (verbatim in PROGRESS live heading), then dune build, then the FROZEN PANEL §P2-DIFF-4.8, then Stage-C disclosed tool changes, then mirsumtest, then Stage D. ZERO oracle; ledger 203/C380; config never staged; no push; explicit paths; rc DIRECT; mirsumtest from repo root; never batch build+tests.
 <!-- guard:end checkpoint -->
