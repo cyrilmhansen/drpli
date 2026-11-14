@@ -5,6 +5,31 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 Stage-C driver hop (2026-11-14, session 01a1d9ca renewal 3/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; HEAD 32efdff6) — THE CALL-SITE FAMILY IS IN THE DRIVER AND MEASURED (97 CHECKS); THE REAL-FIXTURE MEASUREMENT AND THE TOOL UPDATE ARE OWED
+
+ACCEPTED (measured): the driver extension is committed at 32efdff6; build rc 0, mirsumtest rc 0
+with 97 checks (55 + 42). The new corrupt modes (--corrupt-spec-widen/-narrow/-unknown) are
+keyed to the call-site entry point ONLY; the old modes to the old path ONLY — the old pinned
+tables stay byte-identical by construction. The DIF05/DIF06 REAL-FIXTURE measurement is NOT yet
+wired (the Warning 69 unused cs_line/cs_callee fields are the proof); the tools/mir_return_summary
+_test.py LIVE_OK pin (55) and the three new corrupt tables are NOT yet updated (the tool will
+FAIL until the 97 and the new tables land — the disclosed consequence). The exact owed work, the
+new check names and their hand-derived values are in the PROGRESS live heading.
+
+ACCEPTED (measured): the plan §4.4 note "the context-independent summary of min(x,20) is [1,20]"
+is FALSE — the context-independent summary of the min shape on the full bin(15) formal is the
+FULL window [-16383,16383] (the else arm is the identity); the spec-ctx-min check pins this.
+The specialized point call-sites [3,3]/[12,12]/[30,30] giving [3,20]/[12,20]/[20,30] and the
+loop [1,4] giving [1,12] are MEASURED in the driver (the numbers commit 2d78f47b owed).
+
+METHOD (accepted): run_callee's If arm must RUN the chosen arm and treat its value as the
+callee's return (the arm carries the final Return); the caller's exec records the actual
+point values at each call site; the window re-derivation in the driver (wiv) is independent of
+Mir_numeric (the hand constants 16383/2047).
+
+FALSIFIED (harness): the usage-line edit via a multi-line python string replace must keep the
+OCaml parens around the string concat (prerr_endline "a" ^ "b" mis-parses).
+
 ## E2E-54/P2-DIFF-4 Stage-B integration hop (2026-11-14, session 01a1d9b2 renewal 2/12 of chain
 01a1d97c; ZERO oracle; ledger 203/C380; HEAD `2d78f47b`) — THE INTEGRATION IS COMMITTED, THE WHOLE
 FROZEN PANEL IS GREEN, AND ONE WORDING OVERSTATEMENT OF MY OWN IS DISCLOSED
