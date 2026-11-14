@@ -7368,3 +7368,228 @@ Stage C and after Stage D), every baseline log `cmp`-IDENTICAL; the disclosed to
 `172595d5…aca281` unchanged; `git diff --exit-code -- ocaml/`/`-- hir/`/`-- tools/`/`-- spec/`
 rc 0 at every stage boundary; ledger 203/C380; ZERO oracle. Full record: RESULTS §P2-DIFF-5.
 **STOP — any extension needs a NEW operator brief (§5.11).**
+
+---
+
+## §P1-m4 — Pre-registration: ONE conditional early RETURN(expr) in the native MIR backend (PROTOCOL #1; committed BEFORE any fixture, probe, runner or compiler byte)
+
+Operator-authorized slice **E2E-54/P1-m4** (brief of 2026-11-14, mission instance
+`drpli-p1-m4-early-return`, chain `…:chain:2026-11-14T23:37:17.737Z`). Starting reference
+HEAD `8869644b` (the sealed P2-DIFF-5 archive; verified first-hand this session).
+
+### P1-m4.0 Operator brief (reproduced; binding scope)
+
+> **Authorized objective:** extend the native MIR backend to support one conditional early
+> `RETURN(expr)` within a FIXED BINARY value-returning procedure, followed by a final
+> top-level `RETURN(expr)` on the fall-through path.
+>
+> **Explicit exclusions:** early RETURN inside loops, nested IF chains, multiple early
+> returns, both-arm early returns without a final top-level return, early void returns,
+> general fixpoint analysis, changes to the historical backend, and unrelated feature
+> expansion.
+
+Stage-0 findings carried forward from the predecessor session (the predecessor transcript is
+NOT recoverable; every item below was RE-VERIFIED first-hand at preflight, §P1-m4.1):
+`no_return_in` refuses nested RETURN with HIR-E18; the final top-level `Return (Some e)`
+lowering already checks the result window and emits `ret`; the principal correctness
+challenge is excluding TERMINATING branches from fall-through joins; `Mir_return_summary`
+stays conservative (its subset is NOT widened by this campaign); MIR acceptance of
+instructions/labels after an unconditional `ret` is UNMEASURED; DR-8080 acceptance of the
+candidate shapes is UNMEASURED.
+
+### P1-m4.1 Verified baseline facts (measured first-hand at preflight; this section pre-registers, it does not re-measure)
+
+1. HEAD `8869644b`; instance owner lock held by this process (pid 767047); chain 0/12;
+   the sealed instance `drpli-p2-diff5` and all historical evidence are READ-ONLY.
+2. **Census reconciliation (the owed §2 of the brief).** The committed baseline is
+   `spec/census/corpus-census.json`: EXACT 16 / DIFFERS 0 / REFUSED 25 / UNEXPECTED 0 —
+   the 4-tuple **`16/0/25/0`** — last committed `0fff88d8`, snapshot `head eb8592ff`,
+   `binary_md5 d5e89db2`. Re-measured THIS session on `_build/default/bin/pli80c.exe`
+   (md5 `d5e89db2…` = the snapshot's own binary field; sha256 `172595d5…aca281` = the
+   P2-DIFF-5 frozen exe): `tools/corpus_census.py --verify` rc 0,
+   **"recomputed counts match"** — every bucket identical, UNEXPECTED 0.
+   The lost Stage-0 report's `16/0/25/3` is **NOT reproducible at this HEAD with the armed
+   binary**. The only `3` in the census output is `DR_REJECTED`/`NO_ORACLE` (CALL, INVERT,
+   MAININVT — programs DR itself refused, which by definition never enter the
+   EXACT/DIFFERS/REFUSED/UNEXPECTED 4-tuple). Adjudication: the Stage-0 figure is treated
+   as a REPORTING ARTIFACT (a fourth-slot read from `NO_ORACLE: 3` or an un-armed-binary
+   run in the predecessor session); the frozen census baseline for this campaign is the
+   MEASURED `16/0/25/0`. NO committed snapshot moves.
+3. The FROZEN regression panel is the 14-item P2-DIFF-5 close panel (CLOSE-RECORD):
+   gate `1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5`; `hir_test` 220;
+   `mir_aot_test` 32; cosmo 25; console 43; debug 23; CF 83; call 86; `test_dual_backend`
+   29/29; functional-hostile 211; `mir_numeric` 47; `mir_return_summary` 15;
+   `dual_backend_test` **12/12 BOTH-PASS in BOTH modes** (D02..D13; 57 checks; 45/45
+   controls REJECTED); `pli80c.exe` sha `172595d5…aca281`.
+4. Code facts (line numbers as of `8869644b`): the refusal scan `no_return_in` is
+   `ocaml/hir/mir_backend.ml:860` (recursive over `If` arms and `While` bodies; called at
+   1137/1138 for every `Hir.If` and at 1218 for every loop body); the admitted final
+   `Hir.Return (Some e)` lowering is at 1100 (window check §P1-m0.3-3 then `ret %s`);
+   the two-arm join is `join_env env_t env_e` at 1159 under the drop-not-inherit law
+   (§P1-m2.2); the one-arm join at 1150 is `join_env env_then env`.
+5. BLAST-RADIUS FACT: NO committed pin or suite artifact quotes the nested-RETURN refusal
+   message (grep over `hir/`, `tools/`, `spec/`, `docs/` at HEAD: zero hits). Amending the
+   `no_return_in` message text therefore moves NO pin; the CF negatives CFN1..CFN6 pin
+   other messages and stand UNMOVED.
+
+### P1-m4.2 Hypotheses and falsifiers
+
+- **H1 (the targeted limitation is real and exactly where Stage 0 says).** Both candidate
+  programs (§P1-m4.4), compiled with the PRE-CHANGE backend, refuse with
+  `HIR-E18 … RETURN nested inside a conditional …` naming the early-RETURN line; the
+  historical 8080 lane compiles them rc 0. MEASURED in Stage A before any source byte.
+  FALSIFIED if any candidate is admitted pre-change, refuses at a different line/code, or
+  the 8080 lane refuses (our-gap — STOP-and-attribute, no silent expectation fit).
+- **H2 (the minimal extension admits exactly the brief shape).** After the §P1-m4.3 change:
+  ER01/ER02 lower, pin deterministically (×2 fresh processes, `stdout == -o == pin`, zero
+  stderr), link and EXECUTE the hand-derived vectors on BOTH native lanes (glibc and cosmo
+  tiny static, the §P1-m2.6 idiom), and every §P1-m4.6 negative still refuses BY NAME.
+  FALSIFIED by any admitted negative, any nondeterministic pin, any byte-diverging exec.
+- **H3 (nothing else moves).** The full frozen panel (§P1-m4.1-3) re-runs GREEN with the
+  ONLY disclosed movers: the NEW `mir_aot_ret` suite (count MEASURED, never a formula) and
+  — ONLY IF both D14/D15 qualify — the dual-backend runner 12/12 → 14/14. FALSIFIED by any
+  other moved pin, log or count; in particular `mir_return_summary` stays 15 and
+  `mir_numeric` stays 47 (§P1-m4.8).
+
+### P1-m4.3 The admitted subset (complete list; everything else keeps the verbatim refusal)
+
+A procedure body admits ONE conditional early RETURN iff ALL hold:
+1. the procedure is in the existing P1-m0 export shape and `RETURNS (FIXED BIN(p))`
+   (the window law §P1-m0.3-3 unchanged);
+2. exactly ONE top-level `Hir.If` in the body contains a Return, that If is NOT inside any
+   `While` and NOT inside any other `If` (nested-IF chains and loop-nested returns stay
+   refused BY NAME);
+3. the Return sits in EXACTLY ONE arm and is the FINAL statement of that arm; the arm's
+   `rest` is empty; the other arm contains NO Return;
+4. the statement sequence after the If is exactly ONE final top-level
+   `Hir.Return (Some e)` — the fall-through tail exists;
+5. the early-returned expression lowers through the EXISTING `lower`/`lower_call_e` paths
+   and its interval passes the SAME window check the final return passes (HIR-E19 law
+   unchanged; `RETURN(x)` in ER02 is admitted only because `x`'s pre-If interval is
+   ⊆ `W(p)` — measured, not assumed).
+
+Emission: the arm lowers its expression and emits `ret %s` (one instruction, source-line
+tagged, sidecar law §P1-m2.9); the If join law is AMENDED by EXCLUSION: an arm that ends
+with `ret` TERMINATES and contributes NOTHING to the join (the fall-through env is the
+surviving arm's env; the one-arm-If join at 1150 degenerates to the else-path env when the
+then arm terminates). A body whose every path terminates (both arms return, or a top-level
+`ret` before the final Return) stays REFUSED by rule 4. No new MIR instruction forms, no
+label scheme change, no statement-reorder.
+
+### P1-m4.4 The two candidate programs and their INDEPENDENT expected outputs (hand-derived; never from output)
+
+- **ER01 (candidate A)** — `sel: procedure returns(fixed bin(15)); dcl x fixed bin(15);
+  x = p;` … structurally: `IF x > 5 THEN RETURN(9); RETURN(4);` called from the driver on
+  inputs 2, 7, 5. Hand-derived console vector **[4, 9, 4]** (2 > 5 false → 4; 7 > 5 true →
+  9; 5 > 5 FALSE at the boundary → 4 — the boundary value is the discriminating leg).
+- **ER02 (candidate B)** — `IF x > 10 THEN RETURN(x); RETURN(3);` driver inputs 4, 12.
+  Hand-derived vector **[3, 12]** (4 → 3; 12 > 10 → returns x = 12).
+Both fixtures carry CRLF line endings and the trailing CP/M EOF byte `0x1A`, the
+`hir/mir-cf-fixtures` idiom. `nfuncs` MEASURED from `mir2o` stderr at Stage A, never
+derived. The driver shape (direct calls with constant actuals and `PUT LIST` per §P1-m2.5)
+is fixed in Stage A BEFORE any pin exists; the vectors above are the expectation authority.
+
+### P1-m4.5 MIR acceptance after `ret` — MEASURED-FIRST, pre-registered handling
+
+Whether `mir2o` accepts instructions/labels after an unconditional `ret` is UNMEASURED
+(Stage-0 open fact). Stage B measures the emitted ER01/ER02 module FIRST (export, `mir2o`
+rc, `nm`, exec legs) BEFORE any pin is committed. If `mir2o` REFUSES the post-`ret` shape,
+this campaign STOPs and reports with the measured evidence — the backend is NOT restructured
+into dead-code-elimination or tail-reordering routes without a new operator decision.
+
+### P1-m4.6 Negative tests (each refuses with the verbatim pre-change message; rc 2, zero stdout, NO artifact, ×2 fresh processes; pins measured-first)
+
+| Id | Shape | Expected refusal |
+|---|---|---|
+| ERN1 | early Return inside a `While` body | `no_return_in` E18 (1218 path) UNMOVED |
+| ERN2 | early Returns in BOTH arms (no fall-through tail) | E18 BY NAME (rule 3) |
+| ERN3 | early Return, NO final top-level Return | E18 BY NAME (rule 4) |
+| ERN4 | TWO early Returns (same arm) | E18 BY NAME (rules 2/3) |
+| ERN5 | early VOID `RETURN;` inside the arm | E18 (Return None stays refused) |
+| ERN6 | Return inside a SECOND (nested) If | E18 BY NAME (rule 2) |
+| ERN7 | early Return whose interval leaves `W(p)` (e.g. `RETURN(40000)` in `FIXED BIN(3)`) | E19 §P1-m0.3-3 law |
+| ERN8 | Return NOT final in its arm (statements follow it) | E18 BY NAME (rule 3) |
+
+### P1-m4.7 Runner plan (ADDITIVE; historical suites UNMOVED)
+
+NEW `tools/mir_aot_ret_test.py`, modelled on `mir_aot_cf_test.py`: R0 prerequisites +
+toolchain identity; R1 ER01/ER02 pins ×2 fresh procs; R2 the eight negatives (§P1-m4.6);
+R3 native legs per §P1-m2.6 (glibc + cosmo tiny static, the hand-derived vectors, BAD(2)
+dr where measured); R4 the non-vacuity controls C-M4a/C-M4b (§P1-m4.9); the check COUNT is
+MEASURED and reported, never a formula. Fixtures `hir/mir-ret-fixtures/*.pli`, pins
+`hir/mir-ret-expected/*` — all NEW paths; no existing fixture or pin is touched.
+
+### P1-m4.8 `Mir_return_summary` boundary (binding)
+
+The campaign does NOT widen the summary's supported subset. A callee whose body contains the
+new shape must keep a SOUND summary at every call site: the walker must not invent refinements
+from the early `ret`; the conservative `Unknown`/identity behaviour (or its existing refusals)
+is MEASURED in Stage B on both candidates (they are callable shapes), and the
+`mir_return_summary_test` count 15 plus `mirsumtest` 172 literals stand UNMOVED — any mover is
+a STOP-and-attribute. If the summary analysis CRASHES or silently WIDENS on the new body shape,
+that is falsifier F4.
+
+### P1-m4.9 Non-vacuity controls (disposable copies under `build/` ONLY; committed sources untouched)
+
+- **C-M4a (join exclusion is real):** a disposable mutated backend that lets the
+  terminating arm's env flow into the fall-through join must produce a measurably WRONG
+  ER02 observation path (or a refusal difference) INSIDE the suite — a control that passes
+  when the mutation is applied fails the campaign.
+- **C-M4b (the E18 scan still guards):** a disposable mutation admitting a LOOP-nested
+  early Return (ERN1) must make ERN1 stop refusing — observed failing loudly inside the
+  suite.
+(Both follow the C-M2a/C-M2b/C-M3a-c idiom: controls OBSERVED FAILING INSIDE, never shipped.)
+
+### P1-m4.10 Preservation gates (each its OWN direct rc; logs under `build/e54p1m4/`)
+
+1. The full frozen panel §P1-m4.1-3 re-runs after EACH implementation stage; every log
+   `cmp`-IDENTICAL to the P2-DIFF-5 close baseline except the disclosed new-suite line(s).
+2. `git diff --exit-code -- ocaml/lib/ ocaml/` modulo the ONE permitted file (below),
+   `-- hir/` fixtures/pins existing UNMOVED, `-- tools/` existing UNMOVED, at every stage
+   boundary and at close.
+3. The historical 8080 path is byte-frozen: the gate byte panel 1328/1328 and goldens
+   UNMOVED; census `16/0/25/0` UNMOVED; ledger `spec/CLAIMS.md` 203/C380 UNMOVED;
+   ZERO oracle runs (this is backend-engineering evidence; NO new CLAIMS row is created —
+   DR acceptance of the shapes is already implied by the historical corpus grammar and is
+   NOT separately claimed here).
+4. PERMITTED SOURCE EDITS, complete list: `ocaml/hir/mir_backend.ml` (the `no_return_in`
+   scan narrowed exactly per §P1-m4.3 + the join exclusion + the refusal-message
+   amendment, §P1-m4.1-5); `ocaml/hir/hir_build.ml` ONLY if Stage A measures that HIR
+   itself cannot yet express the shape (STOP-and-attribute FIRST — an HIR gap changes the
+   campaign's premise and needs the operator's explicit amendment before any code);
+   the NEW tools/fixtures/pins of §P1-m4.7; `spec/lab-evidence/e2e54/{PLAN,RESULTS}.md`;
+   the durables. ANY other file is out of scope and a violation to be reverted, not fitted.
+
+### P1-m4.11 STOP conditions (binding)
+
+STOP and report (no silent fix, no expectation fit) if: H1 falsifies at Stage A; the 8080
+lane refuses either candidate; `mir2o` refuses the post-`ret` module (§P1-m4.5); a panel
+mover appears beyond the disclosed ones; the summary analysis crashes or widens (§P1-m4.8);
+HIR cannot express the shape (§P1-m4.10-2); any candidate needs a §P1-m4.3-listed exclusion
+to pass; the complexity exceeds the m-series idiom (new instruction forms, CFG rewrite,
+fixpoint machinery — that is a DIFFERENT campaign, not a deviation).
+
+### P1-m4.12 Work order (exact order — the successor contract)
+
+1. **A (measure the limitation):** write ER01/ER02/ERN1..8 fixtures (CRLF + `0x1A`), commit
+   them BEFORE any compile (PROTOCOL #1 additive evidence); measure and record in RESULTS:
+   8080 lane rc/output per candidate (no pins — observation only), pre-change native refusal
+   (code, line, message) per candidate, `nfuncs`, the HIR shape (does `pli80hir` emit
+   `Return` inside `If` as expected). GREEN = H1 holds exactly.
+2. **B (implement):** `mir_backend.ml` per §P1-m4.3; unit-idiom tests first; then the
+   measured-first pins (export ×2 fresh, `stdout == -o == pin`, zero stderr, `mir2o`
+   accepted, `nm T` laws, exec legs both lanes) — §P1-m4.5 decides continuation.
+3. **C (validate):** the NEW `mir_aot_ret_test.py` green INCLUDING the controls observed
+   failing inside; then the FULL frozen panel §P1-m4.10 twice (after C, after D).
+4. **D (differential extension, CONDITIONAL):** D14/D15 added to `dual_backend_test.py`
+   ONLY IF both candidates qualify as dual-lane cases (hand-derived vectors verified on the
+   8080 lane too); the runner then hypothesized 12/12 → 14/14 BOTH-PASS in BOTH modes,
+   controls count re-MEASURED; if either candidate does not qualify, the runner stays
+   12/12 and the non-qualification is RECORDED — never forced.
+5. **CLOSE:** RESULTS §P1-m4 (T-panel with measured values, deviations recorded NOT fitted),
+   this section's dashboard row, arch `## 7-17` if a new law is established, durables,
+   finalized checkpoint. **STOP after P1-m4; any extension needs a NEW operator brief.**
+
+### P1-m4.13 Dashboard row (OPEN — updated only at close)
+
+| P1-m4 | OPEN (pre-registered 2026-11-14, HEAD `8869644b`) | one conditional early RETURN(expr) + terminating-arm join exclusion in the native MIR backend |
