@@ -36,14 +36,9 @@ HANDOFF/PROGRESS/LEARNINGS durable edits and then run `/handoff finalize`.
 
 ## Verified evidence (this session)
 
-- Stage A/B measurements above; git diff --exit-code -- ocaml/ hir/ tools/ spec/ clean
-  before each commit.
-
-## Next action (exact)
-
-- STOP: the campaign is CLOSED and committed at `28c7cfe3`. The only remaining action is to
-  commit the HANDOFF/PROGRESS/LEARNINGS durable edits and then run `/handoff finalize`. No
-  new experiment is authorized without a new operator brief (PLAN §5.11).
+- The close panel (14 items) is `cmp`-identical to the Stage-D baseline; the exe sha
+  `172595d5…aca281` is unchanged; the ledger is 203/C380; `git diff --exit-code --
+  ocaml/ hir/ tools/ spec/ docs/` is clean before the durables commit.
 
 ## Blockers
 
@@ -51,17 +46,17 @@ HANDOFF/PROGRESS/LEARNINGS durable edits and then run `/handoff finalize`.
   without a NEW operator brief (PLAN §5.11).
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 10
-checkpoint-id: g10-b3d01ffd351c
-checkpoint-kind: manual
+checkpoint-generation: 11
+checkpoint-id: g11-57ad309caa64
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-14T21:18:37.990Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-14T22:26:10.277Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 49cfb56a559f656bd59fb26aac6fb75f64ccffcbb38358e465bb5b9dd343cca1
-source-handoff: 89c3797323a0f0d4d916a83aa04dfa6740b06417be9b8e7e960471ffa314972e
-source-learnings: 36e3bf5b74b44ace09d4163f0164fa8667424028b7979995074db0cd5caa9107
+source-progress: 92ff1913b64c1a40b2c6014d5225bd5ca5febfb7103782402e28fa9676c7aa74
+source-handoff: 8941c3e86cace0931eb3314f92aded97bad787a3257916d0a8b8ef442ce11044
+source-learnings: 183af22c37f329c96e9d2a369aee8ccb9db47e8243a68655f3ebc0cf31f154b7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: 1. STAGE C (PLAN §5.8) in `ocaml/hir/mirsumtest.ml` IN PLACE (§5.7-2), each expectation a
    HAND-derived literal BEFORE the run: the `Lt`/`Le`/`Ge`/`Eq` orientation law on the `min`
@@ -82,9 +77,6 @@ next-action: 1. STAGE C (PLAN §5.8) in `ocaml/hir/mirsumtest.ml` IN PLACE (§5.
    (measured-first pins, measured `nfuncs`), both lanes ×2, both modes; target 12/12 BOTH-PASS
    (measured).
 4. The close: RESULTS §P2-DIFF-5, the dashboard row, arch §7-16, the durables.
-readiness-by: session:01a1dbbb-c95e-72bd-a54d-4a57d0cd47a1
-readiness-at: 2026-11-14T21:18:37.992Z
-readiness-checkpoint: g10-b3d01ffd351c
 <!-- guard:end checkpoint -->
 
 ## STAGE C — COMPLETE (manual prose, supersedes the managed block above)
@@ -100,5 +92,14 @@ DIF07/DIF08 REAL-fixture specialization (`f_real` ctx + envelope, `spec-real-dif
 COUNT 116 → 172 (DISCLOSED); the five corrupt tables re-pinned to measured values; the
 panel tool is rc 0 (15 checks). FALSIFIED: my own hand derivation of the `p_reread`
 monotone chain at the full window (it is `Unknown` there — `c + x` reaches `[-16378,16403]`
-outside `W(15)`); corrected before the green run. NEXT: the Stage-C frozen panel, then
-Stage D — see the superseding HANDOFF.md section.
+outside `W(15)`); corrected before the green run.
+
+## CAMPAIGN CLOSED (manual prose, supersedes the managed block above)
+
+The campaign is CLOSED and committed at `28c7cfe3` (the durables are `b477de03`). The
+Stage-C frozen panel and the Stage-D frozen panel are both green. Stage D: the
+measured-first pins `DIF07.mir` (1865 B `072b59ad…c43`) and `DIF08.mir` (1177 B `75051416…49e`),
+the `nfuncs` 2/2 MEASURED from mir2o stderr, the runner **12/12 BOTH-PASS in BOTH modes**,
+57 checks, 45/45 comparator controls REJECTED; `mir_numeric` 47 (the disclosed 45→47, 38 pins,
+36 pre-existing UNMOVED); `pli80c.exe` `172595d5…aca281` UNCHANGED; ledger 203/C380; ZERO
+oracle; ZERO emitted bytes. STOP — any extension needs a new operator brief (PLAN §5.11).

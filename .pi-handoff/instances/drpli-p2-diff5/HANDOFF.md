@@ -76,25 +76,22 @@ PROVABLY INFEASIBLE → EXCLUDED from the join (the one-arm join is that arm);
 missing ELSE = the identity env (the old law).
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 10
-checkpoint-id: g10-b3d01ffd351c
-checkpoint-kind: manual
+checkpoint-generation: 11
+checkpoint-id: g11-57ad309caa64
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-2190, session mission:drpli-p2-diff5:01a1dbbb-c95e-72bd-a54d-4a57d0cd47a1)
-checkpointed: 2026-11-14T21:18:37.990Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6884, session mission:drpli-p2-diff5:01a1dbed-74b8-72bd-a54d-4a5bdbef7e64)
+checkpointed: 2026-11-14T22:26:10.277Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 49cfb56a559f656bd59fb26aac6fb75f64ccffcbb38358e465bb5b9dd343cca1
-source-handoff: 89c3797323a0f0d4d916a83aa04dfa6740b06417be9b8e7e960471ffa314972e
-source-learnings: 36e3bf5b74b44ace09d4163f0164fa8667424028b7979995074db0cd5caa9107
+source-progress: 92ff1913b64c1a40b2c6014d5225bd5ca5febfb7103782402e28fa9676c7aa74
+source-handoff: 8941c3e86cace0931eb3314f92aded97bad787a3257916d0a8b8ef442ce11044
+source-learnings: 183af22c37f329c96e9d2a369aee8ccb9db47e8243a68655f3ebc0cf31f154b7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1dbbb-c95e-72bd-a54d-4a57d0cd47a1
-readiness-at: 2026-11-14T21:18:37.992Z
-readiness-checkpoint: g10-b3d01ffd351c
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
