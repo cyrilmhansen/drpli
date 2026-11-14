@@ -7,7 +7,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-11-e54p2diff2-closed (2026-11-13, session 01a1d748 renewal 4/12 of chain 01a1d648; ZERO oracle;
+12-e54p2diff3-open (2026-11-14, session 01a1d8e9 renewal 1/12; ZERO oracle; ledger 203/C380;
+HEAD `7a4e35f6`+): **E2E-54/P2-DIFF-3 IS OPEN — the PRE-REGISTRATION is committed (`92d1887b`);
+STAGE A IS NEXT.** The only active next action is the PROGRESS live heading: write
+`hir/dif-fixtures/DIF03.pli` (entry `pricing`, classifier returning 1/2/3 by nested IF/ELSE,
+`cost = classify(n + 0) * 1200`, expected `[1200,2400,3600]`) and `DIF04.pli` (entry
+`production`, counted `do while` 1..5, `weight = stepclass(i + 0) * 350`, PUT INSIDE the loop,
+expected `[350,350,350,700,1050]`); verify encoding (CRLF + one `^Z`) and SHA, COMMIT THE
+SOURCES BEFORE ANY COMPILATION (the binding timing law), then the OLD-backend baseline refusal
+(`pli80c -d` predicted rc 0; `pli80mir --export` predicted HIR-E19 on the `binop '*'` with the
+full window operand). Recovery order: `git rev-parse HEAD` + `git status --porcelain` (only the
+operator `handoff.config.json` may be dirty); `/handoff verify`; read the PROGRESS live heading,
+then PLAN §P2-DIFF-3 (the binding contract), then the LEARNINGS § 2026-11-14. MEASURED: the
+mechanism is `lower_call_e` returning `(rr, window cq)`; the summary cannot move emission;
+CALLN9 refuses by SHAPE (unaffected); the `Mir_numeric` algebra is the single interval
+implementation. REPAIR (this session): a scripted rewrite TRUNCATED PROGRESS.md at
+`c21e0e44` — restored byte-exact from `4e857e09` and re-applied at `7a4e35f6`; the method law
+is now in the live heading (measure the line count after any scripted rewrite; the diff must be
+ADDITIVE-only). Standing: ZERO oracle; `handoff.config.json` NEVER staged; no push; explicit
+paths; rc DIRECT; never batch build+tests; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: 11-e54p2diff2-closed (2026-11-13, session 01a1d748 renewal 4/12 of chain 01a1d648; ZERO oracle;
 ledger 203/C380; HEAD `54f765fc`): **E2E-54/P2-DIFF-2 IS COMPLETE AND CLOSED — Stages A, B and C
 all landed. The ONLY remaining act is the managed-block refresh + finalize/renew, then STOP.** The
 extraction is `f1f3c1ab` (`ocaml/hir/mir_numeric.ml`: the nine-`let` pure algebra, imports
@@ -2359,20 +2379,23 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 817
-checkpoint-id: g817-861cab72ea9b
+checkpoint-generation: 818
+checkpoint-id: g818-90416b644592
 checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~-5611, session 01a1d8e9-5626-7264-a23a-8e770e9500c1)
-checkpointed: 2026-11-14T07:28:20.468Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-12362, session 01a1d8e9-5626-7264-a23a-8e770e9500c1)
+checkpointed: 2026-11-14T07:30:41.323Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 66a7a4a04c033de42afef21128e359d45651b6939277ef5854152712e2f7dd86
+source-progress: e33c2d9cd8285ee8a7ec1c59de27458a4baf50b7b5068c4cbb1bebb3463596ff
 source-handoff: 02fe1d0a4febd2f8e09f9aeb38060ad2900703a4adcda24a6ae773d89926069d
 source-learnings: 1bbce5aff19384a260cc829e94cc180cef2d80f3a65a8c37e86914758a62a2ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1d8e9-5626-7264-a23a-8e770e9500c1
+readiness-at: 2026-11-14T07:30:41.468Z
+readiness-checkpoint: g818-90416b644592
 ### Last verified state
 guard level 4; checkpoint requested (renewal tool refresh)
 
@@ -3704,5 +3727,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-3: pre-registration committed (92d1887b), PROGRESS/LEARNINGS live (c21e0e44, fb8ab249). NEXT: Stage A — write hir/dif-fixtures/DIF03.pli and DIF04.pli per PLAN §P2-DIFF-3, verify encoding (CRLF, one ^Z), SHA, and COMMIT THE SOURCES BEFORE ANY COMPILATION (timing law), then run the OLD-backend baseline refusal (pli80c -d expected rc 0; pli80mir expected HIR-E19 on the multiplication). ZERO oracle; handoff.config.json never staged; no push; explicit paths; recovery order: PROGRESS live heading → PLAN §P2-DIFF-3 → LEARNINGS 2026-11-14.
+E2E-54/P2-DIFF-3: pre-registration committed (92d1887b); PROGRESS live heading repaired (7a4e35f6 — the truncation was caused by a scripted h[:i]+new instead of h[:i]+new+h[i+len:] and is disclosed in the heading); LEARNINGS recorded (fb8ab249). NEXT: Stage A — write hir/dif-fixtures/DIF03.pli (entry pricing) and DIF04.pli (entry production) per PLAN §P2-DIFF-3; verify encoding (CRLF, one trailing ^Z) and SHA; COMMIT the sources + reference spec BEFORE ANY compilation (timing law); then the OLD-backend baseline: pli80c -d (predicted rc 0) and pli80mir --export (predicted HIR-E19 on the binop '*' with the full window operand) — any OTHER refusal → STOP and attribute. ZERO oracle; handoff.config.json never staged; no push; explicit paths; rc DIRECT; eval "$(opam env)"; never batch build+tests; recovery: PROGRESS live heading → PLAN §P2-DIFF-3 → LEARNINGS 2026-11-14.
 <!-- guard:end checkpoint -->
