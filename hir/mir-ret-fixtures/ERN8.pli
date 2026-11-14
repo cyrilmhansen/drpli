@@ -1,0 +1,10 @@
+ertailarm: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   get list(x);
+   if x > 5 then do;
+      return (9);
+      x = x + 1;
+   end;
+   return (4);
+end ertailarm;
+

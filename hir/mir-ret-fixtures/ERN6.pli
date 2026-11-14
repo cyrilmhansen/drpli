@@ -1,0 +1,9 @@
+ernest: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   get list(x);
+   if x > 5 then
+      if x > 10 then
+         return (9);
+   return (4);
+end ernest;
+

@@ -1,0 +1,10 @@
+erdouble: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   get list(x);
+   if x > 5 then do;
+      return (9);
+      return (8);
+   end;
+   return (4);
+end erdouble;
+

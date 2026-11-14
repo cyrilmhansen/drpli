@@ -1,0 +1,15 @@
+earlyb: procedure returns(fixed bin(15));
+   dcl r fixed bin(15);
+   r = sel(4) + 0;
+   put list(r);
+   r = sel(12) + 0;
+   put list(r);
+   return (r);
+   sel: procedure(x) returns(fixed bin(15));
+      dcl x fixed bin(15);
+      if x > 10 then
+         return (x);
+      return (3);
+   end sel;
+end earlyb;
+

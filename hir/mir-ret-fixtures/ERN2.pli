@@ -1,0 +1,9 @@
+erboth: procedure returns(fixed bin(15));
+   dcl x fixed bin(15);
+   get list(x);
+   if x > 5 then
+      return (9);
+   else
+      return (4);
+end erboth;
+
