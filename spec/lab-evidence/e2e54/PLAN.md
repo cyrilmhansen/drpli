@@ -6656,3 +6656,292 @@ never staged; rc DIRECT; LC_ALL=C; never batch build+tests; timeouts 60/120/900;
 | slice | status | notes |
 |---|---|---|
 | P2-DIFF-3 | **CLOSED 2026-11-14** (Stages A–D) | Pre-registration `92d1887b` BEFORE any byte; Stage A sources `3928f130` (DIF03 `34ac5efb…`; DIF04 fixed at `5c4ac3c6` to `b25f0a84…`, the disclosed `<=`→`>` and `return(w)`→`return(i)` deviations); baseline refusal EXACTLY as pre-registered (`pli80c` rc 0 x2, `pli80mir` HIR-E19 on the `*` x2); Stage B `5c4ac3c6`+`e49da02d` (`mir_return_summary` + `lower_call_e` + `mirsumtest` 55 checks rc 0, three corrupt controls LOUD; the panel CAUGHT the `M`-alias F8 defect); Stage C `c85c0652` (`tools/mir_return_summary_test.py`, 11 checks, non-vacuous); Stage D `58923e75` (D08/D09, measured `nfuncs` 2, the measured-first pins; the 8-case run **8/8 BOTH-PASS in BOTH modes**, the pre-registered vectors `[1200,2400,3600]` and `[350,350,350,700,1050]` MEASURED on both lanes; 37 checks, 29/29 controls REJECTED). Full frozen panel green; mir_numeric `41→43` disclosed (the new pins were a real `KeyError` defect in the tool's static table). Compiler `172595d5…aca281`; ledger 203/C380; ZERO oracle. |
+
+
+## §P2-DIFF-4 — Pre-registration: call-site interval specialization of the return-summary analysis (PROTOCOL #1; committed BEFORE any experimental source, probe or compiler byte)
+
+Operator brief E2E-54/P2-DIFF-4, authorized 2026-11-14. §P2-DIFF-1/2/3 are CLOSED and IMMUTABLE —
+nothing in this section edits them. ZERO oracle (`PLI.COM` never runs); ledger 203/C380; the
+historical compiler, the goldens and every existing `.mir` pin are FROZEN. Baseline measured
+FIRST-HAND this session at HEAD `c3576ccb` (the brief's own verified HEAD), logs
+`build/e54p2diff4/base-*.log`: gate 1328/1328–190/190–9/9–149 rows 0/0–census 16/0/25/0–prose 5;
+hir 220; mir_aot 32 / cosmo 25 / console 43 / debug 23 / CF 83 / call 86; hostile suite 29/29;
+dual-backend runner **8/8 BOTH-PASS rc 0 in BOTH modes** (37 checks, 29/29 controls rejected);
+functional 211/211; `mir_numeric_test` 43; `mir_return_summary_test` 11; `pli80c.exe`
+`172595d5…aca281`; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0; ledger 203 headers
+ending C380. Every value above was MEASURED, not copied from the brief.
+
+**WHAT THIS IS NOT.** This is NOT function cloning, NOT inlining, NOT partial evaluation, NOT
+specialized machine-code generation, NOT path-feasibility/branch-condition refinement. The MIR
+function for the callee stays GENERIC and byte-identical; the ABI, the exports, the call
+convention, the register/label numbering, the per-slot HOME-PASS value cells and the instruction
+order do not move. The ONLY new capability is that the caller may know a NARROWER interval for
+the result of ONE specific call because it knows the intervals of the ACTUALS at that call.
+
+### P2-DIFF-4.1 Hypotheses and falsifiers
+
+**H1 (the integration hypothesis).** `lower_call_e` already computes, for each `A_value` actual,
+the PROVEN interval `_iv` returned by `lower env x` (measured: `mir_backend.ml` ~803, the
+`_iv` is discarded). Feeding those proven intervals into the EXISTING §P2-DIFF-3 evaluator as
+the initial environment of the callee's formals yields, for the same procedure, a return
+interval that is (a) SOUND for that call and (b) never wider than the context-independent
+summary. FALSIFIER: any case where the specialized interval is NOT a subset of the
+context-independent interval, or where a callee's own emitted bytes change, or where the
+specialized analysis is `Unknown` where the context-independent one is `Known` (a
+non-monotonicity — the lemma below says it cannot happen; if it does, the lemma is wrong and
+the campaign STOPS).
+
+**H2 (the admission hypothesis).** There exist complete, well-formed PL/I programs in the
+measured intersection of the two backends that the 8080 path compiles rc 0 and the native path
+refuses with `HIR-E19` on a `binop '*'` whose left operand is the context-independent full
+window, and that the native path admits AFTER H1 — with the SAME callee implementation and the
+same output vector on both lanes. FALSIFIER: the pre-change measurement (Stage A) shows the
+predicted refusal is absent, or shows a DIFFERENT unsupported feature as the blocker, or the
+post-change run disagrees on the console vector.
+
+**H3 (the non-bypass hypothesis).** Call-site narrowing NEVER admits a callee whose own body is
+not provable over the FULL declared formal window. FALSIFIER: a program whose callee is unsafe
+over `W(p)` but compiles because one caller passes a small value.
+
+**THE CORE INVARIANT (binding).** For every call site with actual intervals A:
+`actual_returns(P, A) ⊆ specialized_summary(P, A) ⊆ declared_return_window(P)`. If it cannot be
+proven, the backend falls back to the context-independent summary, then to the full window.
+A narrower result is NEVER accepted merely to make a fixture pass.
+
+### P2-DIFF-4.2 The exact specialization subset
+
+The specialized entry point accepts the SAME procedure subset as §P2-DIFF-3 (verbatim —
+`pid <> 0`, value procedure with `ret = Some (Fixed_bin(q,0))`, `1 <= q <= maxp`, every formal
+`Fixed_bin(p,0)` with `1 <= p <= maxp`, the last statement the top-level `Return (Some e)`, no
+other `Return`/`While`/`Call_s`/`Call_e`/`Get`/`Put`/`Stop`, `Assign` only to `D_var` of
+own-scope scalars, the backend's mirrored `lower` expression grammar, the relational-`Bin`
+condition law, the `If` arms joined by the drop-not-inherit hull law, the `Unknown_ef` and
+escape rules) and adds EXACTLY these additional obligations on the supplied arguments. ANY
+violation ⇒ `Unknown` — the analysis NEVER refuses, never raises, never emits:
+
+1. `List.length actuals = List.length pp.params` (arity), same ORDER, and the callee pid is the
+   one being called;
+2. every supplied interval is a NON-EMPTY closed interval (`lo <= hi`);
+3. every supplied interval is contained in `W(p)` of the corresponding formal's DECLARED
+   precision (never a widened or foreign window);
+4. every actual is the accepted `A_value` form (a by-reference actual is refused by the backend
+   BEFORE this point — E18 — and the analysis independently rejects one it is ever handed);
+5. the formal's symbol exists, has storage `Formal`, belongs to `pp.params`, and its declared
+   type passes the `bin_p` precision law;
+6. NO inference from caller MUTABLE STORAGE after the value copy — the analysis receives only
+   the interval and the declared precision of the value that is actually copied into the
+   `hv<k>` cell, never a caller sid, never a caller environment entry;
+7. the seeds REPLACE exactly the `seed_formals` line of `summary_of`; nothing else changes.
+
+**SCOPE RESTRICTION (binding, the operator's decision).** NO branch-condition path refinement.
+Both `If` arms stay conservatively considered and joined with the existing `Mir_numeric.iv_hull`
+law. Path feasibility is a SEPARATE research problem and is FORBIDDEN in this campaign; the two
+candidate programs are designed to succeed under a branch-INSENSITIVE analysis.
+
+### P2-DIFF-4.3 Abstract-domain soundness argument
+
+(a) **The evaluator is monotone in the formal seeds.** Every interval rule of the shared
+evaluator — `iv_add`, `iv_sub`, `iv_mul` (the four-corner hull), `iv_neg`, `iv_hull`, the `Var`
+read (the identity in the interval), `add_env` (an overwrite, the new interval is env-independent
+for the target), the `Const` point, the drop-not-inherit join, and every `in_window` GATE — is
+monotone non-decreasing in each input endpoint, and the `declared` list is computed from the
+STATEMENTS, never from `env`. Hence narrowing a formal's seed can only narrow the derived
+intervals; it can never turn a `Known` into an `Unknown` and can never widen an endpoint.
+(b) **Per-procedure closure** (unchanged from §P2-DIFF-3): the callee is a closed function of its
+formals and own locals — foreign-scope declarations are refused by `declare`, value calls pass
+only `A_value` cells, by-ref actuals at a value call are refused (E18) — so the callee's result
+depends on NOTHING but the values copied in at this call.
+(c) **Induction over the statement sequence** (unchanged): each env entry is a sound
+over-approximation of the value on every reachable path; the join is the smallest hull covering
+both arms; every node is window-proved with the SAME endpoint algebra the backend uses
+(`Mir_numeric` is the single interval authority).
+(d) **Therefore** `specialized(P, A) ⊆ specialized(P, W) = context-independent(P) ⊆ W(q)` for
+every `A ⊆ W`, and by (c) `actual_returns(P, A) ⊆ specialized(P, A)`. The backend keeps the
+defensive `in_window (window cq)` re-check as a SECOND, independent guard.
+(e) **No runtime assumption is introduced.** The interval is a proof about one call site; the
+generated code is identical, so the invariant holds for the real machine execution trivially —
+the specialization cannot change what runs, only what the caller is allowed to KNOW.
+(f) **The callee's own obligation is untouched**: `lower_proc` still seeds every formal with the
+FULL `W(p)` (`mir_backend.ml` ~995 `env0`). If the callee is unsafe over `W(p)`, the whole
+program still refuses — H3 is a property of the ARCHITECTURE, not of a test.
+
+### P2-DIFF-4.4 The two candidate programs and their INDEPENDENT expected outputs
+
+The expected vectors below are derived from the APPLICATION ALGORITHM by hand, written here
+BEFORE the sources exist and before any compiler has seen them. Neither compiler contributes an
+expected value anywhere.
+
+**DIF05 — capped billing (entry `billing`, subsidiary `capped_units`).**
+Algorithm: `capped_units(x) = min(x, 20)` expressed as a full `IF/ELSE` assigning a local, then
+ONE final `RETURN`. The entry computes three bills from the quantities 3, 12, 30, each
+`bill = capped_units(quantity) * 500`, and PUTs each. Hand-derived output:
+`min(3,20)*500 = 1500`; `min(12,20)*500 = 6000`; `min(30,20)*500 = 20*500 = 10000` ⇒
+**[1500, 6000, 10000]**.
+Why it tests specialization: with the full declared formal window the multiplication operand is
+`[-16383,16383]`, and `±16383*500 = ±8191500` leaves `W(15) = [-16383,16383]`. The branch-
+INSENSITIVE join over the actual interval gives `[3,20]`, `[12,20]`, `[20,30]` respectively —
+`×500` gives `[1500,10000]`, `[6000,10000]`, `[10000,15000]`, every one inside `W(15)`. The
+analysis need NOT know which arm executes. NOTE (pre-registered, honest): the context-
+independent summary of `min(x,20)` is `[1,20]`, which ALSO fits `×500` — so the third call site
+(`30`) is the load-bearing one: its specialized interval `[20,30]` differs from the context-
+independent `[1,20]`, and the pre-change refusal is attributable to the FULL WINDOW only because
+the analysis today returns `Known [1,20]` — recorded here so the attribution is checked, not
+assumed.
+
+**DIF06 — bounded batch (entry `batch`, subsidiary `limited_step`).**
+Algorithm: a counted loop over the integer steps 1..4 (`do while (i < 5)`, start 1, step 1); each
+iteration computes `limited_step(i) * 700` and PUTs it; `limited_step(x) = min(x, 12)`.
+Hand-derived output: `1*700=700`, `2*700=1400`, `3*700=2100`, `4*700=2800` ⇒
+**[700, 1400, 2100, 2800]**.
+Why it matters: the actual is NOT a constant — inside the recognized counted loop the IV carries
+the proven NON-POINT interval `[iv0, t0-1] = [1,4]` (measured law, `mir_backend.ml` ~1358). The
+branch-insensitive callee analysis gives `[1,12]`; `×700 = [700,8400] ⊆ W(15)`. The full window
+gives `±16383*700 = ±11468100` ⇒ refusal. NO path-feasibility analysis is required.
+Both sources use the established by-value actual idiom (`<name> + 0`) because a bare name is
+classified BY REFERENCE by the binder, and both respect the counted-loop drop law (the PUT is
+INSIDE the loop; the entry returns the IV, which is definitely initialized at the loop exit).
+
+**Subset pre-flight (PROPOSED, each MEASURED in Stage A before any implementation):** the
+comparison is the `>`-oriented form only (the E2E-3b subset is `<`, `>`, `=`, `^=`; `<=`/`>=` are
+MEASURED 8080 refusals — CF04/05/08); every subsidiary carries its own `dcl`; one data item per
+`put list`; literals ≤ 32767; no literal×literal multiplication; no `GET`.
+
+### P2-DIFF-4.5 Expected pre-change refusals (the Stage-A baseline measurement)
+
+For each of the two committed sources, BEFORE any implementation byte:
+- `pli80c.exe -d IN.PLI OUT.REL` ⇒ rc **0** (the historical compiler is my reproduction; the DR
+  oracle is never invoked — the 8080 lane is a compile+link+run of MY `.REL`);
+- `pli80mir.exe --export <entry> IN.PLI` ⇒ rc **2**, ZERO stdout, NO `.mir`, the diagnostic
+  `HIR-E19 … MIR backend: the value of … can reach [-8191500,8191500]` (DIF05) /
+  `[-11468100,11468100]` (DIF06) `…, leaving the declared-precision window [-16383,16383] …` on
+  the `binop '*'` fed by the value call.
+ANY OTHER refusal, or NO refusal, is an unrelated blocker or a false hypothesis ⇒ **STOP and
+attribute**; do NOT manufacture a refusal; any replacement source requires a PRE-EXECUTION
+additive amendment (§P2-DIFF-4.9 style). The attribution must name the exact operand interval,
+because the difference between "the full declared window" and "the context-independent summary"
+is exactly what the campaign is about.
+
+### P2-DIFF-4.6 The OCaml architectural boundaries (the PERMITTED edits, complete list)
+
+1. `ocaml/hir/mir_return_summary.ml` — extend IN PLACE. One new pure entry point; the conceptual
+   API is
+   `summary_of_actuals : maxp:int -> Hir.program -> int -> params:int list -> actuals:(int*int) list -> summary`
+   (exact form to be fixed by the code; it takes the callee pid, the callee's formal sids in
+   order, and the proven interval of each actual, in that order). `summary_of` is REWRITTEN to be
+   `summary_of_actuals` with the FULL-window seeds, so there is ONE internal evaluator and ZERO
+   duplicated statement/expression traversal — this is the campaign's anti-duplication
+   requirement, and the context-independent API and ALL its existing semantics are preserved
+   byte-for-byte. Every one of the §P2-DIFF-4.2 validations returns `Unknown`, never a refusal.
+   The module keeps its dependency law (ONLY `Hir` + `Mir_numeric`) and stays clean of the Y4/
+   Y6 pattern lists.
+2. `ocaml/hir/mir_backend.ml` — `lower_call_e` ONLY: capture `(cell, iv)` per actual from the ONE
+   existing `lower env x` (left-to-right order, exactly one lowering per actual, the same
+   `hv<k>` allocation, the same `mov i64:(hv<k>), <rv>` emission), then request the specialized
+   summary AFTER the existing validation, and choose `specialized` when it is `Known` and inside
+   `window cq`, else the existing context-independent `Known` when it is inside, else `window cq`.
+   NO change to the context-independent `summaries` call site, NO new analysis call anywhere
+   else, NO emission, NO ordering, NO ABI, NO label/register numbering change.
+3. `ocaml/hir/mirsumtest.ml` — extend IN PLACE (the driver is the Stage-C vehicle).
+4. `tools/mir_return_summary_test.py` — the frozen literals it pins (`LIVE_OK` check count, the
+   `--corrupt-*` stderr tables) move as a DIRECT, DISCLOSED consequence of (3). The change is
+   explicit, recorded, and verified to leave every OTHER check unchanged.
+5. `tools/mir_numeric_test.py` — the static `EXPORTS` table gains the two new fixture names. This
+   is the SAME real defect class the §P2-DIFF-3 close disclosed (`KeyError 'DIF03'`): the tool
+   enumerates pins dynamically but the name table is static. The count moves 43 → 45 (per pin).
+6. `tools/dual_backend_test.py` — two ADDITIVE `CASES` entries (D10/D11), committed SHAs, the
+   MEASURED `nfuncs`, the measured-first pins.
+7. `hir/dif-fixtures/DIF05.pli`, `DIF06.pli` and `hir/dif-expected/DIF05.mir`, `DIF06.mir`.
+8. `docs/architecture/backend-boundary.md` — a new additive section (the last one is `## 7-13`;
+   the missing `7-14` for §P2-DIFF-3 is recorded as a DOCUMENTATION GAP in RESULTS, not silently
+   patched by renumbering history).
+9. `spec/lab-evidence/e2e54/{PLAN.md,RESULTS.md}`, the durables.
+**FORBIDDEN:** any new `ocaml/hir/*.ml` file (MEASURED constraint: the X3/Y5 checks require the
+`ocaml/hir/*.ml` count to stay 15 and the hir log to differ from the campaign baseline in exactly
+the F8 line); any edit to `ocaml/lib/`, `ocaml/bin/`, `ocaml/hir/{hir.ml,hir_build.ml,
+semantic_env.ml,target.ml,diagnostic.ml,backend.ml}`, the MIR ABI, `mir2o`, the Cosmopolitan
+recipe, the goldens, `spec/CLAIMS.md` (NO new compiler-behaviour claim is admissible without an
+oracle experiment, and ZERO oracle runs), any existing `.mir` pin, any existing negative pin.
+
+### P2-DIFF-4.7 Positive and hostile tests (Stage C)
+
+MANDATORY POSITIVES (each with a hand-derived expectation literal written BEFORE the run, and
+each cross-checked against the driver's INDEPENDENT concrete reference evaluator, exhaustively
+over the finite actual domain where computationally feasible):
+- identity specialized to a POINT actual; identity specialized to a NON-POINT actual interval;
+- the `min`-shaped IF/ELSE function specialized to a point and to a non-point interval, with the
+  hull over both arms (no path refinement);
+- the SAME function called with DISTINCT argument intervals producing DISTINCT summaries (the
+  context-independent summary must be provably equal to the full-window seed);
+- a FULL-WINDOW actual reproducing EXACTLY the old context-independent summary (the no-change
+  law);
+- a bounded-loop actual interval `[1,4]`;
+- MULTIPLE formals with distinct intervals and PRESERVED argument order (and the permuted-order
+  case rejected);
+- boundary samples at `-16383`, `16383`, `12`, `20` and at the input-interval endpoints;
+- the two REAL committed fixtures DIF05/DIF06 parsed through `Hir_build` and specialized at their
+  real call sites, compared with the concrete reference over the actual interval.
+MANDATORY HOSTILES (each ⇒ `Unknown`, i.e. the conservative fallback, never a new refusal):
+- an actual interval OUTSIDE the formal's declared `W(p)`; an EMPTY interval (`lo > hi`);
+- a MISSING or EXTRA actual; an arity mismatch; an incorrect parameter ORDER/unknown formal sid;
+- an undeclared or non-`Formal` storage symbol handed as a parameter;
+- an `A_reference` actual; an `Unknown_ef` actual interval source;
+- an unsupported expression (Convert / Elem_read / relational value / nested Call_e) and an
+  effectful procedure body (`Put`/`Get`/`Stop`/`While`/`Call_s`/early `Return`);
+- a formal MODIFIED locally inside the callee (the seed must be overwritten, not merged);
+- an inferred interval accidentally NARROWER than a reachable concrete result — falsified by the
+  exhaustive concrete comparison;
+- **THE PIVOTAL ONE (H3):** an expression that is unsafe over the callee's FULL declared domain
+  must NOT become admissible merely because one caller passes a small value. Two legs: (i) at the
+  analysis level, the specialized summary may be narrow while the context-independent one is
+  `Unknown` — that is legal and must be stated explicitly; (ii) at the BACKEND level, a program
+  whose callee overflows `W(p)` must still refuse the WHOLE program (the callee is lowered once
+  with the full seeds), measured on a real fixture.
+NON-VACUITY: at least THREE corrupt controls that perturb the INFERRED/specialized interval (or
+the supplied actual) and NEVER the comparison guard or the concrete reference — the accepted
+§P2-DIFF-2/3 method law — every one OBSERVED failing loudly (rc 1, pinned exact stderr bytes,
+ZERO stdout). A control that passes is not a control.
+
+### P2-DIFF-4.8 Existing negative fixtures; regression and byte-preservation requirements
+
+NO existing negative may change verdict, message or pin. The known MIR/HIR negatives were listed
+and NONE of them refuses for a reason the specialization could remove (measured: CALLN2/N3/N5 are
+HIR-level; N4/N6/N7/N8/N9 and CFN1..N6 are shape/loop/effect based; CALLN9 refuses by SHAPE).
+The full frozen panel is re-run after the implementation, each command with its OWN measured rc:
+gate 1328/1328–190/190–9/9–149 rows 0/0–census 16/0/25/0–prose 5; hir 220; mir_aot 32; cosmo 25;
+console 43; debug 23; CF 83; call 86; hostile suite 29/29; functional 211; `mir_numeric_test`;
+`mir_return_summary_test`; the runner in BOTH modes; EVERY committed `.mir` pin re-measured
+byte-equal from its committed fixture (the behavioural-equivalence proof that the specialization
+moved NO emission); `pli80c.exe` sha `172595d5…aca281` from a FRESH build dir;
+`git diff --exit-code -- hir/ ocaml/` rc 0 at each stage boundary; ledger 203/C380. Any pin move,
+any panel-count change other than the two disclosed tool literals, any negative that flips
+without the specialization being its PRE-REGISTERED reason ⇒ **STOP and attribute**. Known
+unrelated defects (`decimal_int ""` raising; the stale dashboard assertion) stay OUTSIDE this
+campaign. Stage D: both lanes ×2 fresh contexts, complete numeric output compared to the
+independent vectors, raw regions and full transcripts preserved, the comparator controls run, and
+`nfuncs` VERIFIED from mir2o's own stderr, never guessed. Success registers DIF05 as **D10** and
+DIF06 as **D11**, growing the dual-backend corpus from 8 to 10 complete programs. A failure is
+PRESERVED as evidence; a green count is never permission to change an expectation.
+
+### P2-DIFF-4.9 STOP conditions (binding)
+
+STOP and attribute (additive amendment, never a silent repair) on: the Stage-A refusal being
+absent or attributable to a different feature; the callee needing a weaker rule to compile;
+`specialized ⊄ context-independent` or `specialized ⊄ W(q)` anywhere; any soundness doubt; any
+path-feasibility temptation; any need to add an `ocaml/hir/*.ml` file, to touch `ocaml/lib`,
+`ocaml/bin`, the MIR ABI, the lowering order, an existing pin, a golden, a negative pin or
+`spec/CLAIMS.md`; any unexplained panel movement; any oracle temptation. Standing: no push;
+explicit paths; `handoff.config.json` NEVER staged; no `git add -A`/`reset --hard`/`clean`; rc
+DIRECT; `LC_ALL=C`; `eval "$(opam env)"`; never batch build+tests; timeouts 60/120/900; scratch
+`build/` never committed; `mirsumtest` from the REPO ROOT; NEVER hand-edit a managed block.
+
+### P2-DIFF-4.10 Work order (each stage an independent, independently understandable commit)
+
+(1) THIS pre-registration, alone, by explicit path, BEFORE any other byte. (2) Stage A: the two
+independent ALGORITHMIC specifications committed; then the final `.pli` bytes, encoding verified
+(CRLF + exactly one `^Z`), SHA-256 recorded, committed; and ONLY THEN the old-backend
+measurement. (3) Stage B: the focused architecture audit write-up, the module extension, the
+`lower_call_e` integration, the driver's live families green, the frozen panel green. (4) Stage
+C: the positive/hostile/non-vacuity table, the two disclosed tool updates. (5) Stage D: D10/D11
+registered, both lanes, both modes, measured pins. (6) The close: RESULTS §P2-DIFF-4, the PLAN
+dashboard row, the arch section, the durables, the finalized checkpoint. **STOP after P2-DIFF-4
+is measured and closed; any new phase needs a separate operator brief.**
