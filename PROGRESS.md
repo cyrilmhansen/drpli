@@ -5182,17 +5182,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 819
-checkpoint-id: g819-8f407351ec1f
-checkpoint-kind: manual
+checkpoint-generation: 821
+checkpoint-id: g821-a474c3511254
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T07:31:37.831Z
+checkpointed: 2026-11-14T07:53:31.383Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e33c2d9cd8285ee8a7ec1c59de27458a4baf50b7b5068c4cbb1bebb3463596ff
-source-handoff: 703f280567e7381e40378449fc2f761d57c1e2340c3e09ed9a7b5a5e196df80a
-source-learnings: 1bbce5aff19384a260cc829e94cc180cef2d80f3a65a8c37e86914758a62a2ad
+source-progress: 0d990233066afc41809694779fcd5b80a4bb14c25431c44eacdb7ab7d5f027a8
+source-handoff: 0d8ba1649e53d606d886572812a55e54839f16026a2ae5edf28e2e2d62b0af9b
+source-learnings: 21758d464ce83cb0910850052026d9c86104276138edd7866b1ea6616bf31d6e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6516,9 +6516,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d8e9-5626-7264-a23a-8e770e9500c1
-readiness-at: 2026-11-14T07:31:38.005Z
-readiness-checkpoint: g819-8f407351ec1f
+readiness-by: session:01a1d8f8-0ff1-7264-a23a-8e7a7e0725d8
+readiness-at: 2026-11-14T07:53:50.754Z
+readiness-checkpoint: g821-a474c3511254
 <!-- guard:end checkpoint -->
 
 ## Blockers
