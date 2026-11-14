@@ -7024,3 +7024,306 @@ baseline log `cmp`-IDENTICAL; the disclosed tool counts: `mir_numeric` 43→45,
 `mir_return_summary` 11→14; `pli80c.exe` `172595d5…aca281` from a fresh build; `git diff
 --exit-code -- hir/`/`-- ocaml/` rc 0; ledger 203/C380; ZERO oracle. Full record: RESULTS
 §P2-DIFF-4. **STOP — any extension needs a NEW operator brief (§4.10).**
+
+## §P2-DIFF-5 — Pre-registration: branch-condition refinement of the return-summary If join (PROTOCOL #1; committed BEFORE any experimental source, probe or compiler byte)
+
+Operator brief E2E-54/P2-DIFF-5, authorized 2026-11-14. §P2-DIFF-1/2/3/4 are CLOSED and
+IMMUTABLE — nothing in this section edits them; the §P2-DIFF-4.2 SCOPE RESTRICTION ("NO
+branch-condition path refinement … FORBIDDEN in this campaign") bound THAT campaign only.
+ZERO oracle (`PLI.COM` never runs); ledger 203/C380 (re-counted at HEAD `bf04fafe`); the
+historical compiler, the goldens and every existing `.mir` pin are FROZEN. The baseline is
+the §P2-DIFF-4 CLOSE record (`e65c9c31`): gate 1328/1328–190/190–9/9–149 rows 0/0–census
+16/0/25/0–prose 5; hir 220; `mirsumtest` 116 checks; `mir_return_summary_test` 14; `mir_numeric`
+45; the dual-backend runner **10/10 BOTH-PASS in BOTH modes**; `pli80c.exe` `172595d5…aca281`
+(re-verified FIRST-HAND this session from the committed tree). These panel numbers are the
+recorded close values, NOT re-measured at this writing; they are re-measured at the Stage-A
+boundary and ANY discrepancy is a STOP-and-attribute.
+
+**WHAT THIS IS.** The `Mir_return_summary` `If` arm (the `stmts` walk) is today
+branch-INSENSITIVE: `cond_ok` verifies the condition but records NOTHING from it, and both
+arms are joined by the drop-not-inherit hull. Consequence (MEASURED, `spec-distinct-1/2/3`):
+the min-shape `if x > 20 then c = 20 else c = x` at the POINT actual `[3,3]` returns the hull
+`[3,20]` — the analysis cannot know that `3 > 20` is false. THIS campaign adds ONE
+sound, analysis-only refinement: when the condition is a `Var op Const` comparison and the
+`Var` is definite in the env, the arm envs are narrowed by the condition, and an arm whose
+refined interval is EMPTY is provably infeasible and is EXCLUDED from the join.
+**WHAT THIS IS NOT.** Not a backend change (`mir_backend.ml` is NOT touched — the callee's
+own `lower_proc` still seeds every formal with the FULL `W(p)`), not an emission change
+(ZERO emitted byte moves; the ABI, the call convention, the codegen and the 8080 lane are
+untouched), not a new module (the `ocaml/hir/*.ml` count stays FROZEN at 15 — the X3/Y5
+checks), not a new interpreter, not inlining or specialization beyond the existing
+§P2-DIFF-4 call-site seeds, not a language change, not an oracle experiment.
+
+### P2-DIFF-5.1 Hypotheses and falsifiers
+
+**H1 (the refinement hypothesis).** Narrowing the arm env of a definite `Var` by the arm's
+own condition, and excluding an arm whose refined interval is empty, keeps every env entry
+a sound over-approximation of the value on every REACHABLE path, and every derived summary
+is a subset of the branch-insensitive result (the refinement is never WIDER). FALSIFIER:
+any summary that is wider than the current one for the same seed; any concrete value
+reachable by the driver's independent reference evaluator that is outside the inferred
+summary; any `Known` that becomes `Unknown` under the same seed (a non-monotonicity).
+
+**H2 (the admission hypothesis).** The two programs DIF07/DIF08 (§5.4) — complete
+well-formed programs in the measured intersection of both backends — are refused TODAY by
+the native lane with `HIR-E19` on the `binop '*'` whose call-derived operand is the
+branch-insensitive hull, and are admitted after H1 with the SAME callee implementation and
+the same pre-registered output vectors on both lanes. FALSIFIER: the Stage-A measurement
+shows a different refusal, a missing refusal, or a post-change console disagreement.
+
+**H3 (the callee-obligation hypothesis).** The refinement NEVER weakens the callee's own
+proof: a program whose callee is unsafe over its FULL declared formal window still refuses
+(the backend lowers the callee once with the full seeds, untouched). FALSIFIER: a fixture
+whose callee is unsafe over `W(p)` compiles because a caller passes a small value.
+
+**THE CORE INVARIANT (binding, extended from §P2-DIFF-4).** For every call site with
+actual intervals A: `actual_returns(P, A) ⊆ specialized(P, A) ⊆ context_independent(P) ⊆
+W(q)` — the SECOND inclusion is now also required to hold for every `A` after the
+refinement (the refinement is monotone in the seed: a narrower actual must never yield a
+wider summary than the full-window seed). If it cannot be proven, the backend falls back
+to the context-independent summary, then to the full window. A narrower result is NEVER
+accepted merely to make a fixture pass.
+
+### P2-DIFF-5.2 The exact refinement subset
+
+Inside the `If` arm of the module's `stmts` walk, AFTER the existing `cond_ok` check (the
+admission of the condition is unchanged; the refinement only ADDS env knowledge). The
+condition is `Bin (op, left, right)` with `Condty` and:
+
+1. `left` is `Var { sid }` whose `sid` is DEFINITE in the current env (an entry exists);
+2. `right` is `Const { text }` with `Mir_numeric.decimal_int text = Some v` (the same
+   canonical-literal law the value grammar uses);
+3. `op ∈ { Lt, Le, Gt, Ge, Eq }`.
+
+Then the THEN arm is walked with the env entry `x ∈ [lo,hi]` replaced by the condition
+subset, and the ELSE arm (when present) by its complement — both CLIPPED to the entry's
+own interval (never a window widening):
+
+- `Gt` (x > v): then `[max(lo, v+1), hi]`; else `[lo, min(hi, v)]`.
+- `Ge` (x ≥ v): then `[max(lo, v), hi]`; else `[lo, min(hi, v−1)]`.
+- `Lt` (x < v): then `[lo, min(hi, v−1)]`; else `[max(lo, v), hi]`.
+- `Le` (x ≤ v): then `[lo, min(hi, v)]`; else `[max(lo, v+1), hi]`.
+- `Eq` (x = v): then `[max(lo, v), min(hi, v)]`; the ELSE side is NOT refined (the
+  complement of a point is not an interval — the existing env is kept).
+
+`Ne` refines NOTHING on either side (the then-side complement of a point is not an
+interval); `Const op Var`, `Var op Var`, `Const op Const`, any non-relational or composite
+condition — the existing conservative path is kept VERBATIM. Any refined interval with
+`lo > hi` is EMPTY ⇒ the arm is PROVABLY INFEASIBLE ⇒ it is EXCLUDED from the join: the
+join of a single surviving arm is that arm's own env (every reachable path goes through
+it). A missing ELSE stays the identity path (the existing law): the then arm is refined,
+the false path is the CURRENT env, joined by the existing drop-not-inherit `join`.
+The refined interval is a subset of the old entry and the old entry was window-proved, so
+the `Var`-read `in_window` check is preserved; the `declared` list is untouched.
+
+### P2-DIFF-5.3 Soundness argument
+
+(a) **Path condition.** On every execution reaching the THEN arm of `if x > v`, the
+pre-arm value of `x` satisfies `x > v`; the old entry already over-approximated the
+reachable values (induction), so the intersection `[max(lo, v+1), hi]` is a sound
+over-approximation of the arm's reachable values. Symmetric for the ELSE arm. The
+`Eq`-else and `Ne` cases keep the unchanged entry — the old, already-proven sound.
+(b) **Infeasible arms.** `lo > hi` after the intersection means the arm's condition
+CANNOT hold on any reachable value of the arm — the arm is unreachable on every input
+in the current seed; the join of one arm is that arm. This is the standard
+pruning-by-unreachable-branch rule, applied to the ABSTRACT value, not to a concrete
+input.
+(c) **Monotonicity.** Every evaluator rule is monotone in the env entries (the §P2-DIFF-4.3(a)
+law, unchanged); the refined arm entry is a SUBSET of the old one, so every derived
+interval is a subset of the old derivation. The single-arm join is a superset of the old
+drop-not-inherit join in DEFINEDNESS (the old join dropped entries the pruned arm lacked;
+the surviving arm keeps all its own) and an interval subset in VALUE — the two effects
+never widen a derived value.
+(d) **No new refusal, no new acceptance at the callee.** The refinement lives inside the
+pure analysis; every `Unknown`/`Known` decision the backend can see is the same
+`summary`/`summary_of_actuals` result with the existing fallbacks. The backend's own
+`lower_proc` full-window seed and every `in_window` guard are untouched (H3).
+(e) **The emitted code is the SAME program.** The analysis proves; it never emits. The
+DIF05/DIF06 `.mir` pins and the 8080 goldens are the byte-level witnesses, re-measured
+in the frozen panel.
+
+### P2-DIFF-5.4 The two candidate programs and their INDEPENDENT expected outputs
+
+The expected vectors are derived from the APPLICATION ALGORITHM by hand, written BEFORE
+the sources exist. Both reuse the measured §P2-DIFF-4.11 amended shapes: the value call is
+the WHOLE RHS of an `Assign` to a `D_var` (the m3c/CALLN9 shape law); the `+ 0`
+by-value idiom; the `>`-oriented `IF`; one `put list` item; literals ≤ 32767; no
+literal×literal; no `GET`.
+
+**DIF07 — scaled billing (entry `scaling`, subsidiary `capped`).** `capped(x) = min(x, 20)`
+(the `if x > 20 then c = 20 else c = x` shape); the entry computes `bill = capped(q + 0) * 1000`
+for `q ∈ {3, 7, 12}`, `put list(bill)` each, `return (bill)`. Hand-derived output:
+`min(3,20)·1000 = 3000`; `min(7,20)·1000 = 7000`; `min(12,20)·1000 = 12000` ⇒
+**[3000, 7000, 12000]**.
+Why the refinement is REQUIRED: today the branch-insensitive specialized hulls are
+`[3,20]`, `[7,20]`, `[12,20]` — the product `× 1000` reaches `[3000, 20000]` / `[7000,
+20000]` / `[12000, 20000]` — `20000 > 16383` leaves `W(15)` ⇒ the pre-registered refusal
+below. After the refinement each actual is a POINT BELOW the cap, the `c = 20` arm is
+infeasible, and the products are `[3000,3000]`, `[7000,7000]`, `[12000,12000]` ⊆ `W(15)`
+⇒ admission. (DIF05 is the contrast case: its hulls `× 500` stayed inside `W(15)` and
+the campaign passed WITHOUT the refinement — the multiplier here is the load-bearing one.)
+
+**DIF08 — scaled batch (entry `batched`, subsidiary `limited`).** `limited(x) = min(x, 12)`
+(the `if x > 12 then c = 12 else c = x` shape); a counted loop over `i = 1..4` (`do while
+(i < 5)`), `v = limited(i + 0) * 1500` per trip, `put list(v)` INSIDE the loop (the drop
+law), `return (i)` (the IV, definitely initialized at the loop exit). Hand-derived output:
+`1·1500, 2·1500, 3·1500, 4·1500` ⇒ **[1500, 3000, 4500, 6000]**.
+Why the refinement is REQUIRED: the loop IV carries the proven non-point interval
+`[1,4]`; today the branch-insensitive hull is `[1,12]` and `× 1500` reaches
+`[1500, 18000]` — `18000 > 16383` ⇒ the pre-registered refusal. After the refinement the
+`c = 12` arm is infeasible over `[1,4]`, is excluded, and the product is `[1500, 6000]`
+⊆ `W(15)` ⇒ admission. (DIF06 is the contrast case: `× 700` stayed inside `W(15)`.)
+
+### P2-DIFF-5.5 Expected pre-change refusals (the Stage-A baseline measurement)
+
+For each committed source, BEFORE any implementation byte, on the CURRENT tree:
+- `pli80c.exe -d IN.PLI OUT.REL` ⇒ rc **0** (both; the 8080 lane is the historical
+  reproduction of the same shapes — the oracle never runs);
+- `pli80mir.exe --export <entry> IN.PLI` ⇒ rc **2**, ZERO stdout, NO `.mir`, EXACTLY
+  `HIR-E19: line 7: binop '*' on operands proved within [3,20] and [1000,1000] can reach
+  [3000,20000], leaving the declared-precision window [-16383,16383] of FIXED BINARY(15,0);
+  overflow behaviour is profile-UNKNOWN and is never assumed (brief §4)` for DIF07, and
+  `HIR-E19: line 8: binop '*' on operands proved within [1,12] and [1500,1500] can reach
+  [1500,18000], …` for DIF08 (line numbers per the layouts above).
+ANY OTHER refusal, or NO refusal, is a false hypothesis or an unrelated blocker ⇒ STOP and
+attribute; no refusal is manufactured; a replacement source needs a PRE-EXECUTION additive
+amendment (§4.11 style). The attribution MUST name the exact operand interval — the whole
+campaign is the difference between the branch-insensitive hull and the refined subset.
+
+### P2-DIFF-5.6 The pinned results that MUST change (the complete disclosure list)
+
+Every value below is a HAND-derived arm-by-arm literal written BEFORE the implementation
+(the §5.2 law applied to the existing `spec-*` fixtures — the SAME `min` shape, the
+`p_min`/`p_min12`/`DIF05`/`DIF06` bodies). These are the ONLY pre-existing expectations
+that move; the `mirsumtest` CHECK COUNT stays 116 in this stage (the list is the set of
+moved literals, not new checks).
+
+1. `spec-distinct-1` (actual `[3,3]`): `[3,20]` ⇒ **`[3,3]`** (the `c = 20` arm infeasible).
+2. `spec-distinct-2` (`[12,12]`): `[12,20]` ⇒ **`[12,12]`**.
+3. `spec-distinct-3` (`[30,30]`): `[20,30]` ⇒ **`[20,20]`** (the `c = x` arm infeasible).
+4. `spec-min-above-cap` (`[25,25]`): `[20,25]` ⇒ **`[20,20]`**.
+5. `spec-min-across-cap` (`[3,30]`): `[3,30]` ⇒ **`[3,20]`**. (CORRECTION of the parent
+   session's HANDOFF note, which read the interval as the POINT 30 and said `[20,20]`:
+   the interval `[3,30]` makes BOTH arms feasible — `x ∈ [21,30]` and `x ∈ [3,20]` are
+   non-empty — so the join is the hull of `[20,20]` and `[3,20]` = `[3,20]`.)
+6. `spec-min-nonpoint` (`[10,15]`): `[10,20]` ⇒ **`[10,15]`** (the `c = 20` arm infeasible
+   over `[10,15]`: `15 > 20` is false — the hull was the ONLY source of the `20`).
+7. `spec-full-window-min` (full `W(15)` seed): `[−16383,16383]` ⇒ **`[−16383,20]`**
+   (both arms feasible; the `c = 20` arm's value is a subset of the `c = x` arm's).
+8. `spec-ctx-min` (same, the `summary_of` entry): `[−16383,16383]` ⇒ **`[−16383,20]`**.
+9. `spec-loop-iv` (p_min 12, `[1,4]`): `[1,12]` ⇒ **`[1,4]`**.
+10. `spec-boundary-min-13` (p_min 12, `[13,13]`): `[12,13]` ⇒ **`[12,12]`** (the `c = x`
+    arm infeasible).
+11. `spec-real-dif05-sum1/2/3`: `[3,20]/[12,20]/[20,30]` ⇒ **`[3,3]/[12,12]/[20,20]`**.
+12. `spec-real-dif05-ctx`: `[−16383,16383]` ⇒ **`[−16383,20]`**.
+13. `spec-real-dif05-subset`: the hard-coded list of three summaries inside the
+    containment check ⇒ `[3,3]`, `[12,12]`, `[20,20]` (the containment law itself is
+    unchanged; the check now also holds against the NEW narrower ctx).
+14. `spec-real-dif06-sum` (`[1,4]`): `[1,12]` ⇒ **`[1,4]`**.
+15. `spec-real-dif06-ctx` (cap 12): `[−16383,16383]` ⇒ **`[−16383,12]`**.
+16. `spec-real-dif06-subset`: the hard-coded pair `(1,12)` and the literal `d = 16383`
+    ⇒ `(1,4)` and `d = 12`.
+
+**NOT moving (measured and verified):** the classifier `spec-min-cap-point` (`[20,20]` —
+both arms feasible at the point 20, the join is unchanged), the `f_join`/`f_nonexhaustive`
+and `boundary-tight` hulls (every arm is feasible at the full-window seed), the identity
+and `p_diff` families (no `If`), the `p_esc`/`p_esc2` pivots, the void/shape/arity
+hostiles, the `f_real` `classify`/`stepclass` `[1,3]` (both arms feasible at every node),
+the concrete-reference checks (the driver's independent evaluator is NOT the analysis and
+never moves), the DIF05/DIF06 `.mir` pins (1887 B `3f9080f2…`, 1182 B `be63ee89…`), the
+runner's output vectors (DIF05/DIF06 still PASS — the narrower summaries only widen what
+the backend may ADMIT), every 8080 golden, every negative pin, and the ledger.
+
+### P2-DIFF-5.7 The OCaml architectural boundaries (the PERMITTED edits, complete list)
+
+1. `ocaml/hir/mir_return_summary.ml` — the `If` arm of `stmts`, IN PLACE, plus the pure
+   local helpers (`refine`/`subset`/the empty test). The `cond_ok` admission, the join
+   law, `eval_body`, `summary_of`, `summary_of_actuals` and `summaries` keep their
+   signatures and semantics; the dependency law (ONLY `Hir` + `Mir_numeric`) is unchanged;
+   no new module, no second interpreter, the `ocaml/hir/*.ml` count stays FROZEN at 15.
+2. `ocaml/hir/mirsumtest.ml` — the §5.6 literals and the Stage-C table; the driver stays
+   the vehicle, the COUNT stays 116.
+3. `tools/mir_return_summary_test.py` — the `--corrupt-spec-*` tables quote the inferred
+   values, so any corrupt line that moves moves as a DIRECT, DISCLOSED consequence of the
+   §5.6 list (the corrupt modes still perturb the INFERRED value only). The `LIVE_OK`
+   count literal is unchanged.
+4. `tools/dual_backend_test.py` — two ADDITIVE `CASES` entries (D12/D13), committed SHAs,
+   MEASURED `nfuncs`, measured-first pins.
+5. `tools/mir_numeric_test.py` — the static `EXPORTS` table gains the two new fixture
+   names (45 → 47; the same disclosed defect class as §P2-DIFF-4.6-5).
+6. `hir/dif-fixtures/DIF07.pli`, `DIF08.pli`; `hir/dif-expected/DIF07.mir`, `DIF08.mir`
+   (measured-first, Stage D).
+7. `docs/architecture/backend-boundary.md` — one new additive section (the last one is
+   `## 7-15`); no renumbering.
+8. `spec/lab-evidence/e2e54/{PLAN.md,RESULTS.md}`, the durables.
+**FORBIDDEN:** any new `ocaml/hir/*.ml` file; any edit to `mir_backend.ml` (the backend's
+`If` arm is the REAL lowering — the analysis is NOT there), `ocaml/lib/`, `ocaml/bin/`,
+the MIR ABI, `mir2o`, the Cosmopolitan recipe, the goldens, `spec/CLAIMS.md` (zero oracle
+runs, NO new compiler-behaviour claim), any EXISTING `.mir` pin, any negative pin, the
+8080 lane, `handoff.config.json`.
+
+### P2-DIFF-5.8 Positive and hostile tests (Stage C)
+
+MANDATORY POSITIVES (hand-derived literals BEFORE the run; cross-checked against the
+driver's independent reference evaluator where the domain is finite):
+- all three §5.2 shapes at the POINT actuals: below/at/above the cap (`[3,3]`/`[20,20]`/`[30,30]`);
+- the NON-POINT interval crossing the cap (`[3,30]` → `[3,20]`, the §5.6-5 computation);
+- the `Lt`/`Le`/`Ge`/`Eq` orientation law on the same body (the `Eq` then-side is the
+  point; the `Eq` else side is UNREFINED);
+- `Ne` and `Var op Var` — the existing conservative hull is kept VERBATIM;
+- the missing-ELSE refinement: the then arm refined, the false path the identity env;
+- a refined arm that is EXCLUDED, then the variable is re-read in the join — the
+  surviving arm's value is the summary;
+- the FULL-WINDOW seed reproducing the §5.6-7 context value (the new no-change law at
+  the full seed);
+- the two REAL committed fixtures DIF07/DIF08 parsed through `Hir_build` and specialized
+  at their real call sites, compared with the concrete reference.
+MANDATORY HOSTILES (each ⇒ the SAME result as the current code — no refinement, no
+new `Unknown`): a non-definite `Var` in the condition; a non-`decimal_int` `Const` (the
+`decimal_int` domain); a `Const` left operand; a composite condition; `While`/`Put`/effects
+(the existing subset refusals unchanged); an out-of-`W(p)` actual (the §P2-DIFF-4 seed
+obligations); an EMPTY actual interval (`lo > hi` — the seed obligation, NOT the arm
+exclusion); the **H3 pivot**: a callee unsafe over `W(p)` still refuses at the backend.
+NON-VACUITY: the three `--corrupt-spec-*` modes keep failing loudly on the NEW values
+(rc 1, pinned exact stderr, ZERO stdout), plus at least one new corrupt control that
+perturbs the REFINED (inferred) arm value and never the concrete reference or the
+condition. A control that passes is not a control.
+
+### P2-DIFF-5.9 Regression and byte preservation
+
+The full frozen panel re-run after the implementation, each with its own measured rc:
+gate 1328/1328–190/190–9/9–149 rows 0/0–census 16/0/25/0–prose 5; hir 220; `mirsumtest`
+116; `mir_return_summary_test`; `mir_numeric_test` 47; the runner 12/12 BOTH-PASS in
+BOTH modes; EVERY committed `.mir` pin (DIF01–DIF06) re-measured byte-equal from its
+committed fixture; `pli80c.exe` `172595d5…aca281` from a fresh build; `git diff --exit-code
+-- hir/`/`-- ocaml/` rc 0 at each stage boundary; ledger 203/C380. Any pin move outside
+the §5.6 list, any emitted byte, any unexplained panel movement ⇒ STOP and attribute.
+Known unrelated defects (the `decimal_int ""` raise; the stale dashboard assertion) stay
+outside this campaign.
+
+### P2-DIFF-5.10 STOP conditions (binding)
+
+STOP and attribute (additive amendment, never a silent repair) on: the Stage-A refusal
+being anything other than the pre-registered `HIR-E19` at the named operand intervals;
+any summary WIDER than the branch-insensitive result for the same seed (H1);
+any `Known`→`Unknown` at the same seed; any emitted byte, existing `.mir` pin, golden or
+negative pin moving; any panel change outside §5.6/§5.7; any soundness doubt (the
+concrete reference must agree); any need to touch `mir_backend.ml` or add a module;
+any oracle temptation. Standing: no push; explicit paths; `handoff.config.json` NEVER
+staged; no `git add -A`/`reset --hard`/`clean`; rc DIRECT; `LC_ALL=C`; `eval "$(opam
+env)"`; never batch build+tests; timeouts 60/120/900; scratch `build/` never committed;
+`mirsumtest` from the REPO ROOT; NEVER hand-edit a managed block.
+
+### P2-DIFF-5.11 Work order
+
+(1) THIS pre-registration, alone, by explicit path, BEFORE any other byte. (2) Stage A:
+the two ALGORITHMIC specifications; the final `.pli` bytes (CRLF + exactly one `^Z`,
+`last3 = b'\r\n\x1a'`), SHAs recorded, committed; and ONLY THEN the current-backend
+measurement of the §5.5 refusals. (3) Stage B: the `If`-arm refinement in `mir_return_summary.ml`;
+the driver green with the §5.6 NEW expectations; the frozen panel green. (4) Stage C: the
+§5.8 table, the disclosed corrupt-line moves, the non-vacuity controls. (5) Stage D: the
+D12/D13 registration (measured-first pins, measured `nfuncs`), both lanes ×2, both
+modes; full panel; the target is **12/12 BOTH-PASS** — a measured outcome, not a mandate.
+(6) The close: RESULTS §P2-DIFF-5, the dashboard row, the arch section, the durables,
+the finalized checkpoint. **STOP after P2-DIFF-5 is measured and closed; any new phase
+needs a separate operator brief.**
