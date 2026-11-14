@@ -5,6 +5,61 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-3 Stage-B panel + Stage-C tool hop (2026-11-14, session 01a1d935 renewal 4/12 of chain 01a1d8e9; ZERO oracle; ledger 203/C380) — THE FROZEN PANEL CAUGHT A REAL DEFECT IN THE COMMITTED STAGE B; THE PANEL IS GREEN; THE ADDITIVE TOOL IS COMMITTED
+
+**ACCEPTED — the FROZEN PANEL IS A DEFECT DETECTOR, NOT A CEREMONY; the predecessor's
+"post-commit measured green" claim was true but INCOMPLETE.** The predecessor's note said
+`mirsumtest` 55 checks + the gate + the three `--corrupt-*` modes + `pli80mir --export` all
+rc 0 — but the FULL FROZEN PANEL was never run. The FIRST panel command (`tools/hir_test.py`)
+FAILED with **72 F8 failures**: the committed `ocaml/hir/mirsumtest.ml` used the module alias
+`M` (`module M = Pli80_hir.Mir_return_summary`), and the F8 purity check's forbidden-pattern
+list contains the 8080 register mnemonics `C`, `M`, `P`, `Z` — the alias `M` is a bare
+`\bM\b` match and the F8 glob is `ocaml/hir/*.ml` (every file, including test drivers).
+METHOD LAW: **a test driver in `ocaml/hir/` is HIR code and must pass the same purity
+check; the alias must be a name that is not a register mnemonic** — the precedent is
+`mirnumtest.ml` (module `N`) and `semtest.ml` (modules `D`, `H`, `HB`, `SE`, `Ast`, `Bind`).
+I fixed it with a pure rename `M` → `R` (`e49da02d`; no semantic, no check, no expectation
+changed), rebuilt, and re-ran: `hir_test` rc 0 with 220 ok lines, `mirsumtest` 55 checks rc 0,
+the three corrupt controls rc 1 each. **This is the exact defect that the pre-registration
+warned about — the panel is where the violation surfaces, and it was the only way to catch
+it.**
+
+**ACCEPTED — the measured F8 file count is 15, NOT the pre-registered 14.** The
+pre-registration says the F8 `ocaml/hir/*.ml` file count moves `13→14`. The baseline
+`base-hir.log` says **11** files. The Stage-B commit adds TWO files (`mir_return_summary.ml`
++ the `mirsumtest.ml` driver) — the count is **11 → 15**. The pre-registered number was wrong.
+Method: the number is always the MEASURED live count; the pre-registered expectation is a
+PREDICTION. The `X3` check in `mir_numeric_test.py` is **dynamic** and the new `Y5` in my
+check are also dynamic and green — they never hard-code the count.
+
+**ACCEPTED — the frozen panel is GREEN with the fix in place.** Each command its own rc,
+logs in `build/e54p2diff3/`:
+- `gate` rc 0: 1328/1328-190/190-9/9-census 16/0/25/0-prose 5, `cmp`-IDENTICAL to
+  `base-gate.log`.
+- `hir_test` rc 0: 220 ok, the ONE disclosed line (the F8 file count 11→15).
+- `mir_aot` 32, `cosmo` 25, `console` 43, `debug` 23, `CF` 83, `call` 86 — all six
+  `cmp`-IDENTICAL to `stageC-*` logs.
+- the six-case runner `dual_backend_test.py` rc 0 in BOTH `default` and `--strict`, 6/6
+  `BOTH-PASS`, 28 checks — the diffs are only the stamp and HEAD.
+- the `test_dual_backend` suite 29/29, `cmp`-IDENTICAL to the `stageC-suite` log.
+- `mir_numeric` 41, `cmp`-identical to the baseline except the F8 count line (dynamic).
+- `functional` 211/211, `cmp`-identical to the baseline except the /tmp path.
+- fresh build dir `_build-e54p2diff3b` rc 0, `pli80c.exe` sha `172595d5…aca281`.
+- `git diff --exit-code -- hir/` and `-- ocaml/` both rc 0 after the fix commit.
+- the ledger is 203 headers ending `C380`.
+
+**ACCEPTED — the additive tool `tools/mir_return_summary_test.py` is committed (c85c0652).**
+The tool is judged by the PLAN §P2-DIFF-3 contract (11 checks: Y1-Y6) and is NOT a
+modification of the existing tools. The `mir_return_summary` module's `summaries` function
+is not a `let` with a typed `->` signature in the source (it is a `let` with a `~maxp`),
+so the regex must match the actual signature text — my first draft had a Y6 regex bug.
+
+**ACCEPTED — the tool is NON-VACUOUS.** The non-vacuity was measured with disposable copies
+(in the same command, deleted in the same command; `git status --porcelain tools/` is clean):
+the perturbed live check count → rc 1; the missing baseline → rc 1 (the law is FAILED, not
+skipped); the wrong corrupt pin → rc 1; the module dropped from the dune `(modules ...)` →
+rc 1.
+
 ## E2E-54/P2-DIFF-3 Stage-B fix hop (2026-11-14, session 01a1d924 renewal 3/12 of chain 01a1d8e9; ZERO oracle; ledger 203/C380) — MIRSUMTEST GREEN 55 CHECKS; THE MODULE ROOT CAUSE AND THE DRIVER'S OWN DEFECTS
 
 **ACCEPTED — the module root cause (one line).** `summary_of` did `List.rev pp.Hir.body` and
