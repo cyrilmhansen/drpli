@@ -1919,7 +1919,7 @@ return-value comparison needs a NEW operator brief.
 
 ---
 
-## §P2-DIFF-2 — Differential-runner hardening, two integrated PL/I programs, and the `Mir_numeric` audit — CLOSED 2026-11-13 (Stages A+B; sessions 01a1d53d→01a1d70b→this successor)
+## §P2-DIFF-2 — Differential-runner hardening, two integrated PL/I programs, and the `Mir_numeric` extraction — CLOSED 2026-11-13 (Stages A+B+C; sessions 01a1d53d→01a1d70b→01a1d725→01a1d734→this successor)
 
 Pre-registered as PLAN **§P2-DIFF-2** (PROTOCOL #1 gate: committed `41fca33e` **BEFORE any runner,
 test or fixture byte**). §P2-DIFF-1 above is **CLOSED and immutable**; this section never edits it.
@@ -2072,12 +2072,83 @@ evidence (`build/dual-backend/native/DIF01/20261113T224643Z-it1/mir2o.stdout` is
 `mir2o.stderr` is the count line). The earlier claim was a misreading of an un-split terminal
 display; the correction is recorded in LEARNINGS with its evidence. No repo byte was involved.
 
-### P2-DIFF-2.7 Stage C — the `Mir_numeric` extraction: **NOT YET PERFORMED (this section is OPEN)**
+### P2-DIFF-2.7 Stage C — the `Mir_numeric` extraction: **PERFORMED, MEASURED, CLOSED 2026-11-13**
 
-The §P2-DIFF-2.4 audit is IN PROGRESS and NO result is claimed here: the extraction, the STOP
-condition and the module's tests are all UNMEASURED, so this section stays EMPTY of findings and
-the dashboard row stays "open" until the audit is closed. The read-only audit so far (code reading
-only, ZERO repo byte): the four §P2-DIFF-2.4 candidates `window` (:120), `in_window` (:124),
+**The finding.** The seam is separable and the extraction is a MOVEMENT, not a rule: the pure
+numeric-domain algebra of the MIR backend now lives in `ocaml/hir/mir_numeric.ml` — `type iv`,
+`window`, `in_window`, `show_iv`, `decimal_int`, `iv_add`, `iv_sub`, `iv_mul`, `iv_neg`, `iv_hull`
+(nine top-level `let`s plus the type, one responsibility) — and `mir_backend.ml` keeps the
+diagnostic strings, the `win`/`prove` wrappers, the operator dispatch, the refusal order and the
+emission, delegating to the module through four top-level `let`s. **The module imports NOTHING**
+(§P2-DIFF-2.4-2 allows `Hir` or nothing; it takes nothing — the precision parameter `p` is the
+caller's already-extracted value and the type is never named here). The one documented deviation
+from the pre-registered candidate list is the measured obstacle below; the STOP condition
+(§P2-DIFF-2.7-iii) did NOT fire.
+
+**How the movement was proven equivalent, in order of strength.**
+
+1. **The whole frozen panel §P2-DIFF-2.6, each command its own rc, every log `cmp`-IDENTICAL to
+   the campaign baseline** — gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5;
+   mir_aot 32; cosmo 25; console 43; debug 23; CF 83; call 86; the suite 29/29; the six-case
+   runner 6/6 `BOTH-PASS` in BOTH modes with 22 controls and 28 checks (the only diff vs the
+   Stage-B log being the report stamp and the HEAD line); functional 211/211. The historical
+   compiler is byte-identical: a fresh `--build-dir _build-e54p2diff2c` gives rc 0, ZERO `Error`,
+   warning history 122 and `pli80c.exe` sha `172595d5…aca281` (§P2-DIFF-2.4-4). `git diff
+   --exit-code -- hir/` and `-- ocaml/` are both rc 0 — no pin, no golden, no claims byte moved.
+2. **All 32 committed `.mir` artifacts re-measured from the committed fixtures** by the
+   post-extraction compiler, twice in fresh processes, `stdout == pin == -o file`, zero stderr
+   (`mir-expected`, `mir-cf-expected`, `mir-call-expected`, `dif-expected`). The numeric analysis
+   decides every one of those files, so this is the direct equivalence proof of the extraction.
+3. **The algebra itself judged independently of its caller** — `ocaml/hir/mirnumtest.ml` (the
+   `semtest` precedent, its own dune stanza) checks the module against hand-derived vector tables
+   AND a second, independently written reference formulation plus an exhaustive `[-6,6]` envelope
+   law: **live rc 0, `MIR-NUMERIC OK 41563 checks`, zero stderr**, and four corrupt controls that
+   must fail LOUDLY (rc 1, stderr-only `MIRNUM-FAIL` lines, ZERO stdout): sub/hull/decimal 3 lines
+   each, window 7. `tools/mir_numeric_test.py` is the new additive panel tool (41 checks) that
+   pins the live count and the exact stderr bytes of every control and re-measures the 32 pins.
+
+**The driver falsified its own author four times, and the module was right every time** — the
+invariant-3 test in the strongest form available (the code, not the module, was wrong each time):
+`W(15) = ±16383 = 2^14 - 1` (the pre-registered `W(p) = ±(2^(p-1)-1)`), **not** the `32767` figure
+several places in this campaign's prose quote for it; `W(1) = (0,0)`; `sub 6 = (-1,1) - (1,1) =
+(-2,0)`; and the invented law "the sum interval contains its operands" is simply FALSE (it was
+removed from the driver, not adjusted in the module).
+
+**Falsified by measurement, the campaign's OWN capability table.** §P2-DIFF-2.2 and the arch
+§7-12 say the intersection is "literals ≤ 32767 typed `bin(15)`". It is not: the native lane
+refuses it. `x = 20000` and `x = 32767` on `dcl x fixed bin(15)` give the 8080 lane rc 0 (128 B,
+`LXI H` with the `0x4E20` / `0x7FFF` immediates) and the native lane rc 2 — `HIR-E19: … the
+literal '20000' can reach [20000,20000], leaving the declared-precision window [-16383,16383] of
+FIXED BINARY(15,0)`. The binding intersection is the MIR window `±(2^(p-1)-1)`, i.e. **±16383 for
+`bin(15)`**; `32767` is only the 8080 `bin15_fits` literal-immediate ceiling (`codegen.ml:1459`),
+a different quantity the table conflated. The two DIF programs are unaffected (all their literals
+are 1..6300) and the panel confirms it — this is a documentation correction, not a behaviour
+change.
+
+**The honest panel row.** `tools/hir_test.py` is rc 0 with the frozen **220** `ok` lines, but its
+log is **NOT** byte-identical to the pre-extraction baseline: its F8 purity check embeds the
+`ocaml/hir/*.ml` **file count** in its own log line (`11 files` → `13 files`), so the two
+pre-registered laws — "the hir log is byte-identical" and "the extraction lives in `ocaml/hir/`" —
+are in DIRECT CONFLICT. The conflict is resolved by MEASURING AND DISCLOSING the one-line diff
+(§P2-DIFF-2.8 below), never by hiding the new unit in a subdirectory to evade the purity audit.
+
+**Measured pre-existing obstacle (a documented deviation, not a failure):** the pre-registered
+`join_env` cannot move as a whole. The environment is `(int * int) Int_map.t` and `Int_map` is a
+GENERATIVE `Map.Make` instance; a second `Map.Make (Int)` in the new module would be a DISTINCT
+type (verified first-hand with `ocamlopt`), so only the pure `Some`/`Some` HULL moves (as
+`iv_hull`) and the `Map.merge` stays in the backend.
+
+**Pre-existing latent defect FOUND, NOT fixed (invariant 3 forbids it).** `Mir_numeric.decimal_int
+""` raises `Invalid_argument("index out of bounds")` — `s.[0]` is evaluated whenever the length is
+not 1. This is byte-for-byte the code `mir_backend.ml` held before the extraction (the same text
+at `f1f3c1ab^`), it is unreachable from the compiler because no HIR literal carries an empty text,
+and the empty-string vector is therefore EXCLUDED from the driver with a comment naming the
+reason. A fix would be a NEW semantic decision and needs its own PROTOCOL #1 pre-registration;
+nothing in this campaign grants it.
+
+The read-only audit that preceded the extraction (code reading
+only, ZERO repo byte) had established: the four §P2-DIFF-2.4 candidates `window` (:120),
+`in_window` (:124),
 `show_iv` (:126) and `decimal_int` (:131) are top-level and PURE (no `Hir`/`Target`/emission
 reference), and every one of their 32/5/13/3 call sites is inside `mir_backend.ml` alone
 (`grep -n "\bwindow\b|\bin_window\b|\bshow_iv\b|\bdecimal_int\b" ocaml/hir/*.ml ocaml/bin/*.ml` —
@@ -2164,7 +2235,15 @@ Stage B durables `82dde2ac` → **Stage B `db3fda9c`** (the two sources + the tw
 dashboard CLOSED row + the §P2-DIFF-2.10 Stage-B CLOSED note + the §P2-DIFF-2.11 Stage-C status
 row, the `docs/architecture/backend-boundary.md` **§7-11 correction** (the lanes share the parser
 and the binder, NOT the HIR — `pli80c` never builds a `Hir.program`) and the new **§7-12**.
-**STILL OWED:** **STAGE C** itself — the §P2-DIFF-2.4 `Mir_numeric` extraction and its equivalence
-panel, one separate commit set (RESULTS §P2-DIFF-2.7 stays OPEN until then). This section is the
-record of Stages A+B; the Stage-C close hop appends the final commit hash and the §P2-DIFF-2.7
-finding.
+**STAGE C CLOSED (this hop).** The §P2-DIFF-2.4 `Mir_numeric` extraction is one separate commit
+set: **`f1f3c1ab`** (the module, the `mirnumtest` driver, the delegation, the dune stanza) and
+**`97c0fa29`** (the additive `tools/mir_numeric_test.py`, 41 checks — the checks were NEVER added
+to `hir_test.py`, whose 220 is a frozen panel constant). Measured with the extraction in place:
+the whole frozen panel §P2-DIFF-2.6 green, every log `cmp`-IDENTICAL to the campaign baseline
+(gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5; mir_aot 32; cosmo 25; console
+43; debug 23; CF 83; call 86; suite 29/29; runner 6/6 BOTH-PASS in both modes; functional
+211/211); `pli80c.exe` `172595d5…aca281` from a fresh `_build-e54p2diff2c`; `git diff --exit-code
+-- hir/` and `-- ocaml/` rc 0; ledger 203/C380. The ONE disclosed exception is the hir F8 line
+(`11 files` → `13 files`) — see §P2-DIFF-2.7 and the §P2-DIFF-2.8 row above. The finding, the
+four driver falsifications, the `32767`-vs-`±16383` correction of the §P2-DIFF-2.2 table and the
+latent `decimal_int ""` defect (found, NOT fixed) are in §P2-DIFF-2.7.

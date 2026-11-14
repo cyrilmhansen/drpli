@@ -6243,6 +6243,16 @@ INTERSECTION, and the intersection is what the programs are designed inside.
 | after a `Call_s` with a by-ref actual, that sid widens to `W(declared)` | enforced | §P1-m3.2-8 |
 | every literal: plain non-negative decimal, ≤ 9 digits, typed `bin(default p)`, ≤ `bin(15)` (the ceiling is 15) | enforced | `hir_build.lower_lit` |
 | every intermediate expression: type-equal operands + exact interval inside `W(15)` (±32767) or the node is refused | enforced | §P1-m0.3, `lower` |
+
+**CORRECTION (Stage-C close, 2026-11-13; the text above is the pre-registration and stands as
+history).** The row `W(15) (±32767)` and the row `literals … ≤ bin(15)` are TWO DIFFERENT
+quantities and the table conflated them. MEASURED: `W(15) = ±(2^14-1) = ±16383` (the
+`decimal_int`/`window` law, the refusal text `leaving the declared-precision window
+[-16383,16383]`), while `32767` is the 8080 lane's `bin15_fits` LITERAL-IMMEDIATE ceiling
+(`codegen.ml:1459`) — the two DIF programs are unaffected (their literals are 1..6300) and the
+panel confirms it; the binding INTERSECTION for a lane pair is `±16383`. Evidence: RESULTS
+§P2-DIFF-2.7; the probe (disposable, ZERO repo byte) compiled `x = 20000` and `x = 32767` on
+`dcl x fixed bin(15)`: 8080 rc 0 with the `0x4E20`/`0x7FFF` immediates, native rc 2 both times.
 | `put list(<one item>)` — one value or one printable literal; NO control items, NO multiple items, NO `PUT EDIT`, NO stream | YES | M04–M06, CF01–CF10 |
 | `get list(<scalar>)` | native only in this campaign (the 8080 lane runs with a one-`^Z` script: an EOF is a nonzero status) | §P1-m1 |
 | `dcl` statements before the body; `fixed bin(p,0)` only; no `STATIC`/`EXTERNAL`/`ENTRY` | enforced | all fixtures |
@@ -6385,7 +6395,11 @@ renewal.
 
 | slice | status | notes |
 |---|---|---|
-| P2-DIFF-2 | **Stages A+B CLOSED 2026-11-13** (pre-registration `41fca33e` BEFORE any runner/test/fixture byte; Stage A(a) `06a7fdbf` — the suite RUN against the UNMODIFIED runner, measured rc **1**, 4 FAIL + 3 missing groups; STOP-and-attribute amendments `e789de65` (PLAN §P2-DIFF-2.9 A/B/C) then `2dd43db0` (T7c fixed, T4 implemented); Stage A(b) `55e43285` — the hardened runner, suite **29/29** rc 0, the four historical cases **rc 0** in BOTH modes, 14/14 controls REJECTED, Stage A committed independently; Stage B `db3fda9c` (the two sources + the two `.mir` pins + this §P2-DIFF-2.10, committed BEFORE any differential execution) then `52c5bf68` (the runner's D06/D07 entries)) | the three runner defects H-A1/H-A2/H-A3 were **REAL** and the fix is **measured**: the hardened runner validates BOTH executions of EACH lane, enforces the pre-registered native status law `rc == 0`, and separates `infrastructure_failure` from `semantic_divergence` (ADDITIVE fields, no existing field redefined). **Two integrated programs, six-case run rc 0 in BOTH modes: 6/6 `BOTH-PASS`, determinism `(True,True)` on all twelve lane executions, 22/22 controls REJECTED, 28 checks**; D06 `tariff` `[6300,1500,3000,1800,400,120]` and D07 `steps` `[9,7,5,3,3,5,7,9]` — the PRE-REGISTERED vectors, unchanged (the DIF01 source defect was caught by hand-tracing BEFORE the run, §P2-DIFF-2.4 of RESULTS). The full frozen panel §P2-DIFF-2.6 hit with every log `cmp`-IDENTICAL to the campaign baseline; compiler `172595d5…aca281`; ledger 203/C380; `git diff --exit-code -- ocaml/` and `-- hir/` both rc 0. **NOT a DR oracle comparison**: the linker/runtime are Digital Research's, the COMPILER is mine, `PLI.COM` never ran. **STAGE C** — the audit is read-only and the seam is separable; the extraction is **OPEN** and is committed separately (see §P2-DIFF-2.11) |
+| P2-DIFF-2 | **Stages A+B CLOSED 2026-11-13** (pre-registration `41fca33e` BEFORE any runner/test/fixture byte; Stage A(a) `06a7fdbf` — the suite RUN against the UNMODIFIED runner, measured rc **1**, 4 FAIL + 3 missing groups; STOP-and-attribute amendments `e789de65` (PLAN §P2-DIFF-2.9 A/B/C) then `2dd43db0` (T7c fixed, T4 implemented); Stage A(b) `55e43285` — the hardened runner, suite **29/29** rc 0, the four historical cases **rc 0** in BOTH modes, 14/14 controls REJECTED, Stage A committed independently; Stage B `db3fda9c` (the two sources + the two `.mir` pins + this §P2-DIFF-2.10, committed BEFORE any differential execution) then `52c5bf68` (the runner's D06/D07 entries)) | the three runner defects H-A1/H-A2/H-A3 were **REAL** and the fix is **measured**: the hardened runner validates BOTH executions of EACH lane, enforces the pre-registered native status law `rc == 0`, and separates `infrastructure_failure` from `semantic_divergence` (ADDITIVE fields, no existing field redefined). **Two integrated programs, six-case run rc 0 in BOTH modes: 6/6 `BOTH-PASS`, determinism `(True,True)` on all twelve lane executions, 22/22 controls REJECTED, 28 checks**; D06 `tariff` `[6300,1500,3000,1800,400,120]` and D07 `steps` `[9,7,5,3,3,5,7,9]` — the PRE-REGISTERED vectors, unchanged (the DIF01 source defect was caught by hand-tracing BEFORE the run, §P2-DIFF-2.4 of RESULTS). The full frozen panel §P2-DIFF-2.6 hit with every log `cmp`-IDENTICAL to the campaign baseline; compiler `172595d5…aca281`; ledger 203/C380; `git diff --exit-code -- ocaml/` and `-- hir/` both rc 0. **NOT a DR oracle comparison**: the linker/runtime are Digital Research's, the COMPILER is mine, `PLI.COM` never ran. **STAGE C — CLOSED** (see §P2-DIFF-2.11): the extraction `f1f3c1ab` + the additive tool
+`97c0fa29`; the whole frozen panel green with the extraction, every log `cmp`-identical to the
+baseline except the single disclosed hir F8 file-count line; `pli80c.exe` `172595d5…aca281`; all
+32 `.mir` pins re-measured byte-equal; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0; the
+§P2-DIFF-2.2 `±32767`/`W(15)` conflation FALSIFIED by measurement (the intersection is `±16383`) |
 
 ### P2-DIFF-2.9 Amendments A/B/C — STOP-and-attribute (operator-approved 2026-11-13, committed BEFORE any runner or test byte is amended; PROTOCOL #1)
 
@@ -6543,11 +6557,20 @@ The complete evidence is `spec/lab-evidence/e2e54/RESULTS.md` §P2-DIFF-2.2/.3/.
 §P2-DIFF-2.6 is reproduced in §P2-DIFF-2.8 there. **STAGE C remains open** (§P2-DIFF-2.4, the
 `Mir_numeric` extraction) and is committed separately from the close.
 
-### P2-DIFF-2.11 Stage C — the `Mir_numeric` extraction (status row; the finding is in RESULTS §P2-DIFF-2.7)
+### P2-DIFF-2.11 Stage C — the `Mir_numeric` extraction (CLOSED 2026-11-13)
 
-The pre-registered §P2-DIFF-2.4 audit is COMPLETE (read-only, zero repo byte at the audit stage)
-and the seam IS separable under the measured constraint recorded in RESULTS §P2-DIFF-2.7: the
-`Some/Some` hull of `join_env` moves as `iv_hull`, the `Map`-based `merge` stays in `mir_backend`.
-The extraction, its independent test tool and the equivalence panel are ONE separate commit set
-(§P2-DIFF-2.7-4); the STOP condition (§P2-DIFF-2.7-iii) binds if the equivalence panel moves any
-byte.
+The pre-registered §P2-DIFF-2.4 audit is COMPLETE and the seam IS separable: the extraction
+(`ocaml/hir/mir_numeric.ml`, nine `let`s plus the `iv` type, importing NOTHING) is committed
+**`f1f3c1ab`**, the additive panel tool **`tools/mir_numeric_test.py`** (41 checks, its own
+non-vacuity measured) is **`97c0fa29`**. The measured constraint — `join_env` cannot move as a
+whole because `Int_map` is a GENERATIVE `Map.Make` instance, so only the `Some`/`Some` hull moves
+as `iv_hull` and the `Map.merge` stays — is a documented deviation, not a failure. NO STOP
+condition fired: the whole frozen panel §P2-DIFF-2.6 is green with the extraction in place, every
+log `cmp`-IDENTICAL to the campaign baseline (the sole disclosed exception being the hir F8 line,
+which embeds the `ocaml/hir/*.ml` FILE COUNT and therefore moves `11 → 13` while the FROZEN 220
+`ok` count stands); `pli80c.exe` is `172595d5…aca281` from a fresh build dir; `git diff --exit-code
+-- hir/` and `-- ocaml/` are rc 0; all **32** committed `.mir` pins were re-measured from the
+committed fixtures and are byte-equal. The finding, the four falsifications of the driver's own
+hand-derived tables, the `±16383`-vs-`32767` correction above and the PRE-EXISTING latent defect
+(`decimal_int ""` raises, unreachable from the compiler, deliberately NOT fixed under invariant 3)
+are in RESULTS §P2-DIFF-2.7.

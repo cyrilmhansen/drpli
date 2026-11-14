@@ -624,7 +624,7 @@ Three things this slice adds to the boundary picture:
    differential therefore validates the shared front end against the two *different* lowerings;
    it says nothing about a shared IR, because there is none.
 2. **The numeric domain is the real capability boundary.** The measured intersection that binds
-   any program written for this lane pair is: literals ≤ 32767 typed `bin(15)`; a multiplication
+   any program written for this lane pair is: literals inside the MIR window `W(15) = ±16383` (the `32767` this note first quoted is the 8080 `bin15_fits` literal-IMMEDIATE ceiling, a different quantity — corrected by measurement at the Stage-C close, RESULTS §P2-DIFF-2.7); a multiplication
    needs at least one tight-interval operand (a `var*var` with both sides wide REFUSES);
    `pli80c` refuses literal+literal `fixed bin` ADD while literal MINUS literal folds; a `Call_e`
    result widens to `W(15)` and must be re-copied before multiplication; every body-written
@@ -642,3 +642,36 @@ Zero oracle throughout: `PLI.COM` never ran; the 8080 lane's COMPILER is this re
 LINK-80/PLILIB are Digital Research's linker and runtime. No compiler, golden, pin or claims byte
 moved — the historical compiler stays `172595d5…aca281` and the ledger stays **203 headers ending
 C380**. Panel: RESULTS §P2-DIFF-2.
+
+## 7-13 E2E-54/P2-DIFF-2 Stage C — the `Mir_numeric` extraction (CLOSED 2026-11-13)
+
+The pure numeric-domain algebra of the native MIR backend moved OUT of `mir_backend.ml` into
+`ocaml/hir/mir_numeric.ml`: the declared-precision window, containment, interval display, the
+canonical-decimal literal test, the exact `+ - *`/negation endpoint algebra and the control-flow
+join hull — nine top-level `let`s plus the `iv` type. The module **imports nothing at all** (not
+even `Hir`): the precision is passed as an `int`, the `FIXED BINARY(p,0)` type is never named
+there. The backend keeps every diagnostic string, the `win`/`prove` wrappers, the operator
+dispatch, the refusal ORDER and the emission, and reaches the algebra through four delegating
+`let`s — so the 1900-line body is untouched. The one measured deviation from the original
+candidate list: `join_env` could NOT move as a whole, because the environment map is a GENERATIVE
+`Map.Make` instance and a second instance would be a distinct type (verified with `ocamlopt`);
+only its pure `Some`/`Some` hull moved, as `iv_hull`.
+
+This is a MOVEMENT, not a rule: no numeric acceptance condition was added, widened or narrowed.
+The equivalence is proven by the whole frozen panel §P2-DIFF-2.6 (every log `cmp`-identical to
+the campaign baseline; `pli80c.exe` `172595d5…aca281`), by re-measuring **all 32 committed
+`.mir` pins** from the committed fixtures with the post-extraction compiler (twice each, `stdout
+== pin == -o file`), and by a NEW independent driver `mirnumtest.exe` (41563 live checks, four
+corrupt controls whose exact stderr bytes are pinned) whose laws are judged by hand-derived
+tables plus a second, independently written reference formulation. The driver is driven by the
+additive panel tool `tools/mir_numeric_test.py` (41 checks) — the checks were deliberately NOT
+added to `tools/hir_test.py`, whose 220-ok count is a frozen panel constant. One honest exception
+in the panel: the hir F8 purity check embeds the `ocaml/hir/*.ml` FILE COUNT in its own log line,
+so adding two files moves that line (`11 → 13`); the conflict between "byte-identical log" and
+"the extraction lives in `ocaml/hir/`" is resolved by DISCLOSING the one-line diff, not by hiding
+the new unit in a subdirectory to evade the audit. A PRE-EXISTING latent defect was found and
+left alone (invariant 3): `decimal_int` raises on the empty literal text — unreachable from the
+compiler (no HIR literal is empty) and byte-for-byte the code the backend held before the
+movement; a fix needs its own pre-registration. Commits `f1f3c1ab` + `97c0fa29`; findings, the
+four falsifications of the driver's own hand-derived tables, and the `±16383` correction of the
+§7-12 capability clause are in RESULTS §P2-DIFF-2.7.
