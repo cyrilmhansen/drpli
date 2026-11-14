@@ -6945,3 +6945,66 @@ C: the positive/hostile/non-vacuity table, the two disclosed tool updates. (5) S
 registered, both lanes, both modes, measured pins. (6) The close: RESULTS §P2-DIFF-4, the PLAN
 dashboard row, the arch section, the durables, the finalized checkpoint. **STOP after P2-DIFF-4
 is measured and closed; any new phase needs a separate operator brief.**
+
+### P2-DIFF-4.11 Stage-A STOP-and-attribute and PRE-EXECUTION additive amendment (2026-11-14, session 01a1d998)
+
+**MEASURED (the pre-registered Stage A baseline, executed on the committed sources at
+`d276743b` — DIF05 `97610d42…7239e62c` 561 B, DIF06 `feb5e037…f90846` 460 B, encoding verified
+CRLF-only, one `^Z`, `last3 = b'\r\n\x1a'`):**
+
+- 8080 lane `pli80c.exe -d`: **rc 0 for BOTH** — `PROGRAM BILLING CODE=206 DATA=20 ITEMS=228 ->
+  512 bytes`; `PROGRAM BATCH CODE=124 DATA=12 ITEMS=137 -> 384 bytes` (the pre-registered 8080
+  acceptance, measured; logs `build/e54p2diff4/stageA/`).
+- Native lane `pli80mir.exe --export <entry>`: **rc 2, ZERO stdout, NO `.mir`** — but the
+  diagnostic is **`HIR-E18: line 5: MIR backend: a value-position call is outside the native
+  subset (brief §3)`** (DIF05) / **`HIR-E18: line 6: …`** (DIF06), NOT the pre-registered
+  `HIR-E19` on the `*`. The predicted refusal is **attributable to a different feature**: the
+  §P2-DIFF-4.4 design text (`bill = capped_units(q + 0) * 500`) nests the `Call_e` inside a
+  `Binop`, and the measured native subset — the m3c admission law VERBATIM at
+  `mir_backend.ml` ~737 — admits a `Call_e` ONLY as the **whole RHS of an Assign to a `D_var`**
+  (or the whole expression of the final `Return`); any other position keeps the pre-existing
+  E18 refusal (the CALLN9 shape law). This is a SOURCE-DESIGN defect, not a hypothesis
+  failure: H1/H2/H3 stand; the window reasoning below is unchanged. Per §P2-DIFF-4.5 the
+  STOP-and-attribute fired; no refusal was manufactured; this amendment is the PRE-EXECUTION
+  additive record that the operator's chronology requires, committed BEFORE any replacement
+  source byte and before any compiler run on new bytes.
+
+**AMENDED DESIGN (the ONLY change: the call moves to a whole-RHS assignment; the algorithm,
+the entry names, the subsidiary names, the `+ 0` value-actual idiom, the `>`-oriented IFs, the
+`put list` positions and BOTH pre-registered expectation vectors are UNCHANGED):**
+
+- `DIF05.pli` (entry `billing`): `dcl q, cat, bill fixed bin(15);` then for each quantity
+  3, 12, 30: `q = <k>;` `cat = capped_units(q + 0);` `bill = cat * 500;` `put list(bill);`
+  `return (bill);` and the subsidiary `capped_units(x)`: `if x > 20 then c = 20; else c = x;`
+  `return (c);` — the exact DIF03 (`pricing`) shape.
+- `DIF06.pli` (entry `batch`): `dcl i, cl, v fixed bin(15);` `i = 1;` `do while (i < 5);`
+  `cl = limited_step(i + 0);` `v = cl * 700;` `put list(v);` `i = i + 1;` `end;`
+  `return (i);` and the subsidiary `limited_step(x)`: `if x > 12 then c = 12; else c = x;`
+  `return (c);` — the exact DIF04 (`production`) shape.
+- The superseded bytes `d276743b` remain in history as the measured evidence; the replacement
+  sources are committed (again BEFORE any compiler run) with freshly recorded SHAs.
+
+**CORRECTED PRE-REGISTERED NOTE (the §P2-DIFF-4.4 "honest note" was wrong in its arithmetic,
+and the correction strengthens the attribution).** The context-independent summary of
+`capped_units` is NOT `[1,20]`: the summary is computed with the FULL declared-formal seed
+`W(15) = [-16383,16383]`, so the branch-insensitive hull of `c = 20` and `c = x` is
+`[-16383, 16383]` — the FULL window — and the same for `limited_step`. Hence the pre-change
+`cat`/`cl` carry the full window, the multiplication `cat * 500` / `cl * 700` is exactly the
+pre-registered `HIR-E19` with the full-window operand, and the pre-registered products
+`±16383*500 = ±8191500` and `±16383*700 = ±11468100` are the expected refusals. The
+`[1,20]`/`[1,12]` reading was the value of `min` over the POSITIVE domain; the analysis
+domains are the full declared windows.
+
+**RE-MEASURED PREDICTION (binding for the amended Stage A):** `pli80c.exe -d` rc 0 (both,
+unchanged); `pli80mir.exe --export <entry>` rc 2, ZERO stdout, NO `.mir`, EXACTLY
+`HIR-E19: line 7: binop '*' on operands proved within [-16383,16383] and [500,500] can reach
+[-8191500,8191500], leaving the declared-precision window [-16383,16383] of FIXED BINARY(15,0);
+overflow behaviour is profile-UNKNOWN and is never assumed (brief §4)` for DIF05 and
+`HIR-E19: line 8: … within [-16383,16383] and [700,700] can reach [-11468100,11468100] …`
+for DIF06 (line numbers from the amended layouts above). Any other refusal ⇒ STOP again.
+
+**POST-CHANGE EXPECTATION (Stage B, unchanged in substance):** the specialized summaries are
+`[3,20]`, `[12,20]`, `[20,30]` (DIF05) and `[1,12]` (DIF06, the loop IV interval `[1,4]`
+hulled with the `12` arm), giving `bill ∈ [1500,10000] ∪ … ⊆ W(15)` at every call site and
+`v ∈ [700,8400]`; the whole program then admits; the console vectors stay
+`[1500,6000,10000]` and `[700,1400,2100,2800]` — the pre-registered independent expectations.
