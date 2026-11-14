@@ -29,10 +29,11 @@ HANDOFF/PROGRESS/LEARNINGS durable edits and then run `/handoff finalize`.
   LEARNINGS durable edits and then run `/handoff finalize` (or a renewal to a fresh session).
 
 ## Next action (exact)
-
-- STOP: the campaign is closed and committed. The ONLY remaining action is the durables
-  commit and the `/handoff finalize`. No further experiment is authorized — the PLAN
-  §5.11 requires a NEW operator brief for any new phase.
+STOP — E2E-54/P2-DIFF-5 is CLOSED and published at f19091a4.
+All authorized scientific stages are complete.
+Do not resume Stage C or Stage D.
+No additional scientific work or renewal is authorized by this mission.
+Await an explicit new operator brief for a separate mission.
 
 ## Verified evidence (this session)
 
@@ -46,37 +47,26 @@ HANDOFF/PROGRESS/LEARNINGS durable edits and then run `/handoff finalize`.
   without a NEW operator brief (PLAN §5.11).
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 11
-checkpoint-id: g11-57ad309caa64
-checkpoint-kind: auto
+checkpoint-generation: 13
+checkpoint-id: g13-54112f90ed29
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-14T22:26:10.277Z
+readiness: attested
+guard-level: 0
+checkpointed: 2026-11-14T23:04:59.772Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 92ff1913b64c1a40b2c6014d5225bd5ca5febfb7103782402e28fa9676c7aa74
-source-handoff: 8941c3e86cace0931eb3314f92aded97bad787a3257916d0a8b8ef442ce11044
+source-progress: 5bfa76b72ee43aa33179d1db4873033c9d7a8016ec88be4be71dd27e857f117c
+source-handoff: edab7aea64a700f03cb1dbbe474348f08e2a6f970abf8dc0ae3adeb87ef49379
 source-learnings: 183af22c37f329c96e9d2a369aee8ccb9db47e8243a68655f3ebc0cf31f154b7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: 1. STAGE C (PLAN §5.8) in `ocaml/hir/mirsumtest.ml` IN PLACE (§5.7-2), each expectation a
-   HAND-derived literal BEFORE the run: the `Lt`/`Le`/`Ge`/`Eq` orientation law on the `min`
-   body; the Eq-else-UNREFINED law; `Ne` and `Var op Var` keep the conservative hull VERBATIM;
-   the missing-ELSE refinement (then refined, false path the identity env); an EXCLUDED arm
-   with the variable re-read after the join; the full-window no-change law (§5.6-7
-   `[-16383,20]`); the hostiles (non-definite `Var`, non-`decimal_int` `Const` e.g. `"007"`,
-   `Const` LEFT operand, composite condition) each yielding the SAME result as the
-   conservative path; the H3 pivot; and the DIF07/DIF08 REAL-fixture specialization vs the
-   concrete reference (DIF07 `[3,3]→[3,3]`, `[7,7]→[7,7]`, `[12,12]→[12,12]`, ctx
-   `[-16383,20]`; DIF08 `[1,4]→[1,4]`, ctx `[-16383,12]`). The COUNT moves 116 → NEW
-   (DISCLOSED); the tool's `LIVE_OK` literal follows.
-2. Re-pin the FOUR corrupt tables in `tools/mir_return_summary_test.py` to the MEASURED new
-   values (§5.7-3) and add at least ONE new non-vacuity control perturbing the REFINED arm
-   value and never the concrete reference or the condition; the tool's count (14 → NEW) is
-   disclosed. Then both the driver and the tool must be rc 0.
-3. Re-run the frozen panel (the Stage-C gate), then STAGE D: DIF07/DIF08 as D12/D13
-   (measured-first pins, measured `nfuncs`), both lanes ×2, both modes; target 12/12 BOTH-PASS
-   (measured).
-4. The close: RESULTS §P2-DIFF-5, the dashboard row, arch §7-16, the durables.
+next-action: STOP — E2E-54/P2-DIFF-5 is CLOSED and published at f19091a4.
+All authorized scientific stages are complete.
+Do not resume Stage C or Stage D.
+No additional scientific work or renewal is authorized by this mission.
+Await an explicit new operator brief for a separate mission.
+readiness-by: session:01a1dc4e-1b40-75b4-9f45-22d99218a852
+readiness-at: 2026-11-14T23:04:59.779Z
+readiness-checkpoint: g13-54112f90ed29
 <!-- guard:end checkpoint -->
 
 ## STAGE C — COMPLETE (manual prose, supersedes the managed block above)
@@ -103,3 +93,9 @@ the `nfuncs` 2/2 MEASURED from mir2o stderr, the runner **12/12 BOTH-PASS in BOT
 57 checks, 45/45 comparator controls REJECTED; `mir_numeric` 47 (the disclosed 45→47, 38 pins,
 36 pre-existing UNMOVED); `pli80c.exe` `172595d5…aca281` UNCHANGED; ledger 203/C380; ZERO
 oracle; ZERO emitted bytes. STOP — any extension needs a new operator brief (PLAN §5.11).
+
+## Historical canonical action (superseded at P2-DIFF-5 close)
+
+- STOP: the campaign is closed and committed. The ONLY remaining action is the durables
+  commit and the `/handoff finalize`. No further experiment is authorized — the PLAN
+  §5.11 requires a NEW operator brief for any new phase.

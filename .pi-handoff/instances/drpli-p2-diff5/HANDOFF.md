@@ -26,26 +26,11 @@ legacy root docs. `PROTOCOL.md` is binding before any unfamiliar procedure.
 - The parent session's renewal-gate anomaly is CLEARED (this successor started normally).
 
 ## Next action (exact)
-
-1. STAGE C (PLAN §5.8) in `ocaml/hir/mirsumtest.ml` IN PLACE (§5.7-2), each expectation a
-   HAND-derived literal BEFORE the run: the `Lt`/`Le`/`Ge`/`Eq` orientation law on the `min`
-   body; the Eq-else-UNREFINED law; `Ne` and `Var op Var` keep the conservative hull VERBATIM;
-   the missing-ELSE refinement (then refined, false path the identity env); an EXCLUDED arm
-   with the variable re-read after the join; the full-window no-change law (§5.6-7
-   `[-16383,20]`); the hostiles (non-definite `Var`, non-`decimal_int` `Const` e.g. `"007"`,
-   `Const` LEFT operand, composite condition) each yielding the SAME result as the
-   conservative path; the H3 pivot; and the DIF07/DIF08 REAL-fixture specialization vs the
-   concrete reference (DIF07 `[3,3]→[3,3]`, `[7,7]→[7,7]`, `[12,12]→[12,12]`, ctx
-   `[-16383,20]`; DIF08 `[1,4]→[1,4]`, ctx `[-16383,12]`). The COUNT moves 116 → NEW
-   (DISCLOSED); the tool's `LIVE_OK` literal follows.
-2. Re-pin the FOUR corrupt tables in `tools/mir_return_summary_test.py` to the MEASURED new
-   values (§5.7-3) and add at least ONE new non-vacuity control perturbing the REFINED arm
-   value and never the concrete reference or the condition; the tool's count (14 → NEW) is
-   disclosed. Then both the driver and the tool must be rc 0.
-3. Re-run the frozen panel (the Stage-C gate), then STAGE D: DIF07/DIF08 as D12/D13
-   (measured-first pins, measured `nfuncs`), both lanes ×2, both modes; target 12/12 BOTH-PASS
-   (measured).
-4. The close: RESULTS §P2-DIFF-5, the dashboard row, arch §7-16, the durables.
+STOP — E2E-54/P2-DIFF-5 is CLOSED and published at f19091a4.
+All authorized scientific stages are complete.
+Do not resume Stage C or Stage D.
+No additional scientific work or renewal is authorized by this mission.
+Await an explicit new operator brief for a separate mission.
 
 ## Unfinished operations
 
@@ -76,52 +61,38 @@ PROVABLY INFEASIBLE → EXCLUDED from the join (the one-arm join is that arm);
 missing ELSE = the identity env (the old law).
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 11
-checkpoint-id: g11-57ad309caa64
-checkpoint-kind: auto
+checkpoint-generation: 13
+checkpoint-id: g13-54112f90ed29
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6884, session mission:drpli-p2-diff5:01a1dbed-74b8-72bd-a54d-4a5bdbef7e64)
-checkpointed: 2026-11-14T22:26:10.277Z
+readiness: attested
+status: checkpoint (guard level 0, remaining ~144873, session mission:drpli-p2-diff5:01a1dc4e-1b40-75b4-9f45-22d99218a852)
+checkpointed: 2026-11-14T23:04:59.772Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 92ff1913b64c1a40b2c6014d5225bd5ca5febfb7103782402e28fa9676c7aa74
-source-handoff: 8941c3e86cace0931eb3314f92aded97bad787a3257916d0a8b8ef442ce11044
+source-progress: 5bfa76b72ee43aa33179d1db4873033c9d7a8016ec88be4be71dd27e857f117c
+source-handoff: edab7aea64a700f03cb1dbbe474348f08e2a6f970abf8dc0ae3adeb87ef49379
 source-learnings: 183af22c37f329c96e9d2a369aee8ccb9db47e8243a68655f3ebc0cf31f154b7
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1dc4e-1b40-75b4-9f45-22d99218a852
+readiness-at: 2026-11-14T23:04:59.779Z
+readiness-checkpoint: g13-54112f90ed29
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 0; checkpoint requested (finalize)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-1. STAGE C (PLAN §5.8) in `ocaml/hir/mirsumtest.ml` IN PLACE (§5.7-2), each expectation a
-   HAND-derived literal BEFORE the run: the `Lt`/`Le`/`Ge`/`Eq` orientation law on the `min`
-   body; the Eq-else-UNREFINED law; `Ne` and `Var op Var` keep the conservative hull VERBATIM;
-   the missing-ELSE refinement (then refined, false path the identity env); an EXCLUDED arm
-   with the variable re-read after the join; the full-window no-change law (§5.6-7
-   `[-16383,20]`); the hostiles (non-definite `Var`, non-`decimal_int` `Const` e.g. `"007"`,
-   `Const` LEFT operand, composite condition) each yielding the SAME result as the
-   conservative path; the H3 pivot; and the DIF07/DIF08 REAL-fixture specialization vs the
-   concrete reference (DIF07 `[3,3]→[3,3]`, `[7,7]→[7,7]`, `[12,12]→[12,12]`, ctx
-   `[-16383,20]`; DIF08 `[1,4]→[1,4]`, ctx `[-16383,12]`). The COUNT moves 116 → NEW
-   (DISCLOSED); the tool's `LIVE_OK` literal follows.
-2. Re-pin the FOUR corrupt tables in `tools/mir_return_summary_test.py` to the MEASURED new
-   values (§5.7-3) and add at least ONE new non-vacuity control perturbing the REFINED arm
-   value and never the concrete reference or the condition; the tool's count (14 → NEW) is
-   disclosed. Then both the driver and the tool must be rc 0.
-3. Re-run the frozen panel (the Stage-C gate), then STAGE D: DIF07/DIF08 as D12/D13
-   (measured-first pins, measured `nfuncs`), both lanes ×2, both modes; target 12/12 BOTH-PASS
-   (measured).
-4. The close: RESULTS §P2-DIFF-5, the dashboard row, arch §7-16, the durables.
-
-### Guard notes
-Stage C complete and committed (HEAD b40d0746): mirsumtest rc 0 at 172 checks, panel tool rc 0 (15 checks), five corrupt tables re-pinned to measured values, new --corrupt-refine-arm control. Next: the Stage-C frozen panel re-run (cmp vs build/e54p2diff5/stageB-panel/), then Stage D (DIF07/DIF08 as D12/D13, measured-first pins, both lanes x2, both modes), then the close. Read the SUPERSEDING manual "NEXT ACTION" section at the end of HANDOFF.md.
+STOP — E2E-54/P2-DIFF-5 is CLOSED and published at f19091a4.
+All authorized scientific stages are complete.
+Do not resume Stage C or Stage D.
+No additional scientific work or renewal is authorized by this mission.
+Await an explicit new operator brief for a separate mission.
 <!-- guard:end checkpoint -->
 
-## NEXT ACTION — SUPERSEDES the managed block above (manual prose, 2026-11-14, successor of 01a1dbbb)
+## Historical continuation (superseded)
 
 STAGE C IS COMPLETE AND COMMITTED at `b40d0746` (chain: 710989ef → 4d970aa6 → e959106c →
 1544f288 → e69aa556 → b40d0746). Measured: `mirsumtest` LIVE rc 0 at the NEW count
@@ -168,3 +139,24 @@ stage; ZERO emitted bytes; ZERO oracle; the ledger is untouched.
 §5.11). No further action is authorized. If the operator returns, the next thing is a
 /handoff finalize (and, if desired, a renewal to a fresh session), NOT a new experiment.
 
+## Historical canonical action (superseded at P2-DIFF-5 close)
+
+1. STAGE C (PLAN §5.8) in `ocaml/hir/mirsumtest.ml` IN PLACE (§5.7-2), each expectation a
+   HAND-derived literal BEFORE the run: the `Lt`/`Le`/`Ge`/`Eq` orientation law on the `min`
+   body; the Eq-else-UNREFINED law; `Ne` and `Var op Var` keep the conservative hull VERBATIM;
+   the missing-ELSE refinement (then refined, false path the identity env); an EXCLUDED arm
+   with the variable re-read after the join; the full-window no-change law (§5.6-7
+   `[-16383,20]`); the hostiles (non-definite `Var`, non-`decimal_int` `Const` e.g. `"007"`,
+   `Const` LEFT operand, composite condition) each yielding the SAME result as the
+   conservative path; the H3 pivot; and the DIF07/DIF08 REAL-fixture specialization vs the
+   concrete reference (DIF07 `[3,3]→[3,3]`, `[7,7]→[7,7]`, `[12,12]→[12,12]`, ctx
+   `[-16383,20]`; DIF08 `[1,4]→[1,4]`, ctx `[-16383,12]`). The COUNT moves 116 → NEW
+   (DISCLOSED); the tool's `LIVE_OK` literal follows.
+2. Re-pin the FOUR corrupt tables in `tools/mir_return_summary_test.py` to the MEASURED new
+   values (§5.7-3) and add at least ONE new non-vacuity control perturbing the REFINED arm
+   value and never the concrete reference or the condition; the tool's count (14 → NEW) is
+   disclosed. Then both the driver and the tool must be rc 0.
+3. Re-run the frozen panel (the Stage-C gate), then STAGE D: DIF07/DIF08 as D12/D13
+   (measured-first pins, measured `nfuncs`), both lanes ×2, both modes; target 12/12 BOTH-PASS
+   (measured).
+4. The close: RESULTS §P2-DIFF-5, the dashboard row, arch §7-16, the durables.

@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "missionId": "drpli-p2-diff5",
+  "workProfile": null,
+  "closedAt": "2026-11-14T23:07:27.579Z",
+  "reason": "P2-DIFF-5 completed, published and audited; final recovery action corrected",
+  "files": {
+    "mission:HANDOFF.md": "d63a771f7f1b416ef8aa14b8d4a31d28d90128047657e57d039ba6411f6505ce",
+    "mission:LEARNINGS.md": "183af22c37f329c96e9d2a369aee8ccb9db47e8243a68655f3ebc0cf31f154b7",
+    "mission:PROGRESS.md": "0c296bf65e89849d93e29bce0f1ce06a0e6fd8b9696757d824f335d0d9fe39da",
+    "mission:mission.json": "936fd68c10e1c3157365ed97936ccd33b85e6767d59dfac06e76b438dc763e74",
+    "state:diagnostics.jsonl": "b97ce0a17d999700b230eefa86eae353481afcef7d633d392b07d7efabd9d0e9",
+    "state:renewal-state.json": "1f2822bdb3d9cb4cdf582d838380e9da3847f8c56d2c21b69218806f4455980d",
+    "state:sessions/01a1db4e-29d3-7637-adea-e0c66c9c1f6c.json": "a06a379c2c1f397a697d845e555688637eb8aee212ee0d8cfe0f77fbbeacaab5",
+    "state:sessions/01a1db4f-e035-7294-8494-b2394788fbd4.json": "058e2affb38b6098cb5d61e3cc27ecbd99b7ba81c19b1dab669f060dae29abea",
+    "state:sessions/01a1db62-7153-7294-8494-b23d949edd86.json": "9c375d2e55a3df575a05456b040e9b85fcd1f9d29f7c10f7599e40acdf4e1383",
+    "state:sessions/01a1db8e-97fe-72bd-a54d-4a52ac40384a.json": "2b7e961726391d9129195c6f9384145d4f6d3574019d3ff142ffea152b871161",
+    "state:sessions/01a1dbbb-c95e-72bd-a54d-4a57d0cd47a1.json": "7b03882b22b99dedd783b91aaa942e05068efc3979cd743bad89f9d682456f5c",
+    "state:sessions/01a1dbed-74b8-72bd-a54d-4a5bdbef7e64.json": "fdc8b7e6df930294ce94e862129899ad51eebb2c16c46a5f801736cd84e5c269",
+    "state:sessions/01a1dc4e-1b40-75b4-9f45-22d99218a852.json": "a6f531afe459010e28ccc033c6329c48a01a186a6e3849f40d475db963ea13db"
+  },
+  "stateRoot": "/home/john/projects/sushiworks/pli80/.pi-guard/instances/drpli-p2-diff5",
+  "sourceFingerprint": "14f3306fefcd06cf1dd6d2a9ad5c4e9f696a2cfda4c8e6ae2f4494ccc486cf62",
+  "checkpoint": {
+    "id": "g13-54112f90ed29",
+    "attestation": "attested"
+  },
+  "renewalState": {
+    "version": 1,
+    "chainId": "mission:drpli-p2-diff5:chain:2026-11-14T18:24:42.545Z",
+    "renewalsDone": 4,
+    "renewedFromCheckpointId": "g10-b3d01ffd351c",
+    "lastSuccessorSessionId": "01a1dbed-74b8-72bd-a54d-4a5bdbef7e64",
+    "stopped": false,
+    "updatedAt": 1794691134876
+  },
+  "renewalMax": 12,
+  "gitRevision": "f19091a417fbb827a991253b4775c12e81a275ad",
+  "operationId": "close:14f3306fefcd06cf1dd6d2a9ad5c4e9f696a2cfda4c8e6ae2f4494ccc486cf62"
+}
