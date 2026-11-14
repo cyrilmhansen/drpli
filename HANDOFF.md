@@ -7,7 +7,37 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-16-e54p2diff3-closed (2026-11-14, session 01a1d950 renewal 5/12 of chain 01a1d8e9; ZERO oracle;
+17-e54p2diff4-prereg-committed (2026-11-14, session 01a1d97c fresh startup; ZERO oracle; ledger
+203/C380; start HEAD `c3576ccb`, now `b259cf4c`): **E2E-54/P2-DIFF-4 IS OPEN; THE PRE-REGISTRATION
+IS COMMITTED; STAGE A IS NEXT.** Landed: `10a1ac66` baseline+recovery durables, `b259cf4c` the
+**§P2-DIFF-4 PRE-REGISTRATION** appended to `spec/lab-evidence/e2e54/PLAN.md` (now 6947 lines)
+BY EXPLICIT PATH AND BEFORE ANY EXPERIMENTAL SOURCE, PROBE OR COMPILER BYTE (§P2-DIFF-1/2/3
+untouched). The BASELINE was re-measured first-hand, not copied: gate 1328/1328–190/190–9/9–149
+rows 0/0–census 16/0/25/0–prose 5; hir 220; mir 32/cosmo 25/console 43/debug 23/CF 83/call 86;
+suite 29/29; runner 8/8 BOTH-PASS in BOTH modes (37 checks, 29/29 controls rejected); functional
+211; mir_numeric 43; mir_return_summary 11; `pli80c.exe` `172595d5…aca281`; `git diff --exit-code
+-- hir/`/`-- ocaml/` rc 0; ledger 203/C380. Logs `build/e54p2diff4/base-*.log` (ignored).
+**NEXT (the brief §5 chronology, do NOT start Stage B first):** write `hir/dif-fixtures/DIF05.pli`
+(entry `billing`, `capped_units` = `if x > 20 then c = 20; else c = x;` + one `return (c)`;
+quantities 3/12/30, `bill = capped_units(q + 0) * 500`, `put list(bill)`; INDEPENDENT vector
+**[1500,6000,10000]**) and `DIF06.pli` (entry `batch`, `i = 1; do while (i < 5); … i = i + 1;
+end;`, `limited_step` = `if x > 12 then c = 12; else c = x;`, `v = limited_step(i + 0) * 700`,
+`put list(v)` INSIDE the loop, `return (i)`; INDEPENDENT vector **[700,1400,2100,2800]**),
+DIF03/DIF04 layout verbatim (CRLF, exactly one `^Z`, `>`-oriented IFs only — `<=`/`>=` are
+MEASURED 8080 refusals), record SHA-256, **COMMIT THE SOURCES BEFORE COMPILING THEM**, then the
+old-backend measurement (expect `pli80c -d` rc 0 and `pli80mir --export` rc 2 HIR-E19 on the
+`*` with the FULL-WINDOW operand — `±8191500` DIF05 / `±11468100` DIF06). Absent or different
+refusal ⇒ STOP-and-attribute. HARD CONSTRAINTS: **NO new `ocaml/hir/*.ml` file** (X3/Y5 pin the
+file count to 15 and the hir log to one F8-line diff); extend `summary_of` to call the SAME
+`summary_of_actuals` evaluator with full-window seeds; `mir_numeric_test.py` `EXPORTS` must gain
+the two names (43→45, disclosed); `mir_return_summary_test.py` `LIVE_OK` (55) and the corrupt
+stderr tables move (disclosed). Recovery: PROGRESS live heading → PLAN §P2-DIFF-4 → LEARNINGS
+§ “E2E-54/P2-DIFF-4 recovery + baseline hop”. Standing: ZERO oracle; `handoff.config.json` NEVER
+staged (dirty with the operator's own `maxRenewals 8→12`, `workingContextWindow 95000→145000`);
+no push; explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+`mirsumtest` from the REPO ROOT; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: 16-e54p2diff3-closed (2026-11-14, session 01a1d950 renewal 5/12 of chain 01a1d8e9; ZERO oracle;
 ledger 203/C380; start HEAD `247c04b4`): **E2E-54/P2-DIFF-3 IS COMPLETE AND CLOSED — NO NEXT
 ACTION EXISTS.** Stage D landed: D08/D09 in `tools/dual_backend_test.py` (`58923e75`), the
 MEASURED `nfuncs` 2 and 2, the measured-first pins `hir/dif-expected/DIF03.mir` `d9595d5f…`
@@ -2450,25 +2480,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 832
-checkpoint-id: g832-459d95c6ee13
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 835
+checkpoint-id: g835-6ead4f0db1e0
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4420, session 01a1d950-8e82-7264-a23a-8e8ac34e728b)
-checkpointed: 2026-11-14T09:37:01.509Z
+status: checkpoint (guard level 4, remaining ~478, session 01a1d97c-3983-700a-9d27-3bf93e07cdad)
+checkpointed: 2026-11-14T10:25:57.262Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d95cbbf8119d78ebaef2788ff8ef3659fb5b19f12b6b73fb5d5edf81e40b13be
-source-handoff: fa4441f7b326a51b3d882f280e356d97c488b39331a23a3b9c7cc761915e5d77
-source-learnings: aa4422f6087eb723050f0cbe9f9fd00f0c6ab6673a4e044e3c9b617982536d6b
+source-progress: 0d3b4ee363d3cdcdf69853d5f08b48d8257c1bec6db3fc55b9869544dd2df377
+source-handoff: 2ff65a73da009a1e85af3fd6fb584b028a73e6b35db806bc370a7c9168cdaf62
+source-learnings: d3d42889aa10548bcb8e9b06c92b0b0a43dbe6d5af4cea8da31940fbcfa0957c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d950-8e82-7264-a23a-8e8ac34e728b
-readiness-at: 2026-11-14T09:37:01.713Z
-readiness-checkpoint: g832-459d95c6ee13
+readiness-by: session:01a1d97c-3983-700a-9d27-3bf93e07cdad
+readiness-at: 2026-11-14T10:25:57.398Z
+readiness-checkpoint: g835-6ead4f0db1e0
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -3798,5 +3828,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-3 Stage C is COMPLETE: the tool (11 checks, rc 0) and the full frozen panel are committed. The Stage-B M-alias F8 defect was caught by the panel and fixed. The durables are committed (HEAD 770b2e55). NEXT: Stage D (D08/D09 in the runner + the close).
+E2E-54/P2-DIFF-4 open. Pre-registration committed (b259cf4c), durables committed (10a1ac66 then this). Baseline re-measured first-hand (gate 1328/1328-190/190-9/9-149-16/0/25/0-prose 5; hir 220; mir 32/cosmo 25/console 43/debug 23/CF 83/call 86; suite 29/29; runner 8/8 BOTH-PASS both modes; functional 211; mir_numeric 43; mir_return_summary 11; hist 172595d5…aca281; ledger 203/C380). NEXT = Stage A: write hir/dif-fixtures/DIF05.pli (entry billing, capped_units min(x,20), expected [1500,6000,10000]) and DIF06.pli (entry batch, limited_step min(x,12), do while (i<5) over 1..4, expected [700,1400,2100,2800]) — commit the source bytes BEFORE compiling them — then measure the old backend (pli80c -d rc 0; pli80mir --export rc 2 HIR-E19 on the '*' with the full-window operand ±8191500 / ±11468100). Absent/different refusal ⇒ STOP-and-attribute. Binding: NO new ocaml/hir/*.ml file (X3/Y5 pin the count to 15); extend summary_of to share ONE evaluator via summary_of_actuals; mir_numeric_test EXPORTS must gain the two pin names (43→45 disclosed); mir_return_summary_test LIVE_OK=55 and the corrupt tables move (disclosed). ZERO oracle; handoff.config.json NEVER staged; no push; explicit paths; mirsumtest from repo root.
 <!-- guard:end checkpoint -->

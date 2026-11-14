@@ -48,7 +48,81 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-4 — **OPEN; BASELINE MEASURED FIRST-HAND; THE §P2-DIFF-4 PRE-REGISTRATION COMMIT IS THE ONE OWED NEXT ACTION**)
+## Next action (E2E-54/P2-DIFF-4 — **PRE-REGISTRATION COMMITTED; STAGE A IS NEXT**)
+
+**LANDED THIS SESSION (session 01a1d97c, fresh startup, start HEAD `c3576ccb`).**
+(1) `10a1ac66` — the recovery + baseline durables (PROGRESS live heading, LEARNINGS new
+section). (2) `b259cf4c` — **THE §P2-DIFF-4 PRE-REGISTRATION**, appended to
+`spec/lab-evidence/e2e54/PLAN.md` (now 6947 lines), by explicit path, **BEFORE any experimental
+source, probe or compiler byte** (PROTOCOL #1 + the brief's chronology). §P2-DIFF-1/2/3 were
+NOT touched. It carries: the re-measured baseline; H1/H2/H3 with falsifiers and the core
+invariant `actual ⊆ specialized ⊆ declared`; the exact specialization subset (arity, order,
+non-empty, contained in `W(p)`, `A_value` only, no caller-storage inference, any violation ⇒
+`Unknown`); the MONOTONICITY lemma of the shared evaluator (narrowing a seed can only narrow,
+never turn `Known` into `Unknown`) — the reason `specialized ⊆ context-independent` holds
+automatically; the no-path-refinement scope restriction; the two candidate programs with the
+INDEPENDENT hand-derived vectors **DIF05 [1500,6000,10000]** and **DIF06 [700,1400,2100,2800]**
+written BEFORE the sources existed; the expected pre-change refusals with their exact products
+(`±16383*500 = ±8191500`, `±16383*700 = ±11468100`); the complete permitted-edit boundary list;
+the positive/hostile/non-vacuity test lists; the frozen panel; the STOP conditions; the work
+order.
+
+**BASELINE (re-measured, not copied): everything in the brief is TRUE today.** gate
+1328/1328–190/190–9/9–149 rows 0/0–census 16/0/25/0–prose 5; hir 220; mir 32/cosmo 25/console
+43/debug 23/CF 83/call 86; suite 29/29; runner **8/8 BOTH-PASS in BOTH modes** (37 checks,
+29/29 controls rejected); functional 211; mir_numeric 43; mir_return_summary 11; `pli80c.exe`
+`172595d5…aca281`; `git diff --exit-code -- hir/`/`-- ocaml/` rc 0; ledger 203/C380. Logs
+`build/e54p2diff4/base-*.log` (ignored, never committed). ZERO oracle.
+
+**NEXT VERBATIM (Stage A — the brief §5 chronology; do NOT start Stage B before it is done).**
+1. Write and commit the two INDEPENDENT algorithmic specifications (PLAN §P2-DIFF-4.4 already
+   carries the algorithm and the vectors; a `spec/notes`-style spec file is NOT required — the
+   pre-registered section is the spec). Then write the final bytes:
+   `hir/dif-fixtures/DIF05.pli` (entry `billing`, subsidiary `capped_units` = `min(x,20)` via
+   `if x > 20 then c = 20; else c = x;` then ONE `return (c)`; quantities 3/12/30, each
+   `bill = capped_units(q + 0) * 500`, `put list(bill)`; entry `return`s a definitely-
+   initialized value) and `hir/dif-fixtures/DIF06.pli` (entry `batch`, `i = 1; do while (i < 5);
+   … i = i + 1; end;` with `limited_step(x) = min(x,12)` via `if x > 12 then c = 12; else c = x;`,
+   `v = limited_step(i + 0) * 700`, `put list(v)` INSIDE the loop, `return (i)`). Mirror the
+   committed DIF03/DIF04 layout exactly (CRLF, exactly one trailing `^Z`, per-subsidiary `dcl`,
+   `>`-oriented IFs only — `<=`/`>=` are MEASURED 8080 refusals).
+2. Record the SHA-256 and the byte size; **COMMIT the sources BEFORE any compiler runs on them**
+   (the binding timing law).
+3. ONLY THEN measure the OLD backend: `pli80c.exe -d IN.PLI OUT.REL` (expect rc 0) and
+   `pli80mir.exe --export <entry> IN.PLI` (expect rc 2, ZERO stdout, NO `.mir`, HIR-E19 on the
+   `binop '*'` with the FULL-WINDOW operand — DIF05 names the `*500` with
+   `[-8191500,8191500]`, DIF06 the `*700` with `[-11468100,11468100]`). Evidence under
+   `build/e54p2diff4/stageA/` (ignored). If the predicted refusal is ABSENT or a DIFFERENT
+   feature blocks — **STOP and attribute**, no manufactured refusal, no weakened language rule;
+   a replacement source needs a PRE-EXECUTION additive amendment.
+4. Then Stage B (the `summary_of_actuals` extension IN PLACE + the `lower_call_e` capture of
+   `(cell, iv)`), Stage C (the `mirsumtest` positives/hostiles/non-vacuity + the two disclosed
+   tool literals), Stage D (D10/D11), the close.
+
+**HARD CONSTRAINTS (all measured, all binding):** NO new `ocaml/hir/*.ml` file — the X3/Y5
+checks require the `ocaml/hir/*.ml` count to stay **15** and the hir log to differ from
+`build/e54p2diff2/base-hir.log` in EXACTLY the F8 line; `mir_return_summary.ml` must stay clean
+of the Y4 names (`Target|Diagnostic|Backend|Mir_backend|Rel80|Codegen|Parser|Semantic_env|Unix|
+Hir_build|Mir_return_summary|open`) and the Y6 patterns (`raise|failwith|print_|prerr_|emit|
+output|write`); `tools/mir_numeric_test.py` `EXPORTS` (static table, dynamic pin enumeration)
+will raise `KeyError` on the new pins — it must gain the two entries (count 43 → 45);
+`tools/mir_return_summary_test.py` pins `LIVE_OK = b"MIR-SUM OK 55 checks"` and the three
+`--corrupt-*` stderr tables, which the new driver tests WILL move (disclosed, explicit);
+`summary_of` must be rewritten to call the SAME evaluator with full-window seeds so the
+context-independent semantics are preserved byte-for-byte and NO traversal is duplicated.
+
+**BLOCKER THIS HOP:** the guard reports `RENEWAL NOT AVAILABLE (not-authorized): no current
+transactional checkpoint id (checkpoint missing/corrupt/stale)` — the managed block is stale
+after my prose edits (legitimate). `handoff_renew` refreshes + attests before the gate; if it
+refuses, use `handoff_finalize` and stop.
+
+**Standing:** ZERO oracle; `handoff.config.json` NEVER staged (it is dirty with the operator's
+own `maxRenewals 8→12`, `workingContextWindow 95000→145000`); no push; explicit paths; no
+`git add -A`/`reset --hard`/`clean`; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch
+build+tests; `mirsumtest` from the REPO ROOT; scratch `build/*` and `ocaml/_build-*` never
+committed; NEVER hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-4 — **OPEN; BASELINE MEASURED FIRST-HAND; THE §P2-DIFF-4 PRE-REGISTRATION COMMIT IS THE ONE OWED NEXT ACTION**)
 
 **STATE (measured first-hand this session, 2026-11-14, session 01a1d97c, start HEAD
 `c3576ccb` = the brief's verified HEAD; tree clean except the operator's dirty
@@ -5423,17 +5497,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 832
-checkpoint-id: g832-459d95c6ee13
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 835
+checkpoint-id: g835-6ead4f0db1e0
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T09:37:01.509Z
+checkpointed: 2026-11-14T10:25:57.262Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d95cbbf8119d78ebaef2788ff8ef3659fb5b19f12b6b73fb5d5edf81e40b13be
-source-handoff: fa4441f7b326a51b3d882f280e356d97c488b39331a23a3b9c7cc761915e5d77
-source-learnings: aa4422f6087eb723050f0cbe9f9fd00f0c6ab6673a4e044e3c9b617982536d6b
+source-progress: 0d3b4ee363d3cdcdf69853d5f08b48d8257c1bec6db3fc55b9869544dd2df377
+source-handoff: 2ff65a73da009a1e85af3fd6fb584b028a73e6b35db806bc370a7c9168cdaf62
+source-learnings: d3d42889aa10548bcb8e9b06c92b0b0a43dbe6d5af4cea8da31940fbcfa0957c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6757,9 +6831,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d950-8e82-7264-a23a-8e8ac34e728b
-readiness-at: 2026-11-14T09:37:01.713Z
-readiness-checkpoint: g832-459d95c6ee13
+readiness-by: session:01a1d97c-3983-700a-9d27-3bf93e07cdad
+readiness-at: 2026-11-14T10:25:57.398Z
+readiness-checkpoint: g835-6ead4f0db1e0
 <!-- guard:end checkpoint -->
 
 ## Blockers
