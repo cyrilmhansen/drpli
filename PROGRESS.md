@@ -48,34 +48,59 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-3 — **PRE-REGISTRATION COMMITTED `92d1887b`; STAGE A NEXT: write the two DIF03/DIF04 sources, commit them + SHAs BEFORE any compilation**) — session 01a1d8e9, 2026-11-14
+## Next action (E2E-54/P2-DIFF-3 — **STAGE A CLOSED AND COMMITTED (`3928f130`); THE BASELINE REFUSAL IS MEASURED EXACTLY AS PRE-REGISTERED; STAGE B (the `mir_return_summary` module) IS NEXT**) — session 01a1d8f8 renewal 1/12 of chain 01a1d8e9, 2026-11-14
 
-**The campaign is OPEN.** Binding contract: `spec/lab-evidence/e2e54/PLAN.md` §P2-DIFF-3
-(committed at `92d1887b` — the subset, the soundness argument, the DIF03/DIF04 designs with the
-independent expectations `[1200,2400,3600]` and `[350,350,350,700,1050]`, the timing law, the
-architecture boundary, the falsifiers, the STOP conditions). Baseline at HEAD `4e857e09`
-(P2-DIFF-2 close) re-verified first-hand: the panel record is the committed one (1328/1328 —
-190/190 — 9/9 — 149 — 220 — 32/25/43/23/83/86 — 29 — 6/6 — 211 — 41 — sha
-`172595d5…aca281` — ledger 203/C380).
+**The campaign is OPEN.** Binding contract: PLAN §P2-DIFF-3 (pre-registration `92d1887b`).
 
-**NEXT VERBATIM (Stage A):** (1) read the `DIF01/DIF02` sources for the encoding convention
-(CRLF + one `^Z`), the `n + 0` value-actual idiom, the per-subsidiary `dcl` law and the PUT
-INSIDE the loop; (2) author `hir/dif-fixtures/DIF03.pli` (entry `pricing`) and `DIF04.pli`
-(entry `production`); (3) verify encoding + SHA, COMMIT the sources + reference spec FIRST
-(explicit paths; NO compilation before the commit exists); (4) ONLY THEN the OLD-backend
-baseline: `pli80c -d` (predicted rc 0) and `pli80mir --export` (predicted `HIR-E19` on the
-`binop '*'` with the full window operand) — record verbatim; any OTHER refusal → STOP and
-attribute. (5) Stages B–D per PLAN §P2-DIFF-3.
+**STAGE A IS DONE (accepted, measured first-hand).**
+1. The two sources are authored and committed at `3928f130` (explicit paths, BEFORE any
+   compilation of those bytes — the timing law): `hir/dif-fixtures/DIF03.pli` (entry `pricing`,
+   678 B, sha `34ac5efb…95b2e1`) and `DIF04.pli` (entry `production`, 563 B, sha
+   `36c4cf5b…ca16e5`). Encoding verified: CRLF-only (zero bare LF), exactly ONE trailing `^Z`
+   (`last3 = b'\r\n\x1a'`).
+2. **DISCLOSED SOURCE-LEVEL DEVIATION (not a contract change):** the pre-registered classifier
+   text is written with `<=`, which is a MEASURED 8080 refusal (`condition form not in E2E-3b
+   subset` — CF04/05/08 refuse, the 8080 has only `<`, `>`, `=`, `^=`). The sources use the
+   semantically identical `>`-orientation (`if x > 5 then (if x > 50 then c=3 else c=2) else
+   c=1;`). The classification, the entry names, the idiom and the two expectation vectors are
+   UNCHANGED; the expectations are the pre-registered ones.
+3. OLD-backend baseline (own rc each, logs `build/e54p2diff3/stageA/`):
+   * `pli80c -d` rc **0** for BOTH. DIF03 `PROGRAM PRICING CODE=239 DATA=22 ITEMS=260 -> 640
+     bytes` (640 B `.rel`); DIF04 `PROGRAM PRODUCTION CODE=149 DATA=14 ITEMS=165 -> 384 bytes`
+     (384 B). The predicted historical acceptance is MEASURED.
+   * `pli80mir --export` rc **2** for BOTH, ZERO stdout, NO `.mir` file — and the diagnostic is
+     EXACTLY the pre-registered `HIR-E19` on the `binop '*'` with the full-window operand:
+     DIF03 line 7 `binop '*' on operands proved within [-16383,16383] and [1200,1200] can reach
+     [-19659600,19659600], leaving the declared-precision window [-16383,16383] of FIXED
+     BINARY(15,0)`; DIF04 line 8 the same with `[350,350]` / `[-5734050,5734050]`. NO other
+     refusal fired — the STOP condition did NOT trigger. H1 is CONFIRMED at the baseline.
+4. Harness law (my error, corrected): the CLI is `pli80c [-d] INPUT.PLI OUTPUT.REL` — a
+   two-positional-arg invocation returns the usage line and rc 2; that is a HARNESS usage error,
+   never a compiler refusal. Record it.
 
-**Measured this session (accepted):** `lower_call_e` returns `(rr, window cq)` (the full
-declared window — the H1 mechanism); the summary cannot move emission (`.mir` bytes unaffected —
-panel proof remains); CALLN9 refuses by SHAPE inside `lower`, unaffected; value calls pass only
-`A_value` (callee result depends on formals+own locals only — the per-procedure closure);
-`declare`/`env0` are the exact laws the analysis mirrors; `Mir_numeric` is the single interval
-implementation (no second copy); profile default/max precision 15, `W(15)=±16383`.
+**NEXT VERBATIM (Stage B — PLAN §P2-DIFF-3 architecture, the ONLY permitted edits):**
+(1) NEW `ocaml/hir/mir_return_summary.ml` — pure; `type summary = Known of (int*int) | Unknown`;
+imports ONLY `Hir` + `Mir_numeric`; no emission/diagnostics/Target/refusal; the subset law of
+§P2-DIFF-3 (reached nonrecursive value proc, `ret = Some Fixed_bin(q,0)`, 1<=q<=15, formals
+`Fixed_bin(p,0)` seeded with EXACTLY `W(p)`, last stmt the top-level `Return (Some e)`, no other
+Return/While/Call_s/Call_e/Get/Put/Stop, Assign only to own-scope `D_var`, the `lower` grammar
+mirrored with the SAME window proof, If-arms joined by the backend drop-not-inherit law, missing
+ELSE = identity, `Unknown_ef` ⇒ Unknown, escape of `W(q)` ⇒ Unknown; ANY violation ⇒ Unknown,
+NEVER a new refusal).
+(2) `mir_backend.ml`: ONE analysis call after the validation scans (`folded_of`) and BEFORE the
+per-procedure lowering loop; in `lower_call_e` the returned interval is the summary iff
+`Known iv && in_window (window cq) iv`, else `window cq`. NO reordering of discovery/order.
+(3) `ocaml/hir/dune` `(modules …)` gains `mir_return_summary`.
+(4) Then `ocaml/hir/mirsumtest.ml` + `tools/mir_return_summary_test.py` (additive; NEVER
+`hir_test.py` — the 220 is frozen; the F8 `ocaml/hir/*.ml` count moves 13→14, the ONE disclosed
+exception). Verify with `dune build` (own rc) and `git diff --exit-code -- hir/`.
 
-**Proposed (unverified):** historical acceptance of the two programs; the `Convert` tolerance at
-`cat = classify(...)`; the full-domain concrete reference evaluator.
+**Measured (accepted):** `lower_call_e` returns `(rr, window cq)`; the summary cannot move
+emission; CALLN9 refuses by SHAPE; value calls pass only `A_value`; `Mir_numeric` is the single
+interval implementation; `W(15)=±16383`.
+
+**Proposed (unverified):** the `Convert` tolerance at `cat = classify(...)`; the full-domain
+concrete reference evaluator.
 
 **REPAIR NOTE (this heading, accepted as method law):** my first durables commit `c21e0e44`
 TRUNCATED PROGRESS.md — a Python edit did `h[:i] + new` instead of `h[:i] + new + h[i+len:]`,
@@ -5157,17 +5182,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 815
-checkpoint-id: g815-12c5c350a364
+checkpoint-generation: 819
+checkpoint-id: g819-8f407351ec1f
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T00:16:37.530Z
+checkpointed: 2026-11-14T07:31:37.831Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f4ed8a8066c21f9f24cb06e431823a0aaa78c5b26a5021b93f2234210b14d32e
-source-handoff: 02fe1d0a4febd2f8e09f9aeb38060ad2900703a4adcda24a6ae773d89926069d
-source-learnings: 41fb1636384b187f902ecff2b7be3191279dea8f34cd2f7ce6f8a7120b10b06c
+source-progress: e33c2d9cd8285ee8a7ec1c59de27458a4baf50b7b5068c4cbb1bebb3463596ff
+source-handoff: 703f280567e7381e40378449fc2f761d57c1e2340c3e09ed9a7b5a5e196df80a
+source-learnings: 1bbce5aff19384a260cc829e94cc180cef2d80f3a65a8c37e86914758a62a2ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6491,9 +6516,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d748-68e3-7538-80fd-64373ea6916d
-readiness-at: 2026-11-14T00:16:37.663Z
-readiness-checkpoint: g815-12c5c350a364
+readiness-by: session:01a1d8e9-5626-7264-a23a-8e770e9500c1
+readiness-at: 2026-11-14T07:31:38.005Z
+readiness-checkpoint: g819-8f407351ec1f
 <!-- guard:end checkpoint -->
 
 ## Blockers

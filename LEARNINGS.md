@@ -13832,3 +13832,33 @@ run); the concrete reference-evaluator over the full `[-16383,16383]` domain; th
 was written to the file via `cat >>` after an exact-match `edit` failed on a whitespace
 mismatch — the append is the SAFE primitive for the end of a large ledger; the timing law of
 the brief (commit sources BEFORE ANY compilation) is recorded as the binding Stage-A order.
+
+## E2E-54/P2-DIFF-3 Stage A hop (session 01a1d8f8 renewal 1/12 of chain 01a1d8e9, 2026-11-14) — ZERO oracle; ledger 203/C380
+
+**Accepted (measured first-hand).** (1) The two DIF sources are committed at `3928f130` BEFORE any
+compilation of those bytes (the timing law): `DIF03.pli` entry `pricing` 678 B sha
+`34ac5efb…95b2e1`, `DIF04.pli` entry `production` 563 B sha `36c4cf5b…ca16e5`; both verified
+CRLF-only (zero bare LF), exactly one trailing `^Z` (`last3 = b'\r\n\x1a'`). (2) The OLD-backend
+baseline is EXACTLY the pre-registered prediction: `pli80c -d` rc 0 for both (DIF03
+`PROGRAM PRICING CODE=239 DATA=22 ITEMS=260 -> 640 bytes`; DIF04 `PROGRAM PRODUCTION CODE=149
+DATA=14 ITEMS=165 -> 384 bytes`); `pli80mir --export` rc 2 for both with ZERO stdout and NO `.mir`
+file, the diagnostic being the `HIR-E19` on the `binop '*'` with the full-window operand —
+DIF03 line 7 `[-16383,16383] and [1200,1200] can reach [-19659600,19659600]`, DIF04 line 8
+`[350,350]` / `[-5734050,5734050]`. NO other refusal fired: the STOP condition did NOT trigger.
+H1 is confirmed at the baseline.
+
+**Accepted (source-level deviation, disclosed).** The pre-registered classifier text uses `<=`;
+the 8080 has only `<`, `>`, `=`, `^=` (CF04/05/08 are the measured refusals — the `condition form
+not in E2E-3b subset` guard). The sources therefore use the semantically identical `>`-oriented
+nested IF (`if x > 5 then (if x > 50 then c = 3; else c = 2;) else c = 1;`). The classification,
+the entry names, the `n + 0` value-actual idiom, the per-subsidiary `dcl` and the PUT INSIDE the
+loop are all preserved; the two expectation vectors are the pre-registered ones.
+
+**Method law (my error, corrected).** The CLI is `pli80c [-d] INPUT.PLI OUTPUT.REL` — an
+invocation with only one positional argument returns the usage line and rc 2. That is a HARNESS
+usage error, NOT a compiler refusal; never record it as a measurement. The `pli80mir` CLI is
+`pli80mir --export <entry> [-o OUT] FILE`.
+
+**Unresolved (for Stage B).** The exact summary-module design is in the PLAN §P2-DIFF-3; the
+`Convert` tolerance at `cat = classify(...)` and the full-domain concrete reference evaluator are
+still PROPOSED, not verified.
