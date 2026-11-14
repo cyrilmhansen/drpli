@@ -2359,25 +2359,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 815
-checkpoint-id: g815-12c5c350a364
+checkpoint-generation: 817
+checkpoint-id: g817-861cab72ea9b
 checkpoint-kind: manual
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-11942, session 01a1d748-68e3-7538-80fd-64373ea6916d)
-checkpointed: 2026-11-14T00:16:37.530Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~-5611, session 01a1d8e9-5626-7264-a23a-8e770e9500c1)
+checkpointed: 2026-11-14T07:28:20.468Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f4ed8a8066c21f9f24cb06e431823a0aaa78c5b26a5021b93f2234210b14d32e
+source-progress: 66a7a4a04c033de42afef21128e359d45651b6939277ef5854152712e2f7dd86
 source-handoff: 02fe1d0a4febd2f8e09f9aeb38060ad2900703a4adcda24a6ae773d89926069d
-source-learnings: 41fb1636384b187f902ecff2b7be3191279dea8f34cd2f7ce6f8a7120b10b06c
+source-learnings: 1bbce5aff19384a260cc829e94cc180cef2d80f3a65a8c37e86914758a62a2ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d748-68e3-7538-80fd-64373ea6916d
-readiness-at: 2026-11-14T00:16:37.663Z
-readiness-checkpoint: g815-12c5c350a364
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -3707,5 +3704,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-54/P2-DIFF-2 IS CLOSED AND COMPLETE (Stages A+B+C). HEAD 0faf0383: the extraction f1f3c1ab (ocaml/hir/mir_numeric.ml, nine pure lets, imports NOTHING), the additive panel tool 97c0fa29 (tools/mir_numeric_test.py, 41 checks rc 0), the doc close b7f6b4a4 (RESULTS §P2-DIFF-2.7 + §P2-DIFF-2.8 + §P2-DIFF-2.11; PLAN §P2-DIFF-2.11 CLOSED + the §P2-DIFF-2.2 CORRECTION; arch §7-12 correction + new §7-13), durables 2555c7e3 + 0faf0383. MEASURED WITH THE EXTRACTION: the whole frozen panel green, every log cmp-identical to the campaign baseline (gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; call 86; suite 29/29; runner 6/6 BOTH-PASS default AND --strict; functional 211/211); hir 220 with the ONE disclosed F8 file-count line (11->13, NOT byte-identical); all 32 .mir pins re-measured byte-equal; pli80c.exe sha 172595d5...aca281 from a fresh _build-e54p2diff2c; git diff --exit-code -- hir/ ocaml/ rc 0; ledger 203/C380. FALSIFIED (the campaign's own table, by measurement): the lane-pair intersection is the MIR window W(15)=+/-16383, NOT the quoted 32767 (that is the 8080 bin15_fits literal-immediate ceiling; x=20000/x=32767 are 8080 rc 0 and native rc 2). METHOD LAW: a control must perturb the EXPECTATION, never the comparison guard (my first pin control mutated the if and passed vacuously; the corrected one produced 32 FAILs). NOT FIXED deliberately: decimal_int "" raises Invalid_argument (pre-existing, unreachable, invariant 3). NEXT: NOTHING IS AUTHORIZED — the campaign is closed; the successor must report the close to the operator and STOP; interprocedural narrowing, non-numeric observables, GET/PUT EDIT/FILE, the decimal_int fix, the stale test_functional_dashboard **26** check and any oracle work all need a NEW operator brief. Standing: ZERO oracle (PLI.COM never ran); handoff.config.json NEVER staged; no push; explicit paths; rc DIRECT; LC_ALL=C; never batch build with tests; disposable tools/_*.py copies never survive a command; timeouts 60/120/900.
+E2E-54/P2-DIFF-3: pre-registration committed (92d1887b), PROGRESS/LEARNINGS live (c21e0e44, fb8ab249). NEXT: Stage A — write hir/dif-fixtures/DIF03.pli and DIF04.pli per PLAN §P2-DIFF-3, verify encoding (CRLF, one ^Z), SHA, and COMMIT THE SOURCES BEFORE ANY COMPILATION (timing law), then run the OLD-backend baseline refusal (pli80c -d expected rc 0; pli80mir expected HIR-E19 on the multiplication). ZERO oracle; handoff.config.json never staged; no push; explicit paths; recovery order: PROGRESS live heading → PLAN §P2-DIFF-3 → LEARNINGS 2026-11-14.
 <!-- guard:end checkpoint -->
