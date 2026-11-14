@@ -1,0 +1,31 @@
+pricing: procedure returns(fixed bin(15));
+   dcl n fixed bin(15);
+   dcl cat fixed bin(15);
+   dcl cost fixed bin(15);
+   n = 2;
+   cat = classify(n + 0);
+   cost = cat * 1200;
+   put list(cost);
+   n = 20;
+   cat = classify(n + 0);
+   cost = cat * 1200;
+   put list(cost);
+   n = 200;
+   cat = classify(n + 0);
+   cost = cat * 1200;
+   put list(cost);
+   return (cost);
+   classify: procedure(x) returns(fixed bin(15));
+      dcl x fixed bin(15);
+      dcl c fixed bin(15);
+      if x > 5 then
+         if x > 50 then
+            c = 3;
+         else
+            c = 2;
+      else
+         c = 1;
+      return (c);
+   end classify;
+end pricing;
+

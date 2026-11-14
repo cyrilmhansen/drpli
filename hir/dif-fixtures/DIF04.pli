@@ -1,0 +1,26 @@
+production: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   dcl cl fixed bin(15);
+   dcl w fixed bin(15);
+   i = 1;
+   do while (i < 6);
+      cl = stepclass(i + 0);
+      w = cl * 350;
+      put list(w);
+      i = i + 1;
+   end;
+   return (w);
+   stepclass: procedure(s) returns(fixed bin(15));
+      dcl s fixed bin(15);
+      dcl c fixed bin(15);
+      if s > 4 then
+         c = 3;
+      else
+         if s > 3 then
+            c = 2;
+         else
+            c = 1;
+      return (c);
+   end stepclass;
+end production;
+
