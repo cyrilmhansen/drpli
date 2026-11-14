@@ -13761,3 +13761,47 @@ re-measurement of the previous hop's open finding, and it FALSIFIED it.**
 tests; the disposable `tools/_fcctl_*.py` copies NEVER survive a command; **this session cannot
 `handoff_renew` a third time (the chain cap is 12 and renewal 2/12 is used — use
 `handoff_finalize` to close).**
+
+## E2E-54/P2-DIFF-2 Stage-C panel hop (2026-11-13, session 01a1d748 renewal 4/12 of chain 01a1d648)
+
+**accepted — the whole frozen panel is GREEN with the extraction, and `tools/mir_numeric_test.py`
+is a NEW, NON-VACUOUS, additive panel tool (41 checks, rc 0).** Measured this hop, each command its
+OWN rc, logs `build/e54p2diff2/stageC-*.log`: build rc 0; cosmo 25 / console 43 / debug 23 / CF 83 /
+call 86 / mir_aot 32 all **`cmp`-IDENTICAL to the campaign baseline**; suite 29/29 `cmp`-identical
+to `stageB-suite.log`; the six-case runner **rc 0 in BOTH modes, 6/6 BOTH-PASS**, 22 controls, 28
+checks, the only diff vs the Stage-B log being the report stamp + the HEAD line; functional
+211/211; gate **1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5 and `cmp`-IDENTICAL to
+`base-gate.log`**; hir 220 ok with the ONE-line F8 diff; fresh `--build-dir _build-e54p2diff2c`
+rc 0, ZERO `Error`, hist **122**, `pli80c.exe` sha **`172595d5…aca281`** (the exe path in an
+alternate build dir is `…/default/bin/pli80c.exe`, not `…/bin/`); `git diff --exit-code -- hir/`
+and `-- ocaml/` both rc 0; ledger 203/C380.
+
+**accepted — the tool's own non-vacuity was MEASURED, not assumed** (four disposable copies in
+`tools/`, deleted inside the same command; `git status --porcelain -- tools/` shows only the real
+new tool): perturbing the pinned live check count `41563 → 41564` → rc 1 naming the mismatch;
+dropping one pinned `MIRNUM-FAIL` line from the `--corrupt-sub` expectation → rc 1; **appending one
+byte to the EXPECTED pin** → **32 FAILs**, one per pin (the first attempt at this control mutated
+the comparison GUARD instead of the expected value and passed rc 0 — that was a VACUOUS control of
+mine, and the lesson is: a control must perturb the EXPECTATION, never the `if`); pointing the
+baseline at a log that is byte-identical to the current one → rc 1 (`0 line(s) differ`); pointing
+it at a nonexistent file → rc 1 (the tool FAILS rather than skipping a law it cannot measure); and
+the 220 → 221 expectation → rc 1.
+
+**accepted — `mirnumtest` re-measured in the same shape as before:** live rc 0
+`MIR-NUMERIC OK 41563 checks` zero stderr; `--corrupt-sub`/`hull`/`decimal` rc 1 with 3
+stderr-only `MIRNUM-FAIL` lines each and `--corrupt-window` rc 1 with 7; an unknown mode → rc 2.
+The exact stderr byte strings of the four controls are now PINNED in the tool as literals.
+
+**falsified (the campaign's own capability table, by MEASUREMENT, not by reading)** — §P2-DIFF-2.2
+and `docs/architecture/backend-boundary.md` §7-12 both say the intersection is
+`literals ≤ 32767 typed bin(15)`. The native lane refuses it: `x = 20000` and `x = 32767`
+(`dcl x fixed bin(15)`, `build/w15probe/`) BOTH give the 8080 lane rc 0 (128 B; `LXI H` =
+`21` then the immediate pair `20 4E` = 20000 = `0x4E20` little-endian, and `FF 7F` = 32767 =
+`0x7FFF`, then `22` = `SHLD`) and the native lane rc 2, `HIR-E19: … the literal '20000' can reach
+[20000,20000], leaving the declared-precision window [-16383,16383] of FIXED BINARY(15,0)`. The
+INTERSECTION is therefore the MIR window `±(2^(p-1)-1) = ±16383` for `bin(15)`, not the 8080
+`bin15_fits` immediate ceiling `±32767` — the two are DIFFERENT quantities and the table conflated
+them (the same conflation the predecessor found in the `W(15)` vector). `32767` remains correct
+ONLY as the 8080 literal-immediate ceiling (`codegen.ml:1459 bin15_fits`). This bound the
+DIF01/DIF02 programs all along (their literals are 1..6300) and the finding is a DOCUMENTATION
+correction, not a behaviour change: the two programs, the pins and the panel are unaffected.

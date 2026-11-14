@@ -48,96 +48,71 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-2 — **STAGE C IN FLIGHT: the close is COMMITTED `11c7e191`; the `Mir_numeric` extraction is WRITTEN UNCOMMITTED, the build/panel are UNMEASURED**) — CHECKPOINT 2026-11-13 late
+## Next action (E2E-54/P2-DIFF-2 — **STAGE C IS DONE AND MEASURED; THE ONLY REMAINING WORK IS THE DOC CLOSE COMMIT + THE DURABLES**) — CHECKPOINT 2026-11-13 late
 
-**HEAD `11c7e191` (the Stages A+B CLOSE: three explicit paths — RESULTS §P2-DIFF-2 close record,
-PLAN §P2-DIFF-2.8 dashboard CLOSED row + §P2-DIFF-2.10 Stage-B CLOSED note + §P2-DIFF-2.11 Stage-C
-status row, arch §7-11 correction + new §7-12; ZERO code byte).** Session 01a1d734 (renewal 3/12 of
-chain 01a1d648 — renewal IS available; the predecessor believed the chain was capped at 2/12, the
-DURABLE state says 3/12 of 12). ZERO oracle; ledger 203/C380; the pre-extraction tree was
-clean (`git diff --exit-code -- ocaml/` and `-- hir/` both rc 0 at the close).
+**HEAD `97c0fa29`** (the new additive panel tool) on top of `f1f3c1ab` (the extraction) and
+`11c7e191` (the Stages A+B close). Session 01a1d748 (renewal 4/12 of chain 01a1d648; renewal gate
+reported NOT-authorized at the last advisory — the checkpoint is stale, `handoff_renew` refreshes
+it). ZERO oracle; ledger 203/C380.
 
-**ACCEPTED (verified first-hand).**
-1. Recovery: `dune build` rc **0**; HEAD `e881e462` → the close; the RESULTS §P2-DIFF-2 draft was
-   already committed inside `b4d8c33d` (the predecessor's note was stale on that point).
-2. The §7-11 correction's FACTS were verified against the code, not remembered: `pli80c.ml` is
-   `Parser.parse_source → Codegen.rows_of → Codegen.emit_program → Rel80.encode` and
-   `grep -rn "Hir_build|Hir\.program"` over `ocaml/lib` + `ocaml/bin` is **EMPTY** — the historical
-   lane NEVER builds a `Hir.program`; `ocaml/hir/pli80mir.ml` is `Parser → Hir_build.build →
-   Mir_backend`. The 9/10-char console field claim was re-verified against the live report
-   `build/dual-backend/report-20261113T224643Z.json` (D06 61 B, D07 81 B raw regions).
-3. **MEASURED, NEW, BINDING FOR THE PANEL:** `tools/hir_test.py`'s F8 check is
-   `F8_FILES = glob("ocaml/hir/*.ml")` and prints `ok F8 HIR purity …: 11 files clean of 7
-   patterns` — the FILE COUNT IS IN THE LOG LINE. Adding `mir_numeric.ml` + `mirnumtest.ml` to
-   `ocaml/hir/` therefore makes that line read `13 files` and the hir log can NEVER be
-   `cmp`-identical to the baseline while the extraction lives in that directory. The `220 ok` count
-   itself stays UNMOVED (the per-file check emits ONE ok line; the count is `220 ok = 220` lines
-   starting `ok `, verified in the three baseline logs). **The honest Stage-C law is therefore:
-   hir rc 0, 220 ok, and the diff vs the baseline log is EXACTLY the F8 line (`11 files` → `13
-   files`), nothing else.** Any other diff is a STOP-and-attribute.
+**MEASURED THIS HOP (accepted, each own rc, logs `build/e54p2diff2/stageC-*.log`).**
+1. The WHOLE frozen panel §P2-DIFF-2.6 is GREEN with the extraction: build rc 0; cosmo **25**,
+   console **43**, debug **23**, CF **83**, call **86**, mir_aot **32** — every one `cmp`-IDENTICAL
+   to the campaign baseline; suite **29/29** (`cmp`-identical to `stageB-suite.log`); the six-case
+   runner **rc 0 in BOTH default and `--strict`, 6/6 BOTH-PASS**, 22 controls, 28 checks (the only
+   diff vs the Stage-B log: the report stamp + the HEAD line); functional **211/211**; gate
+   **1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5**, `cmp`-IDENTICAL to
+   `base-gate.log`; `git diff --exit-code -- hir/` and `-- ocaml/` both **rc 0**; ledger **203**
+   headers ending **C380**.
+2. Fresh `dune build --build-dir _build-e54p2diff2c` rc 0, ZERO `Error`, hist **122**,
+   `pli80c.exe` sha **`172595d5…aca281`**. (Path law: in an alternate build dir the exe is at
+   `_build-X/default/bin/pli80c.exe`, not `_build-X/bin/`.)
+3. `tools/mir_numeric_test.py` NEW and COMMITTED (`97c0fa29`): **41 checks, rc 0** — the pinned
+   live count `MIR-NUMERIC OK 41563 checks`, the four corrupt controls' EXACT stderr byte strings,
+   the rc-2 usage leg, **all 32 committed `.mir` pins re-measured from the committed fixtures**
+   (×2 fresh, `stdout == pin == -o file`, zero stderr) = the behavioural-equivalence proof of the
+   movement, the hir panel law (rc 0, frozen 220, EXACTLY the one F8 line differs), and the module
+   dependency law. The checks were NEVER added to `hir_test.py` (the 220 is a frozen constant).
+4. **The tool's non-vacuity was MEASURED** with disposable copies (deleted inside the same command;
+   `git status --porcelain -- tools/` clean): a perturbed pinned live count → rc 1; a dropped
+   pinned `MIRNUM-FAIL` line → rc 1; **one extra byte on the EXPECTED pin → 32 FAILs**; a baseline
+   identical to the current log → rc 1 (`0 line(s) differ`); a missing baseline → rc 1 (the law is
+   FAILED, never skipped); 220 → 221 → rc 1. **Method law (my own error, caught): a control must
+   perturb the EXPECTATION, never the `if` guard** — mutating the guard passed rc 0 and proved
+   nothing.
+5. **FALSIFIED by measurement, the campaign's OWN capability table** (§P2-DIFF-2.2 line 6245 and
+   arch §7-12): "literals ≤ 32767 typed `bin(15)`" is NOT the intersection. `x = 20000` and
+   `x = 32767` (`dcl x fixed bin(15)`, disposable `build/w15probe/`, deleted): the 8080 lane rc 0
+   (128 B, `LXI H` + the `20 4E` = `0x4E20` and `FF 7F` = `0x7FFF` immediates), the native lane rc 2
+   `HIR-E19: … the literal '20000' can reach [20000,20000], leaving the declared-precision window
+   **[-16383,16383]** of `FIXED BINARY(15,0)`. `W(15) = ±(2^14-1) = ±16383`; `32767` is only the
+   8080 `bin15_fits` literal-IMMEDIATE ceiling (`codegen.ml:1459`) — a different quantity. The DIF
+   programs (literals 1..6300) and the panel are unaffected: a documentation correction only.
 
-**IN FLIGHT (UNCOMMITTED, UNMEASURED — build NOT yet run).**
-- `ocaml/hir/mir_numeric.ml` NEW — the pure algebra: `type iv = int * int`, `window`, `in_window`,
-  `show_iv`, `decimal_int`, `iv_add`, `iv_sub`, `iv_mul`, `iv_neg`, `iv_hull`. NO dependency at all
-  (not even `Hir`) — the §P2-DIFF-2.4-2 law ("`Hir` … or nothing at all").
-- `ocaml/hir/mir_backend.ml` EDITED — the four top-level definitions replaced by delegation
-  (`let window = Mir_numeric.window` etc.), the `Add`/`Sub`/`Mul` arms by `Mir_numeric.iv_*`, the
-  `Neg` flip by `iv_neg`, the `Some/Some` arm of `join_env` by `Mir_numeric.iv_hull` (the
-  `Map.merge` STAYS — the measured generative-`Map` constraint).
-- `ocaml/hir/dune` EDITED — `mir_numeric` inserted in the `pli80_hir` `(modules …)` list (dune
-  resolves the list, so the new file is in the library) and a NEW `mirnumtest` executable stanza
-  (the `semtest` precedent).
-- `ocaml/hir/mirnumtest.ml` NEW — the independent driver: hand-derived vector tables + a
-  SECOND, independent reference formulation + the exhaustive [-6,6] envelope law + FOUR
-  `--corrupt-*` modes (sub/hull/window/decimal) that must fail LOUDLY. Output contract
-  `MIR-NUMERIC OK <n> checks` on stdout, rc 0 / `MIRNUM-FAIL` lines on stderr, rc 1, ZERO stdout.
+**NEXT VERBATIM (the ONLY unfinished work — the doc close).**
+(1) `git status --porcelain` shows the doc close UNCOMMITTED: `spec/lab-evidence/e2e54/RESULTS.md`
+(§P2-DIFF-2.7 now carries the FULL Stage-C finding, the §P2-DIFF-2.8 panel rows for hir + the new
+tool, the §P2-DIFF-2.11 commit chain "STAGE C CLOSED", the section heading now A+B+C) and
+`spec/lab-evidence/e2e54/PLAN.md` (the §P2-DIFF-2.2 CORRECTION block, §P2-DIFF-2.11 rewritten
+CLOSED, the §P2-DIFF-2.8 dashboard row STAGE C CLOSED). **`docs/architecture/backend-boundary.md`
+§7-12 is NOT yet edited** — it still asserts `literals ≤ 32767` (line 627) and has no Stage-C
+paragraph: append the Stage-C paragraph (the movement, the nine exports, the import-NOTHING law,
+the generative-`Map` deviation, the equivalence proof, the disclosed one-line F8 diff, the
+NOT-fixed `decimal_int ""` defect) and correct that 32767 clause to the `±16383` intersection.
+(2) Verify with `grep -n "32767" docs/architecture/backend-boundary.md` that only the corrected
+form (or a quoted original) survives. (3) ONE explicit-path commit for the close (RESULTS + PLAN +
+arch), message naming `f1f3c1ab`/`97c0fa29` and the measured panel. (4) Re-run ONLY `python3
+tools/mir_numeric_test.py` (rc 0, 41) after the doc commit — no code byte changes, so the panel
+cannot move; if anything else is re-run, every log must stay `cmp`-identical. (5) Durables + the
+managed-block refresh (`handoff_renew` if authorized, else `handoff_finalize`) + STOP: the campaign
+ENDS at the Stage-C close; every further phase needs a NEW operator brief.
 
-**MEASURED SINCE THAT CHECKPOINT (accepted, own rc).**
-- `dune build` rc 0. `mirnumtest.exe` LIVE **rc 0 — `MIR-NUMERIC OK 41563 checks`** (zero stderr);
-  all FOUR corrupt modes rc **1** with stderr-only `MIRNUM-FAIL` lines and ZERO stdout
-  (sub/hull/decimal 3 lines, window 7) — the driver is NON-VACUOUS.
-- **The driver's own hand table was falsified FOUR times by the module (the module was right
-  every time, invariant 3 holds):** `sub 6` `(-1,1)-(1,1) = (-2,0)` not `(0,0)`; `W(1) = (0,0)`
-  (±(2^0-1) = 0), not `(-1,0)`; `W(15) = (-16383,16383)` = ±(2^14-1), **NOT ±32767** — the
-  bin(15) window is 16383, the 32767 figure in the campaign prose is the bin(15) LITERAL
-  CEILING `2^15-1`, a different quantity (worth re-checking anywhere it is quoted); my invented
-  "the sum interval contains the operands" law is simply FALSE.
-- **MEASURED PRE-EXISTING DEFECT (latent, NOT introduced, NOT fixed — invariant 3):**
-  `Mir_numeric.decimal_int ""` raises `Invalid_argument("index out of bounds")` — `s.[0]` is
-  evaluated whenever the length is not 1. This is byte-for-byte the code `mir_backend` held
-  before the extraction; the HIR never carries an empty literal text, so the compiler cannot
-  reach it. The empty-string vector is EXCLUDED from the driver with a comment naming the
-  reason; a follow-up may pre-register a fix.
-- `tools/hir_test.py` rc **0**, **220 ok** (the frozen count UNMOVED), and the FULL log diff vs
-  `build/e54p2diff2/base-hir.log` is **EXACTLY ONE LINE** — the F8 purity line
-  `11 files` → `13 files` (the glob counts `ocaml/hir/*.ml`; the new module + driver are the two
-  extra files and both are CLEAN of all 7 patterns). `tools/mir_aot_test.py` rc **0** (32 checks,
-  the pins re-measured and the objects EXECUTED) — the behavioural equivalence of the extraction
-  is already proven at the strongest level.
+**Standing:** ZERO oracle (`PLI.COM` never ran); no golden/claims/pin byte; `handoff.config.json`
+NEVER staged; no push; explicit paths; rc DIRECT; `LC_ALL=C`; never batch build with tests;
+scratch `build/*` never committed; disposable `tools/_*.py` copies never survive a command; timeouts
+60/120/900; NEVER hand-edit a managed checkpoint block.
 
-**NEXT VERBATIM (the remaining Stage-C work).**
-
-(1) `cd ocaml && eval "$(opam env)" && dune build` (OWN rc; fix COMPILE defects only).
-(2) `./_build/default/hir/mirnumtest.exe` + the four corrupt modes (OWN rc each; live 0, every
-    corrupt 1 with stderr-only `MIRNUM-FAIL`).
-(3) NEW `tools/mir_numeric_test.py` (the panel tool; NOT added to `hir_test.py`): the mirnumtest
-    live + 4 corrupt legs; the FROZEN-PIN EQUIVALENCE (every committed `.mir` — `hir/mir-expected/*`,
-    `hir/mir-cf-expected/*`, `hir/mir-call-expected/*`, `hir/dif-expected/*` — re-measured from the
-    committed fixtures and `cmp`-equal to the pin, which is the REAL behavioural-equivalence proof);
-    and the `hir_test` panel law (rc 0, 220 `ok ` lines, the diff vs `build/e54p2diff2/base-hir.log`
-    is EXACTLY the F8 line).
-(4) The full frozen panel §P2-DIFF-2.6 each OWN rc + `pli80c.exe` sha `172595d5…aca281` from a
-    fresh build dir + `git diff --exit-code -- hir/`.
-(5) The Stage-C commit (explicit paths: `ocaml/hir/mir_numeric.ml`, `mir_backend.ml`, `dune`,
-    `mirnumtest.ml`, `tools/mir_numeric_test.py`, the PLAN §P2-DIFF-2.11 close, the RESULTS
-    §P2-DIFF-2.7 finding + the panel's hir row, the arch §7-12 Stage-C note, `LEARNINGS.md`).
-(6) Durables + the managed-block refresh + `/handoff finalize` or `handoff_renew`.
-
-**Standing:** ZERO oracle; no golden/claims/pin change (the extraction may NOT move any pin —
-`git diff --exit-code -- hir/` must be 0 at the END); `handoff.config.json` NEVER staged; no push;
-explicit paths; rc DIRECT; `LC_ALL=C`; never batch build with tests; scratch `build/*` never
-committed; timeouts 60/120/900; NEVER hand-edit a managed block.
-
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-2 — **STAGE C IN FLIGHT — the extraction is now COMMITTED**)
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-2 — **CLOSE IN FLIGHT: the RESULTS §P2-DIFF-2 draft is WRITTEN UNCOMMITTED; the dashboard row, the arch §7-11 correction and STAGE C remain**) — CHECKPOINT 2026-11-13 late
 
 **HEAD `d341fa82` (Stage B durables) + ONE uncommitted tracked file: `spec/lab-evidence/e2e54/RESULTS.md`**
@@ -5138,19 +5113,55 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 810
-checkpoint-id: g810-a70f67326aec
-checkpoint-kind: manual
+checkpoint-generation: 813
+checkpoint-id: g813-2fb7c31c1ceb
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-13T23:37:58.149Z
+checkpointed: 2026-11-14T00:12:55.024Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a5ac2682cee7ac21371bea77a58e4877035494e377520bbe034e9c44687f5305
-source-handoff: de2fdd3e9f0795f6c8ad46720073027f3c4798068479ff177b90439fec22cc96
-source-learnings: d05fdb8306f8e53a529c4754075583ea37e44967871846cd9626f454238f6ba3
+source-progress: f9674a779d5c86b8c9ab60f1a5abf0fb11b88bbfdc93964bf50e524404793230
+source-handoff: 9d866309783cc2e40368d4411d38b813d5be256a1fe1755f129b6341fd132aff
+source-learnings: 41fb1636384b187f902ecff2b7be3191279dea8f34cd2f7ce6f8a7120b10b06c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (… CLOSE
+next-action: (… STAGE C IN FLIGHT …)`:
+(1) the rest of the frozen panel §P2-DIFF-2.6, each its OWN rc (cosmo 25, console 43, debug 23,
+CF 83, call 86, suite 29, runner 6/6 BOTH-PASS default + `--strict`, gate 1328/1328-190/190-9/9-149
+rows 0/0-census 16/0/25/0-prose 5 → `build/e54p2diff2/stageC-*.log`, functional 211/211); (2) a
+fresh `--build-dir _build-e54p2diff2c` with `pli80c.exe` sha `172595d5…aca281` (the extraction
+touches ONLY `ocaml/hir/`); (3) `git diff --exit-code -- hir/` MUST be 0 — the pins are the
+equivalence proof; (4) ledger 203/C380; (5) NEW `tools/mir_numeric_test.py` (the additive panel
+tool; **NEVER add checks to `hir_test.py` — the 220 is a frozen panel constant**); (6) the Stage-C
+CLOSE — RESULTS §P2-DIFF-2.7 (OPEN, no result claimed), PLAN §P2-DIFF-2.11 + the §P2-DIFF-2.8
+dashboard row, arch §7-12. **MEASURED THIS HOP (accepted):** build rc 0; `mirnumtest.exe` LIVE
+rc **0** `MIR-NUMERIC OK 41563 checks` zero stderr; all FOUR `--corrupt-*` modes rc **1**
+stderr-only, zero stdout; `hir_test` rc **0** **220 ok** with the full log differing from
+`build/e54p2diff2/base-hir.log` in **EXACTLY ONE LINE** — the F8 purity glob `11 files` → `13 files`
+(the check embeds the hir FILE COUNT, so the byte-identical-log law and the "extraction lives in
+`ocaml/hir/`" law are in DIRECT CONFLICT; resolved by DISCLOSING the one-line diff, never by hiding
+the new unit in a subdirectory to evade the audit); `mir_aot_test` rc **0** 32 checks (all pins
+re-measured and executed) — the behavioural equivalence is PROVEN. **FALSIFIED by my own driver,
+four times, the module right each time:** `W(15) = ±16383 = 2^14-1` — **NOT** the `32767` figure
+campaign prose quotes, which is the `bin(15)` LITERAL ceiling `2^15-1`, a DIFFERENT quantity
+(re-check wherever it is quoted); `W(1) = (0,0)`; `sub 6 = (-2,0)`; and the invented "the sum
+interval contains its operands" law is FALSE. **PRE-EXISTING latent defect FOUND, NOT fixed**
+(Stage-C invariant 3): `Mir_numeric.decimal_int` raises `Invalid_argument` on the empty string
+(`s.[0]` evaluated when the length is not 1) — byte-for-byte the code `mir_backend` held before the
+extraction; unreachable from the compiler (no empty HIR literal text); any fix needs its own
+PROTOCOL #1 pre-registration. Recovery order: (1) `git rev-parse HEAD` + `git status
+--porcelain` (only the operator `handoff.config.json` may be dirty, never staged); (2) `/handoff
+verify`; (3) read the PROGRESS live heading + LEARNINGS § "close + Stage-C hop"; (4) PLAN
+§P2-DIFF-2 (.4 the Stage-C invariants and STOP condition, .6 the frozen panel, .11 the status row)
+and RESULTS §P2-DIFF-2.7 (OPEN). Standing: ZERO oracle (`PLI.COM` never ran); no golden/claims/pin
+byte; `handoff.config.json` NEVER staged; no push; explicit paths; rc DIRECT; `LC_ALL=C`; never
+batch build with tests; disposable `tools/_*.py` copies never survive a command.
+
+SUPERSEDED-BY-ABOVE: 9-e54p2diff2-close (2026-11-13, session 01a1d725 renewal 2/12 of chain 01a1d648 — the LAST renewal
+
+this chain may use; ZERO oracle; ledger 203/C380; HEAD now `b4d8c33d`): **E2E-54/P2-DIFF-2 CLOSE IN
+FLIGHT — the RESULTS `## §P2-DIFF-2` DRAFT is committed; the dashboard row, the arch §7-11
+correction and STAGE C remain.** The ONLY active next action is PROGRESS `## Next action (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
 Stage-B CLOSED note + `docs/architecture/backend-boundary.md` §7-11 correction (the §P2-DIFF-2.5
 wording: the parser and bind are the shared foundations; `pli80c` NEVER builds `Hir.program`; the
@@ -6472,9 +6483,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d734-9af7-7538-80fd-6433d3ed6946
-readiness-at: 2026-11-13T23:37:58.328Z
-readiness-checkpoint: g810-a70f67326aec
 <!-- guard:end checkpoint -->
 
 ## Blockers
