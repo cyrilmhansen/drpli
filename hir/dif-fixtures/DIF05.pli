@@ -1,0 +1,24 @@
+billing: procedure returns(fixed bin(15));
+   dcl q fixed bin(15);
+   dcl bill fixed bin(15);
+   q = 3;
+   bill = capped_units(q + 0) * 500;
+   put list(bill);
+   q = 12;
+   bill = capped_units(q + 0) * 500;
+   put list(bill);
+   q = 30;
+   bill = capped_units(q + 0) * 500;
+   put list(bill);
+   return (bill);
+   capped_units: procedure(x) returns(fixed bin(15));
+      dcl x fixed bin(15);
+      dcl c fixed bin(15);
+      if x > 20 then
+         c = 20;
+      else
+         c = x;
+      return (c);
+   end capped_units;
+end billing;
+

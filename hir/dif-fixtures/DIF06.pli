@@ -1,0 +1,21 @@
+batch: procedure returns(fixed bin(15));
+   dcl i fixed bin(15);
+   dcl v fixed bin(15);
+   i = 1;
+   do while (i < 5);
+      v = limited_step(i + 0) * 700;
+      put list(v);
+      i = i + 1;
+   end;
+   return (i);
+   limited_step: procedure(x) returns(fixed bin(15));
+      dcl x fixed bin(15);
+      dcl c fixed bin(15);
+      if x > 12 then
+         c = 12;
+      else
+         c = x;
+      return (c);
+   end limited_step;
+end batch;
+
