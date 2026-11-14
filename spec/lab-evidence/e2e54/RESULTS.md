@@ -2486,3 +2486,65 @@ refine-arm` control, the 5 re-pinned tables) → Stage C frozen panel (all 14 it
 `f596342b` (Stage D: the D12/D13 pins, the CASES, the EXPORTS) → Stage D frozen panel (13/13
 `cmp`-identical except the two expected mir_numeric lines and the 12/12 runner). **STOP after P2-DIFF-5 is measured and
 closed; any new phase needs a separate operator brief (§5.11).**
+
+## §P1-m4 — One conditional early RETURN(expr) in the native MIR backend — OPEN (Stage A measured 2026-11-14/15)
+
+Pre-registered as PLAN §P1-m4 (PROTOCOL #1: committed `4f3a9188` **BEFORE** any fixture,
+probe, runner or compiler byte). Mission instance `drpli-p1-m4-early-return`; start HEAD
+`8869644b`. ZERO oracle throughout: native-backend engineering evidence.
+
+### P1-m4.SA Stage A — the targeted limitation, MEASURED
+
+Baseline re-verification at preflight (each own direct rc): `tools/corpus_census.py --verify`
+rc 0, counts IDENTICAL to the committed snapshot — **16/0/25/0** on the armed binary (md5
+`d5e89db2` = snapshot `binary_md5`; sha256 `172595d5…aca281`). The lost Stage-0 report's
+`16/0/25/3` is NOT reproducible: the census 4-tuple counts only the 41 AUTHENTIC programs and
+the only `3` in the output is `DR_REJECTED`/`NO_ORACLE` (CALL/INVERT/MAININVT), excluded by
+construction. Adjudicated a reporting artifact; the campaign baseline is the MEASURED
+`16/0/25/0`; no snapshot moved.
+
+**Fixture-shape amendment (authorized by §P1-m4.4 "the driver shape is fixed in Stage A"):**
+the first fixture draft drove the candidates with `r = sel(k) + 0;` and `pli80mir` refused
+both candidates at **line 3** with the PRE-EXISTING, unrelated law
+`HIR-E18: a value-position call is outside the native subset` — the admitted value-call shape
+is the BARE RHS (CALLN1 idiom `y = pv(1);`, measured `ocaml/hir/mir_backend.ml:572`). ER01/ER02
+drivers were amended to bare `r = sel(k);` and ERN7's `40000` (which refuses EARLIER in the
+HIR channel, `HIR-E08: outside the P0 bin(15) literal domain`) was amended to `1000` —
+outside `W(3)=[-999,999]` but inside the HIR literal domain. Both amendments committed with
+this record; the FIRST-draft refusals above are recorded as measured, not deleted.
+
+**H1 CONFIRMED (measured, `pli80mir --export <entry>`, ×1, logs `build/e54p1m4/stageA/`):**
+every refusal rc 2, ZERO stdout, NO artifact:
+
+| Fixture | Measured pre-change refusal |
+|---|---|
+| ER01 (candidate A) | `HIR-E18 line 13` — "a RETURN nested inside a conditional or loop arm…" **at the early-RETURN line** |
+| ER02 (candidate B) | `HIR-E18 line 11` — same law, at the early-RETURN line |
+| ERN1 (loop-nested) | `HIR-E18 line 6` — same law |
+| ERN2 (both-arm) | `HIR-E18 line 4` — refuses EARLIER: "the body must end with RETURN(expr); … (found 'if')" |
+| ERN3 (no final top-level) | `HIR-E18 line 6` — same earlier law (found 'assign') |
+| ERN4 (two in one arm) | `HIR-E18 line 5` — the nested-RETURN law |
+| ERN5 (early void) | `HIR-E18 line 5` — the nested-RETURN law |
+| ERN6 (nested If) | `HIR-E18 line 6` — the nested-RETURN law |
+| ERN7 (out-of-window) | `HIR-E18 line 5` — the nested-RETURN law (post-change expectation E19 rule 5, §P1-m4.6) |
+| ERN8 (return not final) | `HIR-E18 line 5` — the nested-RETURN law |
+
+**8080 lane (observation only, NO pins):** ER01 `pli80c` rc 0 → 512 B (code=131 data=10,
+sha `389f9721…`); ER02 rc 0 → 384 B (code=103 data=8, sha `f9671a4d…`). The historical path
+ADMENTS both candidate shapes; the 8080 sources are NOT byte-pinned this campaign (gates
+§P1-m4.10-3 keep ALL 1328 existing goldens UNMOVED).
+
+**HIR expressibility (no `hir_build` amendment needed):** `pli80hir` rc 0 for both candidates;
+the ER01 dump shows `if [line 12] … then: return value [line 13]` inside `PROC 1 sel` followed
+by the final top-level `return value` — exactly the §P1-m4.3 shape. The P1-m4 STOP list's HIR
+gap did NOT fire.
+
+Recorded Stage-A facts for Stage B: the final-statement law fires BEFORE the nested scan for
+ERN2/ERN3 — those two negatives will keep refusing by that EXISTING law post-change (their
+§P1-m4.6 "E18 BY NAME" expectation is satisfied by the existing message; pins are the
+MEASURED text). `nfuncs` is owed at Stage B (measured from `mir2o` stderr, never derived).
+
+**NEXT: §P1-m4.12 step 2 (Stage B).** First the §P1-m4.5 measured-first probe of `mir2o`
+acceptance for instructions/labels AFTER an unconditional `ret` (hand-written module under
+`build/`, never a pin until reviewed); then the `mir_backend.ml` §P1-m4.3 change; then the
+measured-first pins.

@@ -2,7 +2,7 @@ erwide: procedure returns(fixed bin(3));
    dcl x fixed bin(3);
    get list(x);
    if x > 5 then
-      return (40000);
+      return (1000);
    return (4);
 end erwide;
 

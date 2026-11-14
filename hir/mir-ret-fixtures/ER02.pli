@@ -1,8 +1,8 @@
 earlyb: procedure returns(fixed bin(15));
    dcl r fixed bin(15);
-   r = sel(4) + 0;
+   r = sel(4);
    put list(r);
-   r = sel(12) + 0;
+   r = sel(12);
    put list(r);
    return (r);
    sel: procedure(x) returns(fixed bin(15));

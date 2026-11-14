@@ -1,10 +1,10 @@
 earlya: procedure returns(fixed bin(15));
    dcl r fixed bin(15);
-   r = sel(2) + 0;
+   r = sel(2);
    put list(r);
-   r = sel(7) + 0;
+   r = sel(7);
    put list(r);
-   r = sel(5) + 0;
+   r = sel(5);
    put list(r);
    return (r);
    sel: procedure(x) returns(fixed bin(15));
