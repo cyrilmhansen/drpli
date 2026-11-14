@@ -5704,16 +5704,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 848
-checkpoint-id: g848-772043e7b602
+checkpoint-generation: 849
+checkpoint-id: g849-46aadba42ac0
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T11:58:04.500Z
+checkpointed: 2026-11-14T12:03:12.588Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 2e1567e3190ecb84fc648b340bc0bf2fcda185747640d76a11d3c34d8922f76f
-source-handoff: 97ce4d4fa06e4c20c2e026be9d010eda38801844c9151ba50797ecd77bb1b1cd
+source-handoff: bbeb10a009c551f1dbd9010ea7432f009a30788cd31fa59d43349532dab6eddb
 source-learnings: 7c7f2a7109f9178e0e163e1795fba543b39b53c704d360a2ecc0aaef705fba64
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
@@ -7039,8 +7039,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1d9db-421d-700a-9d27-3c092f506746
-readiness-at: 2026-11-14T11:58:04.666Z
-readiness-checkpoint: g848-772043e7b602
+readiness-at: 2026-11-14T12:03:12.813Z
+readiness-checkpoint: g849-46aadba42ac0
 <!-- guard:end checkpoint -->
 
 ## Blockers
