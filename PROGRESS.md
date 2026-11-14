@@ -5115,55 +5115,19 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 813
-checkpoint-id: g813-2fb7c31c1ceb
-checkpoint-kind: auto
+checkpoint-generation: 814
+checkpoint-id: g814-80c4b840f1f9
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-14T00:12:55.024Z
+checkpointed: 2026-11-14T00:15:40.164Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f9674a779d5c86b8c9ab60f1a5abf0fb11b88bbfdc93964bf50e524404793230
-source-handoff: 9d866309783cc2e40368d4411d38b813d5be256a1fe1755f129b6341fd132aff
+source-progress: e353a86bf8de16e84c4d2b2f4df7d54a535fc3cd39a3ba71883e473841a0bd58
+source-handoff: c4d156d8bf070c170788dda0f3dc38f4ff2f2473145904f65910b3806e9d162c
 source-learnings: 41fb1636384b187f902ecff2b7be3191279dea8f34cd2f7ce6f8a7120b10b06c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: (… STAGE C IN FLIGHT …)`:
-(1) the rest of the frozen panel §P2-DIFF-2.6, each its OWN rc (cosmo 25, console 43, debug 23,
-CF 83, call 86, suite 29, runner 6/6 BOTH-PASS default + `--strict`, gate 1328/1328-190/190-9/9-149
-rows 0/0-census 16/0/25/0-prose 5 → `build/e54p2diff2/stageC-*.log`, functional 211/211); (2) a
-fresh `--build-dir _build-e54p2diff2c` with `pli80c.exe` sha `172595d5…aca281` (the extraction
-touches ONLY `ocaml/hir/`); (3) `git diff --exit-code -- hir/` MUST be 0 — the pins are the
-equivalence proof; (4) ledger 203/C380; (5) NEW `tools/mir_numeric_test.py` (the additive panel
-tool; **NEVER add checks to `hir_test.py` — the 220 is a frozen panel constant**); (6) the Stage-C
-CLOSE — RESULTS §P2-DIFF-2.7 (OPEN, no result claimed), PLAN §P2-DIFF-2.11 + the §P2-DIFF-2.8
-dashboard row, arch §7-12. **MEASURED THIS HOP (accepted):** build rc 0; `mirnumtest.exe` LIVE
-rc **0** `MIR-NUMERIC OK 41563 checks` zero stderr; all FOUR `--corrupt-*` modes rc **1**
-stderr-only, zero stdout; `hir_test` rc **0** **220 ok** with the full log differing from
-`build/e54p2diff2/base-hir.log` in **EXACTLY ONE LINE** — the F8 purity glob `11 files` → `13 files`
-(the check embeds the hir FILE COUNT, so the byte-identical-log law and the "extraction lives in
-`ocaml/hir/`" law are in DIRECT CONFLICT; resolved by DISCLOSING the one-line diff, never by hiding
-the new unit in a subdirectory to evade the audit); `mir_aot_test` rc **0** 32 checks (all pins
-re-measured and executed) — the behavioural equivalence is PROVEN. **FALSIFIED by my own driver,
-four times, the module right each time:** `W(15) = ±16383 = 2^14-1` — **NOT** the `32767` figure
-campaign prose quotes, which is the `bin(15)` LITERAL ceiling `2^15-1`, a DIFFERENT quantity
-(re-check wherever it is quoted); `W(1) = (0,0)`; `sub 6 = (-2,0)`; and the invented "the sum
-interval contains its operands" law is FALSE. **PRE-EXISTING latent defect FOUND, NOT fixed**
-(Stage-C invariant 3): `Mir_numeric.decimal_int` raises `Invalid_argument` on the empty string
-(`s.[0]` evaluated when the length is not 1) — byte-for-byte the code `mir_backend` held before the
-extraction; unreachable from the compiler (no empty HIR literal text); any fix needs its own
-PROTOCOL #1 pre-registration. Recovery order: (1) `git rev-parse HEAD` + `git status
---porcelain` (only the operator `handoff.config.json` may be dirty, never staged); (2) `/handoff
-verify`; (3) read the PROGRESS live heading + LEARNINGS § "close + Stage-C hop"; (4) PLAN
-§P2-DIFF-2 (.4 the Stage-C invariants and STOP condition, .6 the frozen panel, .11 the status row)
-and RESULTS §P2-DIFF-2.7 (OPEN). Standing: ZERO oracle (`PLI.COM` never ran); no golden/claims/pin
-byte; `handoff.config.json` NEVER staged; no push; explicit paths; rc DIRECT; `LC_ALL=C`; never
-batch build with tests; disposable `tools/_*.py` copies never survive a command.
-
-SUPERSEDED-BY-ABOVE: 9-e54p2diff2-close (2026-11-13, session 01a1d725 renewal 2/12 of chain 01a1d648 — the LAST renewal
-
-this chain may use; ZERO oracle; ledger 203/C380; HEAD now `b4d8c33d`): **E2E-54/P2-DIFF-2 CLOSE IN
-FLIGHT — the RESULTS `## §P2-DIFF-2` DRAFT is committed; the dashboard row, the arch §7-11
-correction and STAGE C remain.** The ONLY active next action is PROGRESS `## Next action (… CLOSE
+next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
 Stage-B CLOSED note + `docs/architecture/backend-boundary.md` §7-11 correction (the §P2-DIFF-2.5
 wording: the parser and bind are the shared foundations; `pli80c` NEVER builds `Hir.program`; the
@@ -6485,6 +6449,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1d748-68e3-7538-80fd-64373ea6916d
+readiness-at: 2026-11-14T00:15:40.307Z
+readiness-checkpoint: g814-80c4b840f1f9
 <!-- guard:end checkpoint -->
 
 ## Blockers
