@@ -739,9 +739,12 @@ let compile ~(profile : Target.profile) ~(export : string)
        HOME-PASS value cells give the callee independent copies, so the caller
        env is never invalidated (I3); callee console effects stay observable
        in execution order. The result rides a fresh module-wide caller-local
-       register r<k> (§P1-m3.2-7) and carries the callee's FULL declared
-       result window W(q) — no call-site narrowing. A Call_e in ANY other
-       position keeps the pre-existing E18 refusal inside [lower] (CALLN9). *)
+       register r<k> (§P1-m3.2-7) and carries the callee's result interval
+       proved by the return-summary analysis — the call-site SPECIALIZED
+       summary when it is Known and inside W(q), else the context-independent
+       summary under the same guard, else the FULL declared result window
+       W(q) (E2E-54/P2-DIFF-4). A Call_e in ANY other position keeps the
+       pre-existing E18 refusal inside [lower] (CALLN9). *)
     let lower_call_e ~line env (cpid : int) (args : Hir.actual list)
       : string * (int * int) =
       let callee =
@@ -800,15 +803,20 @@ let compile ~(profile : Target.profile) ~(export : string)
             else
               match a.Hir.af with
               | Hir.A_value x ->
-                  let rv, _iv = lower env x in
+                  (* the ONE lowering of this actual; its proven interval is
+                     kept (E2E-54/P2-DIFF-4) for the call-site specialization —
+                     no instruction below depends on it. *)
+                  let rv, iv = lower env x in
                   incr hv_n;
                   let cell = "hv" ^ string_of_int !hv_n in
                   hv_cells := cell :: !hv_cells;
                   emit ~line "mov i64:(%s), %s" cell rv;
-                  cell
+                  (cell, iv)
               | Hir.A_reference _ -> assert false)
           args callee.Hir.params
       in
+      let arg_cells = List.map fst operand_regs in
+      let arg_ivals = List.map snd operand_regs in
       if not (List.mem cpid !pc_uses) then pc_uses := cpid :: !pc_uses;
       incr r_n;
       let rr = "r" ^ string_of_int !r_n in
@@ -817,19 +825,32 @@ let compile ~(profile : Target.profile) ~(export : string)
         emit ~line "call pc%d, pli80_%s, %s" cpid ckey rr
       else
         emit ~line "call pc%d, pli80_%s, %s, %s" cpid ckey rr
-          (String.concat ", " operand_regs);
-      (* E2E-54/P2-DIFF-3 §P2-DIFF-3: the caller's interval for the result is
-         the callee's FULL declared window W(q) — the exact pre-existing
-         behaviour — UNLESS the sound summary analysis proves a smaller one AND
-         that interval sits inside the declared window (the defensive
-         re-check of the actual_return_values <= inferred <= declared_window
-         invariant). The summary is analysis-only: no instruction emitted
-         above depends on it, so the emission bytes are unchanged. *)
+          (String.concat ", " arg_cells);
+      (* E2E-54/P2-DIFF-3 §P2-DIFF-3 + P2-DIFF-4 §P2-DIFF-4.2: the caller's
+         interval for the result is the callee's FULL declared window W(q) —
+         the exact pre-existing behaviour — UNLESS the sound summary analysis
+         proves a smaller one AND that interval sits inside the declared
+         window (the defensive re-check of the actual_return_values <=
+         inferred <= declared_window invariant). The three levels are
+         SPEC (the call-site specialization, seeded with the PROVEN actual
+         intervals) -> context-independent -> full; the §P2-DIFF-4.3
+         monotonicity lemma makes every narrowing sound, and the guard is
+         applied to BOTH Known levels. The summaries are analysis-only: no
+         instruction emitted above depends on them, so the emission bytes are
+         unchanged. *)
       let full = window cq in
+      let specialized =
+        Mir_return_summary.summary_of_actuals ~maxp prog cpid
+          ~params:callee.Hir.params
+          ~actuals:arg_ivals
+      in
       let iv =
-        match List.assoc_opt cpid summaries with
-        | Some (Mir_return_summary.Known s) when in_window full s -> s
-        | _ -> full
+        match specialized with
+        | Mir_return_summary.Known s when in_window full s -> s
+        | _ -> (
+            match List.assoc_opt cpid summaries with
+            | Some (Mir_return_summary.Known s) when in_window full s -> s
+            | _ -> full)
       in
       (rr, iv)
     in
