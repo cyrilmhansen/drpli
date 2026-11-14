@@ -2415,3 +2415,74 @@ replacement sources before any compilation) → `d1885505` (the module extension
 `001822bb` (Stage C: the real-fixture measurement and the tool) → `2742f87f` (the g849 block) →
 `42dc3086` (Stage D: the pins, D10/D11, the EXPORTS). **STOP: any extension needs a NEW
 operator brief (§P2-DIFF-4.10).**
+
+## §P2-DIFF-5 — Branch-condition refinement of the return-summary If join: the `min` shape, the infeasible arm, and the two programs that needed it — CLOSED 2026-11-14 (Stages A–D; sessions 01a1db62→01a1dbbb→this successor)
+
+**HYPOTHESIS AND MEASURED OUTCOME.** H1 (the refinement is never wider): inside the `If` arm of the
+`Mir_return_summary` walk, a definite `Var op Const` (Lt/Le/Gt/Ge) with the `Var` on the left,
+`Eq` only on the then side, and the `Const` in `decimal_int` narrows the arm's entry to the
+intersection with the condition; the empty intersection ⇒ the arm is **PROVABLY INFEASIBLE and
+EXCLUDED** from the join (the one-arm join is that arm). MEASURED: the §5.6 disclosure list plus the
+`classifier-narrow-precision` amendment (item 17) — **20 moved literals** — all matched the
+hand-derived values, and every summary is a subset of the branch-insensitive result; the
+`[−16383,16383]`→`[−16383,20]`/`[−16383,12]` hulls and the `Ne`/`Var op Var` conservative-verbatim
+paths are the same law. H2 (the admission): DIF07 (`scaling`/`capped`, `q ∈ {3,7,12}`, ×1000) and
+DIF08 (`batched`/`limited`, the loop IV `1..4`, ×1500) refuse TODAY with the EXACT pre-registered
+`HIR-E19` (Stage A measured at line 7 / line 8 with `[3,20]`/`[1000,1000]` and `[1,12]`/`[1500,1500]`)
+and are admitted AFTER the refinement with the same callee and the same pre-registered vectors —
+**MEASURED** (the post-change `.mir` are 1865/1177 B, stderr empty; the runner 12/12 BOTH-PASS).
+H3 (the callee obligation is never weakened): the refinement never weakens the callee's own proof —
+`p_h3` (`if x > 20 then c = 16383 else c = x * 1000`) is `Unknown` over the full window, `Known` at
+the small/large points; the BACKEND-side H3 (the callee still lowered over `W(p)`) is untouched
+`mir_backend.ml` and the unchanged 190-negative panel. The core invariant `actual ⊆ specialized ⊆
+context_independent ⊆ W(q)` held at every seed; no `Known→Unknown` at the same seed; the refinement
+is monotone in the seed.
+
+**THE DIFFERENTIAL EVIDENCE (Stage D).** The runner (12 cases, `f596342b`) is **12/12 BOTH-PASS in
+BOTH modes**, rc 0, 57 checks, **45/45 comparator controls REJECTED**: D12 DIF07 measured the
+pre-registered vector `[3000, 7000, 12000]` on the CP/M 8080 lane AND the native cosmo-tiny lane;
+D13 DIF08 measured `[1500, 3000, 4500, 6000]` on both. The measured-first pins
+`hir/dif-expected/DIF07.mir` (1865 B, `072b59ad…c43`) and `DIF08.mir` (1177 B, `75051416…49e`)
+were produced x2 fresh, deterministic, `stdout == -o`, ZERO stderr; `nfuncs` 2 and 2 MEASURED from
+mir2o's own stderr (2552/2352 bytes).
+
+**THE PANEL (after Stage C and after Stage D).** The Stage-C and Stage-D re-runs of the full frozen
+panel are **`cmp`-IDENTICAL** to the P2-DIFF-4 baseline log: gate 1328/1328-190/190-9/9-149 rows
+0/0-census 16/0/25/0-prose 5; hir 220; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; call 86;
+suite 29/29; functional-hostile 211; `mir_return_summary` 15; `mir_numeric` **47** (the disclosed
+45→47: the two new pins, per-pin count); `mirsumtest` **172** (the disclosed 116→172: the §5.8
+table); the runner **12/12 BOTH-PASS** in BOTH modes, 45/45 controls REJECTED. Fresh builds rc 0,
+ZERO `Error`, `pli80c.exe` `172595d5…aca281` unchanged; `git diff --exit-code -- ocaml/`/`-- hir/`/
+`-- tools/`/`-- spec/` rc 0; ledger 203/C380.
+
+**FALSIFICATIONS (this campaign).** (1) The parent's `spec-min-across-cap` reasoning ("the else arm
+is infeasible → `[20,20]`") was WRONG: the actual `[3,30]` is a NON-POINT interval, both arms
+feasible (the then `[21,30]`, the else `[3,20]`), the hull is `[3,20]` — the corrected law is
+PRE-REGISTERED in §5.6-5 and the MEASURED value matches it. (2) The §5.6 disclosure list was
+INCOMPLETE (missed `classifier-narrow-precision`); the PRE-EXECUTION amendment (item 17) records
+the correction — the same §5.2 law, no new code. (3) My own hand derivation of the `p_reread`
+monotone chain at the full window was wrong BEFORE the run: the full-window reread body escapes
+`W(15)` (so its summary is `Unknown`), the chain is re-registered at `[-100,100]` and the
+containment must use the ACTUAL interval, never the arm's refined one. (4) The `--corrupt-*`
+tables were not all disclosed as movers in the pre-registration: the §5.6/§5.8 list covered only
+the 4 tables; the Stage-C re-pin moved them to **5** (widen 12 / narrow 12 / unknown 34 /
+spec-widen 36 / spec-narrow 36 / spec-unknown 14 / refine-arm 32). (5) The `--corrupt-unknown`
+and `--corrupt-spec-unknown` tables (34, 14 lines) are `cmp`-IDENTICAL; the 4 `ctx`/`subset`
+items (8, 12, 13, 15, 16) are containment checks that print no `got`/`expected` line — they moved
+inside the driver and passed there.
+
+**DISCLOSED DEVIATIONS AND DEFECTS.** The §5.6 PRE-EXECUTION amendment (item 17, the
+`classifier-narrow-precision` entry); the three tool-count moves (mirsumtest 116→172,
+`mir_return_summary` 14→15, `mir_numeric` 45→47) and the five corrupt-table re-pins, all the
+DIRECT consequence of the refinement; `decimal_int ""` and the stale dashboard assertion stay
+OUTSIDE this campaign (known unrelated).
+
+**COMMIT CHAIN (explicit paths).** `710989ef` (the pre-registration) → `4d970aa6` (Stage A: the
+DIF07/DIF08 fixtures, the §5.5 refusals measured EXACTLY) → `e959106c` (the §5.6 PRE-EXECUTION
+amendment) → `1544f288` (the `refine` + `If`-arm EXCLUSION) → `e69aa556` (the driver, the §5.6 list
+green, count 116) → Stage B frozen panel (green, the 4 disclosed corrupt-table movers only) →
+`b40d0746` (Stage C: the §5.8 table, the DIF07/DIF08 real-fixture specialization, the `--corrupt-
+refine-arm` control, the 5 re-pinned tables) → Stage C frozen panel (all 14 items `cmp`-identical to the Stage-B baseline, the only movers the two disclosed `mirsumtest`/`mir_return_summary` counts) →
+`f596342b` (Stage D: the D12/D13 pins, the CASES, the EXPORTS) → Stage D frozen panel (13/13
+`cmp`-identical except the two expected mir_numeric lines and the 12/12 runner). **STOP after P2-DIFF-5 is measured and
+closed; any new phase needs a separate operator brief (§5.11).**

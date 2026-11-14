@@ -7346,3 +7346,25 @@ modes; full panel; the target is **12/12 BOTH-PASS** — a measured outcome, not
 (6) The close: RESULTS §P2-DIFF-5, the dashboard row, the arch section, the durables,
 the finalized checkpoint. **STOP after P2-DIFF-5 is measured and closed; any new phase
 needs a separate operator brief.**
+
+### P2-DIFF-5.12 Dashboard row (CLOSED 2026-11-14)
+
+**E2E-54/P2-DIFF-5 — BRANCH-CONDITION REFINEMENT OF THE RETURN-SUMMARY IF JOIN — CLOSED.**
+Stages A (the two algorithmic fixtures, committed before any compile; the §5.5 refusals measured
+EXACTLY: `pli80c` rc 0, `pli80mir` rc 2 `HIR-E19` at line 7 `[3,20]`/`[1000,1000]`→`[3000,20000]`
+and line 8 `[1,12]`/`[1500,1500]`→`[1500,18000]`), the §5.6 PRE-EXECUTION amendment (item 17, the
+`classifier-narrow-precision` `W(2)`→`[1,1]` entry the list missed), B (the `refine` + the
+`If`-arm EXCLUSION in `mir_return_summary.ml`; the driver green with the 20 moved literals, the
+count 116; the whole frozen panel green — the only mover the four `--corrupt-*` tables, all
+disclosed), C (`mirsumtest` **172** — the §5.8 orientation/`Eq`-else-unrefined/`Ne`/`Var op
+Var`-verbatim/full-window-no-change/H3-pivot table and the DIF07/DIF08 real-fixture
+specialization, each hand-derived before the run; the `--corrupt-refine-arm` non-vacuity control;
+the five corrupt tables re-pinned to the measured values, the tool 15 checks), D (the
+measured-first pins `DIF07.mir` 1865 B `072b59ad…c43`, `DIF08.mir` 1177 B `75051416…49e`;
+`nfuncs` 2/2 MEASURED; D12/D13 with the pre-registered §5.4 vectors; the runner **12/12 BOTH-PASS
+in BOTH modes**, 57 checks, 45/45 controls REJECTED). The frozen panel re-ran GREEN twice (after
+Stage C and after Stage D), every baseline log `cmp`-IDENTICAL; the disclosed tool counts:
+`mirsumtest` 116→172, `mir_return_summary` 14→15, `mir_numeric` 45→47; `pli80c.exe`
+`172595d5…aca281` unchanged; `git diff --exit-code -- ocaml/`/`-- hir/`/`-- tools/`/`-- spec/`
+rc 0 at every stage boundary; ledger 203/C380; ZERO oracle. Full record: RESULTS §P2-DIFF-5.
+**STOP — any extension needs a NEW operator brief (§5.11).**

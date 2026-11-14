@@ -696,3 +696,30 @@ is a PROOF, never a code-motion; the ABI, the ordering, and the `hv` allocation 
 The 7-14 numbering gap is a DOCUMENTATION GAP (P2-DIFF-3 closed without an arch section), kept
 as-is, not renumbered. Commits `d1885505`/`2d78f47b` (module + integration), `32efdff6`/
 `001822bb` (the driver), `42dc3086` (the differential cases); full record RESULTS §P2-DIFF-4.
+
+## 7-16 E2E-54/P2-DIFF-5 — branch-condition refinement of the return-summary If join (CLOSED 2026-11-14)
+
+The §7-15 call-site specialization is now refined by the **branch condition itself**: inside the
+`If` arm of the `Mir_return_summary` walk, AFTER the unchanged `cond_ok` admission, a definite
+`Var op Const` with the `Var` on the left and the `Const` in `decimal_int` (Lt/Le/Gt/Ge, or Eq on
+the then side) narrows the arm's entry for that variable to the intersection with the condition.
+`Eq` refines ONLY the then side (the else side is the identity, never the complement); `Ne`,
+`Const op Var` and `Var op Var` are left as the conservative path VERBATIM — no path-feasibility
+reasoning is smuggled in. A refined interval that is EMPTY (e.g. `x > 20` intersected with the
+point `[3,3]`) makes that arm **PROVABLY INFEASIBLE and it is EXCLUDED from the join** (the
+one-arm join is that arm). This is an ANALYSIS refinement, not a code-motion or a backend
+change: `mir_backend.ml` is never touched, the `hv` allocation, the ordering, the ABI, the
+`cond_ok` gate and every emitted byte are identical (verified by the full panel `cmp`-identical
+and the 36 pre-existing `.mir` pins re-measured byte-equal). The monotonicity lemma of §7-15 now
+applies at the ARM level: a narrower seed can only narrow the summary, never widen it, so the
+invariant `actual ⊆ specialized ⊆ context_independent ⊆ W(q)` is preserved. The admitted
+capability grew: a `min`-shaped callee whose branch-insensitive hull left the window now admits
+the narrow actual (DIF07/DIF08, the `×1000`/`×1500` `mul` refusals GONE, both lanes BOTH-PASS).
+The H3 pivot (`p_h3`: `if x > 20 then c = 16383 else c = x * 1000`) is the explicit control that
+the refinement is NOT a back door — the callee remains `Unknown` over the full window (its own
+proof is unchanged), and the backend-side obligation (the callee is lowered once over `W(p)`) is
+untouched. The new `--corrupt-refine-arm` control is non-vacuous (32 FAIL lines, rc 1): it
+perturbs the inferred refined-arm value and never the concrete reference or the condition,
+because a one-sided perturbation cannot see an arm EXCLUSION. Commits `1544f288` (the module),
+`e69aa556` (the driver), `b40d0746` (the §5.8 table + the new control + the re-pinned tables),
+`f596342b` (the differential cases); full record RESULTS §P2-DIFF-5.
