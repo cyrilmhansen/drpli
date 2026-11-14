@@ -199,6 +199,7 @@ EXPORTS = {
     "DIF01": "tariff", "DIF02": "steps",
     "DIF03": "pricing", "DIF04": "production",
     "DIF05": "billing", "DIF06": "batch",
+    "DIF07": "scaling", "DIF08": "batched",
 }
 
 # pin dir -> fixture dir (the committed layout of the MIR campaign).

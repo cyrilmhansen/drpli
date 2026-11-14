@@ -258,6 +258,42 @@ CASES = {
                 "return (i) — the IV, definitely initialized at the loop exit — is "
                 "NOT observed",
     },
+    # §P2-DIFF-5 Stage D — the two BRANCH-CONDITION-REFINED programs.  The sources
+    # are the committed Stage-A fixtures (4d970aa6, the §P2-DIFF-5.4 shapes); the
+    # pins are the measured-first Stage-D outputs (pli80mir --export, x2 fresh,
+    # deterministic).  Expected vectors are the pre-registered §P2-DIFF-5.4 ones
+    # (hand-derived, never from output).
+    "D12": {
+        "fixture": "hir/dif-fixtures/DIF07.pli",
+        "sha256": "67cbd6b304a7bca8091370a5770d46c95a5250615241ab4dce98f0825619cbb9",
+        "entry": "scaling", "tag": "DIF07",
+        "expected": [3000, 7000, 12000],
+        "pin": "hir/dif-expected/DIF07.mir",
+        "nfuncs": 2,
+        "note": "min-shaped capped(x) returns 20 or x (the if x > 20 then c = 20 else "
+                "c = x shape); the branch-insensitive hull [3,20]x1000 reaches [3000,"
+                "20000] which leaves W(15) (the pre-registered HIR-E19 refusal); the "
+                "branch-condition refinement at the q=3/7/12 actuals (each a POINT BELOW "
+                "the cap) makes the c = 20 arm INFEASIBLE, the product is [3000,3000]/"
+                "[7000,7000]/[12000,12000] and is admitted; three q = 3/7/12 calls with "
+                "the n + 0 value-actual idiom, PUT of each bill; the entry's return "
+                "(bill) is NOT observed",
+    },
+    "D13": {
+        "fixture": "hir/dif-fixtures/DIF08.pli",
+        "sha256": "00585ab25e932c84797210695067ab57ef6341a18aaf2e716a9d8078362d3d81",
+        "entry": "batched", "tag": "DIF08",
+        "expected": [1500, 3000, 4500, 6000],
+        "pin": "hir/dif-expected/DIF08.mir",
+        "nfuncs": 2,
+        "note": "counted do while (i < 5) over i = 1..4; limited(x) returns 12 or x; the "
+                "loop-IV actual [1,4] is the non-POINT interval that the branch-insensitive "
+                "hull [1,12]x1500 reaches [1500,18000] which leaves W(15) (the pre-"
+                "registered HIR-E19 refusal); the refinement makes the c = 12 arm infeasible "
+                "over [1,4], the product is [1500,6000] and is admitted; the PUT of v is "
+                "INSIDE the loop (the drop law); the return (i) — the IV, definitely "
+                "initialized at the loop exit — is NOT observed",
+    },
 }
 
 VERDICTS = ("BOTH-PASS", "8080-ONLY", "NATIVE-ONLY", "BOTH-FAIL-SAME",
