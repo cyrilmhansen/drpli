@@ -5,6 +5,63 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 Stage-A hop (2026-11-14, session 01a1d998 renewal 1/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; start HEAD `d4d359ae`) — THE STAGE-A STOP-AND-ATTRIBUTE FIRED ON E18, THE PRE-EXECUTION AMENDMENT LANDED, AND THE AMENDED BASELINE IS MEASURED EXACTLY AS PREDICTED
+
+**ACCEPTED — the measured chronology (every command its own rc, logs
+`build/e54p2diff4/stageA/` then `stageA-amended/`).** (1) The two sources were written mirroring
+the committed DIF03/DIF04 layout (CRLF, one `^Z`, `>`-oriented IFs, `+ 0` value actuals) and
+committed FIRST at `d276743b` (DIF05 `97610d42…cf397c` 561 B, DIF06 `feb5e037…d4d6e41`… no —
+`feb5e037…f90846` 460 B — the §P2-DIFF-4.4 design text, `bill = capped_units(q + 0) * 500`).
+(2) The 8080 lane measured rc 0 for BOTH (`PROGRAM BILLING CODE=206 DATA=20 ITEMS=228 -> 512`;
+`PROGRAM BATCH CODE=124 DATA=12 ITEMS=137 -> 384`). (3) The native lane refused with
+**`HIR-E18: line 5/6: a value-position call is outside the native subset`** — NOT the
+pre-registered `HIR-E19`. **The STOP-and-attribute condition of §P2-DIFF-4.5 fired.**
+(4) Attribution (read from the code, not inferred): the m3c admission law at
+`mir_backend.ml` ~737 admits a `Call_e` ONLY as the **whole RHS of an `Assign` to a `D_var`**
+(or the whole expression of the final `Return`); any other position keeps the pre-existing E18
+refusal (the CALLN9 shape law). The §P2-DIFF-4.4 design text nested the call inside the `*`
+Binop — a SOURCE-DESIGN defect; H1/H2/H3 stand. (5) Per the binding rule the replacement
+source required a PRE-EXECUTION additive amendment: PLAN **§P2-DIFF-4.11** committed alone at
+`61bcfcc5` (63 ADDITIVE lines, ZERO removed) with the amended layout, the corrected
+context-independent-summary note and the verbatim re-measured prediction. (6) The replacement
+sources committed at `c6257034` (DIF05 633 B `1e09787f…cf397c`; DIF06 502 B
+`eebace68…d4d6e41`), encoding verified, BEFORE any compiler run. (7) The old backend re-measured
+on the amended bytes: **8080 rc 0 both (BILLING CODE=218 DATA=22 ITEMS=234 -> 512; BATCH
+CODE=128 DATA=14 ITEMS=139 -> 384); native rc 2, ZERO stdout, NO `.mir`, and the diagnostic is
+EXACTLY the pre-registered one — `HIR-E19: line 7: binop '*' on operands proved within
+[-16383,16383] and [500,500] can reach [-8191500,8191500] …` (DIF05) and `HIR-E19: line 8: …
+[700,700] can reach [-11468100,11468100] …` (DIF06).** The Stage-A baseline is CONFIRMED; the
+campaign's target mechanism is exactly what the refusals show.
+
+**ACCEPTED — the full-window summary is the real mechanism (the pre-registered note was
+arithmetically wrong, the amendment corrects it).** The context-independent summary of
+`capped_units`/`limited_step` is NOT `[1,20]`/`[1,12]`: the evaluator seeds the formal with the
+FULL declared window `W(15) = [-16383,16383]`, the branch-insensitive hull of `c = 20` and
+`c = x` is the FULL window, and `in_window` passes (the window is inside itself), so the caller
+stores `[-16383,16383]` in `cat`/`cl` and the `*` refuses with exactly the pre-registered
+products. The measured operand intervals in the two diagnostics are the proof: the campaign
+refutes NOTHING about §P2-DIFF-3; it attacks the full-window conservatism itself.
+
+**METHOD LAW (mine, this hop): the shape law must be checked BEFORE writing the design text.**
+§P2-DIFF-4.4 was written from the numeric-window reasoning and never shape-checked against the
+m3c `Call_e` admission — the E18 STOP cost one extra commit pair but the pre-registered
+STOP-and-attribute machinery absorbed it exactly as designed. The `[1,20]` note was the same
+class of error in the opposite direction (a domain argument written from the VALUE of the
+function, not from the ANALYSIS of the formal window).
+
+**FALSIFIED (pre-registered prediction):** "`bill = capped_units(q + 0) * 500` is a native-subset
+source" — it is not; the E18 shape refusal precedes any numeric proof. Recorded in
+§P2-DIFF-4.11; the superseded bytes stay in history at `d276743b` as the evidence.
+
+**NEXT (Stage B, the brief §5 chronology):** extend `mir_return_summary.ml` IN PLACE with
+`summary_of_actuals` (the §P2-DIFF-4.2 subset obligations; ANY violation ⇒ `Unknown`, never a
+refusal); rewrite `summary_of` as `summary_of_actuals` with the FULL-window seeds (ONE
+evaluator, zero duplicated traversal); in `lower_call_e` capture `(cell, iv)` per actual from
+the ONE existing `lower env x` and choose specialized → context-independent → full window; the
+three-level fallback; NO new `ocaml/hir/*.ml` file (the count is pinned to 15 by X3/Y5); the
+frozen panel green after the integration (every existing pin byte-identical, DIF03/DIF04 still
+admitted, CALLN9 still E18 by shape).
+
 ## E2E-54/P2-DIFF-4 recovery + baseline hop (2026-11-14, session 01a1d97c fresh startup; ZERO oracle; ledger 203/C380; start HEAD `c3576ccb`) — THE NEW CAMPAIGN IS OPEN; THE FROZEN BASELINE IS RE-MEASURED, NOT ASSUMED
 
 **ACCEPTED — the whole frozen baseline is measured first-hand and every number in the operator

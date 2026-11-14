@@ -48,7 +48,54 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-4 — **PRE-REGISTRATION COMMITTED; STAGE A IS NEXT**)
+## Next action (E2E-54/P2-DIFF-4 — **STAGE A CLOSED AND COMMITTED (amended); THE BASELINE REFUSAL IS MEASURED EXACTLY; STAGE B IS NEXT**) — session 01a1d998 renewal 1/12 of chain 01a1d97c, 2026-11-14
+
+**STAGE A IS DONE, MEASURED AND COMMITTED; the STOP-and-attribute machinery fired exactly once
+and was resolved by the pre-registered amendment.** Commit chain: `d276743b` (the §P2-DIFF-4.4
+design sources) → `61bcfcc5` (PLAN **§P2-DIFF-4.11** — the measured E18 STOP, the attribution,
+the amended design, the corrected `[1,20]`→`[-16383,16383]` full-window note, the verbatim
+re-measured prediction; 63 additive lines, ZERO removed) → `c6257034` (the REPLACEMENT sources
+BEFORE any compiler run: DIF05 633 B sha256 `1e09787fcde6118d30c0b733ae83f422b417a06742b13a9c6fbe1d6f59cf397c`,
+DIF06 502 B sha256 `eebace68680501724ca4699201b9e3eb3b9800ed6ea4ed5f8da63c65bd4d6e41`; CRLF-only,
+one `^Z`, `last3 = b'\r\n\x1a'` verified).
+
+**MEASURED OLD-BACKEND BASELINE (the amended bytes, every command its own rc, logs
+`build/e54p2diff4/stageA-amended/`):** `pli80c.exe -d` rc **0** BOTH — `PROGRAM BILLING
+CODE=218 DATA=22 ITEMS=234 -> 512 bytes`, `PROGRAM BATCH CODE=128 DATA=14 ITEMS=139 -> 384
+bytes`; `pli80mir.exe --export billing|batch` rc **2**, ZERO stdout, NO `.mir`, and the
+diagnostic EXACTLY as pre-registered: DIF05 `HIR-E19: line 7: binop '*' on operands proved
+within [-16383,16383] and [500,500] can reach [-8191500,8191500], leaving the declared-precision
+window [-16383,16383] of FIXED BINARY(15,0); overflow behaviour is profile-UNKNOWN and is never
+assumed (brief §4)`; DIF06 `HIR-E19: line 8: … [700,700] can reach [-11468100,11468100] …`. No
+other refusal fired; the STOP condition did NOT fire on the amended measurement.
+
+**NEXT VERBATIM (Stage B — §P2-DIFF-4.6, the ONLY permitted edits).**
+1. `ocaml/hir/mir_return_summary.ml` IN PLACE: one new pure entry
+   `summary_of_actuals : maxp:int -> Hir.program -> int -> params:int list -> actuals:(int*int) list ->
+   summary` carrying the §P2-DIFF-4.2 obligations (arity/order/non-empty/contained-in-W(p)/
+   A_value-only/no-caller-storage; ANY violation ⇒ `Unknown`, NEVER a refusal); `summary_of`
+   REWRITTEN as `summary_of_actuals` with the FULL-window seeds — ONE evaluator, ZERO duplicated
+   traversal, the context-independent semantics preserved byte-for-byte.
+2. `mir_backend.ml` `lower_call_e` ONLY: capture `(cell, iv)` per actual from the ONE existing
+   `lower env x` (left-to-right, same `hv<k>` allocation, same emission); the 3-level fallback
+   specialized → context-independent → `window cq`; NO new analysis call anywhere, NO ABI/
+   ordering/label change.
+3. NO new `ocaml/hir/*.ml` file (X3/Y5 pin the count to 15); the module stays clean of the Y4
+   names and Y6 patterns; `dune build` own rc; `mirsumtest` still green (55 checks).
+4. The frozen panel after the integration: gate 1328/1328-190/190-9/9-149 rows 0/0-census
+   16/0/25/0-prose 5; hir 220 (log cmp-identical to `build/e54p2diff2/base-hir.log`); mir 32;
+   cosmo 25; console 43; debug 23; CF 83; call 86; suite 29/29; runner 8/8 BOTH modes;
+   functional 211; every committed `.mir` pin re-measured byte-equal; DIF03/DIF04 STILL admitted;
+   CALLN9 still E18 by shape; `pli80c.exe` sha `172595d5…aca281`; `git diff --exit-code --
+   hir/`/`-- ocaml/` rc 0 at the stage boundary; ledger 203/C380.
+
+**STANDING (all measured, all binding):** ZERO oracle; `handoff.config.json` NEVER staged (dirty
+with the operator's own edits); no push; explicit paths; no `git add -A`/`reset --hard`/`clean`;
+rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; `mirsumtest` from the REPO
+ROOT; scratch `build/*` and `ocaml/_build-*` never committed; NEVER hand-edit a managed block.
+
+
+SUPERSEDED-BY-ABOVE (the record below stands as history):
 
 **LANDED THIS SESSION (session 01a1d97c, fresh startup, start HEAD `c3576ccb`).**
 (1) `10a1ac66` — the recovery + baseline durables (PROGRESS live heading, LEARNINGS new
