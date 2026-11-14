@@ -2361,3 +2361,57 @@ truncation REPAIR (the additivity law) → `3928f130` **Stage A sources** (BEFOR
 `7f38e4d9`/`0a18905b`/`770b2e55` → `247c04b4` managed block → `58923e75` **Stage D** (the D08/D09
 entries, the two pins, the two tool updates) → **the close: this RESULTS section + the PLAN
 `### P2-DIFF-3.10` CLOSED row + the durables**.
+
+## §P2-DIFF-4 — Call-site interval specialization: the `min` shape, the loop-IV actual, and the two programs that needed the specialization — CLOSED 2026-11-14 (Stages A–D; sessions 01a1d97c→01a1d998→01a1d9b2→01a1d9ca→01a1d9db→this successor)
+
+**HYPOTHESIS AND MEASURED OUTCOME.** H1: the context-independent return summary cannot admit a
+`min`-shaped callee at a narrow call site — MEASURED at the baseline: the context-independent
+summary of `capped_units`/`limited_step` is the FULL `[-16383,16383]` (the else arm is the
+identity), so the old path refused `HIR-E19` on the `*` (the §P2-DIFF-4.11 amendment moved the
+`Call_e` to the whole-RHS shape after the measured `HIR-E18` STOP). H2: `summary_of_actuals`
+specializes exactly at the call sites — MEASURED in `mirsumtest` (116 checks, rc 0): DIF05
+actuals [3,3]/[12,12]/[30,30] give specialized [3,20]/[12,20]/[20,30] (the hull of BOTH arms,
+the analysis never decides the condition), DIF06's loop-IV actual [1,4] gives [1,12]; every
+`actual ⊆ specialized ⊆ declared` cross-check passed. H3: the specialization is a pure widening
+of the ADMITTED set — the whole frozen panel re-ran GREEN with every baseline log
+`cmp`-IDENTICAL and the 36 committed `.mir` pins re-measured byte-equal (the 34 pre-existing
+UNMOVED).
+
+**THE DIFFERENTIAL EVIDENCE (Stage D).** The runner (10 cases, `42dc3086`) is **10/10 BOTH-PASS
+in BOTH modes**, rc 0, 47 checks, 37/37 comparator controls REJECTED: D10 DIF05 `billing`
+measured the pre-registered vector [1500,6000,10000] on BOTH the CP/M 8080 lane and the native
+cosmo-tiny lane, and D11 DIF06 `batch` measured [700,1400,2100,2800] on both. The measured-first
+pins `hir/dif-expected/DIF05.mir` (1887 B, `3f9080f2…e0b1`) and `DIF06.mir` (1182 B,
+`be63ee89…2623a`) were produced x2 fresh, deterministic, stdout == `-o`, ZERO stderr; `nfuncs`
+2 and 2 MEASURED from mir2o's own stderr.
+
+**THE PANEL (after Stage C and after Stage D).** gate 1328/1328-190/190-9/9-149 rows 0/0-census
+16/0/25/0-prose 5 `cmp`-IDENTICAL; hir 220 `cmp`-IDENTICAL; mir_aot 32; cosmo 25; console 43;
+debug 23; CF 83; call 86; suite 29/29; functional 211 (only the `/tmp` evidence path);
+`mir_numeric` **45** (the disclosed 43→45: the two new pins, per-pin count); `mir_return_summary`
+**14** (the disclosed 11→14: the three new corrupt-spec tables). Fresh builds rc 0, ZERO
+`Error`, `pli80c.exe` `172595d5…aca281`; `git diff --exit-code -- hir/` and `-- ocaml/` rc 0;
+ledger 203/C380.
+
+**FALSIFICATIONS (this campaign).** (1) The §P2-DIFF-4.4 note "the context-independent summary
+of `min(x,20)` is [1,20]" — FALSE, it is the full window (the else arm is the identity); the
+spec-ctx-min check pins the corrected law. (2) The driver's `run_callee` If arm "carries the
+final Return" — FALSE on the real fixtures (the `Return` is top-level AFTER the If); the arm
+must CONTINUE with the rest. (3) `exec` without threading the environment through the loop —
+the walk never terminated. (4) The first-draft names `op_cells`/`op_ivals` — ILLEGAL in
+`ocaml/hir/*.ml` (the frozen F8 opcode pattern), the panel caught it with 4 FAILs before the
+commit. (5) The commit `2d78f47b` message quoted the specialized intervals as measured; they
+were the pre-registered expectation — Stage C then measured them.
+
+**DISCLOSED DEVIATIONS AND DEFECTS.** The §P2-DIFF-4.11 PRE-EXECUTION amendment (the
+whole-RHS `cat = capped_units(q + 0);` move, the superseded `d276743b` bytes kept as measured
+evidence); the two tool-count moves (45/14) above; `decimal_int ""` and the stale dashboard
+assertion stay OUTSIDE this campaign (known unrelated).
+
+**COMMIT CHAIN (explicit paths).** `10a1ac66` (baseline durables) → `b259cf4c` (the
+pre-registration) → `d276743b`/`61bcfcc5`/`c6257034` (Stage A: the E18 STOP, the amendment, the
+replacement sources before any compilation) → `d1885505` (the module extension) → `2d78f47b`
+(the `lower_call_e` integration) → `32efdff6` (Stage C: the driver's call-site family) →
+`001822bb` (Stage C: the real-fixture measurement and the tool) → `2742f87f` (the g849 block) →
+`42dc3086` (Stage D: the pins, D10/D11, the EXPORTS). **STOP: any extension needs a NEW
+operator brief (§P2-DIFF-4.10).**

@@ -48,7 +48,18 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-4 — **STAGE D LANDED AND COMMITTED (`42dc3086`); THE PANEL RE-RUN + THE CLOSE ARE THE ONLY REMAINING ACTS**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
+## Next action (E2E-54/P2-DIFF-4 — **CLOSED; NO NEXT ACTION EXISTS — STOP AND AWAIT THE OPERATOR**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
+
+**THE CAMPAIGN IS CLOSED.** The close (this commit): RESULTS `## §P2-DIFF-4`, the PLAN
+`### P2-DIFF-4.12` CLOSED dashboard row, the additive `docs/architecture/backend-boundary.md`
+`## 7-15`, the HANDOFF entry 23, and the final panel re-measurement (all accepted above).
+**NOTHING FURTHER IS AUTHORIZED — §P2-DIFF-4.10: every extension (more programs, deeper
+narrowing, path feasibility, the `decimal_int ""` defect, the `<=`/`LINE` subset) needs a NEW
+operator brief.** The only remaining acts are the guard-managed block refresh and the close
+commit of the durables — if the session ends before them, the next session runs `/handoff
+verify`, refreshes the block if stale, and commits the same three files.
+
+SUPERSEDED-BY-ABOVE (the record below stands as history): ## Next action (E2E-54/P2-DIFF-4 — **STAGE D LANDED AND COMMITTED (`42dc3086`); THE PANEL RE-RUN + THE CLOSE ARE THE ONLY REMAINING ACTS**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
 
 **MEASURED THIS HOP (accepted, every command its own rc).** (1) The FROZEN PANEL §P2-DIFF-4.8
 with Stage C in place: gate 1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5
@@ -5783,17 +5794,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 849
-checkpoint-id: g849-46aadba42ac0
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 851
+checkpoint-id: g851-452e3744f039
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-14T12:03:12.588Z
+checkpointed: 2026-11-14T12:50:30.631Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2e1567e3190ecb84fc648b340bc0bf2fcda185747640d76a11d3c34d8922f76f
-source-handoff: bbeb10a009c551f1dbd9010ea7432f009a30788cd31fa59d43349532dab6eddb
-source-learnings: 7c7f2a7109f9178e0e163e1795fba543b39b53c704d360a2ecc0aaef705fba64
+source-progress: 2b5925a46ed36d0372d9de1863b682bd54e6d4fdd59df4d410575d3e2f0e1c32
+source-handoff: 592840c39b0c353c9e03303e7ae2c8c7fde771017075ee0d714c72af28d32afa
+source-learnings: a76690408a3f2e2821d7a731e39c50e701d2401911ee75345c7fc71e00529e73
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -7117,9 +7128,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d9db-421d-700a-9d27-3c092f506746
-readiness-at: 2026-11-14T12:03:12.813Z
-readiness-checkpoint: g849-46aadba42ac0
 <!-- guard:end checkpoint -->
 
 ## Blockers

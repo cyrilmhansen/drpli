@@ -675,3 +675,24 @@ compiler (no HIR literal is empty) and byte-for-byte the code the backend held b
 movement; a fix needs its own pre-registration. Commits `f1f3c1ab` + `97c0fa29`; findings, the
 four falsifications of the driver's own hand-derived tables, and the `±16383` correction of the
 §7-12 capability clause are in RESULTS §P2-DIFF-2.7.
+
+## 7-15 E2E-54/P2-DIFF-4 — call-site interval specialization (CLOSED 2026-11-14)
+
+The return-value summary of §7-14 is now specialized AT THE CALL SITE: `lower_call_e` keeps the
+per-actual interval `(cell, iv)` already produced by `lower`, and `Mir_return_summary.
+summary_of_actuals` re-evaluates the callee body with the ACTUAL intervals as formal seeds,
+subject to the §P2-DIFF-4.2 obligations (arity/order equality, non-empty, `Formal` storage,
+`bin_p`, containment in `W(p)`); ANY violation returns `Unknown` and the fallback is the
+three-level chain specialized → context-independent → `window cq`, each `Known` guarded by the
+existing `in_window full` re-check. The module is ONE shared `eval_body` — no duplicated
+traversal; the context-independent semantics of `summary_of` are preserved byte-for-byte
+(verified: the 34 pre-existing pins byte-equal, the panel logs `cmp`-identical). The
+MONOTONICITY lemma (narrowing a seed can only narrow the result, never turn `Known` into
+`Unknown`) gives `specialized ⊆ context-independent` automatically. The admitted capability
+grew: a `min`-shaped callee (`if x > k then c = k; else c = x;`) whose context-independent
+summary is the full window now admits a narrow actual at a call site (DIF05/DIF06, the
+`mul`-window refusals GONE, both lanes BOTH-PASS). The emission law is unchanged — the summary
+is a PROOF, never a code-motion; the ABI, the ordering, and the `hv` allocation are untouched.
+The 7-14 numbering gap is a DOCUMENTATION GAP (P2-DIFF-3 closed without an arch section), kept
+as-is, not renumbered. Commits `d1885505`/`2d78f47b` (module + integration), `32efdff6`/
+`001822bb` (the driver), `42dc3086` (the differential cases); full record RESULTS §P2-DIFF-4.

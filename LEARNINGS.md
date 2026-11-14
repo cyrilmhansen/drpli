@@ -5,6 +5,21 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 CLOSE hop (2026-11-14, session 01a1d9f0; ledger 203/C380) — THE CAMPAIGN IS CLOSED
+
+**ACCEPTED (measured).** The panel re-run AFTER Stage D (logs `build/e54p2diff4/stageD-panel-*.log`)
+is green with every baseline log `cmp`-IDENTICAL (gate 1328/1328-190/190-9/9-149-16/0/25/0-prose
+5; hir 220; mir_aot 32; cosmo 25; console 43; debug 23; CF 83; call 86; suite 29/29; functional
+211, only the `/tmp` evidence path); the two disclosed tool counts 45/14; the runner 10/10
+BOTH-PASS in BOTH modes; the fresh `_build-e54p2diff4d` build sha `172595d5…aca281`; `git diff
+--exit-code -- hir/` and `-- ocaml/` rc 0. Close: RESULTS §P2-DIFF-4, PLAN §P2-DIFF-4.12 CLOSED,
+arch §7-15 (the 7-14 gap kept as a disclosed DOCUMENTATION GAP, not renumbered). STOP: any
+extension needs a NEW operator brief.
+
+**METHOD (accepted).** The close was assembled in the reverse order of the pressure alerts:
+commit the measured evidence FIRST, then the appendices, then the three durables, then the
+guard-managed refresh — the managed block always lags the prose and is refreshed, never edited.
+
 ## E2E-54/P2-DIFF-4 Stage-D hop (2026-11-14, session 01a1d9f0 renewal 5/12; ZERO oracle; ledger 203/C380; HEAD `42dc3086`) — THE TWO SPECIALIZED PROGRAMS ARE DIFFERENTIAL CASES; THE RUNNER IS 10/10 BOTH-PASS IN BOTH MODES
 
 **ACCEPTED (measured, own rc, logs `build/e54p2diff4/stageD-*.log`).** The measured-first pins

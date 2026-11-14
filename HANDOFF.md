@@ -7,7 +7,23 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-22-e54p2diff4-panel-green (2026-11-14, session 01a1d9f0 renewal 5/12 of chain 01a1d97c;
+23-e54p2diff4-closed (2026-11-14, session 01a1d9f0 renewal 5/12; ZERO oracle; ledger 203/C380;
+start HEAD `60afe31f`): **E2E-54/P2-DIFF-4 IS CLOSED.** Chain: `2742f87f` (g849 block) →
+`526f3192` (panel durables) → `42dc3086` (STAGE D: the measured-first pins `DIF05.mir` 1887 B
+`3f9080f2…e0b1` / `DIF06.mir` 1182 B `be63ee89…2623a`, x2 deterministic, ZERO stderr; `nfuncs`
+2/2 MEASURED from mir2o stderr; D10/D11 with the pre-registered vectors [1500,6000,10000] /
+[700,1400,2100,2800]; the disclosed EXPORTS 43→45) → `81c38865` (durables) → the close (the
+panel re-run green: 10/10 BOTH-PASS both modes, 37/37 controls, 47 checks; all baseline logs
+`cmp`-IDENTICAL; functional 211 only /tmp-path; gate 1328/1328-190/190-9/9-149-16/0/25/0-5;
+fresh `_build-e54p2diff4d` sha `172595d5…aca281`; `git diff --exit-code -- hir/`/`-- ocaml/`
+rc 0). RESULTS §P2-DIFF-4, PLAN §P2-DIFF-4.12 CLOSED, arch §7-15. **NOTHING FURTHER IS
+AUTHORIZED — any extension needs a NEW operator brief.** Recovery: `/handoff verify` (the
+managed block may lag the close prose — refresh with `/handoff`, never hand-edit);
+then the close commit chain above. Standing: ZERO oracle; `handoff.config.json` NEVER staged;
+no push; explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+`mirsumtest` from the REPO ROOT; `grep -c $'\x08'` MUST be 0 after scripted durable writes.
+
+SUPERSEDED-BY-ABOVE: 22-e54p2diff4-panel-green (2026-11-14, session 01a1d9f0 renewal 5/12 of chain 01a1d97c;
 ZERO oracle; ledger 203/C380; start HEAD `60afe31f`, now `2742f87f` + the durables): **THE FROZEN
 PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE.** The g849 managed-block commit landed
 (`2742f87f`). Every panel command its own rc, logs `build/e54p2diff4/stageC-panel-*.log`: gate
@@ -2592,25 +2608,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 849
-checkpoint-id: g849-46aadba42ac0
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-489, session 01a1d9db-421d-700a-9d27-3c092f506746)
-checkpointed: 2026-11-14T12:03:12.588Z
+checkpoint-generation: 851
+checkpoint-id: g851-452e3744f039
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4978, session 01a1d9f0-b397-700a-9d27-3c0c6fa6a746)
+checkpointed: 2026-11-14T12:50:30.631Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2e1567e3190ecb84fc648b340bc0bf2fcda185747640d76a11d3c34d8922f76f
-source-handoff: bbeb10a009c551f1dbd9010ea7432f009a30788cd31fa59d43349532dab6eddb
-source-learnings: 7c7f2a7109f9178e0e163e1795fba543b39b53c704d360a2ecc0aaef705fba64
+source-progress: 2b5925a46ed36d0372d9de1863b682bd54e6d4fdd59df4d410575d3e2f0e1c32
+source-handoff: 592840c39b0c353c9e03303e7ae2c8c7fde771017075ee0d714c72af28d32afa
+source-learnings: a76690408a3f2e2821d7a731e39c50e701d2401911ee75345c7fc71e00529e73
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1d9db-421d-700a-9d27-3c092f506746
-readiness-at: 2026-11-14T12:03:12.813Z
-readiness-checkpoint: g849-46aadba42ac0
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

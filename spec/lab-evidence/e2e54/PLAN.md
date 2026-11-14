@@ -7008,3 +7008,19 @@ for DIF06 (line numbers from the amended layouts above). Any other refusal ⇒ S
 hulled with the `12` arm), giving `bill ∈ [1500,10000] ∪ … ⊆ W(15)` at every call site and
 `v ∈ [700,8400]`; the whole program then admits; the console vectors stay
 `[1500,6000,10000]` and `[700,1400,2100,2800]` — the pre-registered independent expectations.
+
+### P2-DIFF-4.12 Dashboard row (CLOSED 2026-11-14)
+
+**E2E-54/P2-DIFF-4 — CALL-SITE INTERVAL SPECIALIZATION — CLOSED.** Stages A (the E18
+STOP-and-attribute, the §4.11 PRE-EXECUTION amendment, the amended refusal measured exactly:
+`pli80c` rc 0, `pli80mir` rc 2 `HIR-E19` `±8191500`/`±11468100`), B (the module extension +
+`lower_call_e` `(cell, iv)` capture; the refusals GONE rc 0), C (`mirsumtest` 116 checks — the
+owed numbers MEASURED: DIF05 [3,3]/[12,12]/[30,30] → [3,20]/[12,20]/[20,30], DIF06 [1,4] →
+[1,12], both context-independent summaries the full window; the tool 14), D (the measured-first
+pins `DIF05.mir` 1887 B `3f9080f2…`, `DIF06.mir` 1182 B `be63ee89…`; `nfuncs` 2/2 MEASURED;
+D10/D11 with the pre-registered vectors; the runner **10/10 BOTH-PASS in BOTH modes**, 37/37
+controls REJECTED). The frozen panel green twice (after Stage C and after Stage D), every
+baseline log `cmp`-IDENTICAL; the disclosed tool counts: `mir_numeric` 43→45,
+`mir_return_summary` 11→14; `pli80c.exe` `172595d5…aca281` from a fresh build; `git diff
+--exit-code -- hir/`/`-- ocaml/` rc 0; ledger 203/C380; ZERO oracle. Full record: RESULTS
+§P2-DIFF-4. **STOP — any extension needs a NEW operator brief (§4.10).**
