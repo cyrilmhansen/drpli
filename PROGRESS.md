@@ -95,7 +95,7 @@ rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; `mirsumtes
 ROOT; scratch `build/*` and `ocaml/_build-*` never committed; NEVER hand-edit a managed block.
 
 
-SUPERSEDED-BY-ABOVE (the record below stands as history):
+SUPERSEDED-BY-ABOVE (the record below stands as history): ## Next action (E2E-54/P2-DIFF-4 — **PRE-REGISTRATION COMMITTED; STAGE A IS NEXT**)
 
 **LANDED THIS SESSION (session 01a1d97c, fresh startup, start HEAD `c3576ccb`).**
 (1) `10a1ac66` — the recovery + baseline durables (PROGRESS live heading, LEARNINGS new
