@@ -641,23 +641,23 @@ let f_actuals () =
   expect_actuals "spec-min-cap-point" (p_min 20) 1 [ 10 ] [ (20, 20) ]
     (R.Known (20, 20));
   expect_actuals "spec-min-above-cap" (p_min 20) 1 [ 10 ] [ (25, 25) ]
-    (R.Known (20, 25));
+    (R.Known (20, 20));
   expect_actuals "spec-min-across-cap" (p_min 20) 1 [ 10 ] [ (3, 30) ]
-    (R.Known (3, 30));
-  expect_actuals "spec-min-nonpoint" (p_min 20) 1 [ 10 ] [ (10, 15) ]
-    (R.Known (10, 20));
-  expect_actuals "spec-distinct-1" (p_min 20) 1 [ 10 ] [ (3, 3) ]
     (R.Known (3, 20));
+  expect_actuals "spec-min-nonpoint" (p_min 20) 1 [ 10 ] [ (10, 15) ]
+    (R.Known (10, 15));
+  expect_actuals "spec-distinct-1" (p_min 20) 1 [ 10 ] [ (3, 3) ]
+    (R.Known (3, 3));
   expect_actuals "spec-distinct-2" (p_min 20) 1 [ 10 ] [ (12, 12) ]
-    (R.Known (12, 20));
+    (R.Known (12, 12));
   expect_actuals "spec-distinct-3" (p_min 20) 1 [ 10 ] [ (30, 30) ]
-    (R.Known (20, 30));
+    (R.Known (20, 20));
   expect_actuals "spec-full-window-identity" (p_identity ()) 1 [ 10 ]
     [ wiv 15 ] (R.Known (-16383, 16383));
   expect_actuals "spec-full-window-min" (p_min 20) 1 [ 10 ] [ wiv 15 ]
-    (R.Known (-16383, 16383));
+    (R.Known (-16383, 20));
   expect_actuals "spec-loop-iv" (p_min 12) 1 [ 10 ] [ (1, 4) ]
-    (R.Known (1, 12));
+    (R.Known (1, 4));
   expect_actuals "spec-two-formals-1" (p_diff ()) 1 [ 10; 12 ] [ (10, 10); (1, 1) ]
     (R.Known (9, 9));
   expect_actuals "spec-two-formals-2" (p_diff ()) 1 [ 10; 12 ] [ (1, 1); (10, 10) ]
@@ -675,7 +675,7 @@ let f_actuals () =
   expect_actuals "spec-boundary-12" (p_min 12) 1 [ 10 ] [ (12, 12) ]
     (R.Known (12, 12));
   expect_actuals "spec-boundary-min-13" (p_min 12) 1 [ 10 ] [ (13, 13) ]
-    (R.Known (12, 13));
+    (R.Known (12, 12));
   expect_actuals "spec-formal-written" (p_formal_written ()) 1 [ 10 ] [ (3, 3) ]
     (R.Known (7, 7));
   (* the H3 (i) legal asymmetry: the specialized interval may be Known while
@@ -701,7 +701,7 @@ let f_actuals () =
   in
   ctx "spec-ctx-esc" (p_esc ()) R.Unknown;
   ctx "spec-ctx-esc2" (p_esc2 ()) R.Unknown;
-  ctx "spec-ctx-min" (p_min 20) (R.Known (-16383, 16383));
+  ctx "spec-ctx-min" (p_min 20) (R.Known (-16383, 20));
   (* the HOSTILES (each Unknown, never a refusal) *)
   expect_actuals "spec-outside-window" (p_min12 ()) 1 [ 10 ] [ (3000, 3000) ]
     R.Unknown;
@@ -996,7 +996,7 @@ let f_precision () =
      inside the window. *)
   expect "classifier-narrow-precision"
     (p_classify ~xty:(Hir.Fixed_bin (2, 0)) ())
-    1 (R.Known (1, 3))
+    1 (R.Known (1, 1))
 
 let f_purity () =
   let p = p_classify () in
@@ -1106,12 +1106,13 @@ let f_real () =
 (* expectation below is a hand-derived literal: the §P2-DIFF-4.4 campaign       *)
 (* vectors (DIF05 puts [1500,6000,10000] — the last cell is 10000; DIF06 puts   *)
 (* [700,1400,2100,2800] — the last cell is 2800, the loop exits at i = 5) and   *)
-(* the specialized summaries from the §P2-DIFF-3 subset law BY HAND: the        *)
-(* interval analysis does NOT decide the condition, so the result is the hull   *)
-(* of BOTH arms — [3,3] |-> hull(20,3) = [3,20]; [12,12] |-> [12,20];           *)
-(* [30,30] |-> hull(20,30) = [20,30]; [1,4] |-> [1,12]; the                     *)
-(* context-independent summary of both min-shaped callees is the FULL           *)
-(* W(15) = [-16383,16383] (the spec-ctx-min law). *)
+(* the specialized summaries from the §P2-DIFF-5.2 REFINEMENT law BY HAND: an   *)
+(* arm whose condition is provably FALSE over the actual is EXCLUDED —          *)
+(* [3,3] |-> the c = 20 arm is infeasible (3 > 20 is false) -> [3,3];           *)
+(* [12,12] |-> [12,12]; [30,30] |-> the c = x arm is infeasible -> [20,20];     *)
+(* [1,4] |-> the c = 12 arm is infeasible -> [1,4]; the context-independent     *)
+(* summary of both min-shaped callees is the FULL hull clipped by the ALWAYS-   *)
+(* feasible arm: [-16383,20] (the new spec-ctx-min law). *)
 (* --------------------------------------------------------------------------- *)
 
 let f_real_spec () =
@@ -1164,13 +1165,13 @@ let f_real_spec () =
             check "spec-real-dif05-bill" (List.assoc_opt 2 env = Some 10000);
             check "spec-real-dif05-entry" (v = 10000);
             expect_actuals "spec-real-dif05-sum1" p cp callee.Hir.params
-              [ (3, 3) ] (R.Known (3, 20));
+              [ (3, 3) ] (R.Known (3, 3));
             expect_actuals "spec-real-dif05-sum2" p cp callee.Hir.params
-              [ (12, 12) ] (R.Known (12, 20));
+              [ (12, 12) ] (R.Known (12, 12));
             expect_actuals "spec-real-dif05-sum3" p cp callee.Hir.params
-              [ (30, 30) ] (R.Known (20, 30));
+              [ (30, 30) ] (R.Known (20, 20));
             let ctx = ctx_sum p cp in
-            check "spec-real-dif05-ctx" (ctx = R.Known (-16383, 16383));
+            check "spec-real-dif05-ctx" (ctx = R.Known (-16383, 20));
             (* the cross-checks (the invariant actual ⊆ specialized ⊆
                declared): every recorded actual is a non-empty point inside
                the driver's own W(15), and the specialized summary is a
@@ -1185,7 +1186,7 @@ let f_real_spec () =
                       match ctx with
                       | R.Known (c, d) -> a >= c && b <= d
                       | R.Unknown -> false)
-                    [ (3, 20); (12, 20); (20, 30) ])
+                    [ (3, 3); (12, 12); (20, 20) ])
        ));
   (* DIF06: entry batch, callee limited_step (the min(x,12) shape); the
      loop-IV actual [1,4] is the HULL of the four recorded trips. *)
@@ -1219,15 +1220,15 @@ let f_real_spec () =
             check "spec-real-dif06-v" (List.assoc_opt 2 env = Some 2800);
             check "spec-real-dif06-entry" (v = 5);
             expect_actuals "spec-real-dif06-sum" p cp callee.Hir.params
-              [ hull ] (R.Known (1, 12));
+              [ hull ] (R.Known (1, 4));
             let ctx = ctx_sum p cp in
-            check "spec-real-dif06-ctx" (ctx = R.Known (-16383, 16383));
+            check "spec-real-dif06-ctx" (ctx = R.Known (-16383, 12));
             check "spec-real-dif06-subset"
               (in_w15 hull
                && match ctx with
                   | R.Known (c, d) ->
-                      let (a, b) = (1, 12) in
-                      a >= c && b <= d && c = -16383 && d = 16383
+                      let (a, b) = (1, 4) in
+                      a >= c && b <= d && c = -16383 && d = 12
                   | R.Unknown -> false)
        ))
 
