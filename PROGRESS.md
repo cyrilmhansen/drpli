@@ -48,7 +48,7 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-3 — **STAGE B DRIVER GREEN + MODULE ROOT CAUSE FIXED; THE DIF04 SOURCE FIX IS THE COMMIT OWED NOW; THEN THE FROZEN PANEL, THEN THE PANEL TOOL, THEN STAGE D**) — session 01a1d924 renewal 3/12 of chain 01a1d8e9, 2026-11-14
+## Next action (E2E-54/P2-DIFF-3 — **STAGE B COMMITTED (`5c4ac3c6`) AND POST-COMMIT MEASURED GREEN; THE FROZEN PANEL IS THE NEXT SINGLE STEP**) — session 01a1d924 renewal 3/12 of chain 01a1d8e9, 2026-11-14
 
 **STATE (accepted, this hop).** The module root cause was the one-line `List.rev` bug in
 `summary_of` (the `front` list was walked in reverse — declares arrived after the uses);
@@ -72,20 +72,26 @@ counted-loop law. New sha `b25f0a84…` (563 bytes, CRLF + one `^Z` verified), t
 `36c4cf5b…` superseded — the commit must land BEFORE the next measurement (timing law);
 the output vector is unchanged: `[350,350,350,700,1050]`.
 
-**NEXT VERBATIM (Stage B close, then the rest):** (1) the commit (all uncommitted
-files: `mir_return_summary.ml` + `mir_backend.ml` + `dune` + `mirsumtest.ml` + the
-`b25f0a84` DIF04 source + the durables). (2) `pli80mir --export production` on the NEW
-`b25f0a84` source — expect rc 0 (the summary admits the `*` on line 8 and `return (i)`
-compiles). (3) `pli80mir` on the new DIF03 (rc 0 already) and `mirsumtest` re-run (the
-f_real `stepclass` test is the same). (4) the frozen panel (the `mirsumtest` check is
-additive, not the `220`/`mir`/`cf`/`call` frozen). (5) `tools/mir_return_summary_test.py`
-(NEVER `hir_test.py` — the F8 count moves 13→14, the one disclosed exception). (6) Stage D
-(D08/D09 + `--strict` + the full frozen panel + `mir_numeric` + `pli80c` sha + ledger).
+**NEXT VERBATIM (the frozen panel):** (1) the FULL FROZEN PANEL §P2-DIFF-2.6 (each command
+its own rc; logs to `build/e54p2diff3/`): gate (`python3 tools/e2e_gate.py` — the F8
+`ocaml/hir/*.ml` count moves 13→14, the ONE disclosed exception); hir_test 220 (NOT to be
+extended); mir_aot 32; cosmo 25; console 43; debug 23; CF 83; call 86; the six-case runner
+`tools/dual_backend_test.py` default AND `--strict` (all D02–D07 BOTH-PASS — the CALL02/CALL04
+etc. fixtures must NOT see any summary change — the summary is a NEW proof, the existing
+fixtures' windows are computed the same way); suite `tools/test_dual_backend.py` 29/29;
+`tools/mir_numeric_test.py` 41; `test_functional_runner` 211; `git diff --exit-code -- hir/`
+and `-- ocaml/` rc 0; fresh `dune build --build-dir _build-e54p2diff3b` rc 0, `pli80c.exe`
+sha `172595d5…aca281`; ledger 203/C380. (2) the post-commit measurement is DONE: `pli80mir
+--export production` on the `b25f0a84` source rc 0 (the `mul` admitted, `ret` on the IV
+compiles), `--export pricing` on the unchanged DIF03 rc 0, `mirsumtest` 55 checks rc 0 —
+the `git diff --exit-code -- hir/` and `-- ocaml/` were already clean after the commit.
+(3) then `tools/mir_return_summary_test.py` (NEW; the `mir_numeric_test.py` precedent).
+(4) then Stage D (D08/D09, the `--strict` + the full panel + the ledger + the commit).
 
 **Standing:** ZERO oracle; ledger 203/C380; `handoff.config.json` NEVER staged; no push;
 explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
-scratch `build/*` never committed; NEVER hand-edit a managed block; the module is the one
-`List.rev` fix; the driver is 55 checks; the three `--corrupt-*` modes are the controls.
+scratch `build/*` never committed; NEVER hand-edit a managed block; `mirsumtest` runs from
+the repo root (its fixture paths are relative).
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-3 — **STAGE B IN FLIGHT: module + driver + integration WRITTEN, UNCOMMITTED, NOT YET BUILD-GREEN; the build is the next single step**) — session 01a1d90c renewal 2/12 of chain 01a1d8e9, 2026-11-14
 
@@ -5264,17 +5270,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 825
-checkpoint-id: g825-4a22d7823d0d
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 827
+checkpoint-id: g827-ed38cf944521
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-14T08:20:27.679Z
+checkpointed: 2026-11-14T08:38:52.200Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f0c28a2bb5230a5435648b70cac093251ac8328d5e7a0022eb273c262187936a
+source-progress: 3bfdf53a7403276ccb2c7f5e84aa3cf5859daf7881b4c18fbe2de9ee09e2d919
 source-handoff: 48793d6aa06f27caec4b4e038ca03fffa7bbdb13695d9152fd20a5e46e12c68d
-source-learnings: d6976df9d4e8bf80dc0c2c115da0ac58929570f754f5ef46f02bf8721751783f
+source-learnings: bf2c0bb8fab23c6fda5122d52f5c047c1d308bde188db63b0e81a3f2220d510f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: (… CLOSE
 IN FLIGHT …)`: (1) the close — PLAN `### P2-DIFF-2.8` CLOSED row + the §P2-DIFF-2.7 work-order
@@ -6598,9 +6604,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1d90c-c68a-7264-a23a-8e7fe66cb60f
-readiness-at: 2026-11-14T08:20:27.863Z
-readiness-checkpoint: g825-4a22d7823d0d
 <!-- guard:end checkpoint -->
 
 ## Blockers
