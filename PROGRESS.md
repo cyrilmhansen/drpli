@@ -48,7 +48,45 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-4 — **STAGE C CLOSED AND COMMITTED (001822bb); THE FROZEN PANEL §P2-DIFF-4.8 IS THE NEXT ACT**) — session 01a1d9db renewal 4/12 of chain 01a1d97c, 2026-11-14
+## Next action (E2E-54/P2-DIFF-4 — **THE FROZEN PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE; STAGE D IS THE NEXT ACT**) — session 01a1d9f0 renewal 5/12 of chain 01a1d97c, 2026-11-14
+
+**MEASURED THIS HOP (accepted, every command its own rc, logs `build/e54p2diff4/stageC-panel-*.log`):**
+the FULL frozen panel §P2-DIFF-4.8 ran GREEN on HEAD `2742f87f` (the g849 managed-block commit):
+gate rc 0 **1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5** `cmp`-IDENTICAL to
+`base-gate.log`; hir rc 0 **220** `cmp`-IDENTICAL (F8 count 15); mir_aot **32**, cosmo **25**,
+console **43**, debug **23**, CF **83**, call **86** — all `cmp`-IDENTICAL to the baseline;
+suite **29/29** `cmp`-IDENTICAL; the runner **8/8 BOTH-PASS in BOTH modes** (37 checks, 29/29
+controls REJECTED, no infra failures, no divergences; only the stamp and HEAD lines differ);
+functional **211/211** (only the `/tmp/fr-hostile-XXXX` evidence path differs, 2 lines);
+mir_numeric **43** `cmp`-IDENTICAL — the 34 committed `.mir` pins (incl. DIF03/DIF04) re-measured
+byte-equal x2 fresh; mir_return_summary **14** rc 0 — the DISCLOSED move from 11 (the three new
+corrupt-spec tables), its 32-pin re-measurement byte-equal. Fresh `dune build --build-dir
+_build-e54p2diff4c` rc 0, ZERO `Error`; `pli80c.exe` sha **`172595d5…aca281`** (the frozen hash);
+`git diff --exit-code -- hir/` and `-- ocaml/` rc 0; ledger **203**/C380 by the documented command
+`grep -cE '^## C'` (202 real headers + the wrapped `## CLASS;` line at CLAIMS:5080 — the
+convention every campaign baseline uses; see LEARNINGS § "Stage-C panel hop").
+
+**NEXT (Stage D — PLAN §P2-DIFF-4.8 + §P2-DIFF-4.10-5).** (1) The measured-first pins
+`hir/dif-expected/DIF05.mir` and `DIF06.mir`: generate from the committed fixtures with the
+committed compiler, review line-by-line x2, record sizes+SHAs, commit the PINS (measured-first —
+the bytes come from the measurement, the expectations from the pre-registered vectors). (2) The
+DISCLOSED tool change: `tools/mir_numeric_test.py` `EXPORTS` +2 (the two new pin names; count
+**43 → 45**, per-pin). (3) D10/D11 in `tools/dual_backend_test.py` — the committed SHAs, the
+MEASURED `nfuncs` from mir2o's own stderr (never guessed), the pre-registered vectors
+DIF05 `[1500,6000,10000]` / DIF06 `[700,1400,2100,2800]`, both lanes x2 fresh, BOTH modes, the
+comparator controls. (4) The full panel again (§4.8, each own rc; the runner is now 10/10).
+(5) The CLOSE: RESULTS `## §P2-DIFF-4`, the PLAN dashboard CLOSED row, arch
+`docs/architecture/backend-boundary.md` `## 7-15` (the 7-14 gap stays a disclosed DOCUMENTATION
+GAP, not renumbered), the durables, `/handoff finalize`. **STOP after the close — any extension
+needs a NEW operator brief (§P2-DIFF-4.10).**
+
+**STANDING (all binding, unchanged):** ZERO oracle; `handoff.config.json` NEVER staged; no push;
+explicit paths; rc DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests;
+`mirsumtest` from the REPO ROOT; NO new `ocaml/hir/*.ml` file (F8 count 15); the driver stays
+F8-clean; after any scripted durable write `grep -c $'\x08'` MUST be 0; NEVER hand-edit a managed
+block. Recovery: this heading → LEARNINGS § "Stage-C panel hop" → PLAN §P2-DIFF-4.8/4.10.
+
+SUPERSEDED-BY-ABOVE (the record below stands as history): ## Next action (E2E-54/P2-DIFF-4 — **STAGE C CLOSED AND COMMITTED (001822bb); THE FROZEN PANEL §P2-DIFF-4.8 IS THE NEXT ACT**) — session 01a1d9db renewal 4/12 of chain 01a1d97c, 2026-11-14
 
 **MEASURED THIS HOP (accepted, every command its own rc, direct):** the driver's real-fixture
 measurement is WIRED and GREEN: `dune build` rc 0; `mirsumtest` rc 0 — **MIR-SUM OK 116 checks**

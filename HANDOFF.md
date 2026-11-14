@@ -7,7 +7,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-21-e54p2diff4-stageC-closed (2026-11-14, session 01a1d9db renewal 4/12 of chain 01a1d97c;
+22-e54p2diff4-panel-green (2026-11-14, session 01a1d9f0 renewal 5/12 of chain 01a1d97c;
+ZERO oracle; ledger 203/C380; start HEAD `60afe31f`, now `2742f87f` + the durables): **THE FROZEN
+PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE.** The g849 managed-block commit landed
+(`2742f87f`). Every panel command its own rc, logs `build/e54p2diff4/stageC-panel-*.log`: gate
+1328/1328-190/190-9/9-149 rows 0/0-census 16/0/25/0-prose 5 `cmp`-IDENTICAL to base; hir 220
+`cmp`-IDENTICAL; mir_aot 32/cosmo 25/console 43/debug 23/CF 83/call 86 ALL `cmp`-IDENTICAL;
+suite 29/29 `cmp`-IDENTICAL; runner 8/8 BOTH-PASS in BOTH modes (37 checks, 29/29 controls
+rejected; only stamp/HEAD differ); functional 211 (only the /tmp evidence path); mir_numeric 43
+`cmp`-IDENTICAL (34 pins re-measured byte-equal x2); mir_return_summary **14** (the disclosed
+move from 11); fresh `_build-e54p2diff4c` rc 0 ZERO Error, `pli80c.exe` `172595d5…aca281`;
+`git diff --exit-code -- hir/` and `-- ocaml/` rc 0. LEDGER-COUNT FACT (method): the documented
+command is `grep -cE '^## C'` == 203 (202 real headers + the wrapped `## CLASS;` line at
+CLAIMS:5080); the variants `^## C[0-9]` (202) and `^## C[0-9]{3} ` (200) are NOT the ledger
+number. NEXT: Stage D (measured-first pins `DIF05.mir`/`DIF06.mir`, the disclosed `mir_numeric`
+`EXPORTS` +2 = 43→45, D10/D11 in the runner with the MEASURED `nfuncs` from mir2o stderr, both
+lanes x2, both modes; the panel again), then the CLOSE (RESULTS §P2-DIFF-4, the PLAN dashboard
+row, arch `## 7-15`, the durables) and STOP (§P2-DIFF-4.10: any extension needs a NEW operator
+brief). Recovery: PROGRESS live heading → LEARNINGS § "Stage-C panel hop" → PLAN §P2-DIFF-4.8/4.10.
+
+SUPERSEDED-BY-ABOVE: 21-e54p2diff4-stageC-closed (2026-11-14, session 01a1d9db renewal 4/12 of chain 01a1d97c;
 ZERO oracle; ledger 203/C380; start HEAD 3bdeca1f, now 001822bb + the durables): **STAGE C IS
 CLOSED AND COMMITTED.** The driver's real-fixture measurement is WIRED — `mirsumtest` rc 0
 **MIR-SUM OK 116 checks** (55+42+19): the owed numbers are now MEASURED on the real

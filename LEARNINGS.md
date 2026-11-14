@@ -5,6 +5,50 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-54/P2-DIFF-4 Stage-C panel hop (2026-11-14, session 01a1d9f0 fresh startup, renewal 5/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; HEAD 2742f87f) — THE FROZEN PANEL §P2-DIFF-4.8 IS GREEN WITH STAGE C IN PLACE; STAGE D IS NEXT
+
+**ACCEPTED (measured, every command its OWN rc, logs `build/e54p2diff4/stageC-panel-*.log`).**
+The full frozen panel §P2-DIFF-4.8 ran green on HEAD `2742f87f` (the g849 managed-block commit
+on top of the Stage-C close `60afe31f`):
+- gate rc 0: **1328/1328** byte-exact, **190/190** negatives, **9/9** divergences, **149 rows
+  0/0**, census **16/0/25/0**, prose **5** — the log `cmp`-IDENTICAL to `base-gate.log`.
+- hir_test rc 0: **220 ok**, `cmp`-IDENTICAL to `base-hir_test.log` (the F8 file count stays 15).
+- mir_aot **32**, cosmo **25**, console **43**, debug **23**, CF **83**, call **86** — all rc 0,
+  every log `cmp`-IDENTICAL to the baseline.
+- hostile suite `test_dual_backend.py` **29/29** rc 0, `cmp`-IDENTICAL.
+- runner `dual_backend_test.py` rc 0 in BOTH modes: **8/8 BOTH-PASS**, 37 checks, 29/29 controls
+  REJECTED, no infra failures, no semantic divergences; the ONLY diff vs the base logs is the
+  stamp line and the HEAD line (`2742f87f` vs `c3576ccb`).
+- functional `test_functional_runner.py` **211/211** rc 0; the only diff vs the base log is the
+  `/tmp/fr-hostile-XXXX` evidence-directory path (two lines).
+- mir_numeric **43** rc 0, `cmp`-IDENTICAL — the 34 committed `.mir` pins (incl. DIF03/DIF04)
+  re-measured byte-equal x2 fresh processes: the behavioural-equivalence proof that no emission
+  moved.
+- mir_return_summary **14** rc 0 — the DISCLOSED move from 11 (the three new corrupt-spec tables);
+  the 32-pin re-measurement inside it is byte-equal.
+- fresh `dune build --build-dir _build-e54p2diff4c` rc 0, ZERO `Error`; `pli80c.exe` sha256
+  `172595d52be44c9ead2404674f02bcce3ba7fc252915e13ce10040a5d5aca281` (the frozen hash).
+- `git diff --exit-code -- hir/` rc 0 and `-- ocaml/` rc 0; ledger `grep -cE '^## C'` = 203,
+  ending C380.
+
+**METHOD (accepted):** the ledger-count law — the documented command is `grep -cE '^## C'
+spec/CLAIMS.md` == 203 (LEARNINGS line ~947); `grep -cE '^## C[0-9]{3} '` gives 200 because the
+`C103a`/`C136b` headers are letter-suffixed, and `^## C[0-9]` gives 202 — neither is the ledger
+number. The 203rd `^## C` match is the WRAPPED header line at `CLAIMS.md:5080` (`## CLASS; ...`,
+the second physical line of the C266 heading), so 203 = 202 real headers + 1 wrapped-line
+artifact; every campaign baseline reports the documented 203, so the CONVENTION is the documented
+command, not an invented variant. Use it unchanged.
+
+**METHOD (accepted):** a redirect to a relative path inside `ocaml/` (`build/...`) fails when the
+intended log dir is the repo-root `build/`; the fresh-build stderr must be redirected to
+`../build/e54p2diff4/...` from `ocaml/`. The rc of the fresh build is still DIRECT.
+
+**NEXT (Stage D, PLAN §P2-DIFF-4.8/4.10-5):** the measured-first pins `hir/dif-expected/DIF05.mir`
+and `DIF06.mir` (generated from the committed fixtures, reviewed line-by-line, committed); the
+DISCLOSED `tools/mir_numeric_test.py` `EXPORTS` +2 (43 → 45, the two new pins); D10/D11 in
+`tools/dual_backend_test.py` (committed SHAs, the MEASURED `nfuncs` from mir2o stderr, both lanes
+x2, both modes); then the close.
+
 ## E2E-54/P2-DIFF-4 Stage-C driver hop (2026-11-14, session 01a1d9ca renewal 3/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; HEAD 32efdff6) — THE CALL-SITE FAMILY IS IN THE DRIVER AND MEASURED (97 CHECKS); THE REAL-FIXTURE MEASUREMENT AND THE TOOL UPDATE ARE OWED
 
 ACCEPTED (measured): the driver extension is committed at 32efdff6; build rc 0, mirsumtest rc 0
