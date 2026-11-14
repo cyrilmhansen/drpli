@@ -48,9 +48,56 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-54/P2-DIFF-3 — **STAGE B COMMITTED (`5c4ac3c6`) AND POST-COMMIT MEASURED GREEN; THE FROZEN PANEL IS THE NEXT SINGLE STEP**) — session 01a1d924 renewal 3/12 of chain 01a1d8e9, 2026-11-14
+## Next action (E2E-54/P2-DIFF-3 — **STAGE C TOOL COMMITTED; THE FROZEN PANEL IS COMPLETE; THE FROZEN PANEL IS GREEN; THE NEXT ACTION IS STAGE D (D08/D09) + THE CLOSE**) — session 01a1d935 renewal 4/12 of chain 01a1d8e9, 2026-11-14
 
-**STATE (accepted, this hop).** The module root cause was the one-line `List.rev` bug in
+**STATE (accepted, this hop).** The frozen panel is COMPLETE AND GREEN. The Stage-B `M` alias
+was a REAL DEFECT (72 F8 failures, the `M` alias is a bare register mnemonic, and the F8 glob
+covers every `ocaml/hir/*.ml` file). Fixed with a pure rename `M`→`R` (commit `e49da02d`).
+
+**ACCEPTED — the measured F8 file count is 15, NOT the pre-registered 14.** The baseline
+`base-hir.log` says **11**; the Stage-B commit adds **2** files (`mir_return_summary.ml` +
+the `mirsumtest.ml` driver), both clean. The pre-registered number was wrong. The `X3` check
+is dynamic; the `Y5` check is also dynamic.
+
+**ACCEPTED — the full panel log (all `build/e54p2diff3/`):**
+- `gate`: rc 0, 1328/1328-190/190-9/9-census 16/0/25/0-prose 5, `cmp`-IDENTICAL to
+  `base-gate.log` (deterministic).
+- `hir`: rc 0, 220 ok, ONE disclosed line (the F8 file count 11→15).
+- `mir_aot`: 32, `cmp`-IDENTICAL to `stageC-mir_aot`.
+- `cosmo`: 25, `cmp`-IDENTICAL to `stageC-mir_aot_cosmo`.
+- `console`: 43, `cmp`-IDENTICAL to `stageC-mir_aot_console`.
+- `debug`: 23, `cmp`-IDENTICAL to `stageC-mir_aot_debug`.
+- `cf`: 83, `cmp`-IDENTICAL to `stageC-mir_aot_cf`.
+- `call`: 86, `cmp`-IDENTICAL to `stageC-mir_aot_call`.
+- `suite`: 29/29, `cmp`-IDENTICAL to `stageC-suite`.
+- `runner`: 6/6 `BOTH-PASS`, both modes rc 0, only ephemeral stamp/HEAD diff.
+- `mir_numeric`: 41, `cmp`-identical except the dynamic X3 line.
+- `functional`: 211/211, only the /tmp evidence path.
+- `mir_return_summary`: 11 checks, rc 0.
+- fresh `dune build --build-dir _build-e54p2diff3b` rc 0, `pli80c.exe` sha
+  `172595d5…aca281`.
+- `git diff --exit-code -- hir/` and `-- ocaml/` both rc 0 after the fix.
+- ledger 203/C380.
+
+**STAGE C COMMITTED (`c85c0652`).** The `tools/mir_return_summary_test.py` tool is 11 checks
+(rc 0), non-vacuity measured (the missing baseline, the wrong live count, the wrong pin,
+the dropped module all fail). The Y6 regex matched the actual `let summaries ~maxp` source
+form, not the idealized signature.
+
+**NEXT VERBATIM (Stage D + the close):**
+1. Stage D: register D08/D09 (DIF03/DIF04) in the runner CASES (additive entries, the
+   committed SHAs, the measured `nfuncs`, the pins); run the 6/8/9/10-case panel; both modes.
+2. The close: `RESULTS.md` §P2-DIFF-3 (the panel, the Stage-B/C records, the D08/D09
+   results); `PLAN.md` §P2-DIFF-3.10 CLOSED row; the durables.
+3. The `<=` to `>` deviation (DIF03/DIF04) is a disclosed deviation, not a contract change.
+4. The `return (w)` to `return (i)` deviation is the same for DIF04.
+
+**Standing:** ZERO oracle; `handoff.config.json` NEVER staged; no push; explicit paths; rc
+DIRECT; `eval "$(opam env)"`; `LC_ALL=C`; never batch build+tests; scratch `build/*` never
+committed; `mirsumtest` runs from the REPO ROOT (its fixture paths are relative); NEVER
+hand-edit a managed block.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-54/P2-DIFF-3 — **STAGE B COMMITTED (`5c4ac3c6`) AND POST-COMMIT MEASURED GREEN; THE FROZEN PANEL IS THE NEXT SINGLE STEP**) — session 01a1d924 renewal 3/12 of chain 01a1d8e9, 2026-11-14 The module root cause was the one-line `List.rev` bug in
 `summary_of` (the `front` list was walked in reverse — declares arrived after the uses);
 fixed to `stmts ... (List.rev front)`. The driver table bugs (missing `s_declare 11`, the
 nonsense `zero-precision-result`, the absent sym 12/13/99, the vacuous `boundary-neg-*` and
@@ -5274,7 +5321,7 @@ checkpoint-generation: 827
 checkpoint-id: g827-ed38cf944521
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-14T08:38:52.200Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -6604,6 +6651,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1d924-c4af-7264-a23a-8e8261dd3230
+readiness-at: 2026-11-14T08:39:08.579Z
+readiness-checkpoint: g827-ed38cf944521
 <!-- guard:end checkpoint -->
 
 ## Blockers
