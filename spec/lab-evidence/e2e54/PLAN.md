@@ -6574,3 +6574,85 @@ committed fixtures and are byte-equal. The finding, the four falsifications of t
 hand-derived tables, the `±16383`-vs-`32767` correction above and the PRE-EXISTING latent defect
 (`decimal_int ""` raises, unreachable from the compiler, deliberately NOT fixed under invariant 3)
 are in RESULTS §P2-DIFF-2.7.
+
+## §P2-DIFF-3 — Pre-registration: sound interprocedural return-value interval summaries (PROTOCOL #1; committed BEFORE any experimental source, compiler code or probe)
+
+Operator brief E2E-54/P2-DIFF-3, authorized 2026-11-14. §P2-DIFF-1/2 CLOSED and immutable. ZERO
+oracle (`PLI.COM` never runs); ledger 203/C380; historical compiler/goldens frozen. Baseline
+measured at HEAD `4e857e09` (gate 1328/1328-190/190-9/9-149-0/0-16/0/25/0-prose 5; hir 220;
+mir 32/cosmo 25/console 43/debug 23/CF 83/call 86; suite 29/29; runner 6/6 BOTH-PASS;
+functional 211; mir_numeric 41; sha 172595d5…aca281; W(15)=±16383).
+
+**H1:** `lower_call_e` returns `(rr, window cq)` — the callee's FULL declared window (mir_backend
+.ml ~813, §P1-m3 I3). For some reached nonrecursive side-effect-free value procedures the HIR
+body + declared formal windows prove a STRICTLY smaller return interval. NOT authorized:
+call-site specialization, constant propagation from actuals, interprocedural side-effect
+analysis, narrowing by-ref-written variables, recursion/fixpoints, new numeric semantics,
+changes to existing negative fixtures. The summary is valid for EVERY input in the declared
+formal windows.
+
+**Subset (any violation → Unknown, never a new refusal):** pid≠0 value proc `ret = Some
+Fixed_bin(q,0)`, 1≤q≤15; formals `Fixed_bin(p,0)` 1≤p≤15, seeded with EXACTLY `W(p)`; last
+statement the top-level `Return (Some e)`; no other Return/While/Call_s/Call_e/Get/Put/Stop;
+Assign only to `D_var` of own-scope scalars; expression grammar mirrors the backend `lower` law
+(Const/Var definite-init/Bin Add-Sub-Mul type-equal/Neg) with the SAME window proof via
+`Mir_numeric`; relational `Bin` only as `If` conditions (no interval recorded); `If` arms join
+via the backend law verbatim (Some/Some hull `iv_hull`, drop-not-inherit on any None; missing
+ELSE = identity path); `Unknown_ef` ⇒ Unknown; return interval escaping `W(q)` ⇒ Unknown.
+
+**Soundness:** per-procedure closure (no globals; `declare` refuses foreign-scope syms; value
+calls pass ONLY A_value cells, by-ref actuals refused E18) ⇒ result depends only on formals+own
+locals; induction over the statement sequence (every env entry is a sound over-approximation on
+every path; the join is the smallest hull covering both sides; every node window-proved with the
+exact endpoint algebra). Invariant `actual_return_values ⊆ inferred ⊆ declared_window`; else
+fallback. No fixpoint needed (DFS cycle refusal earlier).
+
+**DIF03 “pricing” (entry `pricing`):** `classify(x)`: `if x<=5 then c=1; else if x<=50 then c=2;
+else c=3; return(c)` — computed from control flow, NOT a constant; caller `cat = classify(n+0);
+cost = cat*1200; put list(cost)` for n=2,20,200; expect **[1200,2400,3600]**; summary `[1,3]`
+must be sound for ALL x∈[-16383,16383]. **DIF04 “production” (entry `production`):** counted
+`do while` i=1; i<6; i=i+1 (IV laws preserved); `stepclass(s)`: `if s<=3 then c=1; else if s<=4
+then c=2; else c=3; return(c)`; `cl = stepclass(i+0); w = cl*350; put list(w)` INSIDE the loop
+(drop law); expect **[350,350,350,700,1050]**. TIMING LAW (brief §4, stronger than P2-DIFF-2):
+final sources + spec + SHAs committed BEFORE ANY compilation of those bytes; no experiment on
+uncommitted sources. Baseline-refusal experiment on the OLD backend: `pli80c -d` rc 0 AND
+`pli80mir` refusal whose diagnostic names `binop '*'` operand `[-16383,16383]` leaving
+`[-16383,16383]` (HIR-E19). Any OTHER refusal = unrelated blocker → STOP, preserve, report
+minimum fix.
+
+**Architecture (permitted edits ONLY):** (1) NEW `ocaml/hir/mir_return_summary.ml` — pure,
+`type summary = Known of (int*int) | Unknown`, deterministic `pid → summary` map over the
+reached set; deps ONLY `Hir` + `Mir_numeric` (no second interval impl); NO emission, NO
+diagnostics, NO Target, NO refusal raising; F8-clean. (2) `mir_backend.ml`: ONE analysis call
+after the validation scans (`folded_of`/`-g` law) and BEFORE the per-procedure lowering loop —
+NO reordering of discovery/entry-first/callee-first/pinned order; in `lower_call_e` the returned
+interval becomes the summary iff `Known iv ∧ in_window (window cq) iv` (defensive), else
+`window cq`. (3) dune `(modules …)`. (4) Stage-C tests: `ocaml/hir/mirsumtest.ml` driver +
+additive `tools/mir_return_summary_test.py` (NEVER hir_test.py — 220 frozen; the F8
+`ocaml/hir/*.ml` file-count line moves 13→14 — the ONE disclosed exception).
+
+**Stage C falsifiers (minimum):** constant return ⇒ point; 1/2/3 nested ⇒ `[1,3]`;
+non-exhaustive assignment ⇒ Unknown; effectful body ⇒ Unknown; unsupported expr ⇒ Unknown;
+escape ⇒ Unknown and backend still refuses; two callers ⇒ ONE identical summary; ±16383
+boundaries; summary vs an INDEPENDENT concrete reference evaluator over the FULL domain
+[-16383,16383]; a control that CORRUPTS an inferred interval while leaving the reference
+untouched must fail LOUDLY (perturb the EXPECTATION, never the guard — the accepted Stage-C
+method law). Preservation: all existing `.mir` pins byte-identical; the six D02–D07 cases and
+the negative fixtures (incl. CALLN9, refused by SHAPE) unchanged.
+
+**Stage D:** register DIF03/DIF04 as **D08/D09** (additive CASES entries, committed SHAs,
+measured nfuncs, pins); both lanes ×2 fresh; default + `--strict`; FULL frozen panel §P2-DIFF-2.6
++ mir_numeric 41; fresh build `pli80c.exe` 172595d5…aca281; ledger 203/C380. No BOTH-PASS
+fabricated; one pass + one precise failure preserved is an accepted outcome.
+
+**STOP (binding):** unrelated refusal; any pin/golden/claims/negative-fixture move; unexplained
+panel change; oracle temptation; any soundness doubt; any need to touch `ocaml/lib`/`ocaml/bin`,
+the MIR ABI or the lowering order. Standing: no push; explicit paths; `handoff.config.json`
+never staged; rc DIRECT; LC_ALL=C; never batch build+tests; timeouts 60/120/900; scratch
+`build/` never committed.
+
+### P2-DIFF-3.10 Dashboard row (added at close)
+
+| slice | status | notes |
+|---|---|---|
+| P2-DIFF-3 | OPEN (pre-registration committed this session) | see sections above |
