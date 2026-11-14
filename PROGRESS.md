@@ -74,9 +74,39 @@ driver and the two pinned tools were read VERBATIM; the design is recorded in LE
 "E2E-54/P2-DIFF-4 Stage-B design hop" (shared `eval_body`; `summary_of` keeps its own
 validation path byte-for-byte — no `Formal` check there; `summary_of_actuals` adds the
 §P2-DIFF-4.2 obligations; the backend fallback specialized → context-independent → full;
-the Y6 `emit` word must never appear in the module; the driver's corrupt modes must keep
-the old names byte-identical and add only NEW specialized names). NO implementation byte exists
-yet; the next act is the module edit.
+the Y6 \bemit\b word must never appear in the module; the driver's corrupt modes must keep
+the old names byte-identical and add only NEW specialized names).
+
+**STAGE-B PARTIAL LANDED (accepted, this checkpoint, session 01a1d998, HEAD `d1885505`):**
+the MODULE extension is COMMITTED at `d1885505` — ONE shared pure `eval_body` (the
+verbatim body-walk tail of the old `summary_of`), `summary_of` KEPT in its own validation
+path (no `Formal` check, `seed_formals` kept, context-independent semantics byte-for-byte),
+and the new `summary_of_actuals ~maxp prog pid ~params ~actuals` carrying the §P2-DIFF-4.2
+obligations (`params` = `pp.params` order-equality; length equality; non-empty `lo <= hi`;
+`Formal` storage; `bin_p`; `in_window W(p)` containment); ANY violation ⇒ `Unknown`, never
+a refusal/exception. `dune build` rc **0**; the hir `*.ml` file count is still **15**; the
+module stays Y4/Y6-clean. `ocaml/hir/mir_backend.ml` is **UNMODIFIED** (the edit's oldText
+did not match; the file is clean).
+
+**NEXT ACT (the ONLY permitted Stage-B edit, §P2-DIFF-4.6-2): the `lower_call_e` integration
+ONLY.** In `mir_backend.ml` the `List.map2` ~793 returns `cell` (the `let rv, _iv =
+lower env x` at ~803 DISCARDS the proven interval). Change: (a) `let rv, iv = lower env
+x` and return `(cell, iv)`; (b) after the `List.map2`, `let op_cells = List.map fst
+operand_regs` and `let op_ivals = List.map snd operand_regs`; (c) the `String.concat
+", " operand_regs` becomes `String.concat ", " op_cells`; (d) the `if operand_regs = []`
+test stays; (e) the SAME `hv`/`emit`/`r_n`/`res_regs`/`pc_uses` — NOTHING else moves;
+the existing fallback at ~830 becomes: `let specialized =
+Mir_return_summary.summary_of_actuals ~maxp prog cpid ~params:callee.Hir.params
+~actuals:op_ivals` then the chain `specialized -> (existing List.assoc_opt cpid
+summaries) -> full`, each `Known` guarded by `in_window full` (the existing defensive
+re-check), returning `(rr, iv)`. `maxp`/`summaries`/`full` are already in scope; the
+`summaries` call site stays UNCHANGED. Then `dune build` own rc; then the FROZEN PANEL
+§P2-DIFF-4.8 (each command its OWN rc; logs `build/e54p2diff4/`); then the Stage-C
+disclosed tool changes (`mir_numeric` EXPORTS +2, `mir_return_summary` LIVE_OK 55→new,
+the corrupt tables move); then `mirsumtest`; then `git diff --exit-code -- hir/` and
+`-- ocaml/`. The D08/D09 (DIF03/DIF04) pins stay byte-identical (their `classify`/
+`stepclass` summaries are the context-independent ones; the `min`-shaped `capped_units`/
+`limited_step` are NOT in the frozen panel).
 
 **NEXT VERBATIM (Stage B — §P2-DIFF-4.6, the ONLY permitted edits).**
 1. `ocaml/hir/mir_return_summary.ml` IN PLACE: one new pure entry

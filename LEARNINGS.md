@@ -45,6 +45,25 @@ the DIF03/DIF04 acceptance) the design is wrong and the campaign STOPS.
 `dune build` own rc, then `lower_call_e`, then `dune build` again, then `mirsumtest` (repo
 root), then the FROZEN PANEL (§P2-DIFF-4.8) with every command its own rc and its own log.
 
+**LANDED SINCE (accepted, HEAD `d1885505`):** the MODULE extension above is COMMITTED and
+`dune build` is rc 0 — `eval_body` (shared), `summary_of` (unchanged validation path, no
+`Formal` check), `summary_of_actuals` (the §P2-DIFF-4.2 call-site obligations). The hir file
+count is STILL 15; the module is Y4/Y6-clean (the word `emit` appears ONLY inside a comment,
+never as code, and the code still has no `raise`/`failwith`/`print_`/`prerr_`/`output`/
+`write`). `mir_backend.ml` is UNMODIFIED — my first integration `edit` call had a non-matching
+`oldText` and the file stayed clean (the whole call is atomic, so nothing partial landed). The
+`lower_call_e` integration is the ONE remaining Stage-B act, verbatim in the PROGRESS live
+heading. METHOD LAW re-confirmed: a multi-edit `edit` call is atomic on failure; re-derive the
+exact current bytes with `read` before re-attempting.
+
+**DURABLE-EDIT HAZARD (accepted, mine, fixed at `e8df8701`+this):** writing PROGRESS/LEARNINGS
+with a bash heredoc containing a `\b`/`\x`-style escape SILENTLY produces a literal backspace
+or other control byte in the file (the earlier `\bemit\b` note became `^Hemit^H`). Method law:
+after ANY scripted durable write, `grep -c $'\x08'` (and a `cat -v` of touched lines) MUST be
+clean; use `python3` with explicit `b"\x08"`-free byte strings and `assert count==1` on every
+replace, and NEVER put a raw `\b`/`\x` sequence in a double-quoted heredoc that is destined for
+the durable text.
+
 ## E2E-54/P2-DIFF-4 Stage-A hop (2026-11-14, session 01a1d998 renewal 1/12 of chain 01a1d97c; ZERO oracle; ledger 203/C380; start HEAD `d4d359ae`) — THE STAGE-A STOP-AND-ATTRIBUTE FIRED ON E18, THE PRE-EXECUTION AMENDMENT LANDED, AND THE AMENDED BASELINE IS MEASURED EXACTLY AS PREDICTED
 
 **ACCEPTED — the measured chronology (every command its own rc, logs
