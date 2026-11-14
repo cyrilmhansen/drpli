@@ -51,6 +51,16 @@ hulls, three value calls whose results the caller prints) and D07 DIF02
 §P2-DIFF-2.9-B deviation, callee-modified by-reference home re-read, PUT
 inside the loop).
 
+The two SUMMARY-ADMITTED programs of §P2-DIFF-3 (Stage D, original sources
+committed at 3928f130/5c4ac3c6 BEFORE any compilation of those bytes — the
+stronger timing law): D08 DIF03 `pricing` [1200,2400,3600] (the nested-IF
+classifier `classify` returns 1/2/3; the return-value summary [1,3] admits
+`cat * 1200` on the native lane, which the OLD backend refused with HIR-E19)
+and D09 DIF04 `production` [350,350,350,700,1050] (counted do-while 1..5,
+`stepclass` summary [1,3] admits `cl * 350`, PUT INSIDE the loop, the
+disclosed `return (i)` IV deviation).  The expected vectors are the
+pre-registered §P2-DIFF-3 ones, hand-derived, never from any output.
+
 COMPARATOR FALSIFICATION (§P2-DIFF-1.10): after the real observations are
 in hand, the comparator is attacked with THREE DISPOSABLE corrupted
 expectations (change / delete / permute — sources and executables
@@ -172,6 +182,37 @@ CASES = {
                 "a void adjust(h, s+0) that writes the by-reference home and the caller's "
                 "re-read s = h; the PUT is INSIDE the loop (the loop-exit drop law); the "
                 "return value 9 is NOT observed",
+    },
+    # §P2-DIFF-3 Stage D — the two SUMMARY-ADMITTED programs.  The sources are
+    # the committed Stage-A fixtures (DIF03 at 3928f130 unchanged; DIF04 at
+    # 5c4ac3c6 with the disclosed `return (w)` -> `return (i)` deviation, the
+    # output vector unchanged); the pins are the measured-first Stage-D
+    # outputs.  Expected vectors are the pre-registered §P2-DIFF-3 ones.
+    "D08": {
+        "fixture": "hir/dif-fixtures/DIF03.pli",
+        "sha256": "34ac5efb91520ee5f9d13dfe1d12b6185b805727e1552814ed9a49131595b2e1",
+        "entry": "pricing", "tag": "DIF03",
+        "expected": [1200, 2400, 3600],
+        "pin": "hir/dif-expected/DIF03.mir",
+        "nfuncs": 2,
+        "note": "nested-IF classifier: classify(x) computes 1/2/3 by control flow "
+                "(x > 5 -> x > 50 -> 3 else 2; else 1); the return-value summary [1,3] "
+                "admits cat * 1200 on the native lane (the OLD backend refused HIR-E19); "
+                "three n = 2/20/200 calls with the n + 0 value-actual idiom, PUT of each "
+                "cost; the entry's return (cost) is NOT observed",
+    },
+    "D09": {
+        "fixture": "hir/dif-fixtures/DIF04.pli",
+        "sha256": "b25f0a84409d38c9dbbc3e7a6a3abb6488c673f94c8269b38f505c9802d68906",
+        "entry": "production", "tag": "DIF04",
+        "expected": [350, 350, 350, 700, 1050],
+        "pin": "hir/dif-expected/DIF04.mir",
+        "nfuncs": 2,
+        "note": "counted do while (i < 6) over i = 1..5; stepclass(s) computes 1/2/3 "
+                "(s > 4 -> 3; s > 3 -> 2; else 1) with the summary [1,3] admitting "
+                "cl * 350 (the OLD backend refused HIR-E19); the PUT of w is INSIDE the "
+                "loop (the drop law); the disclosed return (i) — the IV, definitely "
+                "initialized at the loop exit — is NOT observed",
     },
 }
 

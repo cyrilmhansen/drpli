@@ -26,9 +26,10 @@ judged:
       behavioural proof: the summary is used by the backend.
 
   Y3  the EXISTING pins are UNMOVED — the summary must NOT move any existing
-      `.mir` pin.  The 32 committed pins are re-measured from their fixtures
-      with the post-Stage-B compiler and must be byte-equal to the committed
-      pins.  This is the behavioural-equivalence proof.
+      `.mir` pin.  The 32 pins that predate the Stage-D DIF03/DIF04 additions
+      are re-measured from their fixtures with the post-Stage-B compiler and
+      must be byte-equal to the committed pins.  This is the
+      behavioural-equivalence proof.
 
   Y4  the module's dependency law (§P2-DIFF-3): the module imports only
       `Hir` and `Mir_numeric`; it has no `open`, no `Target`, no `Diagnostic`,
@@ -307,10 +308,13 @@ def dif_integration() -> None:
 # Y3 — the existing .mir pins are UNMOVED (the behavioural-equivalence proof)
 # --------------------------------------------------------------------------
 
-# The fixture -> export-name map.  Only the 32 pins that already exist in the
-# campaign; the DIF03/DIF04 pins are not yet in the committed set (they are
-# Stage-D work); the pins are the ones that must be byte-equal BEFORE and
-# AFTER the summary.
+# The fixture -> export-name map.  The 32 pins that existed BEFORE the
+# Stage-D pins: the summary must not move ANY of them, and this is the
+# behavioural-equivalence proof of that law.  The Stage-D DIF03/DIF04 pins
+# are NEW outputs of the summary-enabled compiler (they are not "existing"
+# pins); they are re-measured by mir_numeric_test.py X2 (dynamic pin
+# enumeration, all committed pins) and byte-compared by the dual-backend
+# runner's native lane on every execution.
 EXPORTS = {
     "M01": "calc", "M02": "m02", "M03": "m03", "M04": "io1", "M05": "iorw",
     "M06": "msg1", "N2": "n2",
@@ -332,13 +336,14 @@ FAMILIES = [
 ]
 
 
-def pin_equivalence() -> None:
+def pin_equivalence() -> int:
     """Y3: each pin re-measured from its fixture by the post-Stage-B compiler,
-    twice in fresh processes; stdout == pin == -o file; no stderr."""
+    twice in fresh processes; stdout == pin == -o file; no stderr.
+    Returns the number of pins re-measured."""
     if not PLIMIR.exists():
         fail(f"Y3 prerequisites: {PLIMIR.relative_to(REPO)} missing — run "
              "'(cd ocaml && dune build)'")
-        return
+        return 0
     n = 0
     for expdir, fixdir in FAMILIES:
         for pin in sorted((REPO / expdir).glob("*.mir")):
@@ -377,10 +382,11 @@ def pin_equivalence() -> None:
     if n == 0:
         fail("Y3: NO pins re-measured — the EXPORTS map or the pin dirs are "
              "wrong")
-        return
+        return n
     ok(f"Y3 pin equivalence: {n} committed .mir pins re-measured from the "
        f"committed fixtures, byte-equal to the pins, x2 fresh procs, "
        f"-o == stdout, ZERO stderr (the summary moved NOTHING)")
+    return n
 
 
 # --------------------------------------------------------------------------
@@ -533,7 +539,7 @@ def main() -> int:
     corrupt_controls()
     usage_control()
     dif_integration()
-    pin_equivalence()
+    n_pins = pin_equivalence()
     dependency_law()
     hir_panel_law()
     module_responsibility()
@@ -543,9 +549,10 @@ def main() -> int:
     print(f"\nMIR-RETURN-SUMMARY PANEL PASSED: {CHECKS} checks — the module is "
           f"judged by mirsumtest (55 checks, the frozen count) and by three "
           f"corrupt controls whose exact stderr bytes are pinned; the DIF03 "
-          f"and DIF04 integrations are rc 0 with the summary; the 32 "
-          f"committed .mir pins are byte-equal (re-measured from the fixtures "
-          f"with the post-Stage-B compiler, x2 fresh); the module's "
+          f"and DIF04 integrations are rc 0 with the summary; the "
+          f"{n_pins} pre-Stage-D committed .mir pins are byte-equal "
+          f"(re-measured from the fixtures with the post-Stage-B compiler, "
+          f"x2 fresh); the module's "
           f"dependency law is clean; the hir panel is rc 0 with the frozen "
           f"220 and the single disclosed F8 file-count line")
     return 0

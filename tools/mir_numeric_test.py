@@ -17,7 +17,8 @@ this tool is where BOTH are judged:
 
   X2  the MOVEMENT changed NOTHING — the frozen-pin equivalence.  Every
       committed `.mir` artifact in the repository (mir-expected, mir-cf-expected,
-      mir-call-expected, dif-expected: 32 pins) is re-measured from its
+      mir-call-expected, dif-expected; the enumeration is DYNAMIC, so the
+      Stage-D DIF03/DIF04 pins are covered too) is re-measured from its
       committed fixture with the POST-EXTRACTION `pli80mir.exe`, twice in fresh
       processes, and must be byte-equal to the pin, with the `-o` file equal to
       stdout and ZERO stderr.  This is the real behavioural-equivalence proof:
@@ -196,6 +197,7 @@ EXPORTS = {
     "CALL07": "thrice", "CALL08": "wret", "CALL09": "uncalled",
     "CALL10": "mixmod", "CALLN1": "pval", "CALLN10": "refm3a",
     "DIF01": "tariff", "DIF02": "steps",
+    "DIF03": "pricing", "DIF04": "production",
 }
 
 # pin dir -> fixture dir (the committed layout of the MIR campaign).
