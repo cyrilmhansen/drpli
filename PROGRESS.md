@@ -103,7 +103,7 @@ authorizes it (4/12 of the chain cap is used, so renewal is available) — other
 `handoff_finalize`. (2) **STOP.** The campaign is CLOSED: interprocedural narrowing,
 non-numeric observables, `GET`/`PUT EDIT`/`FILE`, the `decimal_int ""` fix, the stale
 `tools/test_functional_dashboard.py` `**26**` check, and any oracle work ALL need a NEW operator
-brief. Recovery for any successor: `git rev-parse HEAD` (expect `2555c7e3` or later) +
+brief. Recovery for any successor: `git rev-parse HEAD` (expect `54f765fc` or later) +
 `git status --porcelain` (only `handoff.config.json` may be dirty, never staged) +
 `/handoff verify`, then RESULTS §P2-DIFF-2.7 + §P2-DIFF-2.8, PLAN §P2-DIFF-2.11 and the
 §P2-DIFF-2.2 CORRECTION, then LEARNINGS §§ "E2E-54/P2-DIFF-2 Stage-C panel hop" and the

@@ -8,7 +8,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 ## Recovery instructions
 
 11-e54p2diff2-closed (2026-11-13, session 01a1d748 renewal 4/12 of chain 01a1d648; ZERO oracle;
-ledger 203/C380; HEAD `2555c7e3`): **E2E-54/P2-DIFF-2 IS COMPLETE AND CLOSED — Stages A, B and C
+ledger 203/C380; HEAD `54f765fc`): **E2E-54/P2-DIFF-2 IS COMPLETE AND CLOSED — Stages A, B and C
 all landed. The ONLY remaining act is the managed-block refresh + finalize/renew, then STOP.** The
 extraction is `f1f3c1ab` (`ocaml/hir/mir_numeric.ml`: the nine-`let` pure algebra, imports
 NOTHING; the backend delegates; the generative-`Map` deviation is documented), the additive panel
