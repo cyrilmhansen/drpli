@@ -2634,4 +2634,49 @@ panel (next step).
 **Verdicts: H1 CONFIRMED (Stage A); H2 CONFIRMED (this section); H3 owed at the frozen panel.**
 No §P1-m4.11 STOP condition fired.
 
-**NEXT: §P1-m4.12 step 2 close-out = the frozen panel (step 5), then Stage C.**
+### P1-m4.SP Stage B close-out — the frozen 14-item panel, RE-ARMED and RE-RUN (§P1-m4.10-1, §P1-m4.2-H3)
+
+**ARMING DECISION (recorded honestly).** Every panel tool hard-codes
+`ocaml/_build/default/...`; the campaign standing rule says the armed `_build/default` stays
+UNTOUCHED. We chose option **(a)**: rebuild `_build/default` from the COMMITTED source. Rationale:
+the standing rule protects SCRATCH measurement from silently depending on an uncommitted tree —
+§P1-m4.10-1 and §P1-m4.12 pre-register this panel as the preservation gate judging the
+POST-CHANGE compiler, and every Stage-B measurement above was already taken from fresh scratch
+build dirs. Before rebuilding we verified `git diff --exit-code -- ocaml/ hir/ tools/` rc 0 (the
+tree at `26994b9a`, nothing uncommitted), and recorded the pre-armed exe shas
+(`build/e54p1m4/panel-stageB/pre-armed-shas.txt`). The panel therefore judged the exe built from
+committed HEAD `26994b9a`.
+
+**Re-arm (rc 0, `arm-build.log`).** `pli80c.exe` sha256 `172595d5…aca281` UNCHANGED after the
+rebuild — the hir-only slice provably does not link into it (its dune `libraries` is `pli80`
+alone). `pli80mir.exe` MOVED as H3 requires: `0dab512e…` → `2d19e871…` (the only exe whose
+linker closure reaches `Mir_backend`; `pli80hir.exe`, `semtest.exe`, `mirsumtest.exe`,
+`mirnumtest.exe` are byte-UNCHANGED — recorded as the blast-radius shape). Post-armed shas in
+`post-armed-shas.txt`.
+
+**The panel (each its OWN direct rc, logs `build/e54p1m4/panel-stageB/`, LC_ALL=C, one fresh
+`dune build` before, none during):**
+
+| Item | rc | Measured | vs P2-DIFF-5 close baseline |
+|---|---|---|---|
+| gate `tools/e2e_gate.py` | 0 | 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 | `cmp` IDENTICAL |
+| hir `tools/hir_test.py` | 0 | 220 ok | `cmp` IDENTICAL |
+| mir_aot `tools/mir_aot_test.py` | 0 | 32 | `cmp` IDENTICAL |
+| cosmo | 0 | 25 | `cmp` IDENTICAL |
+| console | 0 | 43 | `cmp` IDENTICAL |
+| debug | 0 | 23 | `cmp` IDENTICAL |
+| CF | 0 | 83 | `cmp` IDENTICAL |
+| call | 0 | 86 | `cmp` IDENTICAL |
+| suite `tools/test_dual_backend.py` | 0 | 29/29 | `cmp` IDENTICAL |
+| functional (hostile) | 0 | 211 | `diff` clean modulo the `/tmp` dir (2 lines) |
+| mir_numeric | 0 | **47 UNMOVED** | `cmp` IDENTICAL |
+| mir_return_summary | 0 | **15 UNMOVED**; `mirsumtest` LIVE **172 UNMOVED** ×2 fresh | `cmp` IDENTICAL |
+| runner default `tools/dual_backend_test.py` | 0 | **12/12 BOTH-PASS**, 57 measured checks, 45/45 controls REJECTED | `diff` clean modulo stamp/HEAD (2 lines) |
+| runner strict `--strict` | 0 | identical report, STRICT | `diff` clean modulo stamp/HEAD (2 lines) |
+
+**H3 CONFIRMED:** the ONLY movers are (i) the required `pli80mir.exe` byte-change and (ii) the
+stamp/HEAD/tmp-file lines; every historical byte output, pin, count and the census stand UNMOVED;
+`dual_backend_test` stays 12/12 BOTH-PASS in BOTH modes. No STOP (§P1-m4.11) fired.
+
+**NEXT: §P1-m4.12 step 3 (Stage C)** — the new runner `tools/mir_aot_ret_test.py` + the two
+inside-failing controls C-M4a/C-M4b, then the SECOND full frozen panel run (after C).
