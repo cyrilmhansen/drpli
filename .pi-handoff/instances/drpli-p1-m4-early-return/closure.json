@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "missionId": "drpli-p1-m4-early-return",
+  "workProfile": null,
+  "closedAt": "2026-11-15T07:42:57.609Z",
+  "reason": "E2E-54/P1-m4 completed; 14/14 differential cases validated; checkpoint g9 attested",
+  "files": {
+    "mission:HANDOFF.md": "5ef21882bb7b07352861ed0e8ad2ac14a50ca9e964271d9c6400fdcd1efaa857",
+    "mission:LEARNINGS.md": "fc0be0b6b933230e3ae30e7375bedd660fc645f5ed4768d5e07c48e154d519a4",
+    "mission:PROGRESS.md": "a0762e8c21f133c3c2e5263e0d34fe5f5674d564896add6491b9db8732a2b555",
+    "mission:mission.json": "b7ce17c01e4a74b58708f1960c8928e19a515c595e3db00a84a89dc9c987a043",
+    "state:diagnostics.jsonl": "d91b6081675684f9ba4e28feecdfa7d86bd884c20b43b4d2785a7f42f023aaa8",
+    "state:renewal-state.json": "7893337dee628d18cdefc8b6e6b286970702efe9e38bfbe089c1ef30bdc23c47",
+    "state:sessions/01a1dc6c-490e-7282-8059-fde5291eb731.json": "d029a2748e28f4ea9936add37c8da3500df3ef817f1a098988bdb5cd10642bcc",
+    "state:sessions/01a1dc88-80dd-7282-8059-fde80a59a84e.json": "fbeb094c4863ecda58932e3c97057de30a19b32b86ed0e4dd81d776851d27cfe",
+    "state:sessions/01a1dc9d-8094-7282-8059-fdec3c85d590.json": "ac9149fa3e0a89f5e5a9383e37a69d240b9a3aae2e591a7ae774f617541256da",
+    "state:sessions/01a1dcc3-c4c2-7282-8059-fdf1a3fd1652.json": "1605ede119216c30ebaf4a50121d07ce3ed1af49f86538b7d71b41f09e216e9c"
+  },
+  "stateRoot": "/home/john/projects/sushiworks/pli80/.pi-guard/instances/drpli-p1-m4-early-return",
+  "sourceFingerprint": "2d0c467327b1f3f9095523f1a0ba1c2da61f21f34b2870a94a3d143e7ec6fe9e",
+  "checkpoint": {
+    "id": "g9-b25a63ffa794",
+    "attestation": "attested"
+  },
+  "renewalState": {
+    "version": 1,
+    "chainId": "mission:drpli-p1-m4-early-return:chain:2026-11-14T23:37:17.737Z",
+    "renewalsDone": 3,
+    "renewedFromCheckpointId": "g7-97fe035dd0c2",
+    "lastSuccessorSessionId": "01a1dcc3-c4c2-7282-8059-fdf1a3fd1652",
+    "stopped": false,
+    "updatedAt": 1794705180146
+  },
+  "renewalMax": 12,
+  "gitRevision": "f2bb784c0ad37b4fd1499cc77cba178a5575d641",
+  "operationId": "close:2d0c467327b1f3f9095523f1a0ba1c2da61f21f34b2870a94a3d143e7ec6fe9e"
+}
