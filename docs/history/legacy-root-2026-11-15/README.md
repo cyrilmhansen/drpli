@@ -46,18 +46,25 @@ expected and is exactly why this directory exists.
 These measurements were produced by `python3 scripts/durable_edit.py audit --root . --json`
 plus bounded read-only analysis. They matter for anyone interpreting the snapshot:
 
-- **`HANDOFF.md` is duplicated wholesale.** Its 85,431-byte body (lines 1653–2608) is
-  reproduced verbatim at lines 5540–6495 — proven by identical SHA-256 of both regions.
-  76 of its 77 level-2 headings occur exactly twice; only `## Recovery instructions` is
-  unique. This is why `## Next action` appears at 2449 **and** 6336, and
-  `## Unfinished operations` at 2560 **and** 6447.
+- **`HANDOFF.md` is duplicated wholesale.** Lines 74–3958 are reproduced at lines
+  3961–7845 (offset exactly 3887 lines): 1,328 of the 3,885 line-pairs differ only inside the
+  managed blocks, and exactly **one** prose line differs (a `SUPERSEDED-BY-ABOVE: ` prefix).
+  Within it, the campaign body (lines 1653–2608 ↔ 5540–6495, 85,431 B) is byte-identical —
+  proven by identical SHA-256 `e2fc26f02e1037db…` on both sides. The redundant tail is
+  **950,249 B = 49.9% of the file**. 76 of the file's 77 level-2 headings occur exactly twice;
+  only `## Recovery instructions` is unique. This is why `## Next action` appears at 2449
+  **and** 6336, and `## Unfinished operations` at 2560 **and** 6447.
 - **`HANDOFF.md` contains two guard `checkpoint` blocks, not one.** Block 1 (line 2609)
   is generation **852, attested**; block 2 (line 6496) is generation **844, unattested** —
   a stale orphan. Combined managed bytes are **1,264,089**, not the 842,167 that `audit`
   reports (it counts only the first HANDOFF block).
-- **Size is caused by checkpoint *field content*, not by the generation count.** In each of
-  the three blocks, two fields are byte-identical across all three: `confirmed:` 301,770 B
-  and `wording:` 92,789 B. Those two cumulative append-fields are ~93% of every block.
+- **Size is caused by checkpoint *field content*, not by the generation count.** Each block
+  carries one `### Next action` payload of **419,843 B** (PROGRESS: a `next-action:` field of
+  419,965 B) — ~99% of every block — and generation 852 itself contributes 27 bytes of
+  metadata. That payload is **100% redundant with live manual prose**: 1,156 of its 1,158
+  non-blank lines appear verbatim in `HANDOFF.md` prose. The block is a snapshot of prose that
+  grew too large; shrinking the prose (through the guard's own refresh, never by editing the
+  block) is what shrinks the block.
 - `audit` reports line numbers with managed blocks **stripped**; raw file lines differ.
   Example: audit's duplicate `## Next action` at "line 4984" is raw line 6336.
 
