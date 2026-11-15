@@ -1,0 +1,1 @@
+HIR-E18: line 6: MIR backend: the body must end with RETURN(expr); fall-through semantics are unmeasured [TBD] (found 'assign')

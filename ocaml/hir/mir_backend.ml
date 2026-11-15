@@ -421,6 +421,9 @@ let compile ~(profile : Target.profile) ~(export : string)
        are collision-free by construction. §P1-m3.2-10 keeps the counter
        module-wide; each label is DEFINED in exactly one func (I5). *)
     let cf_n = ref 0 in
+    (* E2E-54/P1-m4 §P1-m4.3: at most ONE conditional early RETURN is admitted 
+       PER PROCEDURE. Module-wide ref, RESET with the per-proc state below. *)
+    let early_used = ref false in
     (* E2E-54/P1-m3 §P1-m3.2-6 (HOME-PASS): one value cell hv<k> per (call site,
        argument position), numbered module-wide; the alloca rides the caller's
        ENTRY hoists (§P1-m3.2-4), the mov into the cell rides right before the
@@ -873,6 +876,20 @@ let compile ~(profile : Target.profile) ~(export : string)
           | _ -> ())
         arm
     in
+    (* E2E-54/P1-m4 §P1-m4.3: pure membership scan (refuses nothing) driving 
+       the admitted-shape classifier in the If case. no_return_in's message 
+       stays VERBATIM for the loop-body site (§P1-m4.10 blast-radius fact). *)
+    let rec arm_contains_return (arm : Hir.stmt list) : bool =
+      List.exists
+        (fun (s : Hir.stmt) ->
+          match s.Hir.st with
+          | Hir.Return _ -> true
+          | Hir.If { then_; else_; _ } ->
+              arm_contains_return then_ || arm_contains_return else_
+          | Hir.While { body = b; _ } -> arm_contains_return b
+          | _ -> false)
+        arm
+    in
     (* ---- E2E-54/P1-m2 §P1-m2.3: the counted DO WHILE machinery -------------- *)
     (* Every recognition step is a pure structural scan (NO emission) and runs
        BEFORE any instruction is committed; a refused loop therefore emits
@@ -1000,6 +1017,7 @@ let compile ~(profile : Target.profile) ~(export : string)
         home_sids := List.sort Int.compare !home_sids;
         pc_uses := [];
         insns := [];
+        early_used := false;
         (* §P1-m3.2-5 tail law: the single-function module keeps the shared
            Lfail byte-EXACTLY (I6); a multi-function module names the tails
            Lfail_0 (entry) / Lfail_<pid> (subsidiary). *)
@@ -1133,30 +1151,129 @@ let compile ~(profile : Target.profile) ~(export : string)
                      disagree about (drop-not-inherit). A missing ELSE is the identity
                      path. Statement order is preserved; every emitted instruction —
                      branches, jumps and labels included — carries the IF statement's
-                     source line (§P1-m2.9, sidecar law). *)
-                  no_return_in then_;
-                  no_return_in else_;
-                  incr cf_n;
-                  let sfx = string_of_int !cf_n in
-                  if else_ = [] then begin
-                    lower_cond ~inverted:true env cond ("Ljoin" ^ sfx);
-                    let env_then = lower_stmts env then_ in
-                    emit ~line "Ljoin%s:" sfx;
-                    lower_stmts (join_env env_then env) rest
+                     source line (§P1-m2.9, sidecar law).
+                     E2E-54/P1-m4 §P1-m4.3 extends this site EXACTLY as far as the 
+                     admitted shape goes: a conditional early RETURN(expr) is admitted 
+                     only by the classifier below; an arm that ENDS with the RETURN 
+                     TERMINATES and contributes NOTHING to the join (the fall-through 
+                     environment is the surviving arm's env alone). All other shapes 
+                     keep refusing BY NAME with the §P1-m4.3 wording. *)
+                  let t_ret = arm_contains_return then_ in
+                  let e_ret = arm_contains_return else_ in
+                  if (not t_ret) && (not e_ret) then begin
+                    incr cf_n;
+                    let sfx = string_of_int !cf_n in
+                    if else_ = [] then begin
+                      lower_cond ~inverted:true env cond ("Ljoin" ^ sfx);
+                      let env_then = lower_stmts env then_ in
+                      emit ~line "Ljoin%s:" sfx;
+                      lower_stmts (join_env env_then env) rest
+                    end
+                    else begin
+                      let lthen = "Lthen" ^ sfx in
+                      let lelse = "Lelse" ^ sfx in
+                      let ljoin = "Ljoin" ^ sfx in
+                      lower_cond env cond lthen;
+                      emit ~line "jmp %s" lelse;
+                      emit ~line "%s:" lthen;
+                      let env_t = lower_stmts env then_ in
+                      emit ~line "jmp %s" ljoin;
+                      emit ~line "%s:" lelse;
+                      let env_e = lower_stmts env else_ in
+                      emit ~line "%s:" ljoin;
+                      lower_stmts (join_env env_t env_e) rest
+                    end
                   end
                   else begin
-                    let lthen = "Lthen" ^ sfx in
-                    let lelse = "Lelse" ^ sfx in
-                    let ljoin = "Ljoin" ^ sfx in
-                    lower_cond env cond lthen;
-                    emit ~line "jmp %s" lelse;
-                    emit ~line "%s:" lthen;
-                    let env_t = lower_stmts env then_ in
-                    emit ~line "jmp %s" ljoin;
-                    emit ~line "%s:" lelse;
-                    let env_e = lower_stmts env else_ in
-                    emit ~line "%s:" ljoin;
-                    lower_stmts (join_env env_t env_e) rest
+                    (* ---- the §P1-m4.3 admitted-shape classifier (pure scan, 
+                       NOTHING emitted until every rule has passed) ---- *)
+                    if !early_used then
+                      refuse ~line Diagnostic.e_mir_node
+                        "MIR backend: a second conditional early RETURN in one \
+                         procedure is outside the subset (at most ONE is admitted; \
+                         §P1-m4.3-2)";
+                    let early_arm, late_arm, early_is_then =
+                      if t_ret && not e_ret then (then_, else_, true)
+                      else if e_ret && not t_ret then (else_, then_, false)
+                      else
+                        refuse ~line Diagnostic.e_mir_node
+                          "MIR backend: both arms of one IF contain a RETURN; a \
+                           fall-through path is required (§P1-m4.3-3)"
+                    in
+                    let n = List.length early_arm in
+                    let last = List.nth early_arm (n - 1)
+                    and prefix =
+                      if n = 0 then [] else List.filteri (fun i _ -> i < n - 1) early_arm
+                    in
+                    if n = 0 || arm_contains_return prefix then begin
+                      (* a RETURN below the last statement: nested in a deeper arm 
+                         (ERN6-class) or a second RETURN in the same arm (ERN4) *)
+                      no_return_in early_arm; (* refuses BY the verbatim nested message; 
+                        the fallback only types the branch *)
+                      refuse ~line Diagnostic.e_mir_node
+                        "MIR backend: nested RETURN refused by the arm scan (§P1-m4.3)"
+                    end
+                    else
+                      match last.Hir.st with
+                      | Hir.Return None ->
+                          refuse ~line:last.Hir.st_line Diagnostic.e_mir_node
+                            "MIR backend: a VOID early RETURN inside a conditional \
+                             arm is outside the subset (only RETURN(expr) is \
+                             admitted; §P1-m4.3)"
+                      | Hir.Return (Some _) ->
+                          ( match rest with
+                          | [ { Hir.st = Hir.Return (Some _); _ } ] -> ()
+                          | _ ->
+                              refuse ~line Diagnostic.e_mir_node
+                                "MIR backend: a conditional early RETURN must be \
+                                 followed by exactly one final top-level \
+                                 RETURN(expr) (§P1-m4.3-4)" );
+                          early_used := true;
+                          incr cf_n;
+                          let sfx = string_of_int !cf_n in
+                          (* emission: the terminating arm lowers through the FINAL-
+                             statement RETURN case (window check §P1-m0.3-3 then \
+                             ret); its returned env is DISCARDED — the join is the \
+                             SURVIVING arm's env alone (§P1-m4.3 join law). *)
+                          if else_ = [] then begin
+                            (* then-early, no ELSE: the fall path is the identity *)
+                            lower_cond ~inverted:true env cond ("Ljoin" ^ sfx);
+                            ignore (lower_stmts env then_);
+                            emit ~line "Ljoin%s:" sfx;
+                            lower_stmts env rest
+                          end
+                          else if early_is_then then begin
+                            let lthen = "Lthen" ^ sfx in
+                            let lelse = "Lelse" ^ sfx in
+                            let ljoin = "Ljoin" ^ sfx in
+                            lower_cond env cond lthen;
+                            emit ~line "jmp %s" lelse;
+                            emit ~line "%s:" lthen;
+                            ignore (lower_stmts env then_);
+                            emit ~line "jmp %s" ljoin;
+                            emit ~line "%s:" lelse;
+                            let env_e = lower_stmts env else_ in
+                            emit ~line "%s:" ljoin;
+                            lower_stmts env_e rest
+                          end
+                          else begin
+                            let lthen = "Lthen" ^ sfx in
+                            let lelse = "Lelse" ^ sfx in
+                            let ljoin = "Ljoin" ^ sfx in
+                            lower_cond env cond lthen;
+                            emit ~line "jmp %s" lelse;
+                            emit ~line "%s:" lthen;
+                            let env_t = lower_stmts env then_ in
+                            emit ~line "jmp %s" ljoin;
+                            emit ~line "%s:" lelse;
+                            ignore (lower_stmts env else_);
+                            emit ~line "%s:" ljoin;
+                            lower_stmts env_t rest
+                          end
+                      | _ ->
+                          refuse ~line:last.Hir.st_line Diagnostic.e_mir_node
+                            "MIR backend: the early RETURN must be the FINAL \
+                             statement of its arm (§P1-m4.3-3)"
                   end
               | Hir.While { cond; body } ->
                   (* §P1-m2.3: the recognized counted loop; every refusal names itself

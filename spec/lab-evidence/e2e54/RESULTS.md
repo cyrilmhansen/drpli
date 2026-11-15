@@ -2487,7 +2487,7 @@ refine-arm` control, the 5 re-pinned tables) → Stage C frozen panel (all 14 it
 `cmp`-identical except the two expected mir_numeric lines and the 12/12 runner). **STOP after P2-DIFF-5 is measured and
 closed; any new phase needs a separate operator brief (§5.11).**
 
-## §P1-m4 — One conditional early RETURN(expr) in the native MIR backend — OPEN (Stage A measured 2026-11-14/15)
+## §P1-m4 — One conditional early RETURN(expr) in the native MIR backend — OPEN (Stage A+B measured 2026-11-14/15)
 
 Pre-registered as PLAN §P1-m4 (PROTOCOL #1: committed `4f3a9188` **BEFORE** any fixture,
 probe, runner or compiler byte). Mission instance `drpli-p1-m4-early-return`; start HEAD
@@ -2544,7 +2544,94 @@ ERN2/ERN3 — those two negatives will keep refusing by that EXISTING law post-c
 §P1-m4.6 "E18 BY NAME" expectation is satisfied by the existing message; pins are the
 MEASURED text). `nfuncs` is owed at Stage B (measured from `mir2o` stderr, never derived).
 
-**NEXT: §P1-m4.12 step 2 (Stage B).** First the §P1-m4.5 measured-first probe of `mir2o`
-acceptance for instructions/labels AFTER an unconditional `ret` (hand-written module under
-`build/`, never a pin until reviewed); then the `mir_backend.ml` §P1-m4.3 change; then the
-measured-first pins.
+### P1-m4.SB Stage B — implementation, measured-first pins, exec vectors, negatives
+
+**§P1-m4.5 measured-FIRST probe (before any pin; hand-written modules under
+`build/e54p1m4/probe/`, never pins).** `mir2o` ACCEPTS instructions and labels after an
+unconditional `ret`: probe5 (label `Lj5:` and `ret c5` AFTER `ret t9`, reached by jump,
+x=7>5 → printed **5**, rc 0) and probe6 (`blt` false → `ret t9` taken, the post-`ret` code
+never reached → printed **9**, rc 0); both ×2 fresh processes, identical, via the glibc
+native-check idiom. The §P1-m4.11 STOP clause (mir2o refuses the post-`ret` module) did NOT
+fire — the campaign continues.
+
+**Implementation (the ONE permitted file, §P1-m4.10-4: `ocaml/hir/mir_backend.ml`).** The
+§P1-m4.3 classifier at the `Hir.If` site: a pure-membership scan `arm_contains_return`
+drives it; `no_return_in` and its message stay VERBATIM for the loop-body site and for the
+prefix branch (blast-radius fact §P1-m4.1-5); a per-procedure ref `early_used` (module-wide,
+reset beside the per-proc state) enforces rule 2; the no-RETURN-in-either-arm path keeps the
+pre-P1-m4 lowering byte-identical (no `cf_n` numbering change for existing pins). The
+classifier refuses BY NAME: a second conditional early RETURN, both-arms RETURNs (rule 3),
+a RETURN not the FINAL statement of its arm (rule 3 — reached also by nested-If arms whose
+arm-last statement is the inner `Hir.If`), a VOID early `RETURN;` (rule 3 — `Return None`),
+and a missing exactly-one final top-level tail (rule 4). The admitted shape lowers the
+terminating arm through the EXISTING final-RETURN case (window check §P1-m0.3-3, then
+`ret %s`, source-line sidecar law §P1-m2.9) and DISCARDS the arm env — the join is amended
+by EXCLUSION: the fall-through environment is the surviving arm's env alone; the one-arm-If
+join degenerates to the identity env when the then arm terminates. No new MIR instruction
+forms, no label-scheme change, no statement reorder.
+
+**Builds.** Fresh scratch `dune build --build-dir _build-e54p1m4a` rc 0 (log
+`build/e54p1m4/stageB/build1.log`); the SUCCESSOR session re-verified with a second fresh
+scratch build `_build-e54p1m4b` rc 0 (`build2.log`) and reproduced ALL 18 pins byte-for-byte
+from that exe (`build/e54p1m4/stageB/recheck/`). The armed `_build/default` was untouched by
+every Stage-B measurement.
+
+**Pins (measured-first, ×2 fresh processes).** ER01 → **1223 B**, sha256
+`debdef29a76d63d08e71dd57457bbcbe9808a610dd697e1e41268c63e671d8c7`; ER02 → **978 B**,
+`64d2bcbb313812f809205752ce751ed0b735f18c71f1df1ddc599932d6568be1`. Both exports rc 0,
+`stdout == -o == pin`, ZERO stderr, byte-identical across the two fresh runs. `mir2o -f`
+rc 0: `wrote 2552 bytes (2 function(s))` / `wrote 2392 bytes (2 function(s))` — **nfuncs 2
+and 2, MEASURED from stderr** (§P1-m4.4, never derived). `nm`: `T pli80_earlya` + `t
+pli80_sel`; `T pli80_earlyb` + `t pli80_sel` — console/exit symbols unresolved-in-object per
+the P1-m3 law.
+
+**H2 EXEC VECTORS CONFIRMED ON BOTH NATIVE LANES.** glibc (`console_check.c` +
+`pli_console.c`): ER01 stdout `4\n9\n4\n`, rc 0, `driver-return=4` (×2 fresh, identical);
+ER02 stdout `3\n12\n`, rc 0, `driver-return=12` (×2 fresh). cosmo **tiny** static (no
+PT_INTERP, statically linked x86-64): the SAME bytes on both candidates. The hand-derived
+§P1-m4.4 vectors [4,9,4] — including the discriminating x=5 FALSE-boundary leg — and [3,12]
+HOLD. H2 not falsified.
+
+**The eight negatives (§P1-m4.6), each ×2 fresh processes: rc 2, ZERO stdout, NO `-o`
+artifact, byte-identical stderr; pins are the MEASURED bytes.** Deviations from the
+§P1-m4.6 expectation column are RECORDED, NOT fitted (§P1-m4.12-5):
+
+| Id | Measured refusal | vs §P1-m4.6 expectation |
+|---|---|---|
+| ERN1 | line 6, VERBATIM nested-RETURN E18 | holds (loop path UNMOVED) |
+| ERN2 | line 4, EARLIER existing law body-must-end-with-RETURN (found 'if') | E18 BY NAME satisfied by the pre-existing message (anticipated at Stage A) |
+| ERN3 | line 6, same earlier law (found 'assign') | as ERN2 |
+| ERN4 | line 5, VERBATIM nested-RETURN E18 (arm-prefix scan routes through `no_return_in`) | holds |
+| ERN5 | line 5, NEW §P1-m4.3 VOID wording | DEVIATION: wording amended (permitted by §P1-m4.10-4 "refusal-message amendment"); still E18 BY NAME |
+| ERN6 | line 5, NEW "early RETURN must be the FINAL statement of its arm (§P1-m4.3-3)" — the nested If IS the arm's last statement, so rule 2 fires through rule 3's path | DEVIATION: wording amended; still refuses BY NAME |
+| ERN7 | line 5, **HIR-E19 CONVERSION** law `FIXED BINARY(15,0) -> FIXED BINARY(3,0)` (the CFN2/CFN6/N3 sentence) | DEVIATION: NOT the §P1-m4.6 window law — the pre-registration expectation was too narrow (below) |
+| ERN8 | line 5, VERBATIM nested-RETURN E18 (return-not-final hit via the prefix scan) | holds |
+
+**ERN7 adjudication (recorded, no silent refit).** Extra probes (`build/e54p1m4/stageB/probe/`,
+measured on the fresh `_build-e54p1m4b` exe): an early `RETURN(x + x)` in `FIXED BIN(15)`
+refuses with the E19 **binop-overflow** law (brief §4) at line 5, and an early
+`RETURN(x * x)` in `FIXED BIN(3)` refuses with the same **conversion** law as ERN7
+(FIXED BINARY(6,0) → FIXED BINARY(3,0)). For EVERY literal/binop early-RETURN shape we can
+construct, an EARLIER E19 law dominates the §P1-m0.3-3 return-window check — the §P1-m4.6
+"window law" expectation is unreachable from below. The E19 code and the refuse-never-guess
+semantics DO hold; the specific sentence differs. Fixture unchanged; pin = measured bytes.
+
+**§P1-m4.8 summary boundary — MEASURED: sound, no crash, NO widening.** The summaries are
+consulted ONLY at the `lower_call_e` site (analysis-only; emission bytes independent); both
+candidates export rc 0 (walker does not crash on the new body shape) and both exec vectors
+are correct on both lanes (end-to-end call-site soundness). DISCRIMINATING probe
+(`probe/ERNSUM.pli` — a caller multiplying `sel(2) * sel(7)` on the ER01 early-return `sel`):
+REFUSES line 5 with E19 binop-overflow, operands proved within **[4,4]** and
+**[-16383,16383]** — the x=2 leg refines ONLY through the pre-existing infeasible-arm law
+(the then arm is dropped; the early `ret` contributes nothing new) and the x=7 leg (feasible
+early-return arm) conservatively yields the FULL declared window. The walker invents NO
+refinement from the early `ret`. Non-vacuity control (`probe/ERNSUMC.pli` — same caller, a
+`sel` with NO early RETURN but a provable join): ADMITTED rc 0 (645 B) — the probe can pass
+when a genuine refinement exists, so the ERNSUM refusal is a real discrimination. F4 did not
+fire. `mirsumtest` 172 and `mir_return_summary` 15 UNMOVED is owed at the §P1-m4.10-1 frozen
+panel (next step).
+
+**Verdicts: H1 CONFIRMED (Stage A); H2 CONFIRMED (this section); H3 owed at the frozen panel.**
+No §P1-m4.11 STOP condition fired.
+
+**NEXT: §P1-m4.12 step 2 close-out = the frozen panel (step 5), then Stage C.**

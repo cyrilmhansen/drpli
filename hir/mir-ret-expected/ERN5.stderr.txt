@@ -1,0 +1,1 @@
+HIR-E18: line 5: MIR backend: a VOID early RETURN inside a conditional arm is outside the subset (only RETURN(expr) is admitted; §P1-m4.3)

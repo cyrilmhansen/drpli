@@ -1,0 +1,1 @@
+HIR-E18: line 5: MIR backend: the early RETURN must be the FINAL statement of its arm (§P1-m4.3-3)

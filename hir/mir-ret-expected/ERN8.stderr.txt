@@ -1,0 +1,1 @@
+HIR-E18: line 5: MIR backend: a RETURN nested inside a conditional or loop arm is outside the P1-m2 subset (only the one final top-level RETURN(expr) is admitted; brief §3)
