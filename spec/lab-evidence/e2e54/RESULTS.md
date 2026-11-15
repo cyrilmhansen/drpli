@@ -2680,3 +2680,64 @@ stamp/HEAD/tmp-file lines; every historical byte output, pin, count and the cens
 
 **NEXT: §P1-m4.12 step 3 (Stage C)** — the new runner `tools/mir_aot_ret_test.py` + the two
 inside-failing controls C-M4a/C-M4b, then the SECOND full frozen panel run (after C).
+
+### P1-m4.SC Stage C — the new runner `tools/mir_aot_ret_test.py`, green ×2 fresh with direct rc (§P1-m4.7, §P1-m4.12-3)
+
+**Setup facts recorded honestly.** At session start `build/e54p1m4/ret-runner/` did NOT exist —
+the predecessor's hand-dry-run mutants were measured to live under `build/e54p1m4/controls/
+{c-m4a,c-m4b}` (historical evidence, UNTOUCHED per preservation policy), so the Next-action
+`rm -rf ret-runner/c-m4a c-m4b` was a no-op on the first run and cleared run-1's disposable
+mutants before run 2. The runner's own stale-dir guard (`build_mutant` FAILS if a tag dir
+exists — "a reused mutant is never evidence") fired exactly as designed between runs.
+
+**The runs (REPO ROOT, `eval "$(opam env)"`, LC_ALL=C, direct rc).**
+Run 2: **rc 0**, **27 checks MEASURED** (§P1-m4.7: measured, never a formula); run 3 (fresh,
+after clearing run-2's mutant dirs): **rc 0**, **27 checks**, log `cmp`-IDENTICAL to run 2
+byte-for-byte. Run 1 (log `run1.log` recorded, exit code not directly captured — the nohup
+redirect ordering; its PASSED line and all 27 `ok` lines match runs 2/3 exactly, zero `^FAIL `
+lines). Two directly-rcc'd fresh runs satisfy §P1-m4.12-3. Evidence: `build/e54p1m4/
+ret-runner/{run1,run2,run3}.log`, `run2.rc`, `run3.rc`, per-check observation files.
+
+**Panel content (27 checks, all ok in all three runs).** R0 prerequisites + pinned
+Cosmopolitan toolchain identity (§P1-mC K0: `x86_64-linux-cosmo-gcc (GCC) 14.1.0`, archive
+sha verified). R1 ER01/ER02 regenerated in TWO fresh processes each — rc 0, ZERO stderr,
+`stdout == -o == pin` (1223 B / 978 B; shas `debdef29…`/`64d2bcbb…` — the SAME committed
+Stage-B pins, the runner never regenerates or overwrites a pin). R2 pipeline law: `mir2o -f`
+rc 0 with the MEASURED `(2 function(s))` sentence read from stderr, `nm` lists `T
+pli80_earlya`/`T pli80_earlyb` + `t pli80_sel`; object shas recorded (`740f5b9e…`, `ff818853…`).
+R3 all eight §P1-m4.6 negatives: pinned rc 2, ZERO stdout, pinned stderr bytes, NO `-o`
+artifact, ×2 fresh processes each. R4 native legs: both hand-derived §P1-m4.4 vectors EXECUTE
+byte-exactly on BOTH lanes — ER01 `[4,9,4]` (incl. the discriminating x=5 FALSE-boundary leg)
+and ER02 `[3,12]` — glibc console AND cosmo tiny static (0x7fELF, static x86-64, NO PT_INTERP,
+NO DT_NEEDED, nm laws, no unresolved console symbols), with a SECOND fresh-process re-run per
+candidate reproducing identical bytes. BAD(2) leg: the fixtures carry NO GET — INAPPLICABLE,
+RECORDED in the summary line, never silently skipped (§P1-m4.7).
+
+**R5 controls FAILED LOUDLY INSIDE the suite (§P1-m4.9), disposable git-archived mutants.**
+Each mutant: `git archive HEAD ocaml | tar -x` under `build/e54p1m4/ret-runner/<tag>`, the
+mutation asserted EXACTLY-ONE anchor occurrence, built with its own dune `_build`; the
+committed tree was NEVER mutated (`git diff --exit-code -- ocaml/ hir/ tools/ spec/` rc 0
+before and after every run, §P1-m4.10-2/4).
+- **C-M4a (join exclusion is load-bearing):** baseline FIRST — the COMMITTED backend ADMITS the
+  ERCTL probe (exclusion keeps the fall env y=[127,127], 127·127 = 16129 ∈ W(15)); the mutant
+  (arm env joined into the fall-through) REFUSES with E19, hull [127,129] reaching **16641** —
+  a measurably WRONG proof caught inside the suite. (The ERCTL arm rides the `then do; … end;`
+  two-statement idiom — PL/I THEN is ONE statement.)
+- **C-M4b (the E18 loop-body scan still guards) — plan-wording DEVIATION RECORDED, not
+  fitted.** §P1-m4.9 predicted the mutant would make ERN1 "stop refusing"; MEASURED: deleting
+  the scan changes ERN1's refusal but does NOT admit it — the mutant refuses with the §P1-m4.3
+  classifier's *second-guard* message (`HIR-E18 line 5: a conditional early RETURN must be
+  followed by exactly one final top-level RETURN`), NOT the pinned nested-RETURN bytes. The
+  pin detects the guard loss either way (rc identical, stderr bytes differ), so the control is
+  non-vacuous as required; the classifier is a SECOND guard over the same shapes. Recorded
+  against the plan wording per §P1-m4.12-5.
+
+**Verdicts:** §P1-m4.12-3 runner leg COMPLETE — runner green ×2 fresh with measured direct
+rc 0 and MEASURED count 27. Runner labels R0–R5 differ from §P1-m4.7's R0–R4 enumeration
+(the plan's R2 negs/R3 legs/R4 controls are the runner's R3/R4/R5; the runner adds R2 the
+§P1-m4.4 pipeline law) — labelling only, content covers every plan item.
+H3 remains owed at the SECOND full frozen panel (after C, §P1-m4.10-1).
+
+**NEXT: §P1-m4.12-3 second run of the FULL frozen panel (logs `build/e54p1m4/panel-stageC/`),
+exactly the §P1-m4.SP idiom; then CONDITIONAL Stage D (D14/D15 ONLY IF the §P1-m4.4 vectors
+are verified on the 8080 lane — else record non-qualification, runner stays 12/12); then CLOSE.**
