@@ -723,3 +723,42 @@ perturbs the inferred refined-arm value and never the concrete reference or the 
 because a one-sided perturbation cannot see an arm EXCLUSION. Commits `1544f288` (the module),
 `e69aa556` (the driver), `b40d0746` (the §5.8 table + the new control + the re-pinned tables),
 `f596342b` (the differential cases); full record RESULTS §P2-DIFF-5.
+
+## 7-17 E2E-54/P1-m4 — one conditional early RETURN(expr) in the native MIR backend (CLOSED 2026-11-15)
+
+The `Hir.If` lowering site now admits EXACTLY the §P1-m4.3 shape: one top-level `If` (not
+inside any `While` or other `If`), a `RETURN(expr)` in EXACTLY ONE arm as the FINAL statement
+of that arm, the other arm Return-free, and EXACTLY one final top-level `Hir.Return (Some e)`
+after the If — enforced by a pure-membership scan `arm_contains_return` plus a per-procedure
+`early_used` ref. Everything else keeps the VERBATIM pre-change refusal; the terminating-arm
+**join EXCLUSION** is the semantic core: an arm that ends with `ret` TERMINATES and contributes
+NOTHING to the fall-through environment (the surviving arm's env alone flows on; the one-arm-If
+join degenerates to the else-path env when the then arm terminates). This is emission-visible
+and load-bearing, NOT cosmetic — control C-M4a proves it INSIDE the suite: leaking the arm env
+into the join hulls `y=[127,129]`, which reaches 16641 and E19-REFUSES a program
+(127·127 = 16129 ∈ W(15)) the committed backend proves and admits. Three laws MEASURED at
+close, baked here: **(1) `mir2o` ACCEPTS instructions and labels after an unconditional `ret`**
+— they are emitted and reachable only through jumps (probe5 executes a post-`ret` label by
+jump → 5; probe6 falls past it → 9; §P1-m4.5's STOP clause did not fire); the emitted `Ljoin:`
+after the terminating arm is real, jump-reachable code, never dead filler. **(2) MIR immediates
+are BARE decimals** (`mov t, 9`); `i64:k` is a MEMORY operand — `mov x, i64:7` compiles to a
+dereference of address 7 and SEGFAULTS at exec while `mir2o` still accepts the text (probe
+falsification, `build/e54p1m4/probe/`). **(3) the §P1-m4.3 classifier is a SECOND guard over
+the loop-nested shapes**: deleting the pre-existing `no_return_in` loop-body scan does NOT
+admit ERN1 — the classifier refuses it with its own §P1-m4.3-4 message — so the two guards
+overlap for loop-nested RETURNs and the pinned bytes detect the loss of either (control C-M4b,
+recorded deviation from the plan's "stop refusing" wording). The return-summary walker
+INVENTS NOTHING from the new body shape: a callee containing the early RETURN refines at call
+sites ONLY through the pre-existing infeasible-arm law (ERNSUM refuses with operands
+[4,4]×[-16383,16383]; the non-vacuity control ERNSUMC, no early RETURN, ADMITS) — §7-16's
+monotonicity is untouched and `mirsumtest` 172 / `mir_return_summary` 15 / `mir_numeric` 47
+stand UNMOVED across THREE full frozen panels (after B, after C, after D). Validation is the
+ADDITIVE suite `tools/mir_aot_ret_test.py` (27 checks MEASURED, ×2 fresh direct-rc-0 runs,
+disposable git-archived mutant backends under `build/` only); the two candidates qualified for
+the differential corpus by EXECUTING their hand-derived vectors [4,9,4] (the x=5 FALSE-boundary
+leg) and [3,12] on the 8080 lane (pli80c → LINK-80 → cpmsim, ZERO oracle) ×2 fresh, and became
+D14/D15 — the dual runner 12/12 → 14/14 BOTH-PASS, 57 → 67 checks, 45 → 53 controls ALL
+REJECTED. The PL/I-side idiom fact rode the fixtures: THEN is ONE statement, so two-statement
+arms need `then do; … end;`. Commits `d25fa628` (Stage A), `26994b9a` (backend + 18 pins),
+`669835ba` (panel), `6ff755b2` (ret-runner + §P1-m4.SC); full record RESULTS §P1-m4.SA …
+§P1-m4.T. STOP after P1-m4 is binding: any extension needs a NEW operator brief.

@@ -2741,3 +2741,101 @@ H3 remains owed at the SECOND full frozen panel (after C, §P1-m4.10-1).
 **NEXT: §P1-m4.12-3 second run of the FULL frozen panel (logs `build/e54p1m4/panel-stageC/`),
 exactly the §P1-m4.SP idiom; then CONDITIONAL Stage D (D14/D15 ONLY IF the §P1-m4.4 vectors
 are verified on the 8080 lane — else record non-qualification, runner stays 12/12); then CLOSE.**
+
+### P1-m4.CP Second full frozen panel (after C) — the §P1-m4.10-1 first-of-two run
+
+Prerequisities verified FIRST-HAND: the fresh `dune build` at session start rc 0; the armed
+`_build/default` still at the Stage-B arm state (`pli80mir.exe` 2d19e871…, `pli80c.exe`
+172595d5…aca281 — matching `panel-stageB/post-armed-shas.txt` byte-for-byte);
+`git diff --exit-code -- ocaml/ hir/ tools/ spec/` rc 0 at HEAD `6ff755b2`. LC_ALL=C, every
+item its OWN direct rc (logs + `rc.txt` under `build/e54p1m4/panel-stageC/`); pre/post exe
+shas taken around the panel: EXES-STABLE, no exe moved during any item.
+
+| Item | rc | Measured | vs P2-DIFF-5 close baseline |
+|---|---|---|---|
+| gate `tools/e2e_gate.py` | 0 | 1328/1328, 190/190, 9/9, 149 rows 0/0, census 16/0/25/0, prose 5 | `cmp` IDENTICAL |
+| hir | 0 | 220 ok | `cmp` IDENTICAL |
+| mir_aot | 0 | 32 | `cmp` IDENTICAL |
+| cosmo | 0 | 25 | `cmp` IDENTICAL |
+| console | 0 | 43 | `cmp` IDENTICAL |
+| debug | 0 | 23 | `cmp` IDENTICAL |
+| CF | 0 | 83 | `cmp` IDENTICAL |
+| call | 0 | 86 | `cmp` IDENTICAL |
+| suite `test_dual_backend.py` | 0 | all 29 hostile checks passed | `cmp` IDENTICAL |
+| functional (hostile) | 0 | 211 | `diff` = the 2 `/tmp/fr-hostile-<rand>` lines ONLY |
+| mir_numeric | 0 | **47 UNMOVED** | `cmp` IDENTICAL |
+| mir_return_summary | 0 | **15 UNMOVED**; `mirsumtest` LIVE **172 UNMOVED** ×2 fresh | `cmp` IDENTICAL |
+| runner default | 0 | **12/12 BOTH-PASS**, 57 checks, 45/45 controls REJECTED | `diff` = stamp/HEAD (2 lines) ONLY |
+| runner strict | 0 | identical report, STRICT | `diff` = stamp/HEAD (2 lines) ONLY |
+
+**H3 holds at the after-C panel:** every mover is the disclosed stamp/HEAD/tmp-line class;
+no count, pin or byte output moved. (The §P1-m4.10-1/§P1-m4.12-3 “twice (after C, after D)”
+reading is adopted: this is the after-C run; the after-D run follows in §P1-m4.SD.)
+
+### P1-m4.SD Stage D — QUALIFIED: vectors verified on the 8080 lane; D14/D15 added; third full panel GREEN
+
+**Qualification (§P1-m4.12-4 gate, measured BEFORE any tool edit).** Disposable probe
+`build/e54p1m4/stageD/qualify.py` (direct rc **0**): IMPORTS `dual_backend_test` machinery
+read-only, runs the 8080 lane (our `pli80c.exe` → `.REL` → LINK-80 1.31 + PLILIB.IRL →
+`.COM` → cpmsim, fresh isolated workspace per execution; ZERO oracle — PLI.COM never
+invoked) for both fixtures, ×2 fresh per candidate, and compares with the runner’s own
+`assess_run`/`normalize_vector`/`compare` against the PRE-REGISTERED §P1-m4.4 vectors:
+ER01 `earlya` → **[4, 9, 4]** ×2 raw `'        4         9         4'`; ER02 `earlyb` →
+**[3, 12]** ×2 raw `'        3        12'`; deterministic normalized AND raw. BOTH
+CANDIDATES QUALIFY. (Fixture shas re-measured: ER01 `6eff94b1…`, ER02 `ac807894…`.)
+
+**The amendment (authorized, recorded honestly).** `tools/dual_backend_test.py` gained
+exactly two CASES entries D14/D15 + the docstring paragraph; no comparator, verdict law or
+lane machinery changed. §P1-m4.10-4’s permitted-edits list names only mir_backend/new tools,
+but §P1-m4.12-4 PRE-REGISTERS this exact addition (“D14/D15 added to `dual_backend_test.py`
+ONLY IF … qualify”) and H3 pre-discloses the mover “the dual-backend runner 12/12 → 14/14”;
+the specific conditional clause governs the general list — RECORDED, not fitted. Expected
+vectors copied from §P1-m4.4 (hand-derived), never from output; pins/fixtures are the
+committed Stage-B evidence (26994b9a), UNMOVED.
+
+**Runner re-run after the amendment (each direct rc, logs `build/e54p1m4/stageD/`).**
+DEFAULT rc **0**: **14/14 BOTH-PASS**, measured checks **57 → 67**, comparator controls
+**45 → 53, ALL REJECTED** (each new case contributes the four controls C-DF1/2/3/DF2-empty,
+e.g. D14 change `[4,9,1004]`, permute `[9,4,4]`, truncated `[4,9]`, empty — all rejected
+against the real observations), no divergence, no infrastructure failure. STRICT rc **0**:
+report byte-identical modulo stamp/mode lines. The §P1-m4.12-4 prediction 12/12 → 14/14
+HOLDS; control and check counts RE-MEASURED, never computed.
+
+**Third full frozen panel (after D, §P1-m4.10-1 second-of-two; logs `build/e54p1m4/
+panel-stageD/`, same idiom, pre/post EXES-STABLE).** All 14 items direct rc **0**:
+the 12 non-runner items match the P2-DIFF-5 close baseline exactly as at the after-C panel
+(11 `cmp` IDENTICAL; functional differs ONLY in the 2 `/tmp` lines); the two runner items
+vs the after-C logs differ ONLY in the disclosed D14/D15 case lines, the 45→53 control and
+57→67 check counts (the §P1-m4.2-H3 pre-disclosed movers), and the stamp/HEAD lines.
+**H3 CONFIRMED at all three panels** (after B, after C, after D).
+
+**NEXT: CLOSE (§P1-m4.12-5) — the T-panel below, the PLAN §P1-m4.13 dashboard row, the
+arch close section, durables, finalized checkpoint. Then STOP (binding).**
+
+### P1-m4.T CLOSE — the verdict panel, every value MEASURED; deviations RECORDED, NOT fitted (§P1-m4.12-5)
+
+| Id | Verdict | Measured evidence |
+|---|---|---|
+| H1 | **CONFIRMED** (§P1-m4.2 falsifier did not fire) | Pre-change native refusals all rc 2 / ZERO stdout / NO artifact at the early-RETURN line: ER01 `HIR-E18 line 13`, ER02 `line 11`; the eight negatives refuse BY NAME (§P1-m4.SA table); 8080 lane ADMITS both candidates rc 0 (§P1-m4.SA; execution later CONFIRMED on the 8080 lane at Stage D) |
+| H2 | **CONFIRMED** | Pins ER01 1223 B `debdef29…` / ER02 978 B `64d2bcbb…`, ×2 fresh procs, `stdout == -o == pin`, ZERO stderr; `mir2o` `(2 function(s))` MEASURED; nm `T pli80_earlya/earlyb` + `t pli80_sel`; vectors **[4,9,4]** (x=5 FALSE boundary) and **[3,12]** EXECUTE byte-exactly on glibc AND cosmo tiny (§P1-m4.SB); re-verified end-to-end INSIDE the suite — ret-runner **27 checks**, ×2 fresh direct-rc-0 runs, byte-identical logs (§P1-m4.SC); both lanes BOTH-PASS in the dual runner at 14/14 (§P1-m4.SD) |
+| H3 | **CONFIRMED at THREE full panels** (after B §P1-m4.SP, after C §P1-m4.CP, after D §P1-m4.SD) | The ONLY movers: the required `pli80mir.exe` byte-change; the NEW `mir_aot_ret` suite (count MEASURED 27); the PRE-DISCLOSED dual runner 12/12→14/14, 57→67 checks, 45→53 controls; stamp/HEAD/tmp lines. `mir_return_summary` **15 UNMOVED**, `mir_numeric` **47 UNMOVED**, `mirsumtest` **172 UNMOVED**, gate **1328/1328**, census **16/0/25/0**, ledger **203/C380 UNMOVED** (git diff rc 0) |
+| §P1-m4.5 | **ACCEPTED** (no STOP) | `mir2o` accepts instructions/labels after an unconditional `ret`: probe5 executed the post-`ret` label reached by jump → printed **5**; probe6 skipped it → **9**; ×2 fresh, identical |
+| §P1-m4.8 / F4 | **sound; no crash, NO widening** | ERNSUM discriminating probe REFUSES with operands **[4,4]×[-16383,16383]** — refinement ONLY via the pre-existing infeasible-arm law, the early `ret` invents NOTHING; non-vacuity control ERNSUMC ADMITS rc 0 |
+| C-M4a | **FAILED LOUDLY inside the suite** | committed ADMITS ERCTL (exclusion keeps y=[127,127], 127·127=16129 ∈ W(15)); the env-flow mutant REFUSES E19, hull [127,129] reaching **16641** |
+| C-M4b | **FAILED LOUDLY inside the suite — wording DEVIATION recorded** | Deleting the loop-body scan makes ERN1 refuse with the §P1-m4.3-classifier SECOND-GUARD message (`line 5: a conditional early RETURN must be followed by exactly one final top-level RETURN`), NOT the pinned nested-RETURN bytes and NOT an admission — the plan's "stop refusing" wording is narrower than the measured law; the pin detects the guard loss either way |
+| §P1-m4.12-4 D | **QUALIFIED and realized** | 8080-lane execution ×2 fresh reproduces [4,9,4] and [3,12] (qualify.py rc 0, ZERO oracle); D14/D15 added; runner 14/14 BOTH-PASS in BOTH modes, counts RE-MEASURED |
+
+**Complete deviation ledger (recorded, never fitted — §P1-m4.12-5 "deviations recorded NOT fitted"):**
+1. **ERN5/ERN6 wording amended** (new §P1-m4.3 classifier messages; permitted by §P1-m4.10-4 "refusal-message amendment"); both still refuse BY NAME (E18).
+2. **ERN2/ERN3** refuse via the EARLIER existing body-must-end-with-RETURN law (anticipated at Stage A; pins are the measured bytes).
+3. **ERN7** refuses with the E19 **CONVERSION** law, NOT the §P1-m4.6 window law — the pre-registration was TOO NARROW: for every constructible early-RETURN shape an earlier binop-overflow/conversion E19 law dominates the return-window check (§P1-m4.SB adjudication; fixture unchanged).
+4. **C-M4b plan wording** vs the measured second-guard behaviour (above).
+5. **Runner label drift**: the ret-runner enumerates R0–R5 (adds R2 the §P1-m4.4 pipeline law) where §P1-m4.7 lists R0–R4; content covers every plan item.
+6. **ret-runner run 1** recorded its log but no direct rc (nohup ordering); runs 2/3 each carry a MEASURED direct rc 0 with byte-identical logs — the ×2-fresh-with-direct-rc requirement is met.
+7. **Fixture-shape amendments** (bare-RHS driver, ERN7 40000→1000) authorized by §P1-m4.4's Stage-A clause; the FIRST-draft refusals are RECORDED, not deleted (§P1-m4.SA).
+8. **`tools/dual_backend_test.py` MOVED** against §P1-m4.10-2's generic "existing tools UNMOVED" gate — AUTHORIZED by the specific pre-registered §P1-m4.12-4 clause and pre-disclosed in H3; the additive diff is ONLY the D14/D15 entries + docstring.
+9. **"twice (after C, after D)"** read literally: THREE full panels were run in this campaign (after B, after C, after D), the latter two satisfying §P1-m4.12-3.
+
+**§P1-m4.11 STOP check:** NO STOP condition fired at any stage. **§P1-m4.12-5 CLOSE COMPLETE.**
+Campaign E2E-54/P1-m4 is **CLOSED**; per the binding §P1-m4.11/§P1-m4.12-5, **STOP — any
+extension needs a NEW operator brief.**

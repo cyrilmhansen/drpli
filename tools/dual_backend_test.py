@@ -72,6 +72,15 @@ the loop-IV actual [1,4] specializes to [1,12] and admits `cl * 700`, PUT
 INSIDE the loop, `return (i)` is NOT observed).  The expected vectors are
 the pre-registered §P2-DIFF-4 ones, hand-derived, never from any output.
 
+The two EARLY-RETURN programs of §P1-m4 Stage D (conditional, both QUALIFIED:
+the hand-derived §P1-m4.4 vectors verified on the 8080 lane too — x2 fresh
+isolated workspaces — before these entries were added): D14 ER01 `earlya`
+[4,9,4] (one conditional early RETURN(expr) in sel; the x=5 FALSE-boundary
+leg discriminates the guard) and D15 ER02 `earlyb` [3,12] (early RETURN of
+the parameter vs the fall-through constant 3).  Fixtures/pins are the
+committed Stage-B evidence; the expected vectors are the pre-registered
+§P1-m4.4 ones, hand-derived, never from output.
+
 COMPARATOR FALSIFICATION (§P2-DIFF-1.10): after the real observations are
 in hand, the comparator is attacked with THREE DISPOSABLE corrupted
 expectations (change / delete / permute — sources and executables
@@ -293,6 +302,36 @@ CASES = {
                 "over [1,4], the product is [1500,6000] and is admitted; the PUT of v is "
                 "INSIDE the loop (the drop law); the return (i) — the IV, definitely "
                 "initialized at the loop exit — is NOT observed",
+    },
+    # §P1-m4 Stage D (PLAN §P1-m4.12-4, conditional): the two early-RETURN candidates.
+    # Both QUALIFY — the hand-derived §P1-m4.4 vectors were verified on the 8080 lane
+    # TOO (x2 fresh isolated workspaces, build/e54p1m4/stageD/qualify.py rc 0) and on
+    # both native lanes (§P1-m4.SB/SC).  Fixtures and pins are the committed Stage-B
+    # evidence (26994b9a); the expected vectors are the pre-registered §P1-m4.4 ones,
+    # hand-derived, never from output.
+    "D14": {
+        "fixture": "hir/mir-ret-fixtures/ER01.pli",
+        "sha256": "6eff94b10cd06b91caa95dbd0bf7e2f854e285adc01b9bb6b8e41d08252e8a52",
+        "entry": "earlya", "tag": "ER01",
+        "expected": [4, 9, 4],
+        "pin": "hir/mir-ret-expected/ER01.mir",
+        "nfuncs": 2,
+        "note": "the ONE conditional early RETURN(expr) inside sel: sel(2)=4 falls "
+                "through (2>5 FALSE), sel(7)=9 takes the early return, sel(5)=4 is the "
+                "discriminating boundary leg (5>5 FALSE); the driver assigns r = sel(k) "
+                "(bare-RHS value call) and PUTs r each time; sel's final return (4) after "
+                "the If is the terminating tail the join EXCLUSION makes reachable",
+    },
+    "D15": {
+        "fixture": "hir/mir-ret-fixtures/ER02.pli",
+        "sha256": "ac8078949944bad28ff66496b83c99b0d55029aa93b133847d0cf091dfe1c910",
+        "entry": "earlyb", "tag": "ER02",
+        "expected": [3, 12],
+        "pin": "hir/mir-ret-expected/ER02.mir",
+        "nfuncs": 2,
+        "note": "sel(x) returns (x) EARLY when x > 10, else returns (3); sel(4)=3 is the "
+                "fall-through leg, sel(12)=12 the early RETURN of the parameter; two PUTs "
+                "of the bare-RHS value-call results; the entry's return value is NOT observed",
     },
 }
 

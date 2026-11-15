@@ -7590,6 +7590,6 @@ fixpoint machinery — that is a DIFFERENT campaign, not a deviation).
    this section's dashboard row, arch `## 7-17` if a new law is established, durables,
    finalized checkpoint. **STOP after P1-m4; any extension needs a NEW operator brief.**
 
-### P1-m4.13 Dashboard row (OPEN — updated only at close)
+### P1-m4.13 Dashboard row (CLOSED 2026-11-15)
 
-| P1-m4 | OPEN (pre-registered 2026-11-14, HEAD `8869644b`) | one conditional early RETURN(expr) + terminating-arm join exclusion in the native MIR backend |
+| P1-m4 | **CLOSED 2026-11-15** (pre-registered 2026-11-14, HEAD `8869644b`; commits `d25fa628` Stage A, `26994b9a` Stage B, `669835ba` panel, `6ff755b2` Stage C runner, Stage D + close at HEAD after this row) | one conditional early RETURN(expr) + terminating-arm join EXCLUSION in the native MIR backend — H1/H2/H3 all CONFIRMED; ret-runner 27 checks ×2 fresh rc 0; dual runner 12/12 → 14/14 BOTH-PASS (67 checks, 53/53 controls REJECTED); three full frozen panels GREEN; §P1-m4.5 post-`ret` ACCEPTED; §P1-m4.8 summary sound, no widening; deviations RECORDED (§P1-m4.T ledger); ZERO oracle; STOP binding |
